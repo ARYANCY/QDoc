@@ -18,7 +18,6 @@ reports/
 !reports/README.md
 backend/graphs/generated/
 datasets/
-models/
 frontend/dist/
 .DS_Store
 Thumbs.db

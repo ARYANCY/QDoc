@@ -1,0 +1,11 @@
+{
+  "name": "QuantumDerma",
+  "qubits": 8,
+  "layers": 2,
+  "embedding": "angle",
+  "ansatz": "ring",
+  "pca_components": 8,
+  "cnn_feature_dim": 128,
+  "dropout": 0.2,
+  "backbone": "DermisNova"
+}
