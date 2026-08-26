@@ -15,22 +15,52 @@ from ml.skin_cancer.constants import HAM10000_DISPLAY
 from ml.skin_cancer.data.image_quality import assess_pil
 from ml.skin_cancer.paths import MODELS_DIR
 from ml.skin_cancer.preprocessing.transforms import pil_eval_transform
+from ml.skin_cancer.quantum.qskin_vortex import QSkinVortex
 from ml.skin_cancer.quantum.quantum_derma import QuantumDerma
+from ml.skin_cancer.quantum.quantum_derma_x import QuantumDermaX
+from ml.skin_cancer.quantum.vitaq_derm import VitaQDerm
 from ml.skin_cancer.seed import get_device
 
-ALLOWED_MODELS = {"DermisNova", "DenseNet121", "MelanoVanta", "DermaLumen", "QuantumDerma", "production"}
+QUANTUM_BUILDERS = {
+    "QuantumDerma": QuantumDerma,
+    "QuantumDermaX": QuantumDermaX,
+    "QSkin-Vortex": QSkinVortex,
+    "VitaQ-Derm": VitaQDerm,
+}
+
+ALLOWED_MODELS = {
+    "QuantumDerma",
+    "QuantumDermaX",
+    "QSkin-Vortex",
+    "VitaQ-Derm",
+    "DermisNova",
+    "DenseNet121",
+    "MelanoVanta",
+    "DermaLumen",
+    "production",
+}
 
 
 def resolve_model_name(name: str) -> str:
     if name not in ALLOWED_MODELS:
-        raise ValueError("Unknown model")
+        raise ValueError(f"Unknown model: {name}")
     if name == "production":
         registry = MODELS_DIR / "production" / "registry.json"
         if registry.exists():
             return json.loads(registry.read_text(encoding="utf-8"))["production"]
+        if (MODELS_DIR / "quantum" / "QuantumDerma" / "best.pt").exists():
+            return "QuantumDerma"
         if (MODELS_DIR / "classical" / "DermisNova" / "best.pt").exists():
             return "DermisNova"
-        return "QuantumDerma"
+        raise FileNotFoundError("No production skin-cancer model is available yet")
+    if name in QUANTUM_BUILDERS:
+        checkpoint = MODELS_DIR / "quantum" / name.replace("/", "-") / "best.pt"
+        if not checkpoint.exists():
+            raise FileNotFoundError(f"Skin-cancer quantum model '{name}' checkpoint not found at {checkpoint}")
+    elif name in CLASSICAL_BUILDERS:
+        checkpoint = MODELS_DIR / "classical" / name / "best.pt"
+        if not checkpoint.exists():
+            raise FileNotFoundError(f"Skin-cancer classical model '{name}' checkpoint not found at {checkpoint}")
     return name
 
 
@@ -45,10 +75,11 @@ class SkinCancerPredictor:
         self.image_size = 64
         self.class_names: list[str] = []
         self.temperature = 1.0
+        self.use_raw = False
         self._load()
 
     def _load(self) -> None:
-        if self.model_name in {"DermisNova", "DenseNet121", "MelanoVanta", "DermaLumen"}:
+        if self.model_name in CLASSICAL_BUILDERS:
             ckpt = torch.load(
                 MODELS_DIR / "classical" / self.model_name / "best.pt",
                 map_location=self.device,
@@ -63,33 +94,48 @@ class SkinCancerPredictor:
             self.class_names = ckpt["class_names"]
             return
 
+        # Quantum model loading
+        qdir = MODELS_DIR / "quantum" / self.model_name.replace("/", "-")
+        qckpt = torch.load(qdir / "best.pt", map_location=self.device, weights_only=False)
+        backbone_name = qckpt.get("backbone", "DermisNova")
         cnn_ckpt = torch.load(
-            MODELS_DIR / "classical" / "DermisNova" / "best.pt",
+            MODELS_DIR / "classical" / backbone_name / "best.pt",
             map_location=self.device,
             weights_only=False,
         )
-        self.classical = CLASSICAL_BUILDERS["DermisNova"](
+        self.classical = CLASSICAL_BUILDERS[backbone_name](
             cnn_ckpt["num_classes"], dropout=cnn_ckpt.get("dropout", 0.3)
         ).to(self.device)
         self.classical.load_state_dict(cnn_ckpt["model"])
         self.classical.eval()
         self.image_size = cnn_ckpt["image_size"]
-        qdir = MODELS_DIR / "quantum" / "QuantumDerma"
-        qckpt = torch.load(qdir / "best.pt", map_location=self.device, weights_only=False)
-        self.quantum = QuantumDerma(
+
+        builder = QUANTUM_BUILDERS[self.model_name]
+        n_qubits = int(qckpt.get("n_qubits", qckpt.get("config", {}).get("qubits", 10)))
+        n_layers = int(qckpt.get("n_layers", qckpt.get("config", {}).get("layers", 4)))
+        in_dim = int(qckpt.get("in_dim", 16))
+        self.use_raw = bool(qckpt.get("use_raw", False))
+
+        self.quantum = builder(
             qckpt["num_classes"],
-            n_qubits=int(qckpt["config"]["qubits"]),
-            n_layers=int(qckpt["config"]["layers"]),
-            in_dim=int(qckpt["in_dim"]),
+            n_qubits=n_qubits,
+            n_layers=n_layers,
+            in_dim=in_dim,
+            data_reupload=True,
         ).to(self.device)
         self.quantum.load_state_dict(qckpt["model"])
         self.quantum.eval()
-        self.scaler = joblib.load(qdir / "scaler.pkl")
-        self.pca = joblib.load(qdir / "pca.pkl")
-        self.class_names = qckpt["class_names"]
+
+        if not self.use_raw:
+            scaler_path = qdir / "scaler.pkl" if (qdir / "scaler.pkl").exists() else MODELS_DIR / "quantum" / "QuantumDerma" / "scaler.pkl"
+            pca_path = qdir / "pca.pkl" if (qdir / "pca.pkl").exists() else MODELS_DIR / "quantum" / "QuantumDerma" / "pca.pkl"
+            self.scaler = joblib.load(scaler_path)
+            self.pca = joblib.load(pca_path)
+
+        self.class_names = qckpt.get("class_names", [])
         cal = qdir / "calibration.json"
         if cal.exists():
-            self.temperature = float(json.loads(cal.read_text(encoding="utf-8"))["temperature"])
+            self.temperature = float(json.loads(cal.read_text(encoding="utf-8")).get("temperature", 1.0))
 
     @torch.no_grad()
     def predict_pil(self, image: Image.Image) -> dict:
@@ -108,18 +154,24 @@ class SkinCancerPredictor:
             logits = self.classical(x)
         else:
             feats = self.classical.compact_features(x).cpu().numpy()
-            pca = self.pca.transform(self.scaler.transform(feats))
-            logits = self.quantum(torch.tensor(pca, dtype=torch.float32, device=self.device))
+            if self.use_raw:
+                features_tensor = torch.tensor(feats, dtype=torch.float32, device=self.device)
+            else:
+                pca = self.pca.transform(self.scaler.transform(feats))
+                features_tensor = torch.tensor(pca, dtype=torch.float32, device=self.device)
+            logits = self.quantum(features_tensor)
+
         logits = logits / max(self.temperature, 1e-3)
         prob = torch.softmax(logits, dim=1).cpu().numpy()[0]
         idx = int(prob.argmax())
-        label = self.class_names[idx]
+        label = self.class_names[idx] if self.class_names else str(idx)
         probabilities = {self.class_names[i]: float(prob[i]) for i in range(len(self.class_names))}
         quantum_info = None
         if self.quantum is not None:
             quantum_info = {
                 "qubits": self.quantum.n_qubits,
                 "layers": self.quantum.n_layers,
+                "data_reupload": True,
             }
         return {
             "request_id": request_id,
@@ -127,14 +179,15 @@ class SkinCancerPredictor:
             "inference_ms": round((time.perf_counter() - started_at) * 1000, 2),
             "model": {
                 "name": self.model_name,
-                "version": "1.0.0",
+                "version": "2.0.0",
                 "display_class": HAM10000_DISPLAY.get(label, label),
+                "type": "quantum_hybrid" if self.quantum is not None else "classical",
             },
             "prediction": {"class": label, "confidence": float(prob[idx])},
             "probabilities": probabilities,
             "quality": quality,
             "quantum": quantum_info,
-            "pipeline": "CNN feature extractor -> scaler/PCA -> QuantumDerma" if self.quantum is not None else "Classical CNN classifier",
+            "pipeline": f"CNN feature extractor -> scaler/PCA -> {self.model_name}" if self.quantum is not None else "Classical CNN classifier",
             "review_required": True,
             "disclaimer": "This AI result is not a diagnosis. Professional evaluation is required.",
         }

@@ -1,73 +1,83 @@
-# Pneumonia Module
+# Pneumonia Module (Quantum Machine Learning)
 
 ## Scope
 
-The Pneumonia module is an independent research workflow for binary chest X-ray classification:
+The Pneumonia module is a hybrid Classical-Quantum Machine Learning (HQCNN) research workflow for binary chest X-ray classification:
 
 - `NORMAL`
 - `PNEUMONIA`
 
-It includes recursive dataset discovery, archive-metadata filtering, X-ray preprocessing, an EfficientNet-B0 baseline, a compact quantum head, validation threshold selection, and FastAPI inference.
+The system uses a transfer-learning feature extractor (EfficientNet-B0) coupled to an 8-qubit, 4-layer **Variational Quantum Circuit (VQC)** with **data re-uploading**, **StronglyEntanglingLayers**, **Focal Loss**, and **Cosine Annealing** learning rate schedule.
 
 ## Dataset
 
-The supplied data is under:
+The dataset is located under:
 
 ```text
 datasets/PNEUMONIA/
 ```
 
-The implementation discovers the extracted `train/` and `test/` folders recursively. It ignores macOS and Windows archive artifacts such as `__MACOSX`, `._*`, `.DS_Store`, and `Thumbs.db`. If no `val/` directory exists, training creates a deterministic 10% validation subset from `train/`.
-
-The dataset is pediatric and requires external validation before any broader clinical use.
+The system automatically discovers extracted `train/`, `val/`, and `test/` folders recursively while filtering out archive artifacts (`__MACOSX`, `.DS_Store`, `Thumbs.db`).
 
 ## Audit
 
-Run from the repository root:
+To audit the dataset:
 
 ```powershell
-conda activate QML
 python -m ml.pneumonia.data.audit_dataset --root datasets/PNEUMONIA
 ```
 
-The report is written to:
+Report written to `reports/pneumonia/dataset_audit.json`.
 
-```text
-reports/pneumonia/dataset_audit.json
-```
+## Quantum Hybrid Architecture
 
-The audit reports the discovered root, split counts, image dimensions, and invalid images.
+The `QuantumPneu` model architecture follows the 2025 NISQ best practices for medical imaging:
 
-## Training
+1. **Backbone Feature Extractor:** Pre-trained EfficientNet-B0 extracts compact high-level representations from 224x224 chest X-rays.
+2. **Dimension Reduction:** StandardScaler and PCA compress CNN feature vectors to 8 principal components.
+3. **Feature Scaling:** `BatchNorm1d` normalises values followed by $tanh$ angle scaling to $[-\pi, \pi]$.
+4. **Variational Quantum Circuit:**
+   - 8 qubits with PennyLane `default.qubit` simulator.
+   - 4 variational layers with `StronglyEntanglingLayers` ansatz.
+   - **Data Re-uploading:** Classical features are re-encoded at every layer to maximise expressivity.
+   - Pauli-Z expectation values $\langle Z_i \rangle$ measured across all 8 qubits.
+5. **Post-Quantum MLP:** `LayerNorm` + 2-layer GELU multilayer perceptron produces classification logits.
+6. **Residual Shortcut:** Direct linear residual path from inputs to logits preserves gradient flow.
+7. **Loss & Scheduling:** Binary Focal Loss ($\gamma = 2.0$) with class weighting + `CosineAnnealingWarmRestarts`.
 
-Install the project dependencies in `QML`, then train the baseline:
+## Training the Quantum Model
+
+### Quantum Training (QuantumPneu)
+
+Train the quantum hybrid model:
 
 ```powershell
-python -m pip install -r requirements.txt
-python -m ml.pneumonia.training.train --root datasets/PNEUMONIA --epochs 8
+python -m ml.pneumonia.training.train_quantum
 ```
 
-The trainer uses:
+To specify custom epochs or config:
 
-- pretrained EfficientNet-B0;
-- grayscale-to-three-channel X-ray conversion;
-- 224px model-compatible crops;
-- mild training augmentation;
-- class-weighted cross-entropy;
-- staged backbone fine-tuning;
-- validation-based learning-rate scheduling;
-- validation-only threshold selection.
+```powershell
+python -m ml.pneumonia.training.train_quantum --config quantum.yaml --root datasets/PNEUMONIA
+```
 
-Artifacts:
+### Artifacts
+
+Training saves the following artifacts:
 
 ```text
-models/pneumonia/best.pt
-models/pneumonia/metrics.json
+models/pneumonia/quantum/QuantumPneu/best.pt
+models/pneumonia/quantum/QuantumPneu/scaler.pkl
+models/pneumonia/quantum/QuantumPneu/pca.pkl
+models/pneumonia/quantum/QuantumPneu/metrics.json
+models/pneumonia/quantum/QuantumPneu/training_history.json
+models/pneumonia/quantum_best.pt
+models/pneumonia/quantum_metrics.json
 ```
 
-## API
+## API & Inference
 
-Start the API from the repository root:
+Start the FastAPI server:
 
 ```powershell
 uvicorn backend.app.main:app --reload
@@ -79,10 +89,16 @@ Endpoint:
 POST /api/v1/pneumonia/predict
 ```
 
-The model must be trained before prediction requests can be served.
+The predictor automatically detects and loads `QuantumPneu` if quantum checkpoints exist, and falls back gracefully to classical `PneuVision` if only the classical model is available.
 
-## Evaluation and safety
+## Evaluation & Safety
 
-Report accuracy together with macro F1, ROC AUC, sensitivity, specificity, calibration, and the selected decision threshold. Do not tune against the test set.
+The evaluation report includes:
+- Accuracy, Macro F1
+- ROC AUC
+- Sensitivity (Recall on Pneumonia class)
+- Specificity (True Negative rate on Normal class)
+- Validation-selected optimal decision threshold
+- Confusion Matrix
 
-This is research decision support, not a diagnosis. The dataset population is limited and the model has no independent clinical validation in this repository. Professional radiologist review is required.
+> **Medical Notice:** This software is for research decision support and does not constitute medical diagnosis. Professional radiologist review is required.

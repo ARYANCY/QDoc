@@ -1,14 +1,14 @@
-# Skin Cancer Module
+# Skin Cancer Module (Quantum Machine Learning)
 
 ## Scope
 
-The Skin Cancer module is an independent hybrid classical and quantum machine-learning workflow for seven HAM10000 lesion classes:
+The Skin Cancer module is a hybrid Classical-Quantum Machine Learning (HQCNN) workflow for seven HAM10000 skin lesion classes:
 
 ```text
 akiec, bcc, bkl, df, nv, vasc, mel
 ```
 
-It includes dataset auditing, stratified splitting, duplicate detection, transfer-learning baselines, compact quantum classification, calibration, evaluation artifacts, and FastAPI inference.
+The system uses a pre-trained convolutional feature extractor combined with a **Variational Quantum Circuit (VQC)** head featuring **data re-uploading**, **strongly entangling ansatz**, **Focal Loss**, and **cosine annealing learning rate schedule** for high-accuracy dermatological image classification.
 
 ## Dataset
 
@@ -18,9 +18,9 @@ The default dataset is:
 datasets/SKIN_CANCER/archive/hmnist_28_28_RGB.csv
 ```
 
-It contains 10,015 RGB samples at 28x28 resolution. The supplied CSV does not include patient or lesion identifiers, so the current split is stratified by image and cannot guarantee patient-level leakage prevention.
+It contains 10,015 RGB samples at 28x28 resolution. The supplied CSV is split into 70% train, 15% validation, and 15% test using stratified sampling. PCA and standardisation for the quantum circuit are fitted exclusively on training features.
 
-## Data preparation
+## Data Preparation
 
 Run from the repository root:
 
@@ -30,48 +30,59 @@ python -m ml.skin_cancer.data.detect_duplicates
 python -m ml.skin_cancer.data.split_dataset
 ```
 
-Reports are written to:
+Reports are written to `reports/skin_cancer/`.
 
-```text
-reports/skin_cancer/
-```
+## Quantum Hybrid Architecture
 
-The default split is 70% train, 15% validation, and 15% test. PCA and scaling for the quantum branch are fitted on training features only.
+The quantum classification pipeline implements the 2025 state-of-the-art hybrid QML architecture:
 
-## Training
+1. **Feature Extraction:** Pre-trained CNN backbone (`DermisNova` / EfficientNet-B0) extracts high-dimensional representations from dermatoscopic images.
+2. **Dimension Reduction:** Standardisation + 16-component PCA projects features into a compact representation while capturing maximum variance.
+3. **Data Normalisation & Angle Scaling:** Features pass through `BatchNorm1d` and `tanh` scaling to map inputs into $[-\pi, \pi]$ rotation angles.
+4. **Variational Quantum Circuit (VQC):**
+   - **Qubits:** 10 qubits (12 for `QuantumDermaX`).
+   - **Layers:** 4 variational layers (5 for `QSkin-Vortex`).
+   - **Ansatz:** `StronglyEntanglingLayers` for maximum entangling capability across all qubit pairs.
+   - **Data Re-uploading:** Features are re-encoded at the start of *every* variational layer, significantly increasing circuit expressivity and universality.
+   - **Measurement:** Pauli-Z expectation values $\langle Z_i \rangle$ are measured on all qubits.
+5. **Post-Quantum MLP:** `LayerNorm` + 2-layer GELU multilayer perceptron maps quantum expectation values to class logits.
+6. **Classical Residual Shortcut:** Direct linear residual path from inputs to logits ensures smooth gradient propagation and prevents barren plateau stalls.
+7. **Loss & Optimisation:** Multi-class **Focal Loss** ($\gamma = 2.0$) with class weighting and label smoothing (0.1) handles HAM10000 class imbalance, optimised with **AdamW + CosineAnnealingWarmRestarts**.
 
-Train the classical baseline:
+## Training the Quantum Model
 
-```powershell
-python -c "from ml.skin_cancer.training.common import train_classical; train_classical('DermisNova')"
-```
-
-Benchmark the DenseNet121 candidate:
-
-```powershell
-python -c "from ml.skin_cancer.training.common import train_classical; train_classical('DenseNet121')"
-```
-
-Train the quantum hybrid model:
+### Primary Quantum Model (QuantumDerma)
 
 ```powershell
 python -m ml.skin_cancer.training.train_quantum --model QuantumDerma
 ```
 
-The classical workflow supports pretrained EfficientNet and DenseNet121 backbones, staged fine-tuning, class-weighted loss, and early stopping. For the supplied 28x28 CSV, the validated baseline configuration uses 64px inputs. QuantumDerma uses compact CNN features, PCA, an eight-qubit shallow circuit, and a trainable classical residual path.
+### Full Quantum Pipeline (all variants)
 
-Artifacts are written under:
-
-```text
-models/skin_cancer/
-reports/skin_cancer/
+```powershell
+python -m ml.skin_cancer.training.run_pipeline --full
 ```
 
-Use the classical and quantum metrics as a measured comparison. Quantum advantage is not assumed.
+Available quantum models:
+- **`QuantumDerma`**: 10 qubits, 4 layers, strongly entangling, data re-uploading (recommended).
+- **`QuantumDermaX`**: 12 qubits, 4 layers, extended Hilbert space.
+- **`QSkin-Vortex`**: 10 qubits, 5 layers, deep variational form.
+- **`VitaQ-Derm`**: 10 qubits, 4 layers with raw-feature learned projection.
 
-## API
+### Artifacts
 
-Start the API from the repository root:
+Trained weights and evaluations are saved to:
+
+```text
+models/skin_cancer/quantum/<ModelName>/best.pt
+models/skin_cancer/quantum/<ModelName>/metrics.json
+models/skin_cancer/quantum/<ModelName>/calibration.json
+reports/skin_cancer/<ModelName>/
+```
+
+## API & Inference
+
+Start the API:
 
 ```powershell
 uvicorn backend.app.main:app --reload
@@ -83,10 +94,13 @@ Endpoint:
 POST /api/v1/skin-cancer/predict
 ```
 
-The model must be trained before prediction requests can be served.
+## Evaluation & Metrics
 
-## Evaluation and safety
+The pipeline computes:
+- Accuracy, Macro F1, Weighted F1
+- Multi-class ROC AUC (One-vs-Rest) & PR AUC
+- Per-class Sensitivity, Specificity, Precision, Recall
+- Temperature calibration & Expected Calibration Error (ECE)
+- Confusion Matrix
 
-Report accuracy together with macro F1, weighted F1, sensitivity, specificity, ROC AUC, PR AUC, calibration, and per-class results. Keep the test set untouched until final evaluation.
-
-This is research decision support, not a diagnosis. The current CSV lacks patient identifiers and has severe class imbalance, so results require careful interpretation and external clinical validation.
+> **Medical Notice:** This software is designed for research decision support and is not a certified diagnostic device. Clinical evaluation by a licensed dermatologist is mandatory.

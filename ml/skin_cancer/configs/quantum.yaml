@@ -7,19 +7,24 @@ dataset:
   val_ratio: 0.15
   test_ratio: 0.15
 training:
-  epochs: 30
+  epochs: 50
   batch_size: 64
   num_workers: 0
-  patience: 6
-  weight_decay: 1.0e-4
-  lr: 1.0e-3
+  patience: 10
+  weight_decay: 1.0e-5
+  lr: 5.0e-4
+  label_smoothing: 0.1
+  cosine_T0: 10
+  max_grad_norm: 1.0
   mixed_precision: false
 quantum:
-  qubits: 8
-  layers: 2
+  qubits: 10
+  layers: 4
   embedding: angle
-  ansatz: ring
-  pca_components: 8
+  ansatz: strongly
+  data_reupload: true
+  pca_components: 16
   cnn_feature_dim: 128
   dropout: 0.2
+  focal_gamma: 2.0
 backbone: DermisNova

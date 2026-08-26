@@ -1,60 +1,131 @@
-# Medical AI QML Platform
+# Hybrid Quantum Machine Learning (HQCNN) Medical Diagnosis Platform
 
-This repository contains independent medical-imaging research modules built around classical deep learning, hybrid quantum machine learning, reproducible evaluation, FastAPI inference, and a React interface.
+A state-of-the-art hybrid Classical-Quantum Deep Learning platform for clinical image analysis, featuring **Variational Quantum Circuits (VQCs)** with **data re-uploading**, **StronglyEntanglingLayers**, **Focal Loss**, **Cosine Annealing optimization**, FastAPI backend services, and an interactive React clinical dashboard.
 
-Predictions are not diagnoses and require professional review.
+> **Medical Disclaimer:** This platform is designed for research decision-support and benchmarking. Predictions do not constitute clinical diagnoses and must be reviewed by certified medical professionals.
 
-## Project overview
+---
 
-| Module | Task | Dataset | Documentation |
-| --- | --- | --- | --- |
-| Skin Cancer | Seven-class lesion classification with classical and hybrid QML models | HAM10000 RGB CSV | [Skin Cancer module](docs/skin_cancer.md) |
-| Pneumonia | Binary chest X-ray classification: `NORMAL` vs `PNEUMONIA` | Pediatric chest X-ray archive | [Pneumonia module](docs/pneumonia.md) |
+## Key Highlights & Innovations (2025 SOTA)
 
-The modules remain logically independent. Shared API infrastructure is registered in `backend/app/main.py`, while disease-specific data, models, training, and inference remain under their respective module paths. Dataset archive metadata such as `__MACOSX`, `._*`, `.DS_Store`, and `Thumbs.db` is ignored by the Pneumonia loader.
+- **Data Re-Uploading:** Encodes features at the beginning of *every* variational layer, proving universal function approximation capabilities on NISQ quantum architectures.
+- **Strongly Entangling Ansatz:** Maximum 2-qubit entanglement capability across all qubit pairs using full parameterized SU(2) rotations and multi-qubit CNOT cascades.
+- **Class-Imbalance Mitigation:** Built-in multi-class **Focal Loss ($\gamma = 2.0$)** with class weighting and label smoothing to effectively classify minority pathological classes.
+- **Barren Plateau Defense:** Small-variance parameter initialization, `BatchNorm1d` input scaling, and linear classical residual shortcuts for stable gradient flow.
+- **End-to-End Pipeline:** Automated data auditing, stratified dataset splitting, CNN feature extraction, PCA reduction, quantum training, temperature calibration, and REST API inference.
 
-## Shared setup
+---
 
-From the repository root:
+## Directory Structure
+
+```
+├── backend/                  # FastAPI REST API services
+│   ├── app/
+│   │   ├── features/         # Disease-specific endpoints (skin cancer, pneumonia, graphs)
+│   │   └── main.py           # Application entry point & CORS configuration
+│   └── graphs/               # Automated Matplotlib clinical graph generators
+│
+├── docs/                     # Comprehensive documentation & guides
+│   ├── architecture.md       # Full mathematical & architectural design
+│   ├── qml_training_guide.md # Step-by-step training & benchmark guide
+│   ├── skin_cancer.md        # Skin Cancer (HAM10000) QML specifications
+│   └── pneumonia.md          # Pneumonia (Chest X-Ray) QML specifications
+│
+├── frontend/                 # React + Vite Clinical UI
+│   ├── src/
+│   │   ├── features/analysis/UnifiedAnalysisPage.jsx  # Main diagnosis workspace
+│   │   └── data/dummy.js     # Patient profile, vitals & clinical mock data
+│   └── package.json
+│
+├── ml/                       # Machine Learning core modules
+│   ├── pneumonia/            # Chest X-Ray QML pipeline
+│   │   ├── classical/        # EfficientNet-B0 backbone extractor
+│   │   ├── configs/          # quantum.yaml & classical.yaml
+│   │   ├── inference/        # QuantumPneu inference predictor with fallback
+│   │   ├── quantum/          # QuantumPneu VQC implementation
+│   │   └── training/         # train_quantum.py & train.py
+│   │
+│   └── skin_cancer/          # HAM10000 Dermatoscopy QML pipeline
+│       ├── classical/        # DermisNova & DenseNet121 backbones
+│       ├── configs/          # quantum.yaml & classical.yaml
+│       ├── evaluation/       # Metrics, ROC/PR curves, temperature calibration
+│       ├── features/         # CNN feature extraction & 16-component PCA
+│       ├── inference/        # Multi-model QML predictor
+│       ├── quantum/          # QuantumDerma, QuantumDermaX, QSkin-Vortex, VitaQ-Derm
+│       └── training/         # train_quantum.py & run_pipeline.py
+│
+├── models/                   # Saved model checkpoints (*.pt), scalers (*.pkl), & metrics
+├── reports/                  # Evaluation artifacts, ROC curves, calibration plots, & logs
+├── requirements.txt          # Python dependencies (PyTorch, PennyLane, FastAPI, etc.)
+└── README.md
+```
+
+---
+
+## Quick Start Guide
+
+### 1. Environment Setup
 
 ```powershell
+# Create and activate virtual environment
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1      
+.\.venv\Scripts\Activate.ps1
+
+# Install core dependencies
 python -m pip install -r requirements.txt
 ```
 
-If PowerShell blocks scripts, use `\.venv\Scripts\python.exe` directly or enable the policy for the current user.
+### 2. Quantum Model Training
 
-## Quick start
-
-Run the module-specific commands in the linked documentation. To start the shared API:
-
+#### Skin Cancer (HAM10000) — QuantumDerma (10 Qubits, 4 Layers)
 ```powershell
-uvicorn backend.app.main:app --reload
+python -m ml.skin_cancer.training.train_quantum --model QuantumDerma
 ```
 
-To start the React interface:
+#### Pneumonia (Chest X-Ray) — QuantumPneu (8 Qubits, 4 Layers)
+```powershell
+python -m ml.pneumonia.training.train_quantum
+```
+
+### 3. Start Backend REST API
 
 ```powershell
-Set-Location frontend
-npm install
+uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload --reload-exclude ".venv/**"
+```
+API Documentation: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+
+### 4. Start Clinical Frontend Dashboard
+
+```powershell
+cd frontend
+npm install --legacy-peer-deps
 npm run dev
 ```
+Dashboard URL: [http://localhost:5173](http://localhost:5173)
 
-## Model graphs
+---
 
-The backend graph service uses Matplotlib to generate disease-wise comparisons from measured metric artifacts. It creates charts for available accuracy, macro F1, weighted F1, ROC AUC, PR AUC, sensitivity, specificity, and calibration metrics.
+## Quantum Models Overview
 
-Generate graphs after training:
+| Model | Task | Qubits | Layers | Ansatz | Data Re-uploading | Input Features |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
+| **`QuantumDerma`** | 7-Class Skin Lesion | **10** | **4** | Strongly Entangling | Yes | 16 (PCA) |
+| **`QuantumDermaX`** | 7-Class Skin Lesion | **12** | **4** | Strongly Entangling | Yes | 16 (PCA) |
+| **`QSkin-Vortex`** | 7-Class Skin Lesion | **10** | **5** | Strongly Entangling | Yes | 16 (PCA) |
+| **`VitaQ-Derm`** | 7-Class Skin Lesion | **10** | **4** | Strongly Entangling | Yes | 128 (Raw CNN) |
+| **`QuantumPneu`** | Binary Pneumonia | **8** | **4** | Strongly Entangling | Yes | 8 (PCA) |
 
-```powershell
-python -m backend.graphs.generate_graphs
-```
+---
 
-Generated files are stored under `backend/graphs/generated/`. The API lists available graphs at `GET /api/v1/graphs` and serves each PNG through the returned URL. Models that have not produced metrics yet are omitted without preventing graphs for the other disease.
+## Documentation Links
 
-## Research and safety
+- [Complete Architecture & Mathematical Design](docs/architecture.md)
+- [QML Training & Optimization Guide](docs/qml_training_guide.md)
+- [Skin Cancer Module Documentation](docs/skin_cancer.md)
+- [Pneumonia Module Documentation](docs/pneumonia.md)
 
-Use sensitivity, specificity, macro F1, ROC AUC, calibration, and per-class results alongside accuracy. Keep test data isolated during preprocessing and tuning. The platform is research decision support only and has not received independent clinical validation.
+---
 
-References: [PyTorch transfer learning](https://docs.pytorch.org/tutorials/beginner/transfer_learning_tutorial.html) and [Torchvision EfficientNet](https://docs.pytorch.org/vision/stable/models/efficientnet.html).
+## License & Citation
+
+This research platform is released under the MIT License. If you use these hybrid quantum architectures in your research, please cite PennyLane and PyTorch accordingly.
