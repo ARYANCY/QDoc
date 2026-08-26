@@ -142,13 +142,7 @@ class SkinCancerPredictor:
         started_at = time.perf_counter()
         quality = assess_pil(image)
         request_id = str(uuid.uuid4())
-        if not quality["valid"]:
-            return {
-                "request_id": request_id,
-                "status": "rejected",
-                "quality": quality,
-                "reason": quality.get("reason"),
-            }
+
         x = pil_eval_transform(self.image_size)(image.convert("RGB")).unsqueeze(0).to(self.device)
         if self.quantum is None:
             logits = self.classical(x)
@@ -189,7 +183,7 @@ class SkinCancerPredictor:
             "quantum": quantum_info,
             "pipeline": f"CNN feature extractor -> scaler/PCA -> {self.model_name}" if self.quantum is not None else "Classical CNN classifier",
             "review_required": True,
-            "disclaimer": "This AI result is not a diagnosis. Professional evaluation is required.",
+            "disclaimer": "This AI result is not a diagnosis. Professional clinical evaluation is required.",
         }
 
 

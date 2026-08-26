@@ -1,11 +1,15 @@
 {
   "name": "QuantumDerma",
-  "qubits": 8,
-  "layers": 2,
+  "qubits": 10,
+  "layers": 4,
   "embedding": "angle",
-  "ansatz": "ring",
-  "pca_components": 8,
+  "ansatz": "strongly",
+  "data_reupload": true,
+  "pca_components": 16,
   "cnn_feature_dim": 128,
   "dropout": 0.2,
-  "backbone": "DermisNova"
+  "focal_gamma": 2.0,
+  "backbone": "DermisNova",
+  "n_qubits": 10,
+  "n_layers": 4
 }
