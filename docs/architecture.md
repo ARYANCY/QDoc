@@ -49,11 +49,10 @@ The platform uses a **Hybrid Classical-Quantum Deep Learning (HQCNN)** paradigm.
 +-----------------------------------------------------------------------------------+
                                          |
                                          v
-+-----------------------------------------------------------------------------------+
 |                       POST-QUANTUM CLASSIFIER & RESIDUAL                          |
 |         LayerNorm -> Dropout -> Linear -> GELU -> Dropout -> Linear              |
 |                                         +                                         |
-|       Classical Linear Residual Shortcut (Input Features -> Class Logits)         |
+|    Non-linear Residual Shortcut (ReLU -> Linear, matching classical head structure) |
 +-----------------------------------------------------------------------------------+
                                          |
                                          v
@@ -72,7 +71,7 @@ The platform uses a **Hybrid Classical-Quantum Deep Learning (HQCNN)** paradigm.
 3. **Barren Plateau Mitigation:**
    - Small Gaussian initialization ($\mathcal{N}(0, 0.01)$) of quantum weights.
    - Batch normalization and angle scaling preventing saturated rotation angles.
-   - Classical residual connection provides an unconstrained gradient highway directly back to the optimizer.
+   - Non-linear classical residual shortcut provides an unconstrained gradient highway directly back to the optimizer.
 
 ---
 

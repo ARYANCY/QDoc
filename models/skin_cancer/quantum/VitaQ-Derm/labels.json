@@ -1,0 +1,12 @@
+{
+  "class_names": [
+    "akiec",
+    "bcc",
+    "bkl",
+    "df",
+    "nv",
+    "vasc",
+    "mel"
+  ],
+  "num_classes": 7
+}

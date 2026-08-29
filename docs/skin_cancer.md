@@ -36,7 +36,7 @@ Reports are written to `reports/skin_cancer/`.
 
 The quantum classification pipeline implements the 2025 state-of-the-art hybrid QML architecture:
 
-1. **Feature Extraction:** Pre-trained CNN backbone (`DermisNova` / EfficientNet-B0) extracts high-dimensional representations from dermatoscopic images.
+1. **Feature Extraction:** Pre-trained CNN backbone (`DenseNet121` or `DermisNova` / EfficientNet-B0) extracts high-dimensional representations from dermatoscopic images.
 2. **Dimension Reduction:** Standardisation + 16-component PCA projects features into a compact representation while capturing maximum variance.
 3. **Data Normalisation & Angle Scaling:** Features pass through `BatchNorm1d` and `tanh` scaling to map inputs into $[-\pi, \pi]$ rotation angles.
 4. **Variational Quantum Circuit (VQC):**
@@ -46,10 +46,15 @@ The quantum classification pipeline implements the 2025 state-of-the-art hybrid 
    - **Data Re-uploading:** Features are re-encoded at the start of *every* variational layer, significantly increasing circuit expressivity and universality.
    - **Measurement:** Pauli-Z expectation values $\langle Z_i \rangle$ are measured on all qubits.
 5. **Post-Quantum MLP:** `LayerNorm` + 2-layer GELU multilayer perceptron maps quantum expectation values to class logits.
-6. **Classical Residual Shortcut:** Direct linear residual path from inputs to logits ensures smooth gradient propagation and prevents barren plateau stalls.
+6. **Classical Residual Shortcut:** Direct non-linear residual path (`ReLU -> Linear`) matching the classical backbone's classifier head structure ensures smooth gradient propagation and leverages pre-trained boundaries.
 7. **Loss & Optimisation:** Multi-class **Focal Loss** ($\gamma = 2.0$) with class weighting and label smoothing (0.1) handles HAM10000 class imbalance, optimised with **AdamW + CosineAnnealingWarmRestarts**.
 
 ## Training the Quantum Model
+
+> [!TIP]
+> **GPU Acceleration & Automatic Resuming:**
+> - CUDA/MPS GPUs are automatically utilized when detected.
+> - If training is interrupted, running the command again will resume training from the last epoch automatically via `last.pt`.
 
 ### Primary Quantum Model (QuantumDerma)
 
@@ -67,7 +72,7 @@ Available quantum models:
 - **`QuantumDerma`**: 10 qubits, 4 layers, strongly entangling, data re-uploading (recommended).
 - **`QuantumDermaX`**: 12 qubits, 4 layers, extended Hilbert space.
 - **`QSkin-Vortex`**: 10 qubits, 5 layers, deep variational form.
-- **`VitaQ-Derm`**: 10 qubits, 4 layers with raw-feature learned projection.
+- **`VitaQ-Derm`**: 10 qubits, 4 layers with non-linear raw-feature learned projection, initialized from the classical backbone's pretrained head.
 
 ### Artifacts
 

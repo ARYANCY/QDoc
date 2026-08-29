@@ -30,7 +30,12 @@ class VitaQDerm(nn.Module):
     ):
         super().__init__()
         self.bn = nn.BatchNorm1d(in_dim)
-        self.projection = nn.Linear(in_dim, n_qubits)
+        # Non-linear projection MLP to project 128 features down to n_qubits
+        self.projection = nn.Sequential(
+            nn.Linear(in_dim, 64),
+            nn.GELU(),
+            nn.Linear(64, n_qubits),
+        )
         self.quantum = QuantumLayer(n_qubits, n_layers, data_reupload=data_reupload)
 
         hidden = max(32, num_classes * 8)
@@ -44,10 +49,20 @@ class VitaQDerm(nn.Module):
             nn.GELU(),
             nn.Linear(max(16, num_classes * 2), num_classes),
         )
-        # Classical residual shortcut
-        self.residual = nn.Linear(in_dim, num_classes)
+        
+        # Initialize final layer of quantum MLP to zero to prevent random noise from corrupting classical logits at start-up
+        nn.init.zeros_(self.mlp[-1].weight)
+        nn.init.zeros_(self.mlp[-1].bias)
+
+        # Non-linear classical residual shortcut matching the remainder of DermisNova head (ReLU -> Linear)
+        self.residual = nn.Sequential(
+            nn.ReLU(),
+            nn.Linear(in_dim, num_classes)
+        )
+        # Learnable scaling factor for the classical residual connection, initialized to 1.0
+        self.alpha = nn.Parameter(torch.tensor(1.0))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x_norm = self.bn(x)
         q = self.quantum(angle_scale(self.projection(x_norm)))
-        return self.mlp(q) + self.residual(x)
+        return self.mlp(q) + self.alpha * self.residual(x)

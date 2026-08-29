@@ -13,6 +13,7 @@ from ml.skin_cancer.evaluation.confusion_matrix import save_confusion_matrix
 from ml.skin_cancer.evaluation.error_analysis import write_error_analysis
 from ml.skin_cancer.evaluation.metrics import compute_metrics
 from ml.skin_cancer.evaluation.roc_pr import save_roc_pr
+from ml.skin_cancer.evaluation.plots import save_per_class_charts, save_training_curves
 
 
 @torch.no_grad()
@@ -43,8 +44,20 @@ def write_eval_artifacts(
         metrics.update(extra)
     (out_dir / "metrics.json").write_text(json.dumps(metrics, indent=2), encoding="utf-8")
     save_confusion_matrix(np.array(metrics["confusion_matrix"]), class_names, out_dir / "confusion_matrix.png")
+    save_confusion_matrix(np.array(metrics["confusion_matrix"]), class_names, out_dir / "confusion_matrix_normalized.png", title="Normalized Confusion Matrix", normalize=True)
     save_roc_pr(y_true, y_prob, class_names, out_dir / "roc_curve.png", out_dir / "pr_curve.png")
     save_reliability(y_prob, y_true, out_dir / "calibration.png")
+    save_per_class_charts(metrics, out_dir)
+
+    history_file = out_dir / "training_history.json"
+    if history_file.exists():
+        try:
+            with open(history_file, "r", encoding="utf-8") as f:
+                history = json.load(f)
+            save_training_curves(history, out_dir)
+        except Exception as e:
+            print(f"[write_eval_artifacts] Error plotting training curves: {e}")
+
     metrics["ece"] = expected_calibration_error(y_prob, y_true)
     (out_dir / "metrics.json").write_text(json.dumps(metrics, indent=2), encoding="utf-8")
     if indices is not None:

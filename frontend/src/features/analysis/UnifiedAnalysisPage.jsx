@@ -218,8 +218,9 @@ export default function UnifiedAnalysisPage() {
   }, []);
 
   function handleFile(nextFile) {
-    if (!nextFile || !nextFile.type.startsWith("image/")) {
-      setError("Please select a valid image file (JPEG, PNG, DICOM-converted).");
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    if (!nextFile || !allowedTypes.includes(nextFile.type)) {
+      setError("Please upload a valid image.");
       return;
     }
     if (preview) URL.revokeObjectURL(preview);
@@ -283,7 +284,11 @@ export default function UnifiedAnalysisPage() {
       const res = await requestAnalysis(file, study, model);
       setResult(res);
     } catch (err) {
-      setError(err.message);
+      if (err.message.includes("Invalid image") || err.message.includes("Unsupported image") || err.message.includes("not a valid image") || err.message.includes("unprocessable") || err.message.includes("not related to")) {
+        setError("Please upload a valid image.");
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }

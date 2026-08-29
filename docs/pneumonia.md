@@ -47,6 +47,11 @@ The `QuantumPneu` model architecture follows the 2025 NISQ best practices for me
 
 ## Training the Quantum Model
 
+> [!TIP]
+> **GPU Acceleration & Automatic Resuming:**
+> - CUDA/MPS GPUs are automatically utilized when detected.
+> - If training is interrupted, running the command again will resume training from the last epoch automatically via `last.pt`.
+
 ### Quantum Training (QuantumPneu)
 
 Train the quantum hybrid model:

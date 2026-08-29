@@ -46,7 +46,13 @@ class FocalLoss(nn.Module):
         self.reduction = reduction
 
     def forward(self, logits: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
-        n_classes = logits.size(1)
+        # Compute the unweighted, unsmoothed softmax probabilities
+        probs = torch.softmax(logits, dim=1)
+        p_t = probs.gather(1, targets.unsqueeze(1)).squeeze(1)
+
+        # Compute the focal weights using the unweighted probabilities
+        focal_weight = (1.0 - p_t) ** self.gamma
+
         # Standard CE with optional label smoothing and class weights
         ce = nn.functional.cross_entropy(
             logits,
@@ -55,10 +61,7 @@ class FocalLoss(nn.Module):
             label_smoothing=self.label_smoothing,
             reduction="none",
         )
-        # p_t: probability of the true class
-        with torch.no_grad():
-            p_t = torch.exp(-ce)
-        focal_weight = (1.0 - p_t) ** self.gamma
+
         loss = focal_weight * ce
         if self.reduction == "mean":
             return loss.mean()

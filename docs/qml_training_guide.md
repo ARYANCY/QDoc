@@ -35,30 +35,37 @@ python -m ml.skin_cancer.data.split_dataset
 
 ### Step 2.2: Train Quantum Hybrid Models
 
+> [!NOTE]
+> **GPU & Resume Support:**
+> - The training scripts automatically detect and leverage GPUs (CUDA or MPS) when available; otherwise, they fall back to CPU.
+> - If training is interrupted (e.g., interrupted by Ctrl+C or a crash), simply run the same command again. The pipeline will automatically load the resume checkpoint `last.pt` and resume from the exact epoch where it was cut.
+> - **To start fresh from epoch 1 (ignore any stored resume checkpoint):** add the `--no-resume` flag to the command.
+
 #### Option A: Primary SOTA Model (QuantumDerma — 10 Qubits)
 ```powershell
-python -m ml.skin_cancer.training.train_quantum --model QuantumDerma
+python -m ml.skin_cancer.training.train_quantum --model QuantumDerma --no-resume
 ```
 
 #### Option B: Extended 12-Qubit Model (QuantumDermaX)
 ```powershell
-python -m ml.skin_cancer.training.train_quantum --model QuantumDermaX
+python -m ml.skin_cancer.training.train_quantum --model QuantumDermaX --no-resume
 ```
 
 #### Option C: Deep 5-Layer Model (QSkin-Vortex)
 ```powershell
-python -m ml.skin_cancer.training.train_quantum --model QSkin-Vortex
+python -m ml.skin_cancer.training.train_quantum --model QSkin-Vortex --no-resume
 ```
 
-#### Option D: Raw-Feature Model (VitaQ-Derm)
+#### Option D: SOTA Raw-Feature Model (VitaQ-Derm)
+*VitaQ-Derm uses non-linear residual projection weights initialized from the pretrained classical model head and a zero-initialized quantum MLP corrector head to guarantee stable training starting exactly at the classical baseline accuracy.*
 ```powershell
-python -m ml.skin_cancer.training.train_quantum --model VitaQ-Derm
+python -m ml.skin_cancer.training.train_quantum --model VitaQ-Derm --no-resume
 ```
 
 #### Option E: Complete Automated Pipeline
 Trains the feature extractor, all quantum variants, and evaluates them:
 ```powershell
-python -m ml.skin_cancer.training.run_pipeline --full
+python -m ml.skin_cancer.training.run_pipeline --full --no-resume
 ```
 
 ### Step 2.3: Evaluate Metrics & Artifacts

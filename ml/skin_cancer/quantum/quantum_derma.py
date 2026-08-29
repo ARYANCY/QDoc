@@ -61,6 +61,8 @@ class QuantumHead(nn.Module):
 
         # Classical residual: direct shortcut for gradient flow
         self.classical_residual = nn.Linear(in_dim, num_classes)
+        # Learnable scale for residual shortcut, initialized to a conservative 0.1
+        self.alpha = nn.Parameter(torch.tensor(0.1))
 
     def quantum_features(self, x: torch.Tensor) -> torch.Tensor:
         x = self.bn(x)
@@ -70,7 +72,7 @@ class QuantumHead(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         quantum_logits = self.classifier(self.quantum_features(x))
-        return quantum_logits + self.classical_residual(x)
+        return quantum_logits + self.alpha * self.classical_residual(x)
 
 
 class QuantumDerma(QuantumHead):

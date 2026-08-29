@@ -69,7 +69,25 @@ def train_classical(model_name: str, config_name: str = "classical.yaml") -> Pat
     history = []
     patience = int(tcfg["patience"])
     stale = 0
-    for epoch in range(1, int(tcfg["epochs"]) + 1):
+    start_epoch = 1
+
+    resume_path = out_dir / "last.pt"
+    if resume_path.exists():
+        print(f"[train_classical] Found resume checkpoint at {resume_path}. Attempting to resume...")
+        try:
+            checkpoint = torch.load(resume_path, map_location=device, weights_only=False)
+            model.load_state_dict(checkpoint["model"])
+            optimizer.load_state_dict(checkpoint["optimizer"])
+            scheduler.load_state_dict(checkpoint["scheduler"])
+            start_epoch = checkpoint["epoch"] + 1
+            best_f1 = checkpoint["best_f1"]
+            stale = checkpoint["stale"]
+            history = checkpoint["history"]
+            print(f"[train_classical] Resuming from epoch {start_epoch}...")
+        except Exception as e:
+            print(f"[train_classical] Failed to resume: {e}. Starting from scratch.")
+
+    for epoch in range(start_epoch, int(tcfg["epochs"]) + 1):
         if freeze_epochs and epoch == freeze_epochs + 1:
             for parameter in model.backbone.parameters():
                 parameter.requires_grad = True
@@ -119,10 +137,23 @@ def train_classical(model_name: str, config_name: str = "classical.yaml") -> Pat
                 },
                 out_dir / "best.pt",
             )
-        else:
-            stale += 1
-            if stale >= patience:
-                break
+        # Save last checkpoint for resuming
+        torch.save(
+            {
+                "model": model.state_dict(),
+                "optimizer": optimizer.state_dict(),
+                "scheduler": scheduler.state_dict(),
+                "epoch": epoch,
+                "best_f1": best_f1,
+                "stale": stale,
+                "history": history,
+            },
+            resume_path,
+        )
+
+    # Training complete, remove resume checkpoint
+    if resume_path.exists():
+        resume_path.unlink()
 
     ckpt = torch.load(out_dir / "best.pt", map_location=device, weights_only=False)
     model.load_state_dict(ckpt["model"])
