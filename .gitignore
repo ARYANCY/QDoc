@@ -1,23 +1,59 @@
 .venv/
+venv/
+ENV/
 __pycache__/
 *.py[cod]
+*$py.class
 *.egg-info/
 .pytest_cache/
 .mypy_cache/
+.coverage
+htmlcov/
+
+# Databases & Runtime State
+*.db
+*.sqlite
+*.sqlite3
+backend/qmedsense.db
+qmedsense.db
+
+# Frontend Dependencies & Builds
 node_modules/
 dist/
+frontend/dist/
+frontend/node_modules/
+.eslintcache
+
+# Environment & Secrets
 .env
 *.env
+!*.env.example
 *.secret
+*.pem
+*.key
+
+# Machine Learning Binaries & Large Weights
 *.pt
+*.pth
 *.pkl
 *.onnx
 *.npy
+*.npz
+*.h5
+
+# Reports & Output Caches
 reports/skin_cancer/cache/
 reports/
 !reports/README.md
 backend/graphs/generated/
 datasets/
-frontend/dist/
+logs/
+*.log
+
+# OS & Editor Files
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/
+scratch/
+

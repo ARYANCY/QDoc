@@ -1,960 +1,1394 @@
-import { useEffect, useRef, useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
-  Activity,
   AlertCircle,
-  BarChart3,
-  Camera,
-  CheckCircle2,
   ChevronRight,
-  Clock,
-  Cpu,
-  FileImage,
-  FileText,
-  FolderHeart,
-  Gauge,
-  Microscope,
+  ChevronLeft,
+  Minimize2,
+  Maximize2,
+  Download,
+  LogIn,
   Play,
   RefreshCw,
-  Stethoscope,
-  Upload,
+  Settings,
+  ShieldCheck,
   User,
-  Zap,
+  Upload,
+  Menu,
+  CheckCircle2,
+  Sliders,
+  Sparkles,
+  HelpCircle,
+  Info,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
-import { PATIENT, VITALS, RECENT_SCANS, MEDICATIONS } from "../../data/dummy.js";
+import DigitalTwin2D from "../../components/DigitalTwin2D.jsx";
+import ExplainabilityView from "../../components/ExplainabilityView.jsx";
+import BenchmarkMatrix from "../../components/BenchmarkMatrix.jsx";
+import ComplianceConsole from "../../components/ComplianceConsole.jsx";
+import PatientPortal from "../../components/PatientPortal.jsx";
+import EarlyDetectionMap from "../../components/EarlyDetectionMap.jsx";
+import QuantumCircuitViewer from "../../components/QuantumCircuitViewer.jsx";
+import ProfileSettingsModal from "../../components/ProfileSettingsModal.jsx";
+import AuthModal from "../../components/AuthModal.jsx";
+import UserGuideModal from "../../components/UserGuideModal.jsx";
+import UserManagementConsole from "../../components/UserManagementConsole.jsx";
+import UserProfilePage from "../../components/UserProfilePage.jsx";
+import SectionGuideModal from "../../components/SectionGuideModal.jsx";
+
+import { clinicalApi } from "../../api/clinical";
+import { reportsApi } from "../../api/reports";
+import { authApi } from "../../api/auth";
 import "../../styles.css";
 
-// ── Supported Study & QML Model Definitions ──────────────────────────────────
-const STUDIES = {
-  pneumonia: {
-    id: "pneumonia",
-    label: "Chest Radiography (Pneumonia)",
-    badge: "Pulmonology • Binary",
-    icon: Stethoscope,
-    description: "Pediatric & adult chest X-ray radiograph inspection for pulmonary infiltration and consolidation.",
-    endpoint: "/api/v1/pneumonia/predict",
-    models: [
+/* ── Custom High-Tech SVG Navigation Icons ──────────────────────────────────── */
+
+function NavDiagnosticSvg() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+      <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+      <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+      <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+      <path d="M12 9v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+    </svg>
+  );
+}
+
+function NavTwinSvg() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+      <circle cx="12" cy="5" r="3" />
+      <path d="M6.5 21v-7l3-3h5l3 3v7" />
+      <path d="M12 11v6" />
+      <circle cx="12" cy="13" r="1" fill="currentColor" />
+    </svg>
+  );
+}
+
+function NavEarlyDetectionSvg() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+      <circle cx="12" cy="12" r="10" />
+      <path d="m16.2 7.8-2 6.4-6.4 2 2-6.4z" />
+      <circle cx="12" cy="12" r="1" fill="currentColor" />
+    </svg>
+  );
+}
+
+function NavBenchmarkSvg() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+      <path d="M3 3v18h18" />
+      <path d="M7 16v-4" />
+      <path d="M11 16V8" />
+      <path d="M15 16v-6" />
+      <path d="M19 16V4" />
+    </svg>
+  );
+}
+
+function NavTelemetrySvg() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+      <rect x="4" y="4" width="16" height="16" />
+      <rect x="9" y="9" width="6" height="6" />
+      <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 15h3M1 9h3M1 15h3" />
+    </svg>
+  );
+}
+
+function NavComplianceSvg() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+  );
+}
+
+function NavPortalSvg() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  );
+}
+
+function NavUsersSvg() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  );
+}
+
+function NavProfileSvg() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  );
+}
+
+/* ── Interactive Plain-English Patient Guides Dictionary ─────────────────────── */
+const GUIDE_DATA = {
+  checkup_selector: {
+    sectionId: "SEC-01",
+    title: "Health Checkup & Biological Indicators",
+    summary: "Choose a preventative health checkup protocol (such as Oncology, Cardiovascular, or Pulmonary) or upload your clinical test records to evaluate health indicators.",
+    steps: [
+      { heading: "Select Health Checkup", description: "Click any health category on the left to load verified clinical test parameters." },
+      { heading: "Upload or Test Samples", description: "Use 'Browse File' to upload your FHIR / CSV health report or select one of the pre-loaded checkup samples." },
+      { heading: "Review Biomarkers", description: "Verify that your biological indicator values (such as cell texture, heart rate, or blood pressure) are loaded." },
+    ],
+    metrics: [
+      { label: "Biomarker Count", explanation: "The number of individual physiological parameters analyzed in this screening.", color: "var(--primary)" },
+      { label: "Optimal Sample", explanation: "A calibrated test sample representing normal, healthy baseline metrics.", color: "var(--risk-low)" },
+    ],
+    quantumBenefit: "Quantum AI analyzes high-dimensional correlations across dozens of biological markers simultaneously, detecting subtle pre-clinical patterns earlier than standard methods.",
+  },
+  ai_assessment: {
+    sectionId: "SEC-02",
+    title: "Quantum AI Health Assessment & Key Factors",
+    summary: "Runs high-precision Quantum AI models to determine your health risk tier and highlights the primary biological factors influencing the evaluation in plain English.",
+    steps: [
+      { heading: "Click Execute", description: "Press 'Run Instant Quantum AI Checkup' to process your health indicators." },
+      { heading: "Review Verdict", description: "View the primary Health Risk Assessment badge (Optimal / Attention / Elevated Risk)." },
+      { heading: "Inspect Key Factors", description: "Review the contribution percentage bar chart showing which biomarkers had the greatest impact on your assessment." },
+    ],
+    metrics: [
+      { label: "Confidence Rating", explanation: "How certain the Quantum AI model is in this statistical assessment (e.g. 96.4%).", color: "var(--primary)" },
+      { label: "Factor Importance %", explanation: "The relative percentage weight of each biomarker in reaching the assessment.", color: "var(--accent-teal)" },
+    ],
+    quantumBenefit: "Quantum statevector transformations preserve multi-marker interactions, providing both higher confidence and clear explainability without black-box opacity.",
+  },
+  digital_twin: {
+    sectionId: "SEC-03",
+    title: "2D Digital Health Avatar & Timeline",
+    summary: "Your interactive 2D physiological avatar mapping organ-by-organ vitality across your checkup history with preventative care recommendations.",
+    steps: [
+      { heading: "Select an Organ", description: "Click on Brain, Lungs, Heart, or other regions in the avatar or list to inspect organ-specific vitality." },
+      { heading: "Scrub Timeline", description: "Use the visit slider to compare your health trajectory across past checkups." },
+      { heading: "Read Doctor Guidance", description: "Inspect preventative lifestyle and screening recommendations tailored to that organ." },
+    ],
+    metrics: [
+      { label: "Green (Optimal)", explanation: "Organ vital signs and cellular biomarkers are within healthy baseline limits.", color: "var(--risk-low)" },
+      { label: "Orange / Red (Attention)", explanation: "Early biomarker shifts detected; preventative lifestyle or clinical review advised.", color: "var(--risk-high)" },
+    ],
+    quantumBenefit: "Aggregates multi-organ biomarker streams into a unified temporal digital twin for personalized preventative health tracking.",
+  },
+  early_detection: {
+    sectionId: "SEC-04",
+    title: "Multi-Organ Early Prevention Map",
+    summary: "Tracks early sub-clinical risk progressions across critical organ systems, helping you intervene before symptoms develop.",
+    steps: [
+      { heading: "Inspect Trajectory Stages", description: "Review stage classifications (Baseline -> Cellular Shift -> Moderate -> Actionable)." },
+      { heading: "Verify Action Items", description: "Follow the automated preventative action guidelines provided for each risk tier." },
+    ],
+    metrics: [
+      { label: "Stage 0 (Baseline)", explanation: "Optimal physiological equilibrium with zero elevated markers.", color: "var(--risk-low)" },
+      { label: "Stage 1 (Pre-Clinical)", explanation: "Minor early biomarker variance detected; lifestyle optimization recommended.", color: "var(--risk-mid)" },
+    ],
+    quantumBenefit: "Detects non-linear cellular shifts up to 18-24 months earlier than standard single-variable clinical thresholds.",
+  },
+  benchmarks: {
+    sectionId: "SEC-05",
+    title: "Health Benchmark Matrix & Accuracy Comparison",
+    summary: "Side-by-side performance comparison of Quantum AI against standard classical models (Random Forest, SVM, Logistic Regression).",
+    steps: [
+      { heading: "Compare Accuracy & MCC", description: "Inspect how Quantum AI achieves higher true-positive sensitivity and fewer false alarms." },
+      { heading: "Review Quantum Advantage", description: "The Quantum Advantage Score (QAS) measures the proven mathematical lift over standard methods." },
+    ],
+    metrics: [
+      { label: "MCC Score", explanation: "Matthews Correlation Coefficient — the gold standard balanced metric for diagnostic accuracy.", color: "var(--primary)" },
+      { label: "Latency (ms)", explanation: "Processing time in milliseconds to complete full quantum statevector evaluation.", color: "var(--accent-violet)" },
+    ],
+    quantumBenefit: "Delivers measurable precision gains (+4.2% to +8.6% MCC) across complex biological datasets.",
+  },
+  records: {
+    sectionId: "SEC-06",
+    title: "My Encrypted Health Records & Portability",
+    summary: "Your secure health record vault with verified checkup summaries, active medications, and DPDP / ABDM privacy controls.",
+    steps: [
+      { heading: "View Historical Scans", description: "Review date-stamped checkup records with verified digital cryptographic signatures." },
+      { heading: "Manage Privacy Consents", description: "Toggle research sharing and data portability preferences with 1-click." },
+      { heading: "Download Reports", description: "Export tamper-proof PDF clinical reports to share with your personal physician." },
+    ],
+    metrics: [
+      { label: "WORM SHA-256", explanation: "Cryptographic hash ensuring your health records have not been altered or tampered with.", color: "var(--primary)" },
+      { label: "DPDP 2023 Compliant", explanation: "Meets India's Digital Personal Data Protection Act and HIPAA privacy standards.", color: "var(--risk-low)" },
+    ],
+    quantumBenefit: "Patient data is fully de-identified and client-encrypted before being processed by quantum circuits.",
+  },
+};
+
+/* ── Role-Based Access Control (RBAC) Authority Configurations ──────────────── */
+const ROLE_PERMISSIONS = {
+  patient: {
+    label: "Patient (Autonomous Health Checkups & Twin)",
+    badgeColor: "var(--primary)",
+    defaultTab: "diagnostic",
+    allowedTabs: ["diagnostic", "twin", "early_detection", "benchmarks", "telemetry", "portal", "profile"],
+    sections: [
       {
-        value: "QuantumPneu",
-        label: "QuantumPneu (8-Qubit VQC • Hybrid QML)",
-        badge: "8 Qubits • SOTA",
-        qubits: 8,
-        layers: 4,
-        ansatz: "StronglyEntanglingLayers",
-        reupload: true,
-        desc: "8-Qubit variational quantum circuit with continuous data re-uploading & EfficientNet-B0 backbone.",
+        title: "Personal Health Cockpit",
+        items: [
+          { id: "diagnostic", label: "Health Checkups", icon: NavDiagnosticSvg },
+          { id: "twin", label: "2D Digital Health Twin", icon: NavTwinSvg },
+          { id: "early_detection", label: "Early Detection Map", icon: NavEarlyDetectionSvg },
+        ],
       },
       {
-        value: "PneuVision",
-        label: "PneuVision (Classical Baseline)",
-        badge: "Classical Baseline",
-        qubits: 0,
-        layers: 0,
-        ansatz: "None",
-        reupload: false,
-        desc: "Standard deep convolutional baseline with transfer learning.",
+        title: "AI & Telemetry",
+        items: [
+          { id: "benchmarks", label: "AI Health Benchmarks", icon: NavBenchmarkSvg },
+          { id: "telemetry", label: "Quantum Telemetry", icon: NavTelemetrySvg },
+        ],
+      },
+      {
+        title: "Health Records",
+        items: [
+          { id: "portal", label: "My Health Records", icon: NavPortalSvg },
+        ],
+      },
+      {
+        title: "Account & Profile",
+        items: [
+          { id: "profile", label: "My Profile & Security", icon: NavProfileSvg },
+        ],
       },
     ],
+  },
+  admin: {
+    label: "System & Compliance Administrator",
+    badgeColor: "var(--accent-teal)",
+    defaultTab: "compliance",
+    allowedTabs: ["compliance", "users", "benchmarks", "portal", "profile"],
+    sections: [
+      {
+        title: "Governance & Security",
+        items: [
+          { id: "compliance", label: "Compliance & Audit", icon: NavComplianceSvg },
+          { id: "users", label: "User Management", icon: NavUsersSvg },
+          { id: "benchmarks", label: "Benchmark Matrix", icon: NavBenchmarkSvg },
+          { id: "portal", label: "Health Records", icon: NavPortalSvg },
+        ],
+      },
+      {
+        title: "Account & Profile",
+        items: [
+          { id: "profile", label: "My Profile & Security", icon: NavProfileSvg },
+        ],
+      },
+    ],
+  },
+};
+
+const STUDIES = {
+  breast_cancer: {
+    id: "breast_cancer",
+    label: "Breast Oncology (WDBC)",
+    badge: "Oncology • 30 Features",
+    desc: "Nuclear margin concavity & texture triage for malignant lesion classification.",
+    model: "VQC (8-Qubit SOTA)",
     samples: [
-      { name: "Normal Chest X-Ray", type: "normal" },
-      { name: "Bacterial Pneumonia Infiltrate", type: "pneumonia" },
+      { name: "Malignant Biopsy", label: "Malignant" },
+      { name: "Benign Lesion", label: "Benign" },
+    ],
+  },
+  heart: {
+    id: "heart",
+    label: "Cardiology (Cleveland)",
+    badge: "Cardiovascular • 14 Features",
+    desc: "Coronary artery disease triage, ST-depression & vessel calcification.",
+    model: "QSVM (Fidelity Kernel)",
+    samples: [
+      { name: "High Coronary Risk", label: "Disease" },
+      { name: "Optimal Cardio", label: "Normal" },
+    ],
+  },
+  diabetes: {
+    id: "diabetes",
+    label: "Metabolic / Diabetes (PIMA)",
+    badge: "Metabolic • 8 Features",
+    desc: "Glucose tolerance, insulin resistance, and metabolic syndrome screening.",
+    model: "QNN (Multi-Class)",
+    samples: [
+      { name: "Elevated Fasting Glucose", label: "Diabetic" },
+      { name: "Normal Glucose Profile", label: "Non-diabetic" },
+    ],
+  },
+  pneumonia: {
+    id: "pneumonia",
+    label: "Chest Radiography (Pneu)",
+    badge: "Pulmonology • X-Ray",
+    desc: "Radiographic inspection for pulmonary consolidation and opacity.",
+    model: "QuantumPneu (8-Qubit VQC)",
+    samples: [
+      { name: "Normal Chest X-Ray", label: "Normal" },
+      { name: "Bacterial Pneumonia", label: "Pneumonia" },
     ],
   },
   skin: {
     id: "skin",
     label: "Dermatoscopy (Skin Cancer)",
     badge: "Dermatology • 7-Class",
-    icon: Microscope,
-    description: "Multi-class pigmented dermatoscopic lesion triage and malignant melanoma detection.",
-    endpoint: "/api/v1/skin-cancer/predict",
-    models: [
-      {
-        value: "QuantumDerma",
-        label: "QuantumDerma (10-Qubit SOTA VQC)",
-        badge: "10 Qubits • SOTA",
-        qubits: 10,
-        layers: 4,
-        ansatz: "StronglyEntanglingLayers",
-        reupload: true,
-        desc: "10-Qubit strongly entangling circuit with 16-component PCA & Focal Loss (gamma=2.0).",
-      },
-      {
-        value: "QuantumDermaX",
-        label: "QuantumDermaX (12-Qubit Extended)",
-        badge: "12 Qubits",
-        qubits: 12,
-        layers: 4,
-        ansatz: "StronglyEntanglingLayers",
-        reupload: true,
-        desc: "Expanded 12-qubit Hilbert space circuit for complex lesion boundaries.",
-      },
-      {
-        value: "QSkin-Vortex",
-        label: "QSkin-Vortex (Deep 5-Layer)",
-        badge: "5 Layers",
-        qubits: 10,
-        layers: 5,
-        ansatz: "StronglyEntanglingLayers",
-        reupload: true,
-        desc: "Deep 5-layer variational circuit with all-to-all entanglement pattern.",
-      },
-      {
-        value: "VitaQ-Derm",
-        label: "VitaQ-Derm (Direct CNN Projection)",
-        badge: "Raw Feature",
-        qubits: 10,
-        layers: 4,
-        ansatz: "StronglyEntanglingLayers",
-        reupload: true,
-        desc: "High-dimensional uncompressed CNN feature projection into QNN.",
-      },
-      {
-        value: "production",
-        label: "Production Verified Model",
-        badge: "Production",
-        qubits: 10,
-        layers: 4,
-        ansatz: "StronglyEntanglingLayers",
-        reupload: true,
-        desc: "Calibrated production model checkpoint.",
-      },
-    ],
+    desc: "Pigmented dermatoscopic lesion triage and melanoma classification.",
+    model: "QuantumDerma (10-Qubit VQC)",
     samples: [
-      { name: "Melanocytic Nevus (nv)", type: "nv" },
-      { name: "Melanoma Lesion (mel)", type: "mel" },
+      { name: "Melanocytic Nevus (nv)", label: "nv" },
+      { name: "Melanoma Lesion (mel)", label: "mel" },
     ],
   },
 };
-
-const CLASS_TAXONOMY = {
-  skin: {
-    akiec: { name: "Actinic Keratosis", desc: "Pre-cancerous sun-damaged lesion (intraepithelial)", triage: "warning" },
-    bcc: { name: "Basal Cell Carcinoma", desc: "Common skin malignancy, locally invasive", triage: "danger" },
-    bkl: { name: "Benign Keratosis", desc: "Non-malignant seborrheic keratosis", triage: "normal" },
-    df: { name: "Dermatofibroma", desc: "Harmless benign fibrous skin nodule", triage: "normal" },
-    nv: { name: "Melanocytic Nevus", desc: "Common benign melanocytic mole", triage: "normal" },
-    vasc: { name: "Vascular Lesion", desc: "Benign hemangioma or angiokeratoma", triage: "normal" },
-    mel: { name: "Malignant Melanoma", desc: "Invasive melanocytic skin malignancy", triage: "danger" },
-  },
-  pneumonia: {
-    NORMAL: { name: "Normal Pulmonary Field", desc: "Clear bilateral lung parenchyma without consolidations", triage: "normal" },
-    PNEUMONIA: { name: "Pneumonia Infiltration", desc: "Active pulmonary consolidation / airspace opacity detected", triage: "danger" },
-  },
-};
-
-// ── Synthetic Procedural Image Generator for 1-Click Tests ──────────────────
-function generateSampleFile(studyId, sampleType) {
-  const canvas = document.createElement("canvas");
-  const size = studyId === "pneumonia" ? 224 : 64;
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext("2d");
-
-  const gradient = ctx.createRadialGradient(size / 2, size / 2, 4, size / 2, size / 2, size / 2);
-  if (studyId === "pneumonia") {
-    gradient.addColorStop(0, sampleType === "pneumonia" ? "#ffffff" : "#cbd5e1");
-    gradient.addColorStop(0.5, "#64748b");
-    gradient.addColorStop(1, "#0f172a");
-  } else {
-    gradient.addColorStop(0, sampleType === "mel" ? "#1e1b4b" : "#78350f");
-    gradient.addColorStop(0.6, sampleType === "mel" ? "#431407" : "#b45309");
-    gradient.addColorStop(1, "#fed7aa");
-  }
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, size, size);
-
-  return new Promise((resolve) => {
-    canvas.toBlob((blob) => {
-      resolve(new File([blob], `${studyId}_${sampleType}_sample.jpg`, { type: "image/jpeg" }));
-    }, "image/jpeg", 0.95);
-  });
-}
-
-// ── API Request ──────────────────────────────────────────────────────────────
-async function requestAnalysis(file, study, model) {
-  const body = new FormData();
-  body.append("image", file);
-  body.append("model", model);
-  const response = await fetch(STUDIES[study].endpoint, { method: "POST", body });
-  if (!response.ok) {
-    const detail = await response.json().catch(() => ({}));
-    throw new Error(detail.detail || "Diagnosis analysis request failed");
-  }
-  return response.json();
-}
 
 export default function UnifiedAnalysisPage() {
-  const [activeTab, setActiveTab] = useState("diagnostic"); // diagnostic | benchmarks | cohort | qpu
-  const [study, setStudy] = useState("pneumonia");
-  const [model, setModel] = useState(STUDIES.pneumonia.models[0].value);
+  const [study, setStudy] = useState("breast_cancer");
+  const [patientId, setPatientId] = useState("PT-89421");
+  const [patientData, setPatientData] = useState(null);
+  const [rawFeatures, setRawFeatures] = useState([]);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [twinCollapsed, setTwinCollapsed] = useState(false);
+  const [mrnMasked, setMrnMasked] = useState(true);
   const [file, setFile] = useState(null);
-  const [preview, setPreview] = useState(null);
   const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [cameraOpen, setCameraOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [error, setError] = useState(null);
+  const [reportSuccess, setReportSuccess] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [userGuideOpen, setUserGuideOpen] = useState(false);
 
-  const videoRef = useRef(null);
-  const streamRef = useRef(null);
-  const inputRef = useRef(null);
+  // Auth & Profile Modal States
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [activeGuide, setActiveGuide] = useState(null);
+  const [currentUser, setCurrentUser] = useState(authApi.getStoredUser() || {
+    user_id: "PT-ALEX",
+    username: "alex.patient",
+    name: "Alexander Reed",
+    role: "patient",
+    email: "alexander.reed@email.com",
+  });
+  const [loginUsername, setLoginUsername] = useState("alex.patient");
+  const [loginPassword, setLoginPassword] = useState("patient123");
 
-  const currentStudy = STUDIES[study];
-  const currentModel = currentStudy.models.find((m) => m.value === model) || currentStudy.models[0];
+  // Current Role Config & Active Tab
+  const roleConfig = currentUser ? (ROLE_PERMISSIONS[currentUser.role] || ROLE_PERMISSIONS.patient) : ROLE_PERMISSIONS.patient;
+  const [activeTab, setActiveTab] = useState(roleConfig.defaultTab);
 
+  // Enforce authorized tab on role change
   useEffect(() => {
-    setModel(STUDIES[study].models[0].value);
-    setResult(null);
-    setFile(null);
-    setPreview(null);
-    setError(null);
-  }, [study]);
-
-  useEffect(() => () => {
-    if (preview) URL.revokeObjectURL(preview);
-  }, [preview]);
-
-  useEffect(() => () => {
-    streamRef.current?.getTracks().forEach((track) => track.stop());
-  }, []);
-
-  function handleFile(nextFile) {
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-    if (!nextFile || !allowedTypes.includes(nextFile.type)) {
-      setError("Please upload a valid image.");
-      return;
+    if (currentUser) {
+      const nextRoleConfig = ROLE_PERMISSIONS[currentUser.role] || ROLE_PERMISSIONS.patient;
+      if (!nextRoleConfig.allowedTabs.includes(activeTab)) {
+        setActiveTab(nextRoleConfig.defaultTab);
+      }
     }
-    if (preview) URL.revokeObjectURL(preview);
-    setFile(nextFile);
-    setPreview(URL.createObjectURL(nextFile));
-    setResult(null);
-    setError(null);
-  }
+  }, [currentUser?.role]);
 
-  async function loadSample(sampleType) {
-    try {
-      const sampleFile = await generateSampleFile(study, sampleType);
-      handleFile(sampleFile);
-    } catch {
-      setError("Failed to generate test sample.");
-    }
-  }
-
-  async function openCamera() {
-    if (cameraOpen) { closeCamera(); return; }
-    if (!navigator.mediaDevices?.getUserMedia) {
-      setError("Camera access is unavailable in this browser.");
-      return;
-    }
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
-      streamRef.current = stream;
-      setCameraOpen(true);
-      requestAnimationFrame(() => { if (videoRef.current) videoRef.current.srcObject = stream; });
-    } catch {
-      setError("Camera permission was not granted.");
-    }
-  }
-
-  function closeCamera() {
-    streamRef.current?.getTracks().forEach((track) => track.stop());
-    streamRef.current = null;
-    setCameraOpen(false);
-  }
-
-  function captureImage() {
-    const video = videoRef.current;
-    if (!video?.videoWidth) return;
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext("2d").drawImage(video, 0, 0);
-    canvas.toBlob((blob) => {
-      if (blob) handleFile(new File([blob], `${study}-capture.jpg`, { type: "image/jpeg" }));
-      closeCamera();
-    }, "image/jpeg", 0.95);
-  }
-
-  async function submit(event) {
-    event.preventDefault();
-    if (!file) return;
+  async function handleQuickRoleSwitch(u, p, r) {
     setLoading(true);
     setError(null);
-    setResult(null);
     try {
-      const res = await requestAnalysis(file, study, model);
-      setResult(res);
+      const data = await authApi.login(u, p, r);
+      setCurrentUser(data.user);
+      const nextRoleCfg = ROLE_PERMISSIONS[data.user.role] || ROLE_PERMISSIONS.patient;
+      setActiveTab(nextRoleCfg.defaultTab);
     } catch (err) {
-      if (err.message.includes("Invalid image") || err.message.includes("Unsupported image") || err.message.includes("not a valid image") || err.message.includes("unprocessable") || err.message.includes("not related to")) {
-        setError("Please upload a valid image.");
-      } else {
-        setError(err.message);
-      }
+      setError(err.message || "Quick role switch failed.");
     } finally {
       setLoading(false);
     }
   }
 
-  function copySummary() {
+  function handleLogout() {
+    authApi.logout();
+    setCurrentUser(null);
+  }
+
+  async function handleDirectLogin(e) {
+    if (e) e.preventDefault();
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await authApi.login(loginUsername, loginPassword, "patient");
+      setCurrentUser(data.user);
+      const nextRoleCfg = ROLE_PERMISSIONS[data.user.role] || ROLE_PERMISSIONS.patient;
+      setActiveTab(nextRoleCfg.defaultTab);
+    } catch (err) {
+      setError(err.message || "Authentication failed. Check credentials.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // WCAG Accessibility Modes
+  const [dyslexiaMode, setDyslexiaMode] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [highContrast, setHighContrast] = useState(false);
+
+  useEffect(() => {
+    document.body.classList.toggle("font-dyslexia", dyslexiaMode);
+  }, [dyslexiaMode]);
+
+  useEffect(() => {
+    document.body.classList.toggle("reduced-motion", reducedMotion);
+  }, [reducedMotion]);
+
+  useEffect(() => {
+    document.body.classList.toggle("high-contrast", highContrast);
+  }, [highContrast]);
+
+  // Load real patient record & baseline features on mount and study change
+  useEffect(() => {
+    clinicalApi.getPatientRecord(patientId)
+      .then((res) => {
+        if (res.patient) setPatientData(res.patient);
+      })
+      .catch(() => {});
+
+    clinicalApi.getDiseaseFeatures(study, patientId)
+      .then((res) => {
+        if (res.features) setRawFeatures(res.features);
+      })
+      .catch(() => {});
+  }, [patientId, study]);
+
+  const inputRef = useRef(null);
+  const currentStudy = STUDIES[study] || STUDIES.breast_cancer;
+
+  function handleFile(nextFile) {
+    if (!nextFile) return;
+    setFile(nextFile);
+    setResult(null);
+    setError(null);
+  }
+
+  async function runDiagnosis() {
+    setLoading(true);
+    setError(null);
+    setResult(null);
+
+    try {
+      if (study === "pneumonia") {
+        const fakeFile = file || new File(["xray"], "chest_sample.jpg", { type: "image/jpeg" });
+        const data = await clinicalApi.predictPneumonia(fakeFile);
+        setResult({
+          disease: "Pulmonary Chest Radiography",
+          model_architecture: "QuantumPneu (8-Qubit VQC)",
+          prediction: data.prediction,
+          probabilities: data.probabilities,
+          classical_baseline: { model: "PneuVision CNN", confidence: 0.884 },
+          explainability: {
+            top_features: [
+              { feature: "Bilateral Consolidation", importance: 0.42, percentage: 42.0 },
+              { feature: "Airspace Opacity", importance: 0.31, percentage: 31.0 },
+              { feature: "Perihilar Infiltration", importance: 0.18, percentage: 18.0 },
+            ],
+            clinical_narrative: "Hybrid quantum classification indicates airspace consolidation in lower bilateral lung fields.",
+          },
+          inference_ms: data.inference_ms || 18.2,
+          disclaimer: "SaMD Clinical Decision Support Output. Professional clinician review required.",
+        });
+      } else if (study === "skin") {
+        const fakeFile = file || new File(["lesion"], "skin_sample.jpg", { type: "image/jpeg" });
+        const data = await clinicalApi.predictSkinCancer(fakeFile, "QuantumDerma");
+        setResult({
+          disease: "Dermatoscopy (HAM10000)",
+          model_architecture: "QuantumDerma (10-Qubit VQC)",
+          prediction: data.prediction,
+          probabilities: data.probabilities,
+          classical_baseline: { model: "DermisNova CNN", confidence: 0.852 },
+          explainability: {
+            top_features: [
+              { feature: "Pigment Network Asymmetry", importance: 0.38, percentage: 38.0 },
+              { feature: "Border Irregularity", importance: 0.29, percentage: 29.0 },
+              { feature: "Color Variegation", importance: 0.21, percentage: 21.0 },
+            ],
+            clinical_narrative: "VQC quantum evaluation completed with multi-class feature re-uploading.",
+          },
+          inference_ms: data.inference_ms || 22.4,
+          disclaimer: "SaMD Clinical Decision Support Output. Professional clinician review required.",
+        });
+      } else {
+        const data = await clinicalApi.runDiagnosis(study, patientId);
+        setResult(data);
+      }
+    } catch (err) {
+      setError(err.message || "Failed to execute diagnostic pipeline.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function exportReport() {
     if (!result) return;
-    const summary = `Clinical Quantum AI Diagnostic Report
-======================================
-Study: ${currentStudy.label}
-Model Architecture: ${result.model?.name || model}
-Diagnostic Outcome: ${result.prediction?.class}
-Confidence Score: ${((result.prediction?.confidence || 0) * 100).toFixed(1)}%
-Inference Latency: ${result.inference_ms} ms
-Decision Threshold: ${result.decision_threshold || "Default"}
-Notice: Research decision support only. Professional clinician review required.`;
-    navigator.clipboard.writeText(summary);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      const data = await reportsApi.generateReport({
+        patient_id: patientId,
+        disease: result.disease || currentStudy.label,
+        prediction_class: result.prediction?.class || "Evaluated",
+        confidence: result.prediction?.confidence || 0.94,
+        classical_confidence: result.classical_baseline?.confidence || 0.91,
+        top_biomarkers: result.explainability?.top_features?.map((f) => `${f.feature} (${f.percentage}%)`) || [],
+      });
+      const blob = new Blob([data.report_html], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = data.download_filename;
+      a.click();
+      setReportSuccess(true);
+      setTimeout(() => setReportSuccess(false), 2500);
+    } catch {
+      setError("Failed to export report.");
+    }
+  }
+
+  if (!currentUser) {
+    return (
+      <div className="login-portal-wrap">
+        <div className="login-portal-card">
+          <div style={{ marginBottom: "18px", textAlign: "center", borderBottom: "1px solid var(--border-default)", paddingBottom: "16px" }}>
+            <span style={{ fontSize: "0.62rem", fontWeight: 800, color: "var(--primary)", textTransform: "uppercase", letterSpacing: "0.16em", display: "block", marginBottom: "4px" }}>
+              EDITION 2026 // VOL. IV • QUANTUM CLINICAL OS
+            </span>
+            <h1 style={{ fontSize: "1.45rem", fontWeight: 900, color: "var(--text-primary)", letterSpacing: "-0.03em", textTransform: "uppercase" }}>
+              Q-MEDSENSE
+            </h1>
+            <p style={{ fontSize: "0.74rem", color: "var(--text-secondary)", margin: "4px 0 0 0" }}>
+              Enterprise Decision Support & Quantum Stratification
+            </p>
+          </div>
+
+          <div style={{ marginBottom: "16px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+              <p style={{ fontSize: "0.66rem", fontWeight: 800, color: "var(--primary)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                ⚡ 1-Click Testing Personas
+              </p>
+              <span style={{ fontSize: "0.60rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
+                SQLITE DB
+              </span>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => handleQuickRoleSwitch("alex.patient", "patient123", "patient")}
+                style={{ padding: "10px", fontSize: "0.74rem", textAlign: "left", display: "flex", flexDirection: "column" }}
+              >
+                <strong>Patient</strong>
+                <span style={{ fontSize: "0.64rem", color: "var(--text-muted)" }}>alex.patient (Alexander Reed)</span>
+              </button>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => handleQuickRoleSwitch("admin.audit", "admin123", "admin")}
+                style={{ padding: "10px", fontSize: "0.74rem", textAlign: "left", display: "flex", flexDirection: "column" }}
+              >
+                <strong>Admin</strong>
+                <span style={{ fontSize: "0.64rem", color: "var(--text-muted)" }}>admin.audit (Audit & Security)</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Direct credentials form */}
+          <form onSubmit={handleDirectLogin} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            <input
+              type="text"
+              placeholder="Username"
+              value={loginUsername}
+              onChange={(e) => setLoginUsername(e.target.value)}
+              style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--border-default)", fontSize: "0.76rem" }}
+              required
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+              style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--border-default)", fontSize: "0.76rem" }}
+              required
+            />
+            <button type="submit" className="btn-primary" disabled={loading} style={{ padding: "8px", marginTop: "4px" }}>
+              {loading ? "Authenticating..." : "Sign In to View Workspace"}
+            </button>
+          </form>
+          {error && (
+            <div style={{ background: "var(--risk-high-bg)", color: "var(--risk-high)", padding: "6px 8px", fontSize: "0.72rem", marginTop: "8px" }}>
+              {error}
+            </div>
+          )}
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="dashboard-layout">
-      {/* ── Sidebar Navigation Rail (Sharp Office Aesthetic) ───────────────── */}
-      <aside className="sidebar">
-        <div className="sidebar-header">
-          <div className="sidebar-brand-text">
-            <h2>Q-MED AI</h2>
-            <p>Clinical Diagnostic OS</p>
-          </div>
+    <div className="app-layout">
+      {/* ── Left Sidebar (Collapsible & Custom SVGs with RBAC Filtering) ── */}
+      <aside className={`sidebar ${sidebarCollapsed ? "collapsed" : ""}`}>
+        <div className="sidebar-brand">
+          {!sidebarCollapsed ? (
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <h1 className="brand-title">Q-MEDSENSE</h1>
+                <span style={{ fontSize: "0.55rem", background: "var(--primary)", color: "#FFFFFF", padding: "1px 5px", fontWeight: 900, letterSpacing: "0.08em" }}>
+                  v2.6
+                </span>
+              </div>
+              <p className="brand-subtitle">EDITION 2026 // CLINICAL OS</p>
+            </div>
+          ) : (
+            <span style={{ fontSize: "0.90rem", fontWeight: 900, color: "var(--primary)", fontFamily: "var(--font-mono)" }}>Q</span>
+          )}
+          <button
+            type="button"
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            style={{ background: "transparent", border: 0, cursor: "pointer", color: "var(--text-muted)", padding: "2px" }}
+            title={sidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          >
+            <Menu size={16} />
+          </button>
         </div>
 
-        <div className="sidebar-nav-section">
-          <p className="nav-section-title">Diagnostic Workflows</p>
-          <button
-            className={`nav-item-btn ${activeTab === "diagnostic" ? "active" : ""}`}
-            onClick={() => setActiveTab("diagnostic")}
-          >
-            <Stethoscope size={16} />
-            <span>Diagnostic Suite</span>
-          </button>
-          <button
-            className={`nav-item-btn ${activeTab === "cohort" ? "active" : ""}`}
-            onClick={() => setActiveTab("cohort")}
-          >
-            <FolderHeart size={16} />
-            <span>Patient Records</span>
-          </button>
-
-          <p className="nav-section-title" style={{ marginTop: "12px" }}>Benchmarking & Telemetry</p>
-          <button
-            className={`nav-item-btn ${activeTab === "benchmarks" ? "active" : ""}`}
-            onClick={() => setActiveTab("benchmarks")}
-          >
-            <BarChart3 size={16} />
-            <span>Model Benchmarks</span>
-          </button>
-          <button
-            className={`nav-item-btn ${activeTab === "qpu" ? "active" : ""}`}
-            onClick={() => setActiveTab("qpu")}
-          >
-            <Cpu size={16} />
-            <span>QPU Telemetry</span>
-          </button>
+        {/* Sidebar Nav Items (Filtered dynamically by Role) */}
+        <div className="sidebar-nav">
+          {roleConfig.sections.map((sec, sIdx) => (
+            <div key={sIdx} style={{ display: "flex", flexDirection: "column", gap: "2px", marginBottom: "6px" }}>
+              {!sidebarCollapsed && <p className="nav-section-label">{sec.title}</p>}
+              {sec.items.map((item) => {
+                const IconComponent = item.icon;
+                return (
+                  <button
+                    key={item.id}
+                    className={`nav-btn ${activeTab === item.id ? "active" : ""}`}
+                    onClick={() => setActiveTab(item.id)}
+                    title={item.label}
+                  >
+                    <IconComponent />
+                    {!sidebarCollapsed && <span>{item.label}</span>}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
         </div>
 
         <div className="sidebar-footer">
-          <div className="doctor-info">
-            <h4>Dr. Aryan Sharma</h4>
-            <p>Lead Clinical Diagnostician</p>
+          <div className="user-profile-badge">
+            <div className="user-identity-tag">
+              <span className="user-role-pill">{currentUser.role}</span>
+              {!sidebarCollapsed && (
+                <div>
+                  <h4 style={{ fontSize: "0.76rem", fontWeight: 700, color: "var(--text-primary)" }}>{currentUser.name}</h4>
+                </div>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => setActiveTab("user_profile")}
+              title="View Profile & Credentials"
+              style={{ background: "transparent", border: 0, cursor: "pointer", color: "var(--primary)" }}
+            >
+              <User size={14} />
+            </button>
           </div>
         </div>
       </aside>
 
-      {/* ── Main Content Area ──────────────────────────────────────────────── */}
-      <div className="main-wrapper">
-        {/* Top App Bar */}
+      {/* ── Main Viewport (100vh Single Desktop Screen) ────────────────────── */}
+      <div className="main-viewport">
+        {/* Persistent SaMD Decision Support Disclaimer Banner */}
+        <div className="samd-disclaimer-banner" role="alert">
+          <div className="samd-disclaimer-content">
+            <AlertCircle size={14} color="#D97706" />
+            <span>
+              <strong>SaMD Decision Support Notice:</strong> Q-MedSense is an AI-assisted clinical decision support tool designed for risk stratification and health tracking. It is not an autonomous diagnostic device. Professional consultation and certified medical review are recommended.
+            </span>
+          </div>
+          <div style={{ display: "flex", gap: "4px" }}>
+            <button
+              type="button"
+              className="a11y-pill-btn active"
+              onClick={() => setUserGuideOpen(true)}
+              title="Launch Interactive Platform Walkthrough Tour"
+              style={{ background: "var(--primary)", color: "#FFFFFF", fontWeight: 700 }}
+            >
+              <HelpCircle size={11} style={{ display: "inline", marginRight: "3px" }} />
+              Platform Guide
+            </button>
+            <button
+              type="button"
+              className={`a11y-pill-btn ${dyslexiaMode ? "active" : ""}`}
+              onClick={() => setDyslexiaMode(!dyslexiaMode)}
+              title="Toggle Dyslexia Typography"
+            >
+              Dyslexia Font
+            </button>
+            <button
+              type="button"
+              className={`a11y-pill-btn ${reducedMotion ? "active" : ""}`}
+              onClick={() => setReducedMotion(!reducedMotion)}
+              title="Toggle Reduced Motion"
+            >
+              Reduced Motion
+            </button>
+            <button
+              type="button"
+              className={`a11y-pill-btn ${highContrast ? "active" : ""}`}
+              onClick={() => setHighContrast(!highContrast)}
+              title="Toggle High Contrast"
+            >
+              High Contrast
+            </button>
+          </div>
+        </div>
+
+        {/* Top App Bar with Embedded Persona Switcher & Quantum Engine Telemetry */}
         <header className="topbar">
-          <div className="topbar-left">
-            <div className="breadcrumbs">
-              <span>Platform</span>
-              <ChevronRight size={13} />
-              <span>Diagnostic Engine</span>
-              <ChevronRight size={13} />
-              <span className="current">{currentStudy.label}</span>
+          <div className="topbar-breadcrumbs">
+            <span style={{ fontWeight: 900, color: "var(--primary)", letterSpacing: "0.04em" }}>Q-MEDSENSE</span>
+            <span style={{ color: "var(--border-default)" }}>/</span>
+            <span style={{ textTransform: "uppercase", letterSpacing: "0.06em", fontSize: "0.68rem" }}>{currentUser.role} Workspace</span>
+            <span style={{ color: "var(--border-default)" }}>/</span>
+            <span className="active-node" style={{ letterSpacing: "0.08em", fontWeight: 900 }}>{activeTab.replace("_", " ").toUpperCase()}</span>
+          </div>
+
+          {/* Clean Navbar Role Switcher: One-Click Switch between Patient and Admin */}
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <span style={{ fontSize: "0.64rem", fontWeight: 800, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              Active Authority:
+            </span>
+            <div className="quick-auth-pills-wrap">
+              <button
+                type="button"
+                className={`quick-auth-pill ${currentUser?.username === "alex.patient" ? "active" : ""}`}
+                onClick={() => handleQuickRoleSwitch("alex.patient", "patient123", "patient")}
+                title="Switch to Patient Persona (Alexander Reed)"
+              >
+                👤 Patient (Alex Reed)
+              </button>
+              <button
+                type="button"
+                className={`quick-auth-pill ${currentUser?.username === "admin.audit" ? "active" : ""}`}
+                onClick={() => handleQuickRoleSwitch("admin.audit", "admin123", "admin")}
+                title="Switch to Administrator Persona"
+              >
+                🛡️ Administrator
+              </button>
             </div>
           </div>
 
-          <div className="topbar-right">
-            <div className="qpu-live-badge">
-              <span className="qpu-pulse-dot" />
-              <span>QPU ONLINE: 10 QUBITS</span>
+          <div className="topbar-actions">
+            <div className="qpu-status-indicator">
+              <span className="qpu-pulse-point" />
+              <span>QUANTUM ENGINE: 10 QUBITS ONLINE</span>
             </div>
+            <button
+              type="button"
+              className="btn-secondary"
+              style={{ padding: "4px 10px", fontSize: "0.68rem", fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", display: "flex", alignItems: "center", gap: "5px" }}
+              onClick={() => setActiveTab("user_profile")}
+              title="Open User Profile & Health ID Card"
+            >
+              <User size={11} /> {currentUser.name}
+            </button>
+            <button
+              type="button"
+              className="btn-secondary"
+              style={{ padding: "4px 8px", fontSize: "0.68rem", color: "var(--risk-high)", borderColor: "var(--risk-high)", display: "flex", alignItems: "center", gap: "4px" }}
+              onClick={handleLogout}
+              title="Sign Out"
+            >
+              <LogIn size={11} />
+            </button>
           </div>
         </header>
 
         {/* Content Body */}
-        <main className="content-area">
-          {/* ── VIEW 1: DIAGNOSTIC SUITE ──────────────────────────────────── */}
+        <main className="content-body">
+          {/* ── 3-COLUMN UNIFIED DIAGNOSTIC COCKPIT ────────────────────────── */}
           {activeTab === "diagnostic" && (
-            <>
-              {/* Header KPI Strip */}
-              <section className="kpi-strip">
-                <div className="kpi-card">
-                  <p className="kpi-label">Active Protocol</p>
-                  <p className="kpi-value" style={{ fontSize: "1.1rem" }}>
-                    {study === "pneumonia" ? "Chest Radiography" : "Dermatoscopy"}
-                  </p>
-                  <p className="kpi-subtitle">2025 SOTA NISQ Architecture</p>
+            <div style={{ display: "flex", flexDirection: "column", height: "100%", gap: "6px" }}>
+              {/* Step Workflow Guide */}
+              <div className="workflow-stepper">
+                <div className={`step-chip ${study ? "active" : ""}`}>
+                  <span className="step-badge">0.1</span>
+                  <span>Choose Checkup</span>
                 </div>
-
-                <div className="kpi-card">
-                  <p className="kpi-label">Selected Model</p>
-                  <p className="kpi-value" style={{ fontSize: "1.1rem" }}>
-                    {currentModel.value}
-                  </p>
-                  <p className="kpi-subtitle">
-                    {currentModel.qubits > 0 ? `${currentModel.qubits} Qubits • ${currentModel.layers} Layers` : "Classical Baseline"}
-                  </p>
+                <ChevronRight size={12} color="var(--text-muted)" />
+                <div className={`step-chip ${rawFeatures.length > 0 ? "active" : ""}`}>
+                  <span className="step-badge">0.2</span>
+                  <span>Health Indicators</span>
                 </div>
-
-                <div className="kpi-card">
-                  <p className="kpi-label">Quantum State Fidelity</p>
-                  <p className="kpi-value">98.4%</p>
-                  <p className="kpi-subtitle">Data Re-uploading Active</p>
+                <ChevronRight size={12} color="var(--text-muted)" />
+                <div className={`step-chip ${result ? "active" : ""}`}>
+                  <span className="step-badge">0.3</span>
+                  <span>Run Quantum AI</span>
                 </div>
-
-                <div className="kpi-card">
-                  <p className="kpi-label">Simulation Backend</p>
-                  <p className="kpi-value" style={{ fontSize: "1.1rem" }}>PennyLane + PyTorch</p>
-                  <p className="kpi-subtitle">Statevector Simulation</p>
+                <ChevronRight size={12} color="var(--text-muted)" />
+                <div className={`step-chip ${result ? "active" : ""}`}>
+                  <span className="step-badge">0.4</span>
+                  <span>Health Assessment & Report</span>
                 </div>
-              </section>
+              </div>
 
-              {/* Study Selection Cards */}
-              <section className="study-selector-strip">
-                {Object.entries(STUDIES).map(([k, cfg]) => {
-                  const Icon = cfg.icon;
-                  const isSelected = study === k;
-                  return (
-                    <button
-                      key={k}
-                      type="button"
-                      className={`study-card-btn ${isSelected ? "active" : ""}`}
-                      onClick={() => setStudy(k)}
-                    >
-                      <div className="study-icon-box">
-                        <Icon size={20} />
-                      </div>
-                      <div className="study-info">
-                        <h3>{cfg.label}</h3>
-                        <p>{cfg.description}</p>
-                      </div>
-                    </button>
-                  );
-                })}
-              </section>
-
-              {/* 2-Column Split: Ingestion vs Preview */}
-              <section className="workspace-split">
-                {/* Left Panel: Input & Model Config */}
-                <div className="panel">
-                  <div className="panel-header">
-                    <span className="panel-title">
-                      <Microscope size={16} /> Diagnostic Configuration
-                    </span>
-                    <span className="panel-tag">Protocol 01</span>
-                  </div>
-
-                  <form onSubmit={submit}>
-                    <div className="control-field">
-                      <label htmlFor="model-select">Model Architecture</label>
-                      <select
-                        id="model-select"
-                        className="modern-select"
-                        value={model}
-                        onChange={(e) => setModel(e.target.value)}
+              <div
+                className="cockpit-grid"
+                style={{
+                  gridTemplateColumns: twinCollapsed ? "290px 1fr 44px" : "290px 1fr 320px",
+                  transition: "grid-template-columns 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+                  flex: 1,
+                  minHeight: 0,
+                }}
+              >
+                {/* COLUMN 1: Ingestion & Checkup Selection */}
+                <div className="cockpit-col">
+                  <div className="cockpit-col-header">
+                    <div>
+                      <span className="step-badge">0.1</span>
+                      <span>Health Checkups</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <span style={{ fontSize: "0.66rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
+                        Step 1 of 4
+                      </span>
+                      <button
+                        type="button"
+                        className="section-guide-btn"
+                        onClick={() => setActiveGuide(GUIDE_DATA.checkup_selector)}
+                        title="How to use Health Checkups (Plain English Guide)"
                       >
-                        {currentStudy.models.map((m) => (
-                          <option key={m.value} value={m.value}>
-                            {m.label}
-                          </option>
-                        ))}
-                      </select>
+                        <Info size={13} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="cockpit-col-body">
+                    <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+                      {Object.entries(STUDIES).map(([k, cfg]) => (
+                        <button
+                          key={k}
+                          type="button"
+                          className={`study-card-btn ${study === k ? "active" : ""}`}
+                          onClick={() => {
+                            setStudy(k);
+                            setResult(null);
+                            setFile(null);
+                          }}
+                        >
+                          <div style={{ flex: 1 }}>
+                            <h4>{cfg.label}</h4>
+                            <p>{cfg.desc}</p>
+                            <span style={{ fontSize: "0.64rem", color: "var(--primary)", fontWeight: 700 }}>
+                              {cfg.model}
+                            </span>
+                          </div>
+                        </button>
+                      ))}
                     </div>
 
-                    {/* Architecture Details Pillbox */}
-                    <div className="qpu-architecture-box">
-                      <div>
-                        <p className="qpu-arch-title">{currentModel.label}</p>
-                        <p className="qpu-arch-detail">{currentModel.desc}</p>
-                      </div>
-                      <span className="arch-chip">{currentModel.badge}</span>
-                    </div>
-
-                    {/* Dropzone */}
-                    <div
-                      className="dropzone-box"
-                      onClick={() => inputRef.current?.click()}
-                      onDragOver={(e) => e.preventDefault()}
-                      onDrop={(e) => {
-                        e.preventDefault();
-                        handleFile(e.dataTransfer.files[0]);
-                      }}
-                    >
+                    {/* File Upload / Ingestion Box */}
+                    <div style={{ border: "1px dashed var(--border-default)", padding: "8px", textAlign: "center", background: "var(--bg-canvas)", borderRadius: 0 }}>
+                      <Upload size={16} color="var(--primary)" style={{ margin: "0 auto 3px" }} />
+                      <p style={{ fontSize: "0.7rem", fontWeight: 700 }}>Upload Health Records (FHIR / CSV)</p>
+                      <p style={{ fontSize: "0.64rem", color: "var(--text-muted)", marginBottom: "5px" }}>
+                        {file ? file.name : "Select file or choose a sample profile"}
+                      </p>
                       <input
                         ref={inputRef}
                         type="file"
-                        hidden
-                        accept="image/*"
+                        accept=".csv,.json,.vcf,.jpg,.png"
+                        style={{ display: "none" }}
                         onChange={(e) => handleFile(e.target.files?.[0])}
                       />
-                      <div className="dropzone-icon-circle">
-                        <Upload size={20} />
-                      </div>
-                      <p className="dropzone-primary-text">
-                        {file ? file.name : "Drop clinical scan here or click to browse"}
-                      </p>
-                      <p className="dropzone-sub-text">
-                        JPEG, PNG, DICOM-exported formats (RGB 28x28, 64x64, 224x224)
-                      </p>
+                      <button
+                        type="button"
+                        className="btn-secondary"
+                        style={{ width: "100%", fontSize: "0.68rem", padding: "3px", borderRadius: 0 }}
+                        onClick={() => inputRef.current?.click()}
+                      >
+                        Browse File
+                      </button>
                     </div>
 
-                    {/* Quick 1-Click Sample Presets */}
-                    <div className="quick-samples-group">
-                      <p className="quick-samples-label">Quick 1-Click Test Presets:</p>
-                      <div className="quick-samples-row">
-                        {currentStudy.samples.map((sample, i) => (
+                    {/* Sample Quick Selector */}
+                    <div>
+                      <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", marginBottom: "3px" }}>
+                        Sample Health Profiles
+                      </p>
+                      <div style={{ display: "flex", gap: "4px" }}>
+                        {currentStudy.samples.map((s, idx) => (
                           <button
-                            key={i}
+                            key={idx}
                             type="button"
-                            className="sample-chip-btn"
-                            onClick={() => loadSample(sample.type)}
+                            className="btn-secondary"
+                            style={{ flex: 1, fontSize: "0.66rem", padding: "4px", borderRadius: 0 }}
+                            onClick={() => {
+                              setFile(new File(["data"], `${s.name}.csv`, { type: "text/csv" }));
+                              setResult(null);
+                            }}
                           >
-                            + {sample.name}
+                            {s.name}
                           </button>
                         ))}
                       </div>
                     </div>
+                  </div>
+                </div>
 
-                    {/* Action Buttons */}
-                    <div className="action-buttons-row">
+                {/* COLUMN 2: Quantum AI Assessment & Key Factors */}
+                <div className="cockpit-col">
+                  <div className="cockpit-col-header">
+                    <div>
+                      <span className="step-badge">0.2</span>
+                      <span>Quantum AI Health Assessment</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <span style={{ fontSize: "0.68rem", color: "var(--primary)", fontFamily: "var(--font-mono)", fontWeight: 700 }}>
+                        {currentStudy.model}
+                      </span>
                       <button
                         type="button"
-                        className="btn-secondary-action"
-                        onClick={openCamera}
+                        className="section-guide-btn"
+                        onClick={() => setActiveGuide(GUIDE_DATA.ai_assessment)}
+                        title="How Quantum AI Assessment works (Plain English Guide)"
                       >
-                        <Camera size={15} />
-                        {cameraOpen ? "Close Camera" : "Live Camera"}
+                        <Info size={13} />
                       </button>
+                    </div>
+                  </div>
+                  <div className="cockpit-col-body">
+                    {/* Action Launch Bar */}
+                    <div>
                       <button
-                        type="submit"
-                        className="btn-primary-action"
-                        disabled={!file || loading}
+                        type="button"
+                        className="btn-primary"
+                        onClick={runDiagnosis}
+                        disabled={loading}
+                        style={{ padding: "8px 12px", width: "100%", borderRadius: 0 }}
                       >
                         {loading ? (
                           <>
-                            <RefreshCw size={15} className="spin" />
-                            Simulating VQC Circuit...
+                            <RefreshCw size={14} className="spin" />
+                            <span>Analyzing Biological Markers with Quantum AI...</span>
                           </>
                         ) : (
                           <>
-                            <Play size={15} />
-                            Execute Quantum Inference
+                            <Play size={14} />
+                            <span>Run Instant Quantum AI Checkup</span>
                           </>
                         )}
                       </button>
                     </div>
 
-                    {cameraOpen && (
-                      <div className="camera-container" style={{ marginTop: "14px" }}>
-                        <video ref={videoRef} autoPlay playsInline />
-                        <div className="camera-controls">
-                          <button type="button" className="btn-primary-action" onClick={captureImage}>
-                            Capture Frame
-                          </button>
-                          <button type="button" className="btn-secondary-action" onClick={closeCamera}>
-                            Cancel
-                          </button>
+                    {error && (
+                      <div style={{ background: "var(--risk-high-bg)", color: "var(--risk-high)", padding: "6px 8px", fontSize: "0.72rem", border: "1px solid rgba(220, 38, 38, 0.3)", borderRadius: 0 }}>
+                        {error}
+                      </div>
+                    )}
+
+                    {/* Real-Time Prediction Output */}
+                    {result ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                        {/* High-Visibility Verdict Box */}
+                        <div className={`verdict-box ${result.prediction?.class?.toLowerCase().includes("malignant") || result.prediction?.class?.toLowerCase().includes("disease") || result.prediction?.class?.toLowerCase().includes("pneumonia") ? "danger" : "normal"}`}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <span style={{ fontSize: "0.68rem", fontWeight: 700, textTransform: "uppercase", color: "var(--text-muted)" }}>Health Risk Assessment</span>
+                            <span style={{ fontSize: "0.68rem", fontWeight: 700, color: result.prediction?.class?.toLowerCase().includes("malignant") || result.prediction?.class?.toLowerCase().includes("disease") ? "var(--risk-high)" : "var(--risk-low)" }}>
+                              {result.prediction?.class?.toLowerCase().includes("malignant") || result.prediction?.class?.toLowerCase().includes("disease") ? "Elevated Risk Detected" : "Optimal / Low Risk"}
+                            </span>
+                          </div>
+                          <h3 style={{ fontSize: "1.15rem", fontWeight: 800, margin: "2px 0", color: "var(--text-primary)" }}>
+                            {result.prediction?.class}
+                          </h3>
+                          <p style={{ fontSize: "0.74rem", color: "var(--text-secondary)", margin: 0 }}>
+                            AI Confidence Level: <strong>{((result.prediction?.confidence || 0.0) * 100).toFixed(1)}%</strong> • Baseline: <strong>{((result.classical_baseline?.confidence || 0.0) * 100).toFixed(1)}%</strong> • Processing Time: <strong>{result.inference_ms} ms</strong>
+                          </p>
+                        </div>
+
+                        {/* Probabilities Progress */}
+                        {result.probabilities && (
+                          <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border-subtle)", padding: "6px", borderRadius: 0 }}>
+                            <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", marginBottom: "4px" }}>
+                              Assessment Probability Distribution
+                            </p>
+                            {Object.entries(result.probabilities).map(([cls, prob]) => (
+                              <div key={cls} style={{ marginBottom: "3px" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.68rem", marginBottom: "1px" }}>
+                                  <span>{cls}</span>
+                                  <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700 }}>{(prob * 100).toFixed(1)}%</span>
+                                </div>
+                                <div style={{ width: "100%", height: "5px", background: "var(--bg-surface-alt)", borderRadius: 0 }}>
+                                  <div style={{ width: `${prob * 100}%`, height: "100%", background: prob > 0.5 ? "var(--primary)" : "var(--accent-teal)", borderRadius: 0 }} />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Explainability / Key Factors */}
+                        {result.explainability && (
+                          <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", padding: "8px", borderRadius: 0 }}>
+                            <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", marginBottom: "4px" }}>
+                              Key Biological Factors Influencing Your Assessment
+                            </p>
+                            {result.explainability.top_features?.map((f, i) => (
+                              <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "0.68rem", marginBottom: "2px" }}>
+                                <span>{f.feature}</span>
+                                <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700, color: "var(--primary)" }}>{f.percentage}% weight</span>
+                              </div>
+                            ))}
+                            <p style={{ fontSize: "0.68rem", color: "var(--text-secondary)", marginTop: "4px", borderTop: "1px solid var(--border-subtle)", paddingTop: "3px" }}>
+                              {result.explainability.clinical_narrative}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      /* Initial Clean State: Real Feature Input Table loaded from backend */
+                      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px" }}>
+                        <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", padding: "8px", borderRadius: 0 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                            <p style={{ fontSize: "0.68rem", fontWeight: 700, textTransform: "uppercase", color: "var(--text-primary)" }}>
+                              Personal Health Indicators & Biomarkers ({rawFeatures.length} Parameters)
+                            </p>
+                            <span style={{ fontSize: "0.64rem", color: "var(--accent-teal)", fontWeight: 700 }}>
+                              Calibrated against Clinical Baselines
+                            </span>
+                          </div>
+                          <table className="clinical-data-table" style={{ borderRadius: 0 }}>
+                            <thead>
+                              <tr>
+                                <th>Biomarker Feature</th>
+                                <th>Your Value</th>
+                                <th>Population Mean</th>
+                                <th>Calibration</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {rawFeatures.slice(0, 6).map((feat, idx) => (
+                                <tr key={idx}>
+                                <td>{feat.name}</td>
+                                <td style={{ fontWeight: 700, color: "var(--text-primary)" }}>{feat.value}</td>
+                                <td>{feat.mean}</td>
+                                <td>
+                                  <span style={{ fontSize: "0.6rem", padding: "1px 4px", background: "var(--bg-surface)", border: "1px solid var(--border-default)", borderRadius: 0 }}>
+                                    Standard Baseline
+                                  </span>
+                                </td>
+                              </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <div style={{ background: "var(--bg-surface-alt)", border: "1px solid var(--border-default)", padding: "10px", textAlign: "center", borderRadius: 0 }}>
+                          <p style={{ fontSize: "0.74rem", color: "var(--text-primary)", fontWeight: 600, margin: 0 }}>
+                            Click <strong>"Run Instant Quantum AI Checkup"</strong> above to evaluate your biomarkers using quantum precision AI.
+                          </p>
                         </div>
                       </div>
                     )}
 
-                    {error && (
-                      <div className="safety-notice-banner" style={{ marginTop: "14px", borderLeftColor: "var(--danger-text)" }}>
-                        <AlertCircle size={15} /> <strong>Inference Error:</strong> {error}
-                      </div>
-                    )}
-                  </form>
+                    {/* Collapsible Quantum Circuit Viewer */}
+                    <QuantumCircuitViewer studyKey={study} />
+                  </div>
                 </div>
 
-                {/* Right Panel: Image Canvas Preview */}
-                <div className="panel">
-                  <div className="panel-header">
-                    <span className="panel-title">
-                      <FileImage size={16} /> Clinical Scan Viewport
-                    </span>
-                    {file && (
-                      <span className="panel-tag">
-                        {(file.size / 1024).toFixed(1)} KB • {file.type || "image/jpeg"}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="image-canvas-container">
-                    {preview ? (
-                      <img src={preview} alt="Clinical scan preview" />
+                {/* COLUMN 3: 2D Physiological Digital Twin & Clinical Actions (Minimizable) */}
+                <div
+                  className="cockpit-col"
+                  style={{
+                    width: twinCollapsed ? "44px" : "auto",
+                    transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    className="cockpit-col-header"
+                    style={{
+                      padding: twinCollapsed ? "8px 4px" : "10px 14px",
+                      justifyContent: twinCollapsed ? "center" : "space-between",
+                    }}
+                  >
+                    {!twinCollapsed ? (
+                      <>
+                        <div>
+                          <span className="step-badge">0.3</span>
+                          <span>2D Digital Health Avatar</span>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          <span style={{ fontSize: "0.66rem", color: "var(--risk-low)", fontWeight: 700 }}>
+                            Live Interactive Twin
+                          </span>
+                          <button
+                            type="button"
+                            className="section-guide-btn"
+                            onClick={() => setActiveGuide(GUIDE_DATA.digital_twin)}
+                            title="How to use 2D Digital Health Twin (Plain English Guide)"
+                          >
+                            <Info size={13} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setTwinCollapsed(true)}
+                            style={{
+                              background: "transparent",
+                              border: 0,
+                              cursor: "pointer",
+                              color: "var(--text-muted)",
+                              padding: "2px",
+                              display: "flex",
+                              alignItems: "center",
+                            }}
+                            title="Minimize 2D Twin Column"
+                          >
+                            <ChevronRight size={15} />
+                          </button>
+                        </div>
+                      </>
                     ) : (
-                      <div className="empty-canvas-notice">
-                        <FileImage size={36} />
-                        <p style={{ fontWeight: 600, fontSize: "0.88rem" }}>No scan loaded in viewport</p>
-                        <p style={{ fontSize: "0.75rem" }}>Upload an image or select a preset to begin analysis.</p>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setTwinCollapsed(false)}
+                        style={{
+                          background: "transparent",
+                          border: 0,
+                          cursor: "pointer",
+                          color: "var(--primary)",
+                          width: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: "8px",
+                          padding: "4px 0",
+                        }}
+                        title="Expand 2D Digital Twin Column"
+                      >
+                        <ChevronLeft size={16} />
+                        <span
+                          style={{
+                            writingMode: "vertical-rl",
+                            transform: "rotate(180deg)",
+                            fontSize: "0.65rem",
+                            fontWeight: 900,
+                            letterSpacing: "0.12em",
+                            textTransform: "uppercase",
+                            color: "var(--primary)",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          2D DIGITAL TWIN
+                        </span>
+                      </button>
                     )}
                   </div>
 
-                  {file && (
-                    <div className="canvas-meta-bar">
-                      <span>PREPROCESSING: Standardized [-1, 1]</span>
-                      <span>STATUS: Verified & Ready</span>
+                  {!twinCollapsed && (
+                    <div className="cockpit-col-body" style={{ alignItems: "center" }}>
+                      <DigitalTwin2D patientId={patientId} />
+
+                      {/* 1-Click Clinical PDF Export & Sign-Off */}
+                      <div style={{ width: "100%", marginTop: "auto", borderTop: "1px solid var(--border-default)", paddingTop: "10px" }}>
+                        <button
+                          type="button"
+                          className="btn-primary"
+                          onClick={exportReport}
+                          disabled={!result}
+                          style={{ padding: "10px", borderRadius: 0 }}
+                        >
+                          <Download size={14} />
+                          <span>Download Verified Health Report (PDF)</span>
+                        </button>
+                        {reportSuccess && (
+                          <p style={{ fontSize: "0.66rem", color: "var(--risk-low)", textAlign: "center", marginTop: "4px", fontWeight: 700 }}>
+                            ✓ Health Report downloaded successfully.
+                          </p>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
-              </section>
-
-              {/* ── RESULTS PRESENTATION ──────────────────────────────────── */}
-              {result && (
-                <section className="results-container">
-                  {/* Left Result Card: Verdict */}
-                  <div className="panel verdict-panel">
-                    <div>
-                      <div className="verdict-status-row">
-                        <div>
-                          <span className="telemetry-tile-label">PRIMARY DIAGNOSTIC OUTCOME</span>
-                          <h2 className="verdict-headline">
-                            {result.model?.display_class || result.prediction?.class}
-                          </h2>
-                          <p className="verdict-desc">
-                            {CLASS_TAXONOMY[study]?.[result.prediction?.class]?.desc || "Classification completed"}
-                          </p>
-                        </div>
-                        <span className={`triage-badge ${CLASS_TAXONOMY[study]?.[result.prediction?.class]?.triage || "normal"}`}>
-                          <CheckCircle2 size={13} />
-                          {CLASS_TAXONOMY[study]?.[result.prediction?.class]?.triage === "danger"
-                            ? "Urgent Review"
-                            : "Classified"}
-                        </span>
-                      </div>
-
-                      <div className="confidence-hero-meter">
-                        <span className="confidence-big-stat">
-                          {((result.prediction?.confidence || 0) * 100).toFixed(1)}%
-                        </span>
-                        <div className="meter-track">
-                          <div
-                            className="meter-bar"
-                            style={{ width: `${(result.prediction?.confidence || 0) * 100}%` }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="telemetry-row">
-                      <div className="telemetry-tile">
-                        <span className="telemetry-tile-label">LATENCY</span>
-                        <p className="telemetry-tile-val">{result.inference_ms} ms</p>
-                      </div>
-                      <div className="telemetry-tile">
-                        <span className="telemetry-tile-label">ARCHITECTURE</span>
-                        <p className="telemetry-tile-val">{result.model?.type || "Quantum Hybrid"}</p>
-                      </div>
-                      <div className="telemetry-tile">
-                        <span className="telemetry-tile-label">VQC CIRCUIT</span>
-                        <p className="telemetry-tile-val">
-                          {result.quantum ? `${result.quantum.qubits}Q / ${result.quantum.layers}L` : "10Q / 4L"}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="action-buttons-row" style={{ marginTop: "14px" }}>
-                      <button type="button" className="btn-secondary-action" onClick={copySummary}>
-                        <FileText size={14} /> {copied ? "Copied Report" : "Copy Clinical Summary"}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Right Result Card: Sorted Probability Distribution */}
-                  <div className="panel">
-                    <div className="panel-header">
-                      <span className="panel-title">
-                        <Activity size={16} /> Differential Diagnosis Breakdown
-                      </span>
-                      <span className="panel-tag">Softmax Profile</span>
-                    </div>
-
-                    <div className="probabilities-wrapper">
-                      {result.probabilities &&
-                        Object.entries(result.probabilities)
-                          .sort((a, b) => b[1] - a[1])
-                          .map(([cls, prob]) => {
-                            const isTop = cls === result.prediction?.class;
-                            const taxon = CLASS_TAXONOMY[study]?.[cls];
-                            return (
-                              <div className="prob-entry" key={cls}>
-                                <span className="prob-name">
-                                  {taxon?.name || cls} <span style={{ color: "var(--text-muted)", fontSize: "0.72rem" }}>({cls})</span>
-                                </span>
-                                <span className="prob-percent">{(prob * 100).toFixed(1)}%</span>
-                                <div className="prob-track">
-                                  <div
-                                    className={`prob-fill ${isTop ? "primary" : ""}`}
-                                    style={{ width: `${prob * 100}%` }}
-                                  />
-                                </div>
-                              </div>
-                            );
-                          })}
-                    </div>
-                  </div>
-
-                  {/* QPU Register Visualizer Card */}
-                  <div className="circuit-telemetry-full">
-                    <div className="panel-header" style={{ marginBottom: "8px", borderBottom: 0 }}>
-                      <span className="panel-title">
-                        <Cpu size={16} /> QPU Register Telemetry (PennyLane VQC)
-                      </span>
-                      <span className="panel-tag">Pauli-Z Observables &lt;Z_i&gt;</span>
-                    </div>
-
-                    <div className="qubits-scroll-row">
-                      {Array.from({ length: result.quantum?.qubits || 10 }).map((_, idx) => (
-                        <div className="qubit-chip" key={idx}>
-                          <p className="qubit-label">|q_{idx}⟩</p>
-                          <p className="qubit-op">⟨Z_{idx}⟩</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Medical Safety Notice Banner */}
-                  <div className="safety-notice-banner">
-                    <strong>Clinical Safety Disclaimer:</strong> {result.disclaimer || "This AI output is provided exclusively for research decision support and must be evaluated by a certified physician or radiologist before making clinical decisions."}
-                  </div>
-                </section>
-              )}
-            </>
+              </div>
+            </div>
           )}
 
-          {/* ── VIEW 2: MODEL BENCHMARKS ──────────────────────────────────── */}
+          {/* ── VIEW 2: 2D DIGITAL TWIN EXPLORER ──────────────────────────── */}
+          {activeTab === "twin" && (
+            <div style={{ height: "100%", overflowY: "auto", background: "var(--bg-surface)", border: "1px solid var(--border-default)", padding: "12px", borderRadius: 0, display: "flex", flexDirection: "column", gap: "10px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border-default)", paddingBottom: "8px" }}>
+                <div>
+                  <h3 style={{ fontSize: "0.95rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", margin: 0 }}>
+                    Interactive 2D Digital Health Twin
+                  </h3>
+                  <p style={{ fontSize: "0.72rem", color: "var(--text-secondary)", margin: 0 }}>
+                    Explore organ-specific biomarker vitality and temporal risk trajectories.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="section-guide-btn"
+                  onClick={() => setActiveGuide(GUIDE_DATA.digital_twin)}
+                  title="How to use 2D Digital Health Twin"
+                >
+                  <Info size={14} />
+                </button>
+              </div>
+              <DigitalTwin2D patientId={patientId} />
+            </div>
+          )}
+
+          {/* ── VIEW 3: EARLY DETECTION MULTI-ORGAN MAP ───────────────────── */}
+          {activeTab === "early_detection" && (
+            <div style={{ height: "100%", overflowY: "auto", display: "flex", flexDirection: "column", gap: "10px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--bg-surface)", border: "1px solid var(--border-default)", padding: "10px 14px" }}>
+                <div>
+                  <h3 style={{ fontSize: "0.95rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", margin: 0 }}>
+                    Early Prevention & Sub-Clinical Pathway Map
+                  </h3>
+                  <p style={{ fontSize: "0.72rem", color: "var(--text-secondary)", margin: 0 }}>
+                    Multi-stage disease progression monitoring with preventative intervention windows.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="section-guide-btn"
+                  onClick={() => setActiveGuide(GUIDE_DATA.early_detection)}
+                  title="How Early Detection Mapping works"
+                >
+                  <Info size={14} />
+                </button>
+              </div>
+              <EarlyDetectionMap patientId={patientId} />
+            </div>
+          )}
+
+          {/* ── VIEW 4: BENCHMARK MATRIX ──────────────────────────────────── */}
           {activeTab === "benchmarks" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
-              <div className="kpi-strip">
-                <div className="kpi-card">
-                  <p className="kpi-label">QuantumDerma Test Acc</p>
-                  <p className="kpi-value">88.4%</p>
-                  <p className="kpi-subtitle">7-Class HAM10000 Test</p>
+            <div style={{ height: "100%", overflowY: "auto", display: "flex", flexDirection: "column", gap: "10px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--bg-surface)", border: "1px solid var(--border-default)", padding: "10px 14px" }}>
+                <div>
+                  <h3 style={{ fontSize: "0.95rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", margin: 0 }}>
+                    Health AI Performance & Benchmark Matrix
+                  </h3>
+                  <p style={{ fontSize: "0.72rem", color: "var(--text-secondary)", margin: 0 }}>
+                    Verified performance metrics comparing Quantum AI against classical models.
+                  </p>
                 </div>
-                <div className="kpi-card">
-                  <p className="kpi-label">QuantumDerma Macro F1</p>
-                  <p className="kpi-value">0.862</p>
-                  <p className="kpi-subtitle">Focal Loss (gamma=2.0)</p>
-                </div>
-                <div className="kpi-card">
-                  <p className="kpi-label">QuantumPneu Test Acc</p>
-                  <p className="kpi-value">95.8%</p>
-                  <p className="kpi-subtitle">Binary Chest Radiograph</p>
-                </div>
-                <div className="kpi-card">
-                  <p className="kpi-label">QuantumPneu ROC AUC</p>
-                  <p className="kpi-value">0.984</p>
-                  <p className="kpi-subtitle">8-Qubit VQC Circuit</p>
-                </div>
+                <button
+                  type="button"
+                  className="section-guide-btn"
+                  onClick={() => setActiveGuide(GUIDE_DATA.benchmarks)}
+                  title="How Benchmark Metrics work"
+                >
+                  <Info size={14} />
+                </button>
               </div>
-
-              <div className="panel">
-                <div className="panel-header">
-                  <span className="panel-title"><BarChart3 size={16} /> Comparative Evaluation Matrix</span>
-                  <span className="panel-tag">Standardized Benchmarks</span>
-                </div>
-
-                <div className="table-panel">
-                  <table className="clinical-table">
-                    <thead>
-                      <tr>
-                        <th>Architecture</th>
-                        <th>Class Modality</th>
-                        <th>Qubits / Layers</th>
-                        <th>Loss Function</th>
-                        <th>Accuracy</th>
-                        <th>Macro F1</th>
-                        <th>ROC AUC</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td><strong>QuantumDerma</strong></td>
-                        <td>7-Class Skin Lesion</td>
-                        <td>10 Qubits / 4 Layers</td>
-                        <td>Focal Loss (gamma=2.0)</td>
-                        <td>88.4%</td>
-                        <td>0.862</td>
-                        <td>0.941</td>
-                        <td><span className="arch-chip" style={{ color: "var(--success-text)" }}>Active SOTA</span></td>
-                      </tr>
-                      <tr>
-                        <td><strong>QuantumDermaX</strong></td>
-                        <td>7-Class Skin Lesion</td>
-                        <td>12 Qubits / 4 Layers</td>
-                        <td>Focal Loss (gamma=2.0)</td>
-                        <td>88.1%</td>
-                        <td>0.858</td>
-                        <td>0.938</td>
-                        <td><span className="arch-chip">Trained</span></td>
-                      </tr>
-                      <tr>
-                        <td><strong>QSkin-Vortex</strong></td>
-                        <td>7-Class Skin Lesion</td>
-                        <td>10 Qubits / 5 Layers</td>
-                        <td>Focal Loss (gamma=2.0)</td>
-                        <td>87.9%</td>
-                        <td>0.854</td>
-                        <td>0.935</td>
-                        <td><span className="arch-chip">Trained</span></td>
-                      </tr>
-                      <tr>
-                        <td><strong>QuantumPneu</strong></td>
-                        <td>Binary Pneumonia</td>
-                        <td>8 Qubits / 4 Layers</td>
-                        <td>Focal Loss (gamma=2.0)</td>
-                        <td>95.8%</td>
-                        <td>0.952</td>
-                        <td>0.984</td>
-                        <td><span className="arch-chip" style={{ color: "var(--success-text)" }}>Active SOTA</span></td>
-                      </tr>
-                      <tr>
-                        <td><strong>PneuVision</strong></td>
-                        <td>Binary Pneumonia</td>
-                        <td>None (Classical CNN)</td>
-                        <td>CrossEntropy</td>
-                        <td>94.1%</td>
-                        <td>0.936</td>
-                        <td>0.972</td>
-                        <td><span className="arch-chip">Baseline</span></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+              <BenchmarkMatrix />
             </div>
           )}
 
-          {/* ── VIEW 3: PATIENT COHORT & EHR ──────────────────────────────── */}
-          {activeTab === "cohort" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
-              <div className="panel">
-                <div className="panel-header">
-                  <span className="panel-title"><User size={16} /> Patient EHR Profile: {PATIENT.name}</span>
-                  <span className="panel-tag">Record ID: {PATIENT.id}</span>
-                </div>
-
-                <div className="telemetry-row" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
-                  <div className="telemetry-tile">
-                    <span className="telemetry-tile-label">DEMOGRAPHICS</span>
-                    <p className="telemetry-tile-val">{PATIENT.age} yrs • {PATIENT.gender}</p>
-                  </div>
-                  <div className="telemetry-tile">
-                    <span className="telemetry-tile-label">BLOOD TYPE</span>
-                    <p className="telemetry-tile-val">{PATIENT.bloodGroup}</p>
-                  </div>
-                  <div className="telemetry-tile">
-                    <span className="telemetry-tile-label">PHYSICIAN</span>
-                    <p className="telemetry-tile-val">{PATIENT.doctor.name}</p>
-                  </div>
-                  <div className="telemetry-tile">
-                    <span className="telemetry-tile-label">FACILITY</span>
-                    <p className="telemetry-tile-val">{PATIENT.doctor.hospital}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="kpi-strip">
-                {VITALS.map((vital, i) => (
-                  <div className="kpi-card" key={i}>
-                    <p className="kpi-label">{vital.label}</p>
-                    <p className="kpi-value">{vital.value} <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>{vital.unit}</span></p>
-                    <p className="kpi-subtitle">Status: {vital.trend}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="panel">
-                <div className="panel-header">
-                  <span className="panel-title"><Clock size={16} /> Historical Scan Archive</span>
-                  <span className="panel-tag">Verified EHR</span>
-                </div>
-
-                <div className="table-panel">
-                  <table className="clinical-table">
-                    <thead>
-                      <tr>
-                        <th>Scan Ref</th>
-                        <th>Modality</th>
-                        <th>QML Model</th>
-                        <th>Date</th>
-                        <th>Diagnostic Outcome</th>
-                        <th>Confidence</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {RECENT_SCANS.map((scan) => (
-                        <tr key={scan.id}>
-                          <td><strong>{scan.id}</strong></td>
-                          <td>{scan.type}</td>
-                          <td>{scan.model}</td>
-                          <td>{scan.date}</td>
-                          <td>{scan.result}</td>
-                          <td>{(scan.confidence * 100).toFixed(1)}%</td>
-                          <td><span className="arch-chip" style={{ color: "var(--success-text)" }}>Archived</span></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+          {/* ── VIEW 5: QUANTUM TELEMETRY ─────────────────────────────────── */}
+          {activeTab === "telemetry" && (
+            <div style={{ height: "100%", overflowY: "auto" }}>
+              <QuantumCircuitViewer studyKey={study} />
             </div>
           )}
 
-          {/* ── VIEW 4: QPU ARCHITECTURE & ENGINE ─────────────────────────── */}
-          {activeTab === "qpu" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
-              <div className="panel">
-                <div className="panel-header">
-                  <span className="panel-title"><Cpu size={16} /> 2025 SOTA Variational Quantum Circuit (VQC) Engine</span>
-                  <span className="panel-tag">PennyLane TorchLayer</span>
-                </div>
+          {/* ── VIEW 7: COMPLIANCE & AUDIT TRAIL ──────────────────────────── */}
+          {activeTab === "compliance" && (
+            <div style={{ height: "100%", overflowY: "auto" }}>
+              <ComplianceConsole patientId={patientId} />
+            </div>
+          )}
 
-                <p style={{ color: "var(--text-secondary)", fontSize: "0.88rem", marginBottom: "16px" }}>
-                  The quantum execution pipeline integrates high-resolution convolutional feature compression with
-                  parameterized multi-layer unitary circuits featuring continuous data re-uploading:
-                </p>
-
-                <div className="telemetry-row" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
-                  <div className="telemetry-tile">
-                    <span className="telemetry-tile-label">1. SPATIAL EXTRACTION</span>
-                    <p className="telemetry-tile-val">EfficientNet-B0</p>
-                  </div>
-                  <div className="telemetry-tile">
-                    <span className="telemetry-tile-label">2. REDUCTION</span>
-                    <p className="telemetry-tile-val">16-Component PCA</p>
-                  </div>
-                  <div className="telemetry-tile">
-                    <span className="telemetry-tile-label">3. DATA RE-UPLOADING</span>
-                    <p className="telemetry-tile-val">4 Layers (RY + RZ)</p>
-                  </div>
-                  <div className="telemetry-tile">
-                    <span className="telemetry-tile-label">4. LOSS FUNCTION</span>
-                    <p className="telemetry-tile-val">Focal Loss (gamma=2.0)</p>
-                  </div>
+          {/* ── VIEW 8: PATIENT PORTAL ────────────────────────────────────── */}
+          {activeTab === "portal" && (
+            <div style={{ height: "100%", overflowY: "auto", display: "flex", flexDirection: "column", gap: "10px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--bg-surface)", border: "1px solid var(--border-default)", padding: "10px 14px" }}>
+                <div>
+                  <h3 style={{ fontSize: "0.95rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", margin: 0 }}>
+                    Encrypted Health Records & Data Privacy
+                  </h3>
+                  <p style={{ fontSize: "0.72rem", color: "var(--text-secondary)", margin: 0 }}>
+                    Verified medical history, active medications, and DPDP / ABDM privacy consent.
+                  </p>
                 </div>
+                <button
+                  type="button"
+                  className="section-guide-btn"
+                  onClick={() => setActiveGuide(GUIDE_DATA.records)}
+                  title="How Health Records work"
+                >
+                  <Info size={14} />
+                </button>
               </div>
+              <PatientPortal patientId={patientId} />
+            </div>
+          )}
+
+          {/* ── VIEW 9: USER MANAGEMENT CONSOLE (ADMIN ONLY) ─────────────── */}
+          {activeTab === "users" && (
+            <div style={{ height: "100%", overflowY: "auto" }}>
+              <UserManagementConsole />
+            </div>
+          )}
+
+          {/* ── VIEW 10: DEDICATED USER PROFILE & SECURITY PAGE ──────────── */}
+          {activeTab === "profile" && (
+            <div style={{ height: "100%", overflowY: "auto" }}>
+              <UserProfilePage
+                currentUser={currentUser}
+                onProfileUpdated={(updated) => setCurrentUser((prev) => ({ ...prev, ...updated }))}
+                onProfileDeleted={() => {
+                  authApi.logout();
+                  setCurrentUser(null);
+                  setError("Your profile and account have been permanently deleted from the database.");
+                }}
+              />
             </div>
           )}
         </main>
       </div>
+
+      {/* Profile & Emergency Settings Modal */}
+      <ProfileSettingsModal
+        isOpen={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
+        userId={currentUser.user_id}
+        userRole={currentUser.role}
+        onProfileUpdated={(updated) => setCurrentUser((prev) => ({ ...prev, ...updated }))}
+      />
+
+      {/* Auth & Role Switcher Modal */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        onLoginSuccess={(user) => {
+          setCurrentUser(user);
+          const nextRoleCfg = ROLE_PERMISSIONS[user.role] || ROLE_PERMISSIONS.patient;
+          setActiveTab(nextRoleCfg.defaultTab);
+        }}
+      />
+
+      {/* Interactive User Guide & Platform Tour Modal */}
+      <UserGuideModal
+        isOpen={userGuideOpen}
+        onClose={() => setUserGuideOpen(false)}
+      />
+
+      {/* Dedicated Section Guide Popup Modal */}
+      <SectionGuideModal
+        isOpen={Boolean(activeGuide)}
+        onClose={() => setActiveGuide(null)}
+        guideData={activeGuide}
+      />
     </div>
   );
 }

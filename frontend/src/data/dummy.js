@@ -4,6 +4,7 @@
 
 export const PATIENT = {
   id: "PAT-2026-8821",
+  mrn: "MRN-89421-QX",
   name: "Alexander Reed",
   age: 48,
   gender: "Male",
@@ -15,8 +16,9 @@ export const PATIENT = {
   phone: "+1 (555) 382-9102",
   email: "alexander.reed@healthnet.org",
   address: "San Francisco, CA, USA",
+  conditions: ["Coronary Risk", "Dense Breast Tissue", "Mild Hyperlipidemia"],
   emergencyContact: { name: "Elena Reed", relation: "Spouse", phone: "+1 (555) 382-9103" },
-  doctor: { name: "Dr. Sarah Chen, MD", specialization: "Pulmonology & Dermatology", hospital: "Stanford Health Care" },
+  careTeam: { program: "Autonomous Health Intelligence", facility: "Q-MedSense Clinical AI Network" },
 };
 
 export const VITALS = [
