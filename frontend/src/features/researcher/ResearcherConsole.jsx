@@ -1,0 +1,256 @@
+import { useState } from "react";
+import { Cpu, Play, RefreshCw, CheckCircle2, Zap, Sliders, Database, Layers, Terminal, Activity } from "lucide-react";
+import { researcherApi } from "../../api/researcher";
+
+export default function ResearcherConsole() {
+  const [dataset, setDataset] = useState("wdbc");
+  const [modelArchitecture, setModelArchitecture] = useState("VQC");
+  const [qubits, setQubits] = useState(8);
+  const [layers, setLayers] = useState(3);
+  const [epochs, setEpochs] = useState(5);
+  const [lr, setLr] = useState(0.02);
+  const [lossFunction, setLossFunction] = useState("Focal Loss");
+
+  const [loading, setLoading] = useState(false);
+  const [jobResult, setJobResult] = useState(null);
+  const [error, setError] = useState(null);
+
+  async function handleTrain(e) {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setJobResult(null);
+    try {
+      const data = await researcherApi.triggerRetraining({
+        dataset,
+        model_architecture: modelArchitecture,
+        n_qubits: qubits,
+        n_layers: layers,
+        epochs,
+        learning_rate: lr,
+        loss_function: lossFunction,
+      });
+      setJobResult(data);
+    } catch (err) {
+      setError(err.message || "Model training failed.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
+      {/* Retraining Form Controls */}
+      <div className="card-panel" style={{ borderRadius: 0, border: "1px solid var(--border-default)" }}>
+        <div className="card-header">
+          <span className="card-title">
+            <Sliders size={16} color="var(--primary)" /> QML Retraining Studio & Hyperparameter Optimizer
+          </span>
+          <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
+            PennyLane TorchLayer + Autograd
+          </span>
+        </div>
+
+        <form onSubmit={handleTrain} style={{ display: "flex", flexDirection: "column", gap: "14px", marginTop: "12px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
+            {/* Dataset selection */}
+            <div>
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "var(--text-secondary)", marginBottom: "4px" }}>
+                Target Dataset
+              </label>
+              <select
+                value={dataset}
+                onChange={(e) => setDataset(e.target.value)}
+                style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--border-default)", borderRadius: 0, fontSize: "0.82rem", background: "var(--bg-surface)" }}
+              >
+                <option value="wdbc">Wisconsin Breast Cancer (WDBC - 30 Features)</option>
+                <option value="cleveland">Cleveland Heart Disease (14 Features)</option>
+                <option value="pima">PIMA Indian Diabetes (8 Features)</option>
+              </select>
+            </div>
+
+            {/* Architecture selection */}
+            <div>
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "var(--text-secondary)", marginBottom: "4px" }}>
+                Quantum Model Class
+              </label>
+              <select
+                value={modelArchitecture}
+                onChange={(e) => setModelArchitecture(e.target.value)}
+                style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--border-default)", borderRadius: 0, fontSize: "0.82rem", background: "var(--bg-surface)" }}
+              >
+                <option value="VQC">VQC (Strongly Entangling Layers)</option>
+                <option value="QSVM">QSVM (Quantum Fidelity Kernel)</option>
+                <option value="QNN">QNN (Multi-Class Pauli-Z Head)</option>
+              </select>
+            </div>
+
+            {/* Loss Function */}
+            <div>
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "var(--text-secondary)", marginBottom: "4px" }}>
+                Loss Function
+              </label>
+              <select
+                value={lossFunction}
+                onChange={(e) => setLossFunction(e.target.value)}
+                style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--border-default)", borderRadius: 0, fontSize: "0.82rem", background: "var(--bg-surface)" }}
+              >
+                <option value="Focal Loss">Focal Loss (gamma=2.0)</option>
+                <option value="CrossEntropy">Categorical Cross-Entropy</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Sliders for Hyperparameters */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px", background: "var(--bg-canvas)", padding: "12px", borderRadius: 0, border: "1px solid var(--border-subtle)" }}>
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.72rem", fontWeight: 700, marginBottom: "4px" }}>
+                <span>Qubits</span>
+                <span style={{ color: "var(--primary)", fontFamily: "var(--font-mono)" }}>{qubits} Q</span>
+              </div>
+              <input
+                type="range"
+                min="4"
+                max="12"
+                value={qubits}
+                onChange={(e) => setQubits(parseInt(e.target.value))}
+                style={{ width: "100%", accentColor: "var(--primary)", borderRadius: 0 }}
+              />
+            </div>
+
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.72rem", fontWeight: 700, marginBottom: "4px" }}>
+                <span>Variational Layers</span>
+                <span style={{ color: "var(--primary)", fontFamily: "var(--font-mono)" }}>{layers} L</span>
+              </div>
+              <input
+                type="range"
+                min="1"
+                max="6"
+                value={layers}
+                onChange={(e) => setLayers(parseInt(e.target.value))}
+                style={{ width: "100%", accentColor: "var(--primary)", borderRadius: 0 }}
+              />
+            </div>
+
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.72rem", fontWeight: 700, marginBottom: "4px" }}>
+                <span>Epochs</span>
+                <span style={{ color: "var(--primary)", fontFamily: "var(--font-mono)" }}>{epochs} Ep</span>
+              </div>
+              <input
+                type="range"
+                min="2"
+                max="15"
+                value={epochs}
+                onChange={(e) => setEpochs(parseInt(e.target.value))}
+                style={{ width: "100%", accentColor: "var(--primary)", borderRadius: 0 }}
+              />
+            </div>
+
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.72rem", fontWeight: 700, marginBottom: "4px" }}>
+                <span>Learning Rate</span>
+                <span style={{ color: "var(--primary)", fontFamily: "var(--font-mono)" }}>{lr}</span>
+              </div>
+              <input
+                type="range"
+                min="0.005"
+                max="0.05"
+                step="0.005"
+                value={lr}
+                onChange={(e) => setLr(parseFloat(e.target.value))}
+                style={{ width: "100%", accentColor: "var(--primary)", borderRadius: 0 }}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <button type="submit" className="btn-primary" disabled={loading} style={{ borderRadius: 0 }}>
+              {loading ? (
+                <>
+                  <RefreshCw size={14} className="spin" /> Executing Quantum Training Pipeline...
+                </>
+              ) : (
+                <>
+                  <Play size={14} /> Run Live Retraining Experiment
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+
+        {error && (
+          <div style={{ marginTop: "12px", padding: "8px 12px", background: "var(--risk-high-bg)", color: "var(--risk-high)", border: "1px solid var(--risk-high)", borderRadius: 0, fontSize: "0.80rem" }}>
+            {error}
+          </div>
+        )}
+      </div>
+
+      {/* Training Convergence & Results */}
+      {jobResult && (
+        <div className="card-panel" style={{ borderRadius: 0, border: "1px solid var(--border-default)" }}>
+          <div className="card-header">
+            <span className="card-title">
+              <CheckCircle2 size={16} color="var(--risk-low)" /> Retraining Job Completed: {jobResult.job_id}
+            </span>
+            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--risk-low)", background: "var(--risk-low-bg)", padding: "2px 8px", border: "1px solid var(--risk-low)", borderRadius: 0 }}>
+              Registered: {jobResult.registered_model_tag}
+            </span>
+          </div>
+
+          <div className="kpi-grid" style={{ marginTop: "12px", marginBottom: "16px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
+            <div className="kpi-tile" style={{ borderRadius: 0, border: "1px solid var(--border-default)" }}>
+              <div>
+                <p className="kpi-tile-label">Final Accuracy</p>
+                <p className="kpi-tile-value" style={{ color: "var(--risk-low)" }}>{(jobResult.final_accuracy * 100).toFixed(1)}%</p>
+                <p className="kpi-tile-sub">Convergence verified</p>
+              </div>
+              <CheckCircle2 size={22} color="var(--risk-low)" />
+            </div>
+            <div className="kpi-tile" style={{ borderRadius: 0, border: "1px solid var(--border-default)" }}>
+              <div>
+                <p className="kpi-tile-label">Training Duration</p>
+                <p className="kpi-tile-value">{jobResult.training_time_seconds}s</p>
+                <p className="kpi-tile-sub">PennyLane Autograd</p>
+              </div>
+              <Cpu size={22} color="var(--primary)" />
+            </div>
+            <div className="kpi-tile" style={{ borderRadius: 0, border: "1px solid var(--border-default)" }}>
+              <div>
+                <p className="kpi-tile-label">Circuit Parameters</p>
+                <p className="kpi-tile-value">{qubits * layers * 3}</p>
+                <p className="kpi-tile-sub">{qubits}Q × {layers}L × 3 Rot</p>
+              </div>
+              <Layers size={22} color="var(--accent-violet)" />
+            </div>
+          </div>
+
+          {/* Epoch Progress Table */}
+          <div className="data-table-wrap" style={{ border: "1px solid var(--border-default)" }}>
+            <table className="clinical-data-table">
+              <thead>
+                <tr>
+                  <th>Epoch</th>
+                  <th>Loss</th>
+                  <th>Training Accuracy</th>
+                  <th>Optimization Gradient Step</th>
+                </tr>
+              </thead>
+              <tbody>
+                {jobResult.training_history?.map((h) => (
+                  <tr key={h.epoch}>
+                    <td><strong>Epoch {h.epoch}</strong></td>
+                    <td><code>{h.loss.toFixed(4)}</code></td>
+                    <td><strong style={{ color: "var(--primary)" }}>{(h.accuracy * 100).toFixed(1)}%</strong></td>
+                    <td>Parameter-Shift / Adam (lr={lr})</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

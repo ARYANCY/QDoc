@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
 
 try:
-    from backend.graphs.generate_graphs import GRAPH_ROOT, generate_all_graphs
+    from backend.app.features.graphs.generator import GRAPH_ROOT, generate_all_graphs
 except Exception as exc:  # pragma: no cover - defensive import guard
     GRAPH_ROOT = None
     generate_all_graphs = None

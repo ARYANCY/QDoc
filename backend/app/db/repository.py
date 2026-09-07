@@ -276,3 +276,318 @@ class DatabaseRepository:
         conn.commit()
         conn.close()
         return DatabaseRepository.get_consent(patient_id)
+
+    # ── Doctor Operations (Modules A, F, I, K) ─────────────────────────────────
+
+    @staticmethod
+    def list_doctors(specialty: str | None = None, status: str = "verified") -> list[dict[str, Any]]:
+        conn = get_db_connection()
+        query = "SELECT * FROM doctors"
+        params: list[Any] = []
+        conditions = []
+        if status:
+            conditions.append("verification_status = ?")
+            params.append(status)
+        if specialty and specialty.lower() != "all":
+            conditions.append("LOWER(specialty) LIKE ?")
+            params.append(f"%{specialty.lower()}%")
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
+        query += " ORDER BY rating DESC, experience_years DESC;"
+        rows = conn.execute(query, tuple(params)).fetchall()
+        conn.close()
+        out = []
+        for r in rows:
+            d = dict(r)
+            d["languages"] = json.loads(d["languages_json"])
+            d["available_slots"] = json.loads(d["available_slots_json"])
+            out.append(d)
+        return out
+
+    @staticmethod
+    def get_doctor_by_id(doctor_id: str) -> dict[str, Any] | None:
+        conn = get_db_connection()
+        row = conn.execute("SELECT * FROM doctors WHERE id = ?;", (doctor_id,)).fetchone()
+        conn.close()
+        if not row:
+            return None
+        d = dict(row)
+        d["languages"] = json.loads(d["languages_json"])
+        d["available_slots"] = json.loads(d["available_slots_json"])
+        return d
+
+    @staticmethod
+    def get_doctor_by_user_id(user_id: str) -> dict[str, Any] | None:
+        conn = get_db_connection()
+        row = conn.execute("SELECT * FROM doctors WHERE user_id = ?;", (user_id,)).fetchone()
+        conn.close()
+        if not row:
+            return None
+        d = dict(row)
+        d["languages"] = json.loads(d["languages_json"])
+        d["available_slots"] = json.loads(d["available_slots_json"])
+        return d
+
+    @staticmethod
+    def update_doctor_verification(doctor_id: str, status: str) -> bool:
+        conn = get_db_connection()
+        cursor = conn.execute("UPDATE doctors SET verification_status = ? WHERE id = ?;", (status, doctor_id))
+        conn.commit()
+        updated = cursor.rowcount > 0
+        conn.close()
+        return updated
+
+    # ── Booking & State Machine Operations (Module F) ──────────────────────────
+
+    @staticmethod
+    def create_booking(booking_data: dict[str, Any]) -> dict[str, Any]:
+        conn = get_db_connection()
+        bid = booking_data.get("id") or f"BK-{uuid.uuid4().hex[:6].upper()}"
+        pid = booking_data["patient_id"]
+        did = booking_data["doctor_id"]
+        slot = booking_data["slot_time"]
+        mode = booking_data.get("mode", "video")
+        status = booking_data.get("status", "requested")
+        pay_status = booking_data.get("payment_status", "authorized")
+        intake_json = json.dumps(booking_data.get("intake", {}))
+        triage_risk = booking_data.get("triage_risk", "normal")
+        flags_json = json.dumps(booking_data.get("emergency_flags", []))
+
+        conn.execute("""
+        INSERT INTO bookings (id, patient_id, doctor_id, slot_time, mode, status, payment_status, intake_json, triage_risk, emergency_flags_json)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        """, (bid, pid, did, slot, mode, status, pay_status, intake_json, triage_risk, flags_json))
+        conn.commit()
+
+        # Also initialize consultation room
+        room_token = f"TOKEN-RTC-{uuid.uuid4().hex[:8].upper()}"
+        conn.execute("""
+        INSERT OR IGNORE INTO consultation_rooms (id, booking_id, room_token, status)
+        VALUES (?, ?, ?, 'waiting');
+        """, (f"ROOM-{bid}", bid, room_token))
+        conn.commit()
+        conn.close()
+        return DatabaseRepository.get_booking_by_id(bid) or {}
+
+    @staticmethod
+    def get_booking_by_id(booking_id: str) -> dict[str, Any] | None:
+        conn = get_db_connection()
+        row = conn.execute("""
+        SELECT b.*, d.name as doctor_name, d.specialty as doctor_specialty, d.hospital_affiliation,
+               p.name as patient_name
+        FROM bookings b
+        JOIN doctors d ON b.doctor_id = d.id
+        LEFT JOIN patients p ON b.patient_id = p.id
+        WHERE b.id = ?;
+        """, (booking_id,)).fetchone()
+        conn.close()
+        if not row:
+            return None
+        d = dict(row)
+        d["intake"] = json.loads(d["intake_json"]) if d.get("intake_json") else {}
+        d["emergency_flags"] = json.loads(d["emergency_flags_json"]) if d.get("emergency_flags_json") else []
+        return d
+
+    @staticmethod
+    def list_bookings(patient_id: str | None = None, doctor_id: str | None = None) -> list[dict[str, Any]]:
+        conn = get_db_connection()
+        query = """
+        SELECT b.*, d.name as doctor_name, d.specialty as doctor_specialty, d.hospital_affiliation,
+               p.name as patient_name, p.age as patient_age, p.gender as patient_gender
+        FROM bookings b
+        JOIN doctors d ON b.doctor_id = d.id
+        LEFT JOIN patients p ON b.patient_id = p.id
+        """
+        params: list[Any] = []
+        conditions = []
+        if patient_id:
+            conditions.append("b.patient_id = ?")
+            params.append(patient_id)
+        if doctor_id:
+            conditions.append("b.doctor_id = ?")
+            params.append(doctor_id)
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
+        query += " ORDER BY b.created_at DESC;"
+
+        rows = conn.execute(query, tuple(params)).fetchall()
+        conn.close()
+        out = []
+        for r in rows:
+            d = dict(r)
+            d["intake"] = json.loads(d["intake_json"]) if d.get("intake_json") else {}
+            out.append(d)
+        return out
+
+    @staticmethod
+    def update_booking_status(booking_id: str, status: str, payment_status: str | None = None) -> dict[str, Any] | None:
+        conn = get_db_connection()
+        if payment_status:
+            conn.execute("UPDATE bookings SET status = ?, payment_status = ? WHERE id = ?;", (status, payment_status, booking_id))
+        else:
+            conn.execute("UPDATE bookings SET status = ? WHERE id = ?;", (status, booking_id))
+        conn.commit()
+        conn.close()
+        return DatabaseRepository.get_booking_by_id(booking_id)
+
+    # ── Virtual Room Operations (Module G) ─────────────────────────────────────
+
+    @staticmethod
+    def get_room_by_booking(booking_id: str) -> dict[str, Any] | None:
+        conn = get_db_connection()
+        row = conn.execute("SELECT * FROM consultation_rooms WHERE booking_id = ?;", (booking_id,)).fetchone()
+        conn.close()
+        if not row:
+            return None
+        d = dict(row)
+        d["chat_messages"] = json.loads(d["chat_messages_json"]) if d.get("chat_messages_json") else []
+        return d
+
+    @staticmethod
+    def update_room_status(booking_id: str, status: str | None = None, doctor_joined: bool | None = None, patient_joined: bool | None = None) -> dict[str, Any] | None:
+        conn = get_db_connection()
+        updates = []
+        params = []
+        if status:
+            updates.append("status = ?")
+            params.append(status)
+        if doctor_joined is not None:
+            updates.append("doctor_joined = ?")
+            params.append(1 if doctor_joined else 0)
+        if patient_joined is not None:
+            updates.append("patient_joined = ?")
+            params.append(1 if patient_joined else 0)
+        if updates:
+            params.append(booking_id)
+            conn.execute(f"UPDATE consultation_rooms SET {', '.join(updates)} WHERE booking_id = ?;", tuple(params))
+            conn.commit()
+        conn.close()
+        return DatabaseRepository.get_room_by_booking(booking_id)
+
+    @staticmethod
+    def add_room_chat_message(booking_id: str, sender: str, text: str) -> list[dict[str, Any]]:
+        room = DatabaseRepository.get_room_by_booking(booking_id)
+        if not room:
+            return []
+        import time
+        messages = room.get("chat_messages", [])
+        messages.append({
+            "sender": sender,
+            "text": text,
+            "time": time.strftime("%I:%M %p"),
+        })
+        conn = get_db_connection()
+        conn.execute("UPDATE consultation_rooms SET chat_messages_json = ? WHERE booking_id = ?;", (json.dumps(messages), booking_id))
+        conn.commit()
+        conn.close()
+        return messages
+
+    # ── E-Prescriptions & Care Plans (Module H) ────────────────────────────────
+
+    @staticmethod
+    def create_prescription(presc_data: dict[str, Any]) -> dict[str, Any]:
+        conn = get_db_connection()
+        import hashlib
+        pid = presc_data.get("id") or f"RX-{uuid.uuid4().hex[:6].upper()}"
+        bid = presc_data["booking_id"]
+        pat_id = presc_data["patient_id"]
+        doc_id = presc_data["doctor_id"]
+        diagnosis = presc_data["diagnosis"]
+        meds_json = json.dumps(presc_data.get("medications", []))
+        care_json = json.dumps(presc_data.get("care_plan", {}))
+        soap_json = json.dumps(presc_data.get("soap_notes", {}))
+        sig = hashlib.sha256(f"{pid}:{doc_id}:{pat_id}:{diagnosis}".encode()).hexdigest()
+
+        conn.execute("""
+        INSERT INTO prescriptions (id, booking_id, patient_id, doctor_id, diagnosis, medications_json, care_plan_json, soap_notes_json, digital_signature_hash)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+        """, (pid, bid, pat_id, doc_id, diagnosis, meds_json, care_json, soap_json, sig))
+        conn.commit()
+        conn.close()
+        return DatabaseRepository.get_prescription_by_id(pid) or {}
+
+    @staticmethod
+    def get_prescription_by_id(presc_id: str) -> dict[str, Any] | None:
+        conn = get_db_connection()
+        row = conn.execute("""
+        SELECT pr.*, d.name as doctor_name, d.specialty, d.registration_number, d.hospital_affiliation,
+               p.name as patient_name, p.mrn
+        FROM prescriptions pr
+        JOIN doctors d ON pr.doctor_id = d.id
+        LEFT JOIN patients p ON pr.patient_id = p.id
+        WHERE pr.id = ?;
+        """, (presc_id,)).fetchone()
+        conn.close()
+        if not row:
+            return None
+        d = dict(row)
+        d["medications"] = json.loads(d["medications_json"]) if d.get("medications_json") else []
+        d["care_plan"] = json.loads(d["care_plan_json"]) if d.get("care_plan_json") else {}
+        d["soap_notes"] = json.loads(d["soap_notes_json"]) if d.get("soap_notes_json") else {}
+        return d
+
+    @staticmethod
+    def list_prescriptions(patient_id: str | None = None, doctor_id: str | None = None) -> list[dict[str, Any]]:
+        conn = get_db_connection()
+        query = """
+        SELECT pr.*, d.name as doctor_name, d.specialty, d.hospital_affiliation,
+               p.name as patient_name
+        FROM prescriptions pr
+        JOIN doctors d ON pr.doctor_id = d.id
+        LEFT JOIN patients p ON pr.patient_id = p.id
+        """
+        params: list[Any] = []
+        conditions = []
+        if patient_id:
+            conditions.append("pr.patient_id = ?")
+            params.append(patient_id)
+        if doctor_id:
+            conditions.append("pr.doctor_id = ?")
+            params.append(doctor_id)
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
+        query += " ORDER BY pr.created_at DESC;"
+        rows = conn.execute(query, tuple(params)).fetchall()
+        conn.close()
+        out = []
+        for r in rows:
+            d = dict(r)
+            d["medications"] = json.loads(d["medications_json"]) if d.get("medications_json") else []
+            d["care_plan"] = json.loads(d["care_plan_json"]) if d.get("care_plan_json") else {}
+            d["soap_notes"] = json.loads(d["soap_notes_json"]) if d.get("soap_notes_json") else {}
+            out.append(d)
+        return out
+
+    # ── Notifications Operations (Module L) ───────────────────────────────────
+
+    @staticmethod
+    def list_notifications(user_id: str, limit: int = 20) -> list[dict[str, Any]]:
+        conn = get_db_connection()
+        rows = conn.execute(
+            "SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT ?;",
+            (user_id, limit)
+        ).fetchall()
+        conn.close()
+        return [dict(r) for r in rows]
+
+    @staticmethod
+    def mark_notification_read(notification_id: str) -> bool:
+        conn = get_db_connection()
+        cursor = conn.execute("UPDATE notifications SET is_read = 1 WHERE id = ?;", (notification_id,))
+        conn.commit()
+        updated = cursor.rowcount > 0
+        conn.close()
+        return updated
+
+    @staticmethod
+    def create_notification(user_id: str, title: str, message: str, ref_code: str = "", category: str = "general") -> dict[str, Any]:
+        conn = get_db_connection()
+        nid = f"NOTIF-{uuid.uuid4().hex[:6].upper()}"
+        conn.execute("""
+        INSERT INTO notifications (id, user_id, title, message, reference_code, category)
+        VALUES (?, ?, ?, ?, ?, ?);
+        """, (nid, user_id, title, message, ref_code, category))
+        conn.commit()
+        conn.close()
+        return {"id": nid, "user_id": user_id, "title": title, "message": message, "reference_code": ref_code, "category": category, "is_read": 0}
+

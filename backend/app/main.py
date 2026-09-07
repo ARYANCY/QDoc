@@ -20,6 +20,9 @@ from backend.app.features.quantum_telemetry.controller import router as quantum_
 from backend.app.features.reports.controller import router as reports_router
 from backend.app.features.researcher.controller import router as researcher_router
 from backend.app.features.skin_cancer.controller import router as skin_cancer_router
+from backend.app.features.consultations.controller import router as consultations_router
+from backend.app.features.notifications.controller import router as notifications_router
+
 
 
 def get_allowed_origins() -> list[str]:
@@ -65,6 +68,9 @@ app.include_router(reports_router)
 app.include_router(skin_cancer_router)
 app.include_router(pneumonia_router)
 app.include_router(graphs_router)
+app.include_router(consultations_router)
+app.include_router(notifications_router)
+
 
 
 @app.get("/")

@@ -4,13 +4,14 @@ import time
 import uuid
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
-from backend.app.core.security import hash_password
+from backend.app.core.security import hash_password, get_current_user, require_admin
 from backend.app.db.repository import DatabaseRepository
 
 router = APIRouter(prefix="/api/v1/admin", tags=["Admin User Management"])
+
 
 
 class CreateUserRequest(BaseModel):
@@ -37,15 +38,18 @@ class UpdateUserRequest(BaseModel):
 
 
 @router.get("/users")
-async def list_all_users():
-    """Retrieves all registered platform users from SQLite database."""
+async def list_all_users(current_user: dict = Depends(get_current_user)):
+    """Retrieves all registered platform users from SQLite database. Requires admin role."""
+    require_admin(current_user)
     users = DatabaseRepository.list_users()
     return {"status": "success", "total_users": len(users), "users": users}
 
 
+
 @router.post("/users")
-async def create_new_user(req: CreateUserRequest):
-    """Creates a new user profile with assigned authority tier in SQLite database."""
+async def create_new_user(req: CreateUserRequest, current_user: dict = Depends(get_current_user)):
+    """Creates a new user profile with assigned authority tier in SQLite database. Requires admin role."""
+    require_admin(current_user)
     existing = DatabaseRepository.get_user_by_username(req.username)
     if existing:
         raise HTTPException(status_code=400, detail=f"Username '{req.username}' already exists.")
@@ -65,7 +69,7 @@ async def create_new_user(req: CreateUserRequest):
     })
 
     DatabaseRepository.add_audit_log(
-        actor="admin.audit",
+        actor=current_user.get("name", "admin.audit"),
         action="USER_CREATE",
         resource=f"{uid}:{req.username}:{req.role}",
         status="SUCCESS",
@@ -75,8 +79,9 @@ async def create_new_user(req: CreateUserRequest):
 
 
 @router.put("/users/{user_id}")
-async def update_user(user_id: str, req: UpdateUserRequest):
-    """Updates user authority, credentials, and profile settings in SQLite database."""
+async def update_user(user_id: str, req: UpdateUserRequest, current_user: dict = Depends(get_current_user)):
+    """Updates user authority, credentials, and profile settings. Requires admin role."""
+    require_admin(current_user)
     user = DatabaseRepository.get_user_by_id(user_id)
     if not user:
         raise HTTPException(status_code=404, detail=f"User '{user_id}' not found.")
@@ -94,7 +99,7 @@ async def update_user(user_id: str, req: UpdateUserRequest):
     updated = DatabaseRepository.update_user_admin(user_id, updates)
 
     DatabaseRepository.add_audit_log(
-        actor="admin.audit",
+        actor=current_user.get("name", "admin.audit"),
         action="USER_UPDATE",
         resource=f"{user_id}:{updated.get('username')}",
         status="SUCCESS",
@@ -104,8 +109,9 @@ async def update_user(user_id: str, req: UpdateUserRequest):
 
 
 @router.delete("/users/{user_id}")
-async def delete_user_account(user_id: str):
-    """Deletes a user account from SQLite database with WORM audit logging."""
+async def delete_user_account(user_id: str, current_user: dict = Depends(get_current_user)):
+    """Deletes a user account from SQLite database with WORM audit logging. Requires admin role."""
+    require_admin(current_user)
     user = DatabaseRepository.get_user_by_id(user_id)
     if not user:
         raise HTTPException(status_code=404, detail=f"User '{user_id}' not found.")
@@ -113,10 +119,58 @@ async def delete_user_account(user_id: str):
     DatabaseRepository.delete_user(user_id)
 
     DatabaseRepository.add_audit_log(
-        actor="admin.audit",
+        actor=current_user.get("name", "admin.audit"),
         action="USER_DELETE",
         resource=f"{user_id}:{user.get('username')}",
         status="SUCCESS",
     )
 
     return {"status": "success", "message": f"User '{user_id}' deleted successfully."}
+
+
+class DoctorVerifyRequest(BaseModel):
+    status: str = "verified"  # verified | rejected
+    review_notes: str = "Credentials verified against medical council registry"
+
+
+@router.get("/doctor-verification-queue")
+async def get_doctor_verification_queue(current_user: dict = Depends(get_current_user)):
+    """Module K: Retrieves list of pending doctor credential submissions requiring admin audit."""
+    require_admin(current_user)
+    pending_doctors = DatabaseRepository.list_doctors(status="pending")
+    return {
+        "status": "success",
+        "total_pending": len(pending_doctors),
+        "queue": pending_doctors,
+    }
+
+
+@router.post("/doctor-verification/{doctor_id}/verify")
+async def verify_doctor_credentials(
+    doctor_id: str,
+    req: DoctorVerifyRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    """Module K: Approves or rejects doctor credentials with WORM audit logging."""
+    require_admin(current_user)
+    doc = DatabaseRepository.get_doctor_by_id(doctor_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail=f"Doctor '{doctor_id}' not found.")
+
+    DatabaseRepository.update_doctor_verification(doctor_id, req.status)
+
+    DatabaseRepository.add_audit_log(
+        actor=current_user.get("name", "admin.audit"),
+        action=f"DOCTOR_VERIFICATION_{req.status.upper()}",
+        resource=f"{doctor_id}:{doc['name']}:{doc['registration_number']}",
+        status="SUCCESS",
+    )
+
+    return {
+        "status": "success",
+        "message": f"Doctor '{doc['name']}' status updated to '{req.status}'.",
+        "doctor_id": doctor_id,
+        "verification_status": req.status,
+    }
+
+

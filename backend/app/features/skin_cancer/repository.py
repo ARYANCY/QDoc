@@ -1,20 +1,57 @@
 from __future__ import annotations
 
+import json
+import uuid
 from datetime import datetime, timezone
 from typing import Any
 
-_HISTORY: list[dict[str, Any]] = []
-_MODELS: list[dict[str, Any]] = []
+from backend.app.db.database import get_db_connection
 
 
 def save_prediction(record: dict[str, Any]) -> None:
-    record = {**record, "created_at": datetime.now(timezone.utc).isoformat()}
-    _HISTORY.append(record)
+    """Persists a skin cancer prediction record to the SQLite skin_cancer_predictions table."""
+    result = record.get("result", {})
+    prediction = result.get("prediction", {})
+    quantum = result.get("quantum")
+    probs = result.get("probabilities", {})
+
+    try:
+        conn = get_db_connection()
+        conn.execute("""
+        INSERT INTO skin_cancer_predictions
+            (id, filename, model, prediction_class, confidence, probabilities_json, quantum_info_json, inference_ms)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+        """, (
+            str(uuid.uuid4()),
+            record.get("filename", "unknown"),
+            record.get("model", "unknown"),
+            prediction.get("class", "unknown"),
+            float(prediction.get("confidence", 0.0)),
+            json.dumps(probs),
+            json.dumps(quantum) if quantum else None,
+            float(result.get("inference_ms", 0.0)),
+        ))
+        conn.commit()
+        conn.close()
+    except Exception:
+        pass  # Silently tolerate DB write failures — prediction is still returned to caller
 
 
 def list_predictions(limit: int = 50) -> list[dict[str, Any]]:
-    return list(reversed(_HISTORY[-limit:]))
+    """Returns the most recent skin cancer predictions from SQLite."""
+    try:
+        conn = get_db_connection()
+        rows = conn.execute(
+            "SELECT * FROM skin_cancer_predictions ORDER BY created_at DESC LIMIT ?;",
+            (limit,),
+        ).fetchall()
+        conn.close()
+        return [dict(r) for r in rows]
+    except Exception:
+        return []
 
 
 def register_model(meta: dict[str, Any]) -> None:
-    _MODELS.append(meta)
+    """Stub — kept for backward compatibility."""
+    pass
+

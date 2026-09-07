@@ -1,0 +1,32 @@
+﻿version: "3.8"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: infra/Dockerfile.backend
+    container_name: qmed-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - QUANTUM_BACKEND=simulator
+      - JWT_SECRET=qmed-sih2026-super-secret-key-change-in-prod
+      - ENVIRONMENT=production
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/clinical/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: .
+      dockerfile: infra/Dockerfile.frontend
+    container_name: qmed-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

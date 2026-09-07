@@ -25,6 +25,9 @@ class DiagnosticRequest(BaseModel):
     features: dict[str, float] | None = None
 
 
+from backend.app.core.config import settings
+import torch
+
 # Pre-warmed model & preprocessor cache
 _CACHE: dict[str, Any] = {}
 
@@ -36,7 +39,21 @@ def get_trained_module(disease: str):
         X_q = preprocessor.fit_transform(df.values, target.values)
 
         vqc = VariationalQuantumClassifier(n_qubits=8, n_layers=2)
-        vqc.fit_dataset(X_q[:64], target.values[:64], epochs=4, lr=0.03, batch_size=16)
+        ckpt_path = settings.MODELS_DIR / "quantum" / f"VQC_{disease}.pt"
+
+        if ckpt_path.exists():
+            try:
+                state = torch.load(ckpt_path, map_location="cpu", weights_only=False)
+                vqc.load_state_dict(state["model"])
+            except Exception:
+                vqc.fit_dataset(X_q[:64], target.values[:64], epochs=4, lr=0.03, batch_size=16)
+        else:
+            vqc.fit_dataset(X_q[:64], target.values[:64], epochs=4, lr=0.03, batch_size=16)
+            try:
+                ckpt_path.parent.mkdir(parents=True, exist_ok=True)
+                torch.save({"model": vqc.state_dict()}, ckpt_path)
+            except Exception:
+                pass
 
         baselines = ClassicalBaselineSuite()
         baselines.fit_all(df.values[:100], target.values[:100])
@@ -53,6 +70,7 @@ def get_trained_module(disease: str):
             "explainer": explainer,
         }
     return _CACHE[disease]
+
 
 
 @router.post("/diagnose")
@@ -160,14 +178,16 @@ async def run_clinical_diagnosis(req: DiagnosticRequest):
     try:
         DatabaseRepository.save_diagnostic_record(result_payload)
         DatabaseRepository.add_audit_log(
-            actor="Alexander Reed (Patient)",
+            actor=f"Patient ({req.patient_id})",  # H2: use actual patient_id
             action="DIAGNOSTIC_EXECUTION",
             resource=f"{req.patient_id}:{disease_name}",
             ip_address="127.0.0.1",
             status="SUCCESS",
         )
-    except Exception:
-        pass
+    except Exception as exc:
+        import logging
+        logging.getLogger(__name__).error("Failed to persist diagnostic record: %s", exc)
+
 
     return result_payload
 

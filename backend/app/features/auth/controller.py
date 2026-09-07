@@ -5,8 +5,9 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
-from backend.app.core.security import create_access_token, get_current_user, hash_password
+from backend.app.core.security import create_access_token, get_current_user, hash_password, verify_password
 from backend.app.db.repository import DatabaseRepository
+
 
 router = APIRouter(prefix="/api/v1/auth", tags=["Authentication"])
 
@@ -28,10 +29,10 @@ async def register(req: RegisterRequest):
     existing = DatabaseRepository.get_user_by_username(req.username)
     if existing:
         raise HTTPException(status_code=400, detail="Username already exists. Please choose a different handle.")
-    
+
     created = DatabaseRepository.create_user({
         "username": req.username,
-        "password": req.password,
+        "password_hash": hash_password(req.password),  # H5: hash before storing
         "name": req.name,
         "email": req.email,
         "role": req.role,
@@ -39,6 +40,7 @@ async def register(req: RegisterRequest):
         "hospital_affiliation": req.hospital_affiliation or "AIIMS Clinical AI OPD",
         "license_number": req.license_number or "PT-REC-2026",
     })
+
 
     token = create_access_token({
         "user_id": created.get("id"),
@@ -70,32 +72,28 @@ async def register(req: RegisterRequest):
 class LoginRequest(BaseModel):
     username: str = "alex.patient"
     password: str = "patient123"
-    role: str = "patient"  # patient | admin
+    role: str | None = None  # optional: keep account's actual role by default
+
 
 
 @router.post("/login")
 async def login(req: LoginRequest):
-    """Logs in using credentials against the SQLite database."""
+    """Logs in using credentials against the SQLite database. Returns 401 on invalid credentials."""
     user = DatabaseRepository.get_user_by_username(req.username)
-    is_test_account = req.username in {"alex.patient", "admin.audit"} or (user and user.get("id") in {"PT-ALEX", "ADM-SYSTEM"})
-    
+
+    # C4: Enforce password verification for ALL accounts — no bypass for seed accounts
     if not user:
-        # Check if user exists by ID or generate seed entry
-        user = {
-            "id": f"USR-{req.role[:3].upper()}-99",
-            "username": req.username,
-            "name": req.username.replace(".", " ").title(),
-            "role": req.role,
-            "email": f"{req.username}@qmedsense.health",
-            "secondary_email": "",
-            "emergency_phone": "",
-            "hospital_affiliation": "Q-MedSense Clinical Network",
-            "license_number": "LIC-PROV-2026",
-        }
-    else:
-        # If user switched role explicitly during login
-        if req.role and req.role != user.get("role"):
-            user["role"] = req.role
+        raise HTTPException(status_code=401, detail="Invalid username or password.")
+
+    stored_hash = user.get("password_hash", "")
+    if not verify_password(req.password, stored_hash):
+        raise HTTPException(status_code=401, detail="Invalid username or password.")
+
+    is_test_account = req.username in {"alex.patient", "admin.audit"} or user.get("id") in {"PT-ALEX", "ADM-SYSTEM"}
+
+    # If user explicitly switched role during login (e.g., a user with admin role logging in as patient)
+    if req.role and req.role != user.get("role"):
+        user["role"] = req.role
 
     token = create_access_token({
         "user_id": user.get("id") or user.get("user_id"),

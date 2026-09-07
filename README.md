@@ -1,8 +1,10 @@
 # Q-MedSense: Hybrid Quantum Machine Learning Clinical Decision Support Platform
 
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)]()
-[![Tests](https://img.shields.io/badge/Tests-21%2F21%20Passed-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-37%2F37%20Passed-brightgreen.svg)]()
 [![SIH Problem Statement](https://img.shields.io/badge/SIH%20ID-26139-blue.svg)]()
+
+
 [![Python](https://img.shields.io/badge/Python-3.10--3.14-blue.svg)]()
 [![React](https://img.shields.io/badge/React-18-61DAFB.svg)]()
 [![License](https://img.shields.io/badge/License-MIT-green.svg)]()
@@ -17,16 +19,14 @@
 
 | Section | Document Link | Description |
 | :--- | :--- | :--- |
-| 🚀 **Execution Guide** | [**run.md**](file:///c:/Users/aryan/OneDrive/Desktop/doc/run.md) | Complete step-by-step launch guide, prerequisites, and test instructions |
-| 🏗️ **System Architecture** | [**docs/ARCHITECTURE.md**](file:///c:/Users/aryan/OneDrive/Desktop/doc/docs/architecture.md) | Hybrid Quantum-Classical architecture and subsystem interactions |
-| 🗄️ **Database Design** | [**docs/DATABASE_SCHEMA.md**](file:///c:/Users/aryan/OneDrive/Desktop/doc/docs/DATABASE_SCHEMA.md) | SQLite relational schema, tables (`users`, `patients`, `records`), and CRUD rules |
-| ⚛️ **Quantum Algorithms** | [**docs/QUANTUM_ALGORITHMS.md**](file:///c:/Users/aryan/OneDrive/Desktop/doc/docs/QUANTUM_ALGORITHMS.md) | Formulations of VQC, QSVM, QNN, Angle Embedding, and QAS metric |
-| 🔌 **API Specification** | [**docs/API_SPEC.md**](file:///c:/Users/aryan/OneDrive/Desktop/doc/docs/API_SPEC.md) | REST API endpoints for clinical inference, telemetry, auth, and ingestion |
-| 🔒 **Compliance & Security** | [**docs/COMPLIANCE_DPDP_HIPAA.md**](file:///c:/Users/aryan/OneDrive/Desktop/doc/docs/COMPLIANCE_DPDP_HIPAA.md) | DPDP Act 2023, HIPAA Safe Harbor, WORM audit trail, and SaMD compliance |
-| 🩺 **Clinical Workflows** | [**docs/CLINICAL_WORKFLOWS.md**](file:///c:/Users/aryan/OneDrive/Desktop/doc/docs/CLINICAL_WORKFLOWS.md) | End-to-end user workflows for Clinicians, Researchers, Admins, and Patients |
-| 📐 **Mathematical Formulas**| [**docs/FORMULA_SHEET.md**](file:///c:/Users/aryan/OneDrive/Desktop/doc/docs/FORMULA_SHEET.md) | Mathematical equations for Matthews Correlation Coefficient, QAS, and SHAP |
-| 🛠️ **Issue Resolution Log** | [**docs/ISSUES_RESOLVED.md**](file:///c:/Users/aryan/OneDrive/Desktop/doc/docs/ISSUES_RESOLVED.md) | Complete catalog of audited and resolved bugs and optimizations |
-| 📋 **IEEE 830 SRS** | [**docs/SRS.md**](file:///c:/Users/aryan/OneDrive/Desktop/doc/docs/SRS.md) | Software Requirements Specification document |
+| 🚀 **Execution Guide** | [**docs/guides/run.md**](file:///c:/Users/aryan/OneDrive/Desktop/doc/docs/guides/run.md) | Complete step-by-step launch guide, prerequisites, and test instructions |
+| 🏗️ **System Architecture (SRS)** | [**docs/architecture/srs.md**](file:///c:/Users/aryan/OneDrive/Desktop/doc/docs/architecture/srs.md) | IEEE 830 / ISO 29148 System Requirements & Architecture Specification |
+| 📋 **Documentation Hub** | [**docs/README.md**](file:///c:/Users/aryan/OneDrive/Desktop/doc/docs/README.md) | Centralized index of all architecture, plans, and guides |
+| 🗄️ **Database Design** | [**backend/app/db/database.py**](file:///c:/Users/aryan/OneDrive/Desktop/doc/backend/app/db/database.py) | SQLite relational schema, seed models, and connection management |
+| ⚛️ **Quantum Algorithms** | [**ml/quantum_engine/**](file:///c:/Users/aryan/OneDrive/Desktop/doc/ml/quantum_engine/) | Formulations of VQC, QSVM, QNN, Angle Embedding, and QAS metric |
+| 🔬 **Skin Cancer QML Plan** | [**docs/plans/SKIN_CANCER_QML_COMPLETE_IMPLEMENTATION.md**](file:///c:/Users/aryan/OneDrive/Desktop/doc/docs/plans/SKIN_CANCER_QML_COMPLETE_IMPLEMENTATION.md) | HAM10000 hybrid QNN architecture, ablation studies, and Grad-CAM |
+| 🫁 **Pneumonia QML Plan** | [**docs/plans/PNEUMONIA_QML_IMPLEMENTATION_PLAN.md**](file:///c:/Users/aryan/OneDrive/Desktop/doc/docs/plans/PNEUMONIA_QML_IMPLEMENTATION_PLAN.md) | Chest X-ray hybrid quantum vision architecture |
+| 🔒 **Compliance & Security** | [**backend/app/core/security.py**](file:///c:/Users/aryan/OneDrive/Desktop/doc/backend/app/core/security.py) | DPDP Act 2023, HIPAA Safe Harbor, WORM audit trail, and RBAC |
 
 ---
 

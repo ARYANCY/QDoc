@@ -46,6 +46,30 @@ async def trigger_model_retraining(req: RetrainingJobRequest):
 
     elapsed_sec = round(time.perf_counter() - start_time, 2)
 
+    # Persist trained model checkpoint to disk
+    from backend.app.core.config import settings
+    import torch
+    
+    ckpt_filename = f"{job_id}.pt"
+    ckpt_path = settings.MODELS_DIR / "quantum" / ckpt_filename
+    try:
+        ckpt_path.parent.mkdir(parents=True, exist_ok=True)
+        torch.save({
+            "job_id": job_id,
+            "dataset": req.dataset,
+            "model_architecture": req.model_architecture,
+            "hyperparameters": {
+                "n_qubits": req.n_qubits,
+                "n_layers": req.n_layers,
+                "epochs": req.epochs,
+                "learning_rate": req.learning_rate,
+            },
+            "model": vqc.state_dict(),
+            "final_accuracy": train_res["final_acc"],
+        }, ckpt_path)
+    except Exception:
+        pass
+
     return {
         "job_id": job_id,
         "dataset": req.dataset.upper(),
@@ -62,4 +86,6 @@ async def trigger_model_retraining(req: RetrainingJobRequest):
         "training_time_seconds": elapsed_sec,
         "status": "COMPLETED",
         "registered_model_tag": f"REG-{req.model_architecture}-{req.dataset.upper()}-v2.2",
+        "checkpoint_file": ckpt_filename,
     }
+

@@ -22,24 +22,31 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import DigitalTwin2D from "../../components/DigitalTwin2D.jsx";
-import ExplainabilityView from "../../components/ExplainabilityView.jsx";
-import BenchmarkMatrix from "../../components/BenchmarkMatrix.jsx";
-import ComplianceConsole from "../../components/ComplianceConsole.jsx";
-import PatientPortal from "../../components/PatientPortal.jsx";
-import EarlyDetectionMap from "../../components/EarlyDetectionMap.jsx";
-import QuantumCircuitViewer from "../../components/QuantumCircuitViewer.jsx";
-import ProfileSettingsModal from "../../components/ProfileSettingsModal.jsx";
-import AuthModal from "../../components/AuthModal.jsx";
-import UserGuideModal from "../../components/UserGuideModal.jsx";
-import UserManagementConsole from "../../components/UserManagementConsole.jsx";
-import UserProfilePage from "../../components/UserProfilePage.jsx";
-import SectionGuideModal from "../../components/SectionGuideModal.jsx";
+import DigitalTwin2D from "../../components/visualizations/DigitalTwin2D.jsx";
+import ExplainabilityView from "../../components/visualizations/ExplainabilityView.jsx";
+import BenchmarkMatrix from "../../components/visualizations/BenchmarkMatrix.jsx";
+import EarlyDetectionMap from "../../components/visualizations/EarlyDetectionMap.jsx";
+import QuantumCircuitViewer from "../../components/visualizations/QuantumCircuitViewer.jsx";
+import ProfileSettingsModal from "../../components/common/ProfileSettingsModal.jsx";
+import AuthModal from "../../components/common/AuthModal.jsx";
+import UserGuideModal from "../../components/common/UserGuideModal.jsx";
+import SectionGuideModal from "../../components/common/SectionGuideModal.jsx";
+import ComplianceConsole from "../admin/ComplianceConsole.jsx";
+import UserManagementConsole from "../admin/UserManagementConsole.jsx";
+import PatientPortal from "../clinical/PatientPortal.jsx";
+import UserProfilePage from "../profile/UserProfilePage.jsx";
+import DoctorDiscovery from "../consultation/DoctorDiscovery.jsx";
+import VirtualConsultationRoom from "../consultation/VirtualConsultationRoom.jsx";
+import ClinicianDashboard from "../clinical/ClinicianDashboard.jsx";
+import NotificationBell from "../../components/common/NotificationBell.jsx";
 
 import { clinicalApi } from "../../api/clinical";
 import { reportsApi } from "../../api/reports";
 import { authApi } from "../../api/auth";
+import { consultationsApi } from "../../api/consultations";
+import { animateEntrance, animateCounter } from "../../utils/motion";
 import "../../styles.css";
+
 
 /* ── Custom High-Tech SVG Navigation Icons ──────────────────────────────────── */
 
@@ -233,7 +240,7 @@ const ROLE_PERMISSIONS = {
     label: "Patient (Autonomous Health Checkups & Twin)",
     badgeColor: "var(--primary)",
     defaultTab: "diagnostic",
-    allowedTabs: ["diagnostic", "twin", "early_detection", "benchmarks", "telemetry", "portal", "profile"],
+    allowedTabs: ["diagnostic", "twin", "early_detection", "doctor_booking", "my_consultations", "benchmarks", "telemetry", "portal", "profile"],
     sections: [
       {
         title: "Personal Health Cockpit",
@@ -241,6 +248,13 @@ const ROLE_PERMISSIONS = {
           { id: "diagnostic", label: "Health Checkups", icon: NavDiagnosticSvg },
           { id: "twin", label: "2D Digital Health Twin", icon: NavTwinSvg },
           { id: "early_detection", label: "Early Detection Map", icon: NavEarlyDetectionSvg },
+        ],
+      },
+      {
+        title: "Doctor Consultations",
+        items: [
+          { id: "doctor_booking", label: "Find Doctors & Consult", icon: NavPortalSvg },
+          { id: "my_consultations", label: "My Appointments & Rx", icon: NavDiagnosticSvg },
         ],
       },
       {
@@ -260,6 +274,41 @@ const ROLE_PERMISSIONS = {
         title: "Account & Profile",
         items: [
           { id: "profile", label: "My Profile & Security", icon: NavProfileSvg },
+        ],
+      },
+    ],
+  },
+  doctor: {
+    label: "Doctor / Clinician (Tele-Consultations & Triage)",
+    badgeColor: "var(--accent-teal)",
+    defaultTab: "clinician_dashboard",
+    allowedTabs: ["clinician_dashboard", "diagnostic", "twin", "benchmarks", "telemetry", "portal", "profile"],
+    sections: [
+      {
+        title: "Clinical Practice",
+        items: [
+          { id: "clinician_dashboard", label: "Consultation Queue & Triage", icon: NavUsersSvg },
+          { id: "diagnostic", label: "AI Clinical Diagnosis", icon: NavDiagnosticSvg },
+          { id: "twin", label: "2D Digital Health Twin", icon: NavTwinSvg },
+        ],
+      },
+      {
+        title: "AI & Telemetry",
+        items: [
+          { id: "benchmarks", label: "AI Health Benchmarks", icon: NavBenchmarkSvg },
+          { id: "telemetry", label: "Quantum Telemetry", icon: NavTelemetrySvg },
+        ],
+      },
+      {
+        title: "Health Records",
+        items: [
+          { id: "portal", label: "Patient Records", icon: NavPortalSvg },
+        ],
+      },
+      {
+        title: "Account & Profile",
+        items: [
+          { id: "profile", label: "Doctor Profile & Security", icon: NavProfileSvg },
         ],
       },
     ],
@@ -288,6 +337,7 @@ const ROLE_PERMISSIONS = {
     ],
   },
 };
+
 
 const STUDIES = {
   breast_cancer: {
@@ -367,19 +417,24 @@ export default function UnifiedAnalysisPage() {
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [activeGuide, setActiveGuide] = useState(null);
-  const [currentUser, setCurrentUser] = useState(authApi.getStoredUser() || {
-    user_id: "PT-ALEX",
-    username: "alex.patient",
-    name: "Alexander Reed",
-    role: "patient",
-    email: "alexander.reed@email.com",
-  });
+  const [selectedBookingForRoom, setSelectedBookingForRoom] = useState(null);
+  const [myBookings, setMyBookings] = useState([]);
+  // Do not automatically log in; present the login page with credentials and 1-click test personas
+  const [currentUser, setCurrentUser] = useState(null);
   const [loginUsername, setLoginUsername] = useState("alex.patient");
   const [loginPassword, setLoginPassword] = useState("patient123");
 
-  // Current Role Config & Active Tab
+  // Current Role Config & Active Tab declared before effects
   const roleConfig = currentUser ? (ROLE_PERMISSIONS[currentUser.role] || ROLE_PERMISSIONS.patient) : ROLE_PERMISSIONS.patient;
   const [activeTab, setActiveTab] = useState(roleConfig.defaultTab);
+
+  useEffect(() => {
+    if (activeTab === "my_consultations") {
+      consultationsApi.listBookings(patientId).then((res) => {
+        if (res?.bookings) setMyBookings(res.bookings);
+      }).catch(console.error);
+    }
+  }, [activeTab, patientId]);
 
   // Enforce authorized tab on role change
   useEffect(() => {
@@ -390,6 +445,14 @@ export default function UnifiedAnalysisPage() {
       }
     }
   }, [currentUser?.role]);
+
+  const mainContentRef = useRef(null);
+
+  useEffect(() => {
+    if (mainContentRef.current) {
+      animateEntrance(mainContentRef.current, { y: 12, duration: 0.3 });
+    }
+  }, [activeTab]);
 
   async function handleQuickRoleSwitch(u, p, r) {
     setLoading(true);
@@ -575,26 +638,36 @@ export default function UnifiedAnalysisPage() {
                 SQLITE DB
               </span>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px" }}>
               <button
                 type="button"
                 className="btn-secondary"
                 onClick={() => handleQuickRoleSwitch("alex.patient", "patient123", "patient")}
-                style={{ padding: "10px", fontSize: "0.74rem", textAlign: "left", display: "flex", flexDirection: "column" }}
+                style={{ padding: "8px", fontSize: "0.72rem", textAlign: "left", display: "flex", flexDirection: "column" }}
               >
                 <strong>Patient</strong>
-                <span style={{ fontSize: "0.64rem", color: "var(--text-muted)" }}>alex.patient (Alexander Reed)</span>
+                <span style={{ fontSize: "0.62rem", color: "var(--text-muted)" }}>alex.patient</span>
+              </button>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => handleQuickRoleSwitch("dr.kavita", "doctor123", "doctor")}
+                style={{ padding: "8px", fontSize: "0.72rem", textAlign: "left", display: "flex", flexDirection: "column" }}
+              >
+                <strong>Doctor</strong>
+                <span style={{ fontSize: "0.62rem", color: "var(--text-muted)" }}>dr.kavita (Cardio)</span>
               </button>
               <button
                 type="button"
                 className="btn-secondary"
                 onClick={() => handleQuickRoleSwitch("admin.audit", "admin123", "admin")}
-                style={{ padding: "10px", fontSize: "0.74rem", textAlign: "left", display: "flex", flexDirection: "column" }}
+                style={{ padding: "8px", fontSize: "0.72rem", textAlign: "left", display: "flex", flexDirection: "column" }}
               >
                 <strong>Admin</strong>
-                <span style={{ fontSize: "0.64rem", color: "var(--text-muted)" }}>admin.audit (Audit & Security)</span>
+                <span style={{ fontSize: "0.62rem", color: "var(--text-muted)" }}>admin.audit</span>
               </button>
             </div>
+
           </div>
 
           {/* Direct credentials form */}
@@ -776,11 +849,19 @@ export default function UnifiedAnalysisPage() {
               </button>
               <button
                 type="button"
+                className={`quick-auth-pill ${currentUser?.username === "dr.kavita" ? "active" : ""}`}
+                onClick={() => handleQuickRoleSwitch("dr.kavita", "doctor123", "doctor")}
+                title="Switch to Doctor Persona (Dr. Kavita Rao)"
+              >
+                🩺 Doctor (Dr. Kavita)
+              </button>
+              <button
+                type="button"
                 className={`quick-auth-pill ${currentUser?.username === "admin.audit" ? "active" : ""}`}
                 onClick={() => handleQuickRoleSwitch("admin.audit", "admin123", "admin")}
                 title="Switch to Administrator Persona"
               >
-                🛡️ Administrator
+                🛡️ Admin
               </button>
             </div>
           </div>
@@ -790,6 +871,7 @@ export default function UnifiedAnalysisPage() {
               <span className="qpu-pulse-point" />
               <span>QUANTUM ENGINE: 10 QUBITS ONLINE</span>
             </div>
+            <NotificationBell />
             <button
               type="button"
               className="btn-secondary"
@@ -799,6 +881,7 @@ export default function UnifiedAnalysisPage() {
             >
               <User size={11} /> {currentUser.name}
             </button>
+
             <button
               type="button"
               className="btn-secondary"
@@ -812,7 +895,7 @@ export default function UnifiedAnalysisPage() {
         </header>
 
         {/* Content Body */}
-        <main className="content-body">
+        <main className="content-body" ref={mainContentRef}>
           {/* ── 3-COLUMN UNIFIED DIAGNOSTIC COCKPIT ────────────────────────── */}
           {activeTab === "diagnostic" && (
             <div style={{ display: "flex", flexDirection: "column", height: "100%", gap: "6px" }}>
@@ -1354,7 +1437,124 @@ export default function UnifiedAnalysisPage() {
               />
             </div>
           )}
+
+          {/* ── VIEW 11: DOCTOR DISCOVERY & BOOKING (Module F) ────────────────── */}
+          {activeTab === "doctor_booking" && (
+            <div style={{ height: "100%", overflowY: "auto" }}>
+              <DoctorDiscovery
+                onOpenBooking={(b) => {
+                  setSelectedBookingForRoom(b);
+                  setActiveTab("my_consultations");
+                }}
+              />
+            </div>
+          )}
+
+          {/* ── VIEW 12: MY CONSULTATIONS & VIRTUAL ROOM (Module F & G) ──────── */}
+          {activeTab === "my_consultations" && (
+            <div style={{ height: "100%", overflowY: "auto", display: "flex", flexDirection: "column", gap: "16px" }}>
+              {selectedBookingForRoom ? (
+                <div>
+                  <button
+                    type="button"
+                    className="action-btn"
+                    onClick={() => setSelectedBookingForRoom(null)}
+                    style={{ marginBottom: "14px", display: "inline-flex", alignItems: "center", gap: "6px" }}
+                  >
+                    ← Back to All Consultations
+                  </button>
+                  <VirtualConsultationRoom
+                    booking={selectedBookingForRoom}
+                    isDoctor={currentUser.role === "doctor"}
+                    onLeave={() => setSelectedBookingForRoom(null)}
+                  />
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--bg-surface)", border: "1px solid var(--border-default)", padding: "14px" }}>
+                    <div>
+                      <h3 style={{ margin: "0 0 4px 0", fontSize: "1.05rem", fontWeight: 800 }}>My Consultations & Tele-Health Appointments</h3>
+                      <p style={{ margin: 0, fontSize: "0.78rem", color: "var(--text-secondary)" }}>
+                        Verified medical appointments, active video rooms, and issued E-Prescriptions.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      className="action-btn primary"
+                      onClick={() => setActiveTab("doctor_booking")}
+                      style={{ padding: "8px 14px", fontSize: "0.8rem" }}
+                    >
+                      + Book New Consultation
+                    </button>
+                  </div>
+
+                  {myBookings.length === 0 ? (
+                    <div className="card-panel" style={{ textAlign: "center", padding: "40px" }}>
+                      <p style={{ color: "var(--text-muted)" }}>No consultations found. Book an appointment with a verified clinical specialist.</p>
+                      <button
+                        type="button"
+                        className="action-btn primary"
+                        onClick={() => setActiveTab("doctor_booking")}
+                        style={{ padding: "8px 16px", marginTop: "10px" }}
+                      >
+                        Explore Doctor Network
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: "14px" }}>
+                      {myBookings.map((b) => (
+                        <div
+                          key={b.id}
+                          className="card-panel"
+                          style={{
+                            border: "1px solid var(--border-default)",
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "space-between",
+                            gap: "12px",
+                          }}
+                        >
+                          <div>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "4px" }}>
+                              <strong style={{ fontSize: "0.95rem" }}>{b.doctor_name}</strong>
+                              <span className="step-badge" style={{ fontSize: "0.68rem" }}>{b.status.toUpperCase()}</span>
+                            </div>
+                            <div style={{ fontSize: "0.78rem", color: "var(--primary)", fontWeight: 600 }}>{b.doctor_specialty}</div>
+                            <div style={{ fontSize: "0.74rem", color: "var(--text-muted)", marginTop: "4px" }}>{b.hospital_affiliation}</div>
+                          </div>
+
+                          <div style={{ fontSize: "0.78rem", background: "var(--bg-surface-alt)", padding: "8px", lineHeight: 1.5 }}>
+                            <div><strong>Slot:</strong> {b.slot_time} ({b.mode?.toUpperCase()})</div>
+                            <div><strong>Reason:</strong> {b.intake?.reason || "Follow-up checkup"}</div>
+                          </div>
+
+                          <div style={{ display: "flex", gap: "8px", borderTop: "1px solid var(--border-default)", paddingTop: "8px" }}>
+                            <button
+                              type="button"
+                              className="action-btn primary"
+                              onClick={() => setSelectedBookingForRoom(b)}
+                              style={{ flex: 1, padding: "8px", fontSize: "0.8rem", textAlign: "center" }}
+                            >
+                              Join Video Consultation Room
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── VIEW 13: CLINICIAN DASHBOARD (Module I) ─────────────────────── */}
+          {activeTab === "clinician_dashboard" && (
+            <div style={{ height: "100%", overflowY: "auto" }}>
+              <ClinicianDashboard doctorId={currentUser.role === "doctor" ? "DOC-KAVITA" : "DOC-KAVITA"} />
+            </div>
+          )}
         </main>
+
       </div>
 
       {/* Profile & Emergency Settings Modal */}
