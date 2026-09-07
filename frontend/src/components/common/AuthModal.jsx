@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Lock, User, Shield, X, CheckCircle2, Eye, EyeOff, KeyRound, LogIn, Sparkles, UserPlus } from "lucide-react";
 import { authApi } from "../../api/auth";
+import { animateModalOpen } from "../../utils/motion";
 
 export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
+  const overlayRef = useRef(null);
+  const modalRef = useRef(null);
   const [authMode, setAuthMode] = useState("cards"); // 'cards' | 'login' | 'register'
   const [username, setUsername] = useState("alex.patient");
   const [password, setPassword] = useState("patient123");
@@ -11,14 +14,11 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // New Registration State
-  const [regName, setRegName] = useState("");
-  const [regUsername, setRegUsername] = useState("");
-  const [regEmail, setRegEmail] = useState("");
-  const [regPassword, setRegPassword] = useState("");
-  const [regRole, setRegRole] = useState("patient");
-  const [regPhone, setRegPhone] = useState("+91 98765 43210");
-  const [regAffiliation, setRegAffiliation] = useState("AIIMS Clinical AI OPD");
+  useEffect(() => {
+    if (isOpen) {
+      animateModalOpen(overlayRef.current, modalRef.current);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -83,16 +83,21 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div ref={overlayRef} className="modal-overlay" onClick={onClose}>
       <div
+        ref={modalRef}
         className="modal-content"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="auth-modal-title"
         onClick={(e) => e.stopPropagation()}
         style={{
           maxWidth: "620px",
-          padding: "24px 28px",
-          borderRadius: 0,
+          padding: "26px 30px",
+          borderRadius: "var(--radius-sm)",
           border: "1px solid var(--border-default)",
-          borderTop: "4px solid var(--primary)",
+          borderTop: "3px solid var(--gold)",
+          boxShadow: "var(--shadow-modal)",
           boxShadow: "0 20px 50px rgba(2, 132, 199, 0.16)",
           background: "var(--bg-surface)",
         }}
@@ -107,7 +112,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
               <div style={{ fontSize: "0.58rem", fontWeight: 900, color: "var(--primary)", letterSpacing: "0.14em", textTransform: "uppercase" }}>
                 SECURITY & IDENTITY GATEWAY
               </div>
-              <h2 style={{ fontSize: "1.15rem", fontWeight: 900, color: "var(--text-primary)", margin: "2px 0 0 0", letterSpacing: "-0.02em", textTransform: "uppercase" }}>
+              <h2 id="auth-modal-title" style={{ fontSize: "1.15rem", fontWeight: 900, color: "var(--text-primary)", margin: "2px 0 0 0", letterSpacing: "-0.02em", textTransform: "uppercase" }}>
                 Access Authority Portal
               </h2>
             </div>
@@ -192,7 +197,16 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
               {/* Patient */}
               <div
+                role="button"
+                tabIndex={0}
+                aria-label="Sign in as patient test persona"
                 onClick={() => quickSwitch("alex.patient", "patient123", "patient")}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    quickSwitch("alex.patient", "patient123", "patient");
+                  }
+                }}
                 style={{
                   background: "var(--bg-surface)",
                   border: "1px solid var(--border-default)",
@@ -216,7 +230,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
                 </div>
                 <strong style={{ fontSize: "0.95rem", color: "var(--text-primary)" }}>Alexander Reed</strong>
                 <p style={{ fontSize: "0.68rem", color: "var(--text-secondary)", margin: 0, lineHeight: 1.3 }}>
-                  Personal Health Checkups, 2D Health Avatar, Early Detection Map & Digital ID.
+                  Personal Health Checkups, 3D Health Twin, Early Detection Map & Digital ID.
                 </p>
                 <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: "6px", marginTop: "4px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <code style={{ fontSize: "0.65rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
@@ -228,7 +242,16 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
 
               {/* Admin */}
               <div
+                role="button"
+                tabIndex={0}
+                aria-label="Sign in as administrator test persona"
                 onClick={() => quickSwitch("admin.audit", "admin123", "admin")}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    quickSwitch("admin.audit", "admin123", "admin");
+                  }
+                }}
                 style={{
                   background: "var(--bg-surface)",
                   border: "1px solid var(--border-default)",

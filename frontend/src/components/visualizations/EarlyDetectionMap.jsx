@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Compass, ShieldAlert, CheckCircle2, ChevronRight, Activity } from "lucide-react";
 import { earlyDetectionApi } from "../../api/earlyDetection";
+import { animateEntrance, animateCardStagger } from "../../utils/motion";
 
 export default function EarlyDetectionMap({ patientId = "PT-89421" }) {
+  const containerRef = useRef(null);
   const [selectedDisease, setSelectedDisease] = useState("breast_cancer");
   const [pathway, setPathway] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -13,12 +15,16 @@ export default function EarlyDetectionMap({ patientId = "PT-89421" }) {
       .then((res) => setPathway(res))
       .catch(() => {})
       .finally(() => setLoading(false));
+
+    if (containerRef.current) {
+      animateEntrance(containerRef.current, { y: 15, duration: 0.35 });
+    }
   }, [selectedDisease]);
 
   const stages = pathway?.stages || [];
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "12px", height: "100%", overflowY: "auto", padding: "4px" }}>
+    <div ref={containerRef} style={{ display: "flex", flexDirection: "column", gap: "16px", height: "100%", overflowY: "auto", padding: "6px" }}>
       {/* Disease Pathway Selector */}
       <div style={{ display: "flex", gap: "6px" }}>
         {[

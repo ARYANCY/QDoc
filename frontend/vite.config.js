@@ -20,6 +20,21 @@ export default defineConfig({
         target: "http://127.0.0.1:8000",
         changeOrigin: true,
         secure: false,
+        configure: (proxy, _options) => {
+          proxy.on("error", (err, _req, res) => {
+            console.warn("[Vite Proxy Notice] Backend connection on 127.0.0.1:8000:", err.message);
+            if (res.writeHead && !res.headersSent) {
+              res.writeHead(502, { "Content-Type": "application/json" });
+              res.end(
+                JSON.stringify({
+                  status: "gateway_offline",
+                  detail: "Backend gateway offline or restarting on port 8000. Resilient client simulation active.",
+                  code: 502,
+                })
+              );
+            }
+          });
+        },
       },
     },
   },

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   X,
   ChevronRight,
@@ -13,9 +13,18 @@ import {
   CheckCircle2,
   Atom,
 } from "lucide-react";
+import { animateModalOpen } from "../../utils/motion";
 
 export default function UserGuideModal({ isOpen, onClose }) {
+  const overlayRef = useRef(null);
+  const modalRef = useRef(null);
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    if (isOpen) {
+      animateModalOpen(overlayRef.current, modalRef.current);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -29,7 +38,7 @@ export default function UserGuideModal({ isOpen, onClose }) {
       content: (
         <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "0.82rem", color: "var(--text-secondary)", lineHeight: 1.6 }}>
           <p>
-            <strong>Q-MedSense</strong> gives you autonomous preventative health checkups, an interactive 2D digital health avatar, multi-organ early detection monitoring, and tamper-proof encrypted health records.
+            <strong>Q-MedSense</strong> gives you autonomous preventative health checkups, an interactive 3D digital health twin, multi-organ early detection monitoring, and tamper-proof encrypted health records.
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginTop: "4px" }}>
             <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", padding: "10px" }}>
@@ -87,15 +96,15 @@ export default function UserGuideModal({ isOpen, onClose }) {
       ),
     },
     {
-      badge: "2D Digital Twin",
-      title: "Interactive 2D Health Avatar",
+      badge: "3D Digital Twin",
+      title: "Interactive 3D Health Twin",
       subtitle: "Multi-Organ Vitality & Preventative Care",
       icon: Activity,
       iconColor: "var(--accent-teal)",
       content: (
         <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "0.82rem", color: "var(--text-secondary)", lineHeight: 1.5 }}>
           <p>
-            The <strong>2D Digital Health Avatar</strong> visualizes your organ-by-organ vitality on an anatomical view:
+            The <strong>3D Digital Health Twin</strong> visualizes your organ-by-organ vitality on an anatomical view:
           </p>
           <ul style={{ paddingLeft: "18px", display: "flex", flexDirection: "column", gap: "4px" }}>
             <li><strong>Interactive Hotspots:</strong> Click on Brain, Heart, Lungs, Breast Tissue, Pancreas, or Liver to view organ-specific metrics.</li>
@@ -119,7 +128,7 @@ export default function UserGuideModal({ isOpen, onClose }) {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
             <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", padding: "10px" }}>
               <strong style={{ color: "var(--primary)" }}>👤 Patient (`alex.patient`)</strong>
-              <p style={{ fontSize: "0.72rem", margin: "3px 0 0 0" }}>Personal Health Checkups, 2D Health Avatar, Early Detection Map & Encrypted Records.</p>
+              <p style={{ fontSize: "0.72rem", margin: "3px 0 0 0" }}>Personal Health Checkups, 3D Health Twin, Early Detection Map & Encrypted Records.</p>
             </div>
             <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", padding: "10px" }}>
               <strong style={{ color: "var(--accent-teal)" }}>🛡️ Administrator (`admin.audit`)</strong>
@@ -135,8 +144,20 @@ export default function UserGuideModal({ isOpen, onClose }) {
   const IconComponent = slide.icon;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content" style={{ maxWidth: "620px", padding: "24px", borderRadius: 0, border: "1px solid var(--border-default)" }}>
+    <div ref={overlayRef} className="modal-overlay" onClick={onClose}>
+      <div
+        ref={modalRef}
+        className="modal-content"
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          maxWidth: "640px",
+          padding: "28px",
+          borderRadius: "var(--radius-sm)",
+          border: "1px solid var(--border-default)",
+          borderTop: "3px solid var(--gold)",
+          boxShadow: "var(--shadow-modal)",
+        }}
+      >
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px", borderBottom: "1px solid var(--border-default)", paddingBottom: "12px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>

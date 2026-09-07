@@ -22,7 +22,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import DigitalTwin2D from "../../components/visualizations/DigitalTwin2D.jsx";
+import DigitalTwin3D from "../../components/visualizations/DigitalTwin3D.jsx";
 import ExplainabilityView from "../../components/visualizations/ExplainabilityView.jsx";
 import BenchmarkMatrix from "../../components/visualizations/BenchmarkMatrix.jsx";
 import EarlyDetectionMap from "../../components/visualizations/EarlyDetectionMap.jsx";
@@ -39,6 +39,10 @@ import DoctorDiscovery from "../consultation/DoctorDiscovery.jsx";
 import VirtualConsultationRoom from "../consultation/VirtualConsultationRoom.jsx";
 import ClinicianDashboard from "../clinical/ClinicianDashboard.jsx";
 import NotificationBell from "../../components/common/NotificationBell.jsx";
+import EditorialLoginPage from "../auth/EditorialLoginPage.jsx";
+import EditorialHeader from "../../components/common/EditorialHeader.jsx";
+import EditorialFooter from "../../components/common/EditorialFooter.jsx";
+import EditorialHomePage from "../home/EditorialHomePage.jsx";
 
 import { clinicalApi } from "../../api/clinical";
 import { reportsApi } from "../../api/reports";
@@ -47,8 +51,16 @@ import { consultationsApi } from "../../api/consultations";
 import { animateEntrance, animateCounter } from "../../utils/motion";
 import "../../styles.css";
 
-
 /* ── Custom High-Tech SVG Navigation Icons ──────────────────────────────────── */
+
+function NavHomeSvg() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <polyline points="9 22 9 12 15 12 15 22" />
+    </svg>
+  );
+}
 
 function NavDiagnosticSvg() {
   return (
@@ -176,8 +188,8 @@ const GUIDE_DATA = {
   },
   digital_twin: {
     sectionId: "SEC-03",
-    title: "2D Digital Health Avatar & Timeline",
-    summary: "Your interactive 2D physiological avatar mapping organ-by-organ vitality across your checkup history with preventative care recommendations.",
+    title: "3D Digital Health Twin & Timeline",
+    summary: "Your interactive 3D physiological twin maps organ-by-organ vitality across your checkup history with preventative care recommendations.",
     steps: [
       { heading: "Select an Organ", description: "Click on Brain, Lungs, Heart, or other regions in the avatar or list to inspect organ-specific vitality." },
       { heading: "Scrub Timeline", description: "Use the visit slider to compare your health trajectory across past checkups." },
@@ -239,14 +251,20 @@ const ROLE_PERMISSIONS = {
   patient: {
     label: "Patient (Autonomous Health Checkups & Twin)",
     badgeColor: "var(--primary)",
-    defaultTab: "diagnostic",
-    allowedTabs: ["diagnostic", "twin", "early_detection", "doctor_booking", "my_consultations", "benchmarks", "telemetry", "portal", "profile"],
+    defaultTab: "home",
+    allowedTabs: ["home", "diagnostic", "twin", "early_detection", "doctor_booking", "my_consultations", "benchmarks", "telemetry", "portal", "profile"],
     sections: [
+      {
+        title: "Editorial Overview",
+        items: [
+          { id: "home", label: "Project Story & Details", icon: NavHomeSvg },
+        ],
+      },
       {
         title: "Personal Health Cockpit",
         items: [
           { id: "diagnostic", label: "Health Checkups", icon: NavDiagnosticSvg },
-          { id: "twin", label: "2D Digital Health Twin", icon: NavTwinSvg },
+          { id: "twin", label: "3D Digital Health Twin", icon: NavTwinSvg },
           { id: "early_detection", label: "Early Detection Map", icon: NavEarlyDetectionSvg },
         ],
       },
@@ -281,15 +299,21 @@ const ROLE_PERMISSIONS = {
   doctor: {
     label: "Doctor / Clinician (Tele-Consultations & Triage)",
     badgeColor: "var(--accent-teal)",
-    defaultTab: "clinician_dashboard",
-    allowedTabs: ["clinician_dashboard", "diagnostic", "twin", "benchmarks", "telemetry", "portal", "profile"],
+    defaultTab: "home",
+    allowedTabs: ["home", "clinician_dashboard", "diagnostic", "twin", "benchmarks", "telemetry", "portal", "profile"],
     sections: [
+      {
+        title: "Editorial Overview",
+        items: [
+          { id: "home", label: "Project Story & Details", icon: NavHomeSvg },
+        ],
+      },
       {
         title: "Clinical Practice",
         items: [
           { id: "clinician_dashboard", label: "Consultation Queue & Triage", icon: NavUsersSvg },
           { id: "diagnostic", label: "AI Clinical Diagnosis", icon: NavDiagnosticSvg },
-          { id: "twin", label: "2D Digital Health Twin", icon: NavTwinSvg },
+          { id: "twin", label: "3D Digital Health Twin", icon: NavTwinSvg },
         ],
       },
       {
@@ -316,9 +340,15 @@ const ROLE_PERMISSIONS = {
   admin: {
     label: "System & Compliance Administrator",
     badgeColor: "var(--accent-teal)",
-    defaultTab: "compliance",
-    allowedTabs: ["compliance", "users", "benchmarks", "portal", "profile"],
+    defaultTab: "home",
+    allowedTabs: ["home", "compliance", "users", "benchmarks", "portal", "profile"],
     sections: [
+      {
+        title: "Editorial Overview",
+        items: [
+          { id: "home", label: "Project Story & Details", icon: NavHomeSvg },
+        ],
+      },
       {
         title: "Governance & Security",
         items: [
@@ -403,6 +433,7 @@ export default function UnifiedAnalysisPage() {
   const [patientData, setPatientData] = useState(null);
   const [rawFeatures, setRawFeatures] = useState([]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [twinCollapsed, setTwinCollapsed] = useState(false);
   const [mrnMasked, setMrnMasked] = useState(true);
   const [file, setFile] = useState(null);
@@ -615,107 +646,36 @@ export default function UnifiedAnalysisPage() {
 
   if (!currentUser) {
     return (
-      <div className="login-portal-wrap">
-        <div className="login-portal-card">
-          <div style={{ marginBottom: "18px", textAlign: "center", borderBottom: "1px solid var(--border-default)", paddingBottom: "16px" }}>
-            <span style={{ fontSize: "0.62rem", fontWeight: 800, color: "var(--primary)", textTransform: "uppercase", letterSpacing: "0.16em", display: "block", marginBottom: "4px" }}>
-              EDITION 2026 // VOL. IV • QUANTUM CLINICAL OS
-            </span>
-            <h1 style={{ fontSize: "1.45rem", fontWeight: 900, color: "var(--text-primary)", letterSpacing: "-0.03em", textTransform: "uppercase" }}>
-              Q-MEDSENSE
-            </h1>
-            <p style={{ fontSize: "0.74rem", color: "var(--text-secondary)", margin: "4px 0 0 0" }}>
-              Enterprise Decision Support & Quantum Stratification
-            </p>
-          </div>
-
-          <div style={{ marginBottom: "16px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-              <p style={{ fontSize: "0.66rem", fontWeight: 800, color: "var(--primary)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                ⚡ 1-Click Testing Personas
-              </p>
-              <span style={{ fontSize: "0.60rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
-                SQLITE DB
-              </span>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px" }}>
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={() => handleQuickRoleSwitch("alex.patient", "patient123", "patient")}
-                style={{ padding: "8px", fontSize: "0.72rem", textAlign: "left", display: "flex", flexDirection: "column" }}
-              >
-                <strong>Patient</strong>
-                <span style={{ fontSize: "0.62rem", color: "var(--text-muted)" }}>alex.patient</span>
-              </button>
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={() => handleQuickRoleSwitch("dr.kavita", "doctor123", "doctor")}
-                style={{ padding: "8px", fontSize: "0.72rem", textAlign: "left", display: "flex", flexDirection: "column" }}
-              >
-                <strong>Doctor</strong>
-                <span style={{ fontSize: "0.62rem", color: "var(--text-muted)" }}>dr.kavita (Cardio)</span>
-              </button>
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={() => handleQuickRoleSwitch("admin.audit", "admin123", "admin")}
-                style={{ padding: "8px", fontSize: "0.72rem", textAlign: "left", display: "flex", flexDirection: "column" }}
-              >
-                <strong>Admin</strong>
-                <span style={{ fontSize: "0.62rem", color: "var(--text-muted)" }}>admin.audit</span>
-              </button>
-            </div>
-
-          </div>
-
-          {/* Direct credentials form */}
-          <form onSubmit={handleDirectLogin} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            <input
-              type="text"
-              placeholder="Username"
-              value={loginUsername}
-              onChange={(e) => setLoginUsername(e.target.value)}
-              style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--border-default)", fontSize: "0.76rem" }}
-              required
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={loginPassword}
-              onChange={(e) => setLoginPassword(e.target.value)}
-              style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--border-default)", fontSize: "0.76rem" }}
-              required
-            />
-            <button type="submit" className="btn-primary" disabled={loading} style={{ padding: "8px", marginTop: "4px" }}>
-              {loading ? "Authenticating..." : "Sign In to View Workspace"}
-            </button>
-          </form>
-          {error && (
-            <div style={{ background: "var(--risk-high-bg)", color: "var(--risk-high)", padding: "6px 8px", fontSize: "0.72rem", marginTop: "8px" }}>
-              {error}
-            </div>
-          )}
-        </div>
-      </div>
+      <EditorialLoginPage
+        onLogin={(u, p, r) => handleQuickRoleSwitch(u, p, r)}
+        loading={loading}
+        error={error}
+      />
     );
   }
 
   return (
     <div className="app-layout">
+      {/* Mobile Backdrop Overlay */}
+      {mobileSidebarOpen && (
+        <div
+          className="sidebar-backdrop"
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
+
       {/* ── Left Sidebar (Collapsible & Custom SVGs with RBAC Filtering) ── */}
-      <aside className={`sidebar ${sidebarCollapsed ? "collapsed" : ""}`}>
+      <aside className={`sidebar ${sidebarCollapsed ? "collapsed" : ""} ${mobileSidebarOpen ? "mobile-open" : ""}`}>
         <div className="sidebar-brand">
           {!sidebarCollapsed ? (
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <h1 className="brand-title">Q-MEDSENSE</h1>
-                <span style={{ fontSize: "0.55rem", background: "var(--primary)", color: "#FFFFFF", padding: "1px 5px", fontWeight: 900, letterSpacing: "0.08em" }}>
-                  v2.6
+                <h1 className="brand-title" onClick={() => { setActiveTab("home"); setMobileSidebarOpen(false); }} style={{ cursor: "pointer" }}>Q-MEDSENSE</h1>
+                <span style={{ fontSize: "0.55rem", background: "var(--ink-primary)", color: "var(--gold)", border: "1px solid var(--gold-border)", padding: "1px 5px", fontWeight: 900, letterSpacing: "0.08em" }}>
+                  VOL. IV
                 </span>
               </div>
-              <p className="brand-subtitle">EDITION 2026 // CLINICAL OS</p>
+              <p className="brand-subtitle">EDITION 2026 // HAUTE CLINIQUE</p>
             </div>
           ) : (
             <span style={{ fontSize: "0.90rem", fontWeight: 900, color: "var(--primary)", fontFamily: "var(--font-mono)" }}>Q</span>
@@ -741,7 +701,10 @@ export default function UnifiedAnalysisPage() {
                   <button
                     key={item.id}
                     className={`nav-btn ${activeTab === item.id ? "active" : ""}`}
-                    onClick={() => setActiveTab(item.id)}
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      setMobileSidebarOpen(false);
+                    }}
                     title={item.label}
                   >
                     <IconComponent />
@@ -765,7 +728,10 @@ export default function UnifiedAnalysisPage() {
             </div>
             <button
               type="button"
-              onClick={() => setActiveTab("user_profile")}
+              onClick={() => {
+                setActiveTab("profile");
+                setMobileSidebarOpen(false);
+              }}
               title="View Profile & Credentials"
               style={{ background: "transparent", border: 0, cursor: "pointer", color: "var(--primary)" }}
             >
@@ -777,125 +743,33 @@ export default function UnifiedAnalysisPage() {
 
       {/* ── Main Viewport (100vh Single Desktop Screen) ────────────────────── */}
       <div className="main-viewport">
-        {/* Persistent SaMD Decision Support Disclaimer Banner */}
-        <div className="samd-disclaimer-banner" role="alert">
-          <div className="samd-disclaimer-content">
-            <AlertCircle size={14} color="#D97706" />
-            <span>
-              <strong>SaMD Decision Support Notice:</strong> Q-MedSense is an AI-assisted clinical decision support tool designed for risk stratification and health tracking. It is not an autonomous diagnostic device. Professional consultation and certified medical review are recommended.
-            </span>
-          </div>
-          <div style={{ display: "flex", gap: "4px" }}>
-            <button
-              type="button"
-              className="a11y-pill-btn active"
-              onClick={() => setUserGuideOpen(true)}
-              title="Launch Interactive Platform Walkthrough Tour"
-              style={{ background: "var(--primary)", color: "#FFFFFF", fontWeight: 700 }}
-            >
-              <HelpCircle size={11} style={{ display: "inline", marginRight: "3px" }} />
-              Platform Guide
-            </button>
-            <button
-              type="button"
-              className={`a11y-pill-btn ${dyslexiaMode ? "active" : ""}`}
-              onClick={() => setDyslexiaMode(!dyslexiaMode)}
-              title="Toggle Dyslexia Typography"
-            >
-              Dyslexia Font
-            </button>
-            <button
-              type="button"
-              className={`a11y-pill-btn ${reducedMotion ? "active" : ""}`}
-              onClick={() => setReducedMotion(!reducedMotion)}
-              title="Toggle Reduced Motion"
-            >
-              Reduced Motion
-            </button>
-            <button
-              type="button"
-              className={`a11y-pill-btn ${highContrast ? "active" : ""}`}
-              onClick={() => setHighContrast(!highContrast)}
-              title="Toggle High Contrast"
-            >
-              High Contrast
-            </button>
-          </div>
-        </div>
-
-        {/* Top App Bar with Embedded Persona Switcher & Quantum Engine Telemetry */}
-        <header className="topbar">
-          <div className="topbar-breadcrumbs">
-            <span style={{ fontWeight: 900, color: "var(--primary)", letterSpacing: "0.04em" }}>Q-MEDSENSE</span>
-            <span style={{ color: "var(--border-default)" }}>/</span>
-            <span style={{ textTransform: "uppercase", letterSpacing: "0.06em", fontSize: "0.68rem" }}>{currentUser.role} Workspace</span>
-            <span style={{ color: "var(--border-default)" }}>/</span>
-            <span className="active-node" style={{ letterSpacing: "0.08em", fontWeight: 900 }}>{activeTab.replace("_", " ").toUpperCase()}</span>
-          </div>
-
-          {/* Clean Navbar Role Switcher: One-Click Switch between Patient and Admin */}
-          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <span style={{ fontSize: "0.64rem", fontWeight: 800, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-              Active Authority:
-            </span>
-            <div className="quick-auth-pills-wrap">
-              <button
-                type="button"
-                className={`quick-auth-pill ${currentUser?.username === "alex.patient" ? "active" : ""}`}
-                onClick={() => handleQuickRoleSwitch("alex.patient", "patient123", "patient")}
-                title="Switch to Patient Persona (Alexander Reed)"
-              >
-                👤 Patient (Alex Reed)
-              </button>
-              <button
-                type="button"
-                className={`quick-auth-pill ${currentUser?.username === "dr.kavita" ? "active" : ""}`}
-                onClick={() => handleQuickRoleSwitch("dr.kavita", "doctor123", "doctor")}
-                title="Switch to Doctor Persona (Dr. Kavita Rao)"
-              >
-                🩺 Doctor (Dr. Kavita)
-              </button>
-              <button
-                type="button"
-                className={`quick-auth-pill ${currentUser?.username === "admin.audit" ? "active" : ""}`}
-                onClick={() => handleQuickRoleSwitch("admin.audit", "admin123", "admin")}
-                title="Switch to Administrator Persona"
-              >
-                🛡️ Admin
-              </button>
-            </div>
-          </div>
-
-          <div className="topbar-actions">
-            <div className="qpu-status-indicator">
-              <span className="qpu-pulse-point" />
-              <span>QUANTUM ENGINE: 10 QUBITS ONLINE</span>
-            </div>
-            <NotificationBell />
-            <button
-              type="button"
-              className="btn-secondary"
-              style={{ padding: "4px 10px", fontSize: "0.68rem", fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase", display: "flex", alignItems: "center", gap: "5px" }}
-              onClick={() => setActiveTab("user_profile")}
-              title="Open User Profile & Health ID Card"
-            >
-              <User size={11} /> {currentUser.name}
-            </button>
-
-            <button
-              type="button"
-              className="btn-secondary"
-              style={{ padding: "4px 8px", fontSize: "0.68rem", color: "var(--risk-high)", borderColor: "var(--risk-high)", display: "flex", alignItems: "center", gap: "4px" }}
-              onClick={handleLogout}
-              title="Sign Out"
-            >
-              <LogIn size={11} />
-            </button>
-          </div>
-        </header>
+        <EditorialHeader
+          currentUser={currentUser}
+          onLogout={handleLogout}
+          onOpenProfile={() => setActiveTab("profile")}
+          highContrast={highContrast}
+          setHighContrast={setHighContrast}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          mobileSidebarOpen={mobileSidebarOpen}
+          setMobileSidebarOpen={setMobileSidebarOpen}
+        />
 
         {/* Content Body */}
         <main className="content-body" ref={mainContentRef}>
+          {/* ── VIEW 0: EDITORIAL HOME & PROJECT OVERVIEW ─────────────────── */}
+          {activeTab === "home" && (
+            <div style={{ height: "100%", overflowY: "auto", padding: "12px 6px" }}>
+              <EditorialHomePage
+                currentUser={currentUser}
+                allowedTabs={roleConfig.allowedTabs}
+                onNavigate={(tab) => {
+                  if (roleConfig.allowedTabs.includes(tab)) setActiveTab(tab);
+                }}
+              />
+            </div>
+          )}
+
           {/* ── 3-COLUMN UNIFIED DIAGNOSTIC COCKPIT ────────────────────────── */}
           {activeTab === "diagnostic" && (
             <div style={{ display: "flex", flexDirection: "column", height: "100%", gap: "6px" }}>
@@ -1184,7 +1058,7 @@ export default function UnifiedAnalysisPage() {
                   </div>
                 </div>
 
-                {/* COLUMN 3: 2D Physiological Digital Twin & Clinical Actions (Minimizable) */}
+                {/* COLUMN 3: 3D Physiological Digital Twin & Clinical Actions (Minimizable) */}
                 <div
                   className="cockpit-col"
                   style={{
@@ -1204,17 +1078,17 @@ export default function UnifiedAnalysisPage() {
                       <>
                         <div>
                           <span className="step-badge">0.3</span>
-                          <span>2D Digital Health Avatar</span>
+                          <span>3D Digital Health Avatar</span>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                          <span style={{ fontSize: "0.66rem", color: "var(--risk-low)", fontWeight: 700 }}>
-                            Live Interactive Twin
+                          <span style={{ fontSize: "0.66rem", color: "var(--emerald-couture)", fontWeight: 700 }}>
+                            Live 3D WebGL Twin
                           </span>
                           <button
                             type="button"
                             className="section-guide-btn"
                             onClick={() => setActiveGuide(GUIDE_DATA.digital_twin)}
-                            title="How to use 2D Digital Health Twin (Plain English Guide)"
+                            title="How to use 3D Digital Health Twin (Plain English Guide)"
                           >
                             <Info size={13} />
                           </button>
@@ -1230,7 +1104,7 @@ export default function UnifiedAnalysisPage() {
                               display: "flex",
                               alignItems: "center",
                             }}
-                            title="Minimize 2D Twin Column"
+                            title="Minimize 3D Twin Column"
                           >
                             <ChevronRight size={15} />
                           </button>
@@ -1252,7 +1126,7 @@ export default function UnifiedAnalysisPage() {
                           gap: "8px",
                           padding: "4px 0",
                         }}
-                        title="Expand 2D Digital Twin Column"
+                        title="Expand 3D Digital Twin Column"
                       >
                         <ChevronLeft size={16} />
                         <span
@@ -1267,7 +1141,7 @@ export default function UnifiedAnalysisPage() {
                             whiteSpace: "nowrap",
                           }}
                         >
-                          2D DIGITAL TWIN
+                          3D DIGITAL TWIN
                         </span>
                       </button>
                     )}
@@ -1275,7 +1149,7 @@ export default function UnifiedAnalysisPage() {
 
                   {!twinCollapsed && (
                     <div className="cockpit-col-body" style={{ alignItems: "center" }}>
-                      <DigitalTwin2D patientId={patientId} />
+                      <DigitalTwin3D patientId={patientId} analysisResult={result} />
 
                       {/* 1-Click Clinical PDF Export & Sign-Off */}
                       <div style={{ width: "100%", marginTop: "auto", borderTop: "1px solid var(--border-default)", paddingTop: "10px" }}>
@@ -1302,28 +1176,28 @@ export default function UnifiedAnalysisPage() {
             </div>
           )}
 
-          {/* ── VIEW 2: 2D DIGITAL TWIN EXPLORER ──────────────────────────── */}
+          {/* ── VIEW 2: 3D DIGITAL TWIN EXPLORER ──────────────────────────── */}
           {activeTab === "twin" && (
             <div style={{ height: "100%", overflowY: "auto", background: "var(--bg-surface)", border: "1px solid var(--border-default)", padding: "12px", borderRadius: 0, display: "flex", flexDirection: "column", gap: "10px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border-default)", paddingBottom: "8px" }}>
                 <div>
                   <h3 style={{ fontSize: "0.95rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", margin: 0 }}>
-                    Interactive 2D Digital Health Twin
+                    Interactive 3D Digital Health Twin
                   </h3>
                   <p style={{ fontSize: "0.72rem", color: "var(--text-secondary)", margin: 0 }}>
-                    Explore organ-specific biomarker vitality and temporal risk trajectories.
+                    Explore 3D organ-specific biomarker vitality, interactive GLB geometry, and temporal risk trajectories.
                   </p>
                 </div>
                 <button
                   type="button"
                   className="section-guide-btn"
                   onClick={() => setActiveGuide(GUIDE_DATA.digital_twin)}
-                  title="How to use 2D Digital Health Twin"
+                  title="How to use 3D Digital Health Twin"
                 >
                   <Info size={14} />
                 </button>
               </div>
-              <DigitalTwin2D patientId={patientId} />
+              <DigitalTwin3D patientId={patientId} analysisResult={result} />
             </div>
           )}
 
@@ -1555,6 +1429,10 @@ export default function UnifiedAnalysisPage() {
           )}
         </main>
 
+        <EditorialFooter
+          onOpenGuide={() => setUserGuideOpen(true)}
+          onOpenCompliance={() => setActiveTab("compliance")}
+        />
       </div>
 
       {/* Profile & Emergency Settings Modal */}

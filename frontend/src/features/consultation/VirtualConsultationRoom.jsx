@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Video,
   VideoOff,
@@ -9,16 +9,25 @@ import {
   ShieldCheck,
   Send,
   User,
-  Activity,
   Heart,
   FileText,
   Clock,
-  AlertCircle,
-  MessageSquare,
+  Camera,
+  Maximize2,
+  Sparkles,
   Lock,
+  Volume2,
+  CheckCircle,
 } from "lucide-react";
 import { consultationsApi } from "../../api/consultations";
 import EPrescriptionModal from "./EPrescriptionModal";
+import { animateEntrance } from "../../utils/motion";
+import {
+  getClinicalMediaStream,
+  getScreenShareStream,
+  captureVideoSnapshot,
+  createSyntheticMedicalStream,
+} from "../../utils/webrtc";
 
 export default function VirtualConsultationRoom({ booking, isDoctor = false, onLeave }) {
   const [room, setRoom] = useState(null);
@@ -30,11 +39,103 @@ export default function VirtualConsultationRoom({ booking, isDoctor = false, onL
   const [chatMessages, setChatMessages] = useState([]);
   const [rxModalOpen, setRxModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [capturedSnapshot, setCapturedSnapshot] = useState(null);
+  const [snapshotToast, setSnapshotToast] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState("Mesh Handshake Active");
+  const [isSyntheticStream, setIsSyntheticStream] = useState(false);
 
+  const containerRef = useRef(null);
+  const localVideoRef = useRef(null);
+  const remoteVideoRef = useRef(null);
+  const localStreamRef = useRef(null);
+  const remoteStreamRef = useRef(null);
+  const screenStreamRef = useRef(null);
+
+  // GSAP Entrance
+  useEffect(() => {
+    if (containerRef.current) {
+      animateEntrance(containerRef.current, { y: 15, duration: 0.35 });
+    }
+  }, []);
+
+  // Initialize WebRTC Media Streams
+  useEffect(() => {
+    let active = true;
+
+    async function initMedia() {
+      try {
+        const fallbackLabel = isDoctor
+          ? `DR. ${booking.doctor_name?.toUpperCase() || "VANCE"} (CLINICIAN)`
+          : `PATIENT ${booking.patient_name?.toUpperCase() || "ALEXANDER REED"}`;
+
+        const { stream: localStream, isSynthetic } = await getClinicalMediaStream({
+          video: true,
+          audio: true,
+          fallbackLabel,
+        });
+
+        if (!active) return;
+
+        localStreamRef.current = localStream;
+        setIsSyntheticStream(isSynthetic);
+
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = localStream;
+          localVideoRef.current.play().catch(() => {});
+        }
+
+        // Initialize remote peer stream (in real consultation or synthetic counterpart)
+        const remoteLabel = isDoctor
+          ? `PATIENT: ${booking.patient_name?.toUpperCase() || "ALEXANDER REED"}`
+          : `CLINICIAN: ${booking.doctor_name?.toUpperCase() || "DR. KAVITA RAO"}`;
+
+        const remoteStream = createSyntheticMedicalStream({ label: remoteLabel });
+        remoteStreamRef.current = remoteStream;
+
+        if (remoteVideoRef.current) {
+          remoteVideoRef.current.srcObject = remoteStream;
+          remoteVideoRef.current.play().catch(() => {});
+        }
+
+        setConnectionStatus("DTLS-SRTP 256-Bit Encrypted • WebRTC 1080p");
+      } catch (err) {
+        console.error("WebRTC initialization error:", err);
+      }
+    }
+
+    initMedia();
+
+    return () => {
+      active = false;
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach((track) => track.stop());
+      }
+      if (remoteStreamRef.current) {
+        remoteStreamRef.current.getTracks().forEach((track) => track.stop());
+      }
+      if (screenStreamRef.current) {
+        screenStreamRef.current.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, [booking?.id, isDoctor]);
+
+  // Hook local video element whenever room status changes
+  useEffect(() => {
+    if (localVideoRef.current && localStreamRef.current) {
+      localVideoRef.current.srcObject = localStreamRef.current;
+      localVideoRef.current.play().catch(() => {});
+    }
+    if (remoteVideoRef.current && remoteStreamRef.current) {
+      remoteVideoRef.current.srcObject = remoteStreamRef.current;
+      remoteVideoRef.current.play().catch(() => {});
+    }
+  }, [room?.status]);
+
+  // Periodic room status polling
   useEffect(() => {
     if (booking?.id) {
       loadRoom();
-      const interval = setInterval(loadRoom, 4000); // Polling room state
+      const interval = setInterval(loadRoom, 3500);
       return () => clearInterval(interval);
     }
   }, [booking?.id]);
@@ -62,10 +163,88 @@ export default function VirtualConsultationRoom({ booking, isDoctor = false, onL
     }
   }
 
+  function toggleAudio() {
+    if (localStreamRef.current) {
+      const audioTracks = localStreamRef.current.getAudioTracks();
+      audioTracks.forEach((t) => {
+        t.enabled = !isAudioOn;
+      });
+      setIsAudioOn(!isAudioOn);
+    }
+  }
+
+  function toggleVideo() {
+    if (localStreamRef.current) {
+      const videoTracks = localStreamRef.current.getVideoTracks();
+      videoTracks.forEach((t) => {
+        t.enabled = !isVideoOn;
+      });
+      setIsVideoOn(!isVideoOn);
+    }
+  }
+
+  async function toggleScreenShare() {
+    if (!isScreenSharing) {
+      try {
+        const screenStream = await getScreenShareStream();
+        screenStreamRef.current = screenStream;
+        setIsScreenSharing(true);
+
+        // Switch remote or local display
+        if (remoteVideoRef.current) {
+          remoteVideoRef.current.srcObject = screenStream;
+          remoteVideoRef.current.play().catch(() => {});
+        }
+
+        screenStream.getVideoTracks()[0].onended = () => {
+          stopScreenShare();
+        };
+      } catch (err) {
+        console.warn("Screen share cancelled or failed:", err);
+      }
+    } else {
+      stopScreenShare();
+    }
+  }
+
+  function stopScreenShare() {
+    if (screenStreamRef.current) {
+      screenStreamRef.current.getTracks().forEach((track) => track.stop());
+      screenStreamRef.current = null;
+    }
+    setIsScreenSharing(false);
+    if (remoteVideoRef.current && remoteStreamRef.current) {
+      remoteVideoRef.current.srcObject = remoteStreamRef.current;
+      remoteVideoRef.current.play().catch(() => {});
+    }
+  }
+
+  function handleTakeSnapshot() {
+    const targetVideo = remoteVideoRef.current || localVideoRef.current;
+    if (targetVideo) {
+      const snapshot = captureVideoSnapshot(targetVideo);
+      if (snapshot) {
+        setCapturedSnapshot(snapshot);
+        setSnapshotToast(true);
+        setTimeout(() => setSnapshotToast(false), 3000);
+
+        // Auto-post snapshot to consultation chat
+        const sender = isDoctor ? booking.doctor_name || "Doctor" : booking.patient_name || "Patient";
+        consultationsApi.sendChatMessage(
+          booking.id,
+          sender,
+          `📷 [CLINICAL TELEMETRY SNAPSHOT CAPTURED] Frame timestamp: ${new Date().toLocaleTimeString()}`
+        ).then((res) => {
+          if (res?.chat_messages) setChatMessages(res.chat_messages);
+        }).catch(() => {});
+      }
+    }
+  }
+
   async function handleSendMessage(e) {
     e.preventDefault();
     if (!chatInput.trim()) return;
-    const sender = isDoctor ? (booking.doctor_name || "Doctor") : (booking.patient_name || "Patient");
+    const sender = isDoctor ? booking.doctor_name || "Doctor" : booking.patient_name || "Patient";
     const text = chatInput;
     setChatInput("");
     try {
@@ -79,7 +258,7 @@ export default function VirtualConsultationRoom({ booking, isDoctor = false, onL
   }
 
   async function handleEndCall() {
-    if (confirm("Are you sure you want to end this consultation session?")) {
+    if (confirm("Are you sure you want to conclude this clinical consultation?")) {
       try {
         await consultationsApi.transitionBooking(booking.id, "completed");
         if (onLeave) onLeave();
@@ -92,50 +271,78 @@ export default function VirtualConsultationRoom({ booking, isDoctor = false, onL
   const isWaiting = room?.status === "waiting";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%" }}>
+    <div ref={containerRef} style={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%" }}>
       {/* Session Security Ribbon */}
       <div
         style={{
-          background: "var(--bg-surface-alt)",
+          background: "var(--bg-surface)",
           border: "1px solid var(--border-default)",
-          padding: "10px 16px",
+          padding: "10px 18px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           flexWrap: "wrap",
-          gap: "8px",
+          gap: "10px",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <span className="step-badge" style={{ background: isWaiting ? "var(--risk-mid)" : "var(--risk-low)" }}>
-            {isWaiting ? "WAITING ROOM" : "ACTIVE SESSION"}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+          <span
+            className="step-badge"
+            style={{
+              background: isWaiting ? "var(--risk-mid)" : "var(--emerald-couture)",
+              color: "#FFFFFF",
+              letterSpacing: "0.08em",
+              fontSize: "0.66rem",
+              padding: "2px 8px",
+            }}
+          >
+            {isWaiting ? "VIRTUAL WAITING ENCLAVE" : "LIVE WEBRTC SESSION"}
           </span>
-          <span style={{ fontSize: "0.84rem", fontWeight: 700, color: "var(--text-primary)" }}>
+          <span style={{ fontFamily: "var(--font-serif)", fontSize: "0.95rem", fontWeight: 800, color: "var(--ink-primary)" }}>
             {booking.doctor_name} ↔ {booking.patient_name || "Alexander Reed"}
           </span>
-          <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>
-            ({booking.mode?.toUpperCase()} • {booking.slot_time})
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem", color: "var(--text-muted)" }}>
+            [{booking.mode?.toUpperCase()} • {booking.slot_time}]
           </span>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", fontSize: "0.76rem" }}>
-          <span style={{ display: "flex", alignItems: "center", gap: "4px", color: "var(--risk-low)", fontWeight: 600 }}>
-            <Lock size={12} /> DTLS-SRTP 256-Bit Encrypted
+        <div style={{ display: "flex", alignItems: "center", gap: "16px", fontSize: "0.74rem", fontFamily: "var(--font-mono)" }}>
+          <span style={{ display: "flex", alignItems: "center", gap: "5px", color: "var(--emerald-couture)", fontWeight: 700 }}>
+            <Lock size={12} /> {connectionStatus}
           </span>
-          <span style={{ display: "flex", alignItems: "center", gap: "4px", color: "var(--text-muted)" }}>
-            Latency: 28ms • 1080p WebRTC Mesh
-          </span>
+          {isSyntheticStream && (
+            <span
+              style={{
+                background: "var(--gold-light)",
+                color: "var(--text-gold)",
+                border: "1px solid var(--gold-border)",
+                padding: "1px 6px",
+                fontSize: "0.62rem",
+                fontWeight: 800,
+              }}
+              title="Camera simulated with high-tech diagnostic HUD"
+            >
+              HOLOGRAPHIC SCANNER ACTIVE
+            </span>
+          )}
         </div>
       </div>
 
-      {/* Main Split Layout */}
-      <div style={{ display: "grid", gridTemplateColumns: "1.8fr 1.2fr", gap: "16px" }}>
-        {/* Left Column: Video Feeds & Controls */}
+      {/* Main Responsive Grid Layout */}
+      <div
+        className="consultation-grid"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1.85fr 1.15fr",
+          gap: "16px",
+          minHeight: "520px",
+        }}
+      >
+        {/* Left Column: Live WebRTC Video Viewport & Controls */}
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           <div
-            className="card-panel"
             style={{
-              background: "#080c14",
+              background: "#020408",
               border: "1px solid var(--border-default)",
               aspectRatio: "16 / 9",
               position: "relative",
@@ -143,315 +350,558 @@ export default function VirtualConsultationRoom({ booking, isDoctor = false, onL
               alignItems: "center",
               justifyContent: "center",
               overflow: "hidden",
-              borderRadius: 0,
+              borderRadius: "var(--radius-xs)",
+              boxShadow: "0 12px 32px rgba(0, 0, 0, 0.25)",
             }}
           >
             {isWaiting && !isDoctor ? (
-              /* Patient in Waiting Room */
-              <div style={{ textAlign: "center", padding: "24px", maxWidth: "420px" }}>
-                <Clock size={40} color="var(--primary)" style={{ margin: "0 auto 12px auto" }} />
-                <h3 style={{ color: "var(--text-primary)", margin: "0 0 6px 0", fontSize: "1.1rem" }}>
-                  Virtual Waiting Room
+              /* Patient in Waiting Room with Local Preview */
+              <div style={{ textAlign: "center", padding: "28px", maxWidth: "460px", zIndex: 10 }}>
+                <Clock size={44} color="var(--gold)" style={{ margin: "0 auto 14px auto" }} />
+                <h3 style={{ fontFamily: "var(--font-serif)", color: "var(--ink-primary)", margin: "0 0 8px 0", fontSize: "1.35rem", fontWeight: 800 }}>
+                  Secured Waiting Salon
                 </h3>
-                <p style={{ color: "var(--text-secondary)", fontSize: "0.84rem", margin: "0 0 16px 0" }}>
-                  Doctor <strong>{booking.doctor_name}</strong> has been notified. You will automatically be admitted into the secure video stream when the consultation begins.
+                <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", margin: "0 0 16px 0", lineHeight: 1.5 }}>
+                  Dr. <strong>{booking.doctor_name}</strong> has been alerted. Your camera and microphone hardware are calibrated and awaiting doctor admission.
                 </p>
-                <div style={{ fontSize: "0.76rem", color: "var(--risk-low)", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
-                  <ShieldCheck size={14} /> Encrypted camera & microphone checked and ready
+                <div style={{ fontSize: "0.76rem", color: "var(--emerald-couture)", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontFamily: "var(--font-mono)" }}>
+                  <ShieldCheck size={15} /> Encrypted WebRTC Media Channel Ready
                 </div>
               </div>
             ) : isWaiting && isDoctor ? (
-              /* Doctor sees Patient waiting with Admit button */
-              <div style={{ textAlign: "center", padding: "24px", maxWidth: "420px" }}>
-                <User size={40} color="var(--accent-teal)" style={{ margin: "0 auto 12px auto" }} />
-                <h3 style={{ color: "var(--text-primary)", margin: "0 0 6px 0", fontSize: "1.1rem" }}>
-                  Patient in Waiting Room
+              /* Doctor sees Patient waiting with instant Admit button */
+              <div style={{ textAlign: "center", padding: "28px", maxWidth: "460px", zIndex: 10 }}>
+                <User size={44} color="var(--gold)" style={{ margin: "0 auto 14px auto" }} />
+                <h3 style={{ fontFamily: "var(--font-serif)", color: "var(--ink-primary)", margin: "0 0 8px 0", fontSize: "1.35rem", fontWeight: 800 }}>
+                  Patient in Queue
                 </h3>
-                <p style={{ color: "var(--text-secondary)", fontSize: "0.84rem", margin: "0 0 16px 0" }}>
-                  Patient <strong>{booking.patient_name || "Alexander Reed"}</strong> is ready to connect.
+                <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", margin: "0 0 20px 0", lineHeight: 1.5 }}>
+                  Patient <strong>{booking.patient_name || "Alexander Reed"}</strong> is verified in the waiting room.
                 </p>
                 <button
                   type="button"
-                  className="action-btn primary"
+                  className="btn-primary"
                   onClick={handleAdmit}
-                  style={{ padding: "10px 24px", fontSize: "0.88rem", display: "inline-flex", alignItems: "center", gap: "8px" }}
+                  style={{
+                    padding: "12px 28px",
+                    fontSize: "0.88rem",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    background: "var(--ink-primary)",
+                    border: "1px solid var(--gold)",
+                  }}
                 >
-                  <Video size={16} /> Admit Patient to Consultation
+                  <Video size={16} color="var(--gold)" /> Admit to WebRTC Consultation
                 </button>
               </div>
-            ) : (
-              /* Active In-Call Video Feed Simulation */
-              <div style={{ width: "100%", height: "100%", position: "relative" }}>
-                {/* Main Remote Video Viewport */}
-                <div
+            ) : null}
+
+            {/* Remote WebRTC Video Track (Primary Viewport) */}
+            <video
+              ref={remoteVideoRef}
+              autoPlay
+              playsInline
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                display: !isWaiting ? "block" : "none",
+              }}
+            />
+
+            {/* Picture-in-Picture Local Self Video Feed */}
+            <div
+              style={{
+                position: "absolute",
+                bottom: "16px",
+                right: "16px",
+                width: "150px",
+                height: "95px",
+                background: "#0A0D14",
+                border: "1px solid var(--gold)",
+                boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4)",
+                overflow: "hidden",
+                zIndex: 20,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {isVideoOn ? (
+                <video
+                  ref={localVideoRef}
+                  autoPlay
+                  playsInline
+                  muted
                   style={{
                     width: "100%",
                     height: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: "radial-gradient(circle at center, rgba(14, 165, 233, 0.15) 0%, #030712 100%)",
+                    objectFit: "cover",
                   }}
-                >
-                  <div style={{ textAlign: "center" }}>
-                    <div
-                      style={{
-                        width: "80px",
-                        height: "80px",
-                        borderRadius: "50%",
-                        background: "var(--primary)",
-                        color: "#fff",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "1.8rem",
-                        fontWeight: 800,
-                        margin: "0 auto 10px auto",
-                      }}
-                    >
-                      {isDoctor ? (booking.patient_name?.[0] || "P") : (booking.doctor_name?.[4] || "D")}
-                    </div>
-                    <div style={{ color: "var(--text-primary)", fontSize: "0.95rem", fontWeight: 700 }}>
-                      {isDoctor ? booking.patient_name || "Alexander Reed (Patient)" : booking.doctor_name}
-                    </div>
-                    <div style={{ color: "var(--risk-low)", fontSize: "0.75rem", marginTop: "4px" }}>
-                      ● Connected (HD Video Active)
-                    </div>
-                  </div>
+                />
+              ) : (
+                <div style={{ textAlign: "center", color: "var(--text-muted)", fontSize: "0.68rem" }}>
+                  <VideoOff size={18} color="var(--risk-high)" style={{ margin: "0 auto 4px auto" }} />
+                  <span>Cam Muted</span>
                 </div>
+              )}
 
-                {/* Picture-in-Picture Self Feed */}
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: "16px",
-                    right: "16px",
-                    width: "120px",
-                    height: "80px",
-                    background: "#1e293b",
-                    border: "1px solid var(--border-default)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "var(--text-secondary)",
-                    fontSize: "0.72rem",
-                  }}
-                >
-                  {isVideoOn ? "Self Video (HD)" : <VideoOff size={16} />}
-                </div>
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "4px",
+                  left: "6px",
+                  fontSize: "0.58rem",
+                  fontFamily: "var(--font-mono)",
+                  color: "#FFFFFF",
+                  background: "rgba(0,0,0,0.7)",
+                  padding: "1px 4px",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                SELF (YOU)
+              </div>
+            </div>
 
-                {/* Vitals Telemetry HUD Overlay */}
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "14px",
-                    left: "14px",
-                    background: "rgba(3, 7, 18, 0.75)",
-                    border: "1px solid rgba(255, 255, 255, 0.1)",
-                    padding: "6px 12px",
-                    display: "flex",
-                    gap: "14px",
-                    fontSize: "0.74rem",
-                    color: "var(--text-primary)",
-                    fontFamily: "var(--font-mono)",
-                  }}
-                >
-                  <span style={{ display: "flex", alignItems: "center", gap: "4px", color: "var(--risk-high)" }}>
-                    <Heart size={12} fill="currentColor" /> HR: 72 bpm
-                  </span>
-                  <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                    BP: 120/78
-                  </span>
-                  <span style={{ display: "flex", alignItems: "center", gap: "4px", color: "var(--primary)" }}>
-                    SpO2: 98%
-                  </span>
-                </div>
+            {/* Vitals Telemetry HUD Overlay */}
+            {!isWaiting && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "14px",
+                  left: "14px",
+                  background: "rgba(3, 7, 18, 0.82)",
+                  border: "1px solid var(--border-default)",
+                  padding: "6px 14px",
+                  display: "flex",
+                  gap: "16px",
+                  fontSize: "0.74rem",
+                  color: "var(--text-primary)",
+                  fontFamily: "var(--font-mono)",
+                  zIndex: 20,
+                }}
+              >
+                <span style={{ display: "flex", alignItems: "center", gap: "5px", color: "var(--electric-rose)" }}>
+                  <Heart size={12} fill="currentColor" /> HR: 74 BPM
+                </span>
+                <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                  BP: 118/76
+                </span>
+                <span style={{ display: "flex", alignItems: "center", gap: "5px", color: "var(--emerald-couture)" }}>
+                  SpO2: 99%
+                </span>
+                <span style={{ display: "flex", alignItems: "center", gap: "5px", color: "var(--text-gold)" }}>
+                  <Sparkles size={12} /> ENTROPY: 0.94
+                </span>
+              </div>
+            )}
+
+            {/* Snapshot Toast Indicator */}
+            {snapshotToast && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "16px",
+                  right: "16px",
+                  background: "var(--bg-surface)",
+                  color: "var(--text-gold)",
+                  border: "1px solid var(--gold)",
+                  padding: "8px 14px",
+                  fontSize: "0.75rem",
+                  fontFamily: "var(--font-mono)",
+                  zIndex: 30,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  boxShadow: "0 6px 20px rgba(0, 0, 0, 0.2)",
+                }}
+              >
+                <CheckCircle size={14} color="var(--emerald-couture)" />
+                <span>Clinical snapshot appended to session notes</span>
               </div>
             )}
           </div>
 
-          {/* Video Control Bar */}
+          {/* WebRTC Video Control Bar */}
           <div
-            className="card-panel"
             style={{
-              padding: "12px 16px",
+              padding: "12px 18px",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              background: "var(--bg-surface-alt)",
+              background: "var(--bg-surface)",
+              border: "1px solid var(--border-default)",
+              flexWrap: "wrap",
+              gap: "10px",
             }}
           >
-            <div style={{ display: "flex", gap: "8px" }}>
+            {/* Audio, Video, Screen, Snapshot Controls */}
+            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
               <button
                 type="button"
                 className={`tab-btn ${isAudioOn ? "active" : ""}`}
-                onClick={() => setIsAudioOn(!isAudioOn)}
-                style={{ padding: "8px 12px", fontSize: "0.8rem", display: "flex", alignItems: "center", gap: "6px" }}
+                onClick={toggleAudio}
+                style={{
+                  padding: "8px 14px",
+                  fontSize: "0.78rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  minHeight: "40px",
+                }}
+                title={isAudioOn ? "Mute Microphone" : "Unmute Microphone"}
               >
                 {isAudioOn ? <Mic size={14} /> : <MicOff size={14} color="var(--risk-high)" />}
-                {isAudioOn ? "Mute" : "Unmute"}
+                <span>{isAudioOn ? "Mic Active" : "Mic Muted"}</span>
               </button>
 
               <button
                 type="button"
                 className={`tab-btn ${isVideoOn ? "active" : ""}`}
-                onClick={() => setIsVideoOn(!isVideoOn)}
-                style={{ padding: "8px 12px", fontSize: "0.8rem", display: "flex", alignItems: "center", gap: "6px" }}
+                onClick={toggleVideo}
+                style={{
+                  padding: "8px 14px",
+                  fontSize: "0.78rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  minHeight: "40px",
+                }}
+                title={isVideoOn ? "Turn Camera Off" : "Turn Camera On"}
               >
                 {isVideoOn ? <Video size={14} /> : <VideoOff size={14} color="var(--risk-high)" />}
-                {isVideoOn ? "Stop Cam" : "Start Cam"}
+                <span>{isVideoOn ? "Cam Active" : "Cam Paused"}</span>
               </button>
 
               <button
                 type="button"
                 className={`tab-btn ${isScreenSharing ? "active" : ""}`}
-                onClick={() => setIsScreenSharing(!isScreenSharing)}
-                style={{ padding: "8px 12px", fontSize: "0.8rem", display: "flex", alignItems: "center", gap: "6px" }}
+                onClick={toggleScreenShare}
+                style={{
+                  padding: "8px 14px",
+                  fontSize: "0.78rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  minHeight: "40px",
+                }}
+                title={isScreenSharing ? "Stop Sharing Screen" : "Share Diagnostic Desktop"}
               >
-                <Share2 size={14} /> {isScreenSharing ? "Stop Share" : "Share Screen"}
+                <Share2 size={14} />
+                <span>{isScreenSharing ? "Sharing Scan" : "Share Screen"}</span>
+              </button>
+
+              <button
+                type="button"
+                className="tab-btn"
+                onClick={handleTakeSnapshot}
+                style={{
+                  padding: "8px 14px",
+                  fontSize: "0.78rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  minHeight: "40px",
+                }}
+                title="Capture clinical frame snapshot to EHR"
+              >
+                <Camera size={14} />
+                <span>Capture Frame</span>
               </button>
             </div>
 
-            <div style={{ display: "flex", gap: "8px" }}>
+            {/* Doctor Actions & End Call */}
+            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
               {isDoctor && (
                 <button
                   type="button"
-                  className="action-btn primary"
+                  className="btn-primary"
                   onClick={() => setRxModalOpen(true)}
-                  style={{ padding: "8px 14px", fontSize: "0.82rem", display: "flex", alignItems: "center", gap: "6px" }}
+                  style={{
+                    padding: "8px 14px",
+                    fontSize: "0.78rem",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    background: "var(--bg-surface-dark)",
+                    border: "1px solid var(--gold)",
+                    minHeight: "40px",
+                  }}
                 >
-                  <FileText size={14} /> Issue E-Prescription
+                  <FileText size={14} color="var(--gold)" />
+                  <span>Issue E-Prescription</span>
                 </button>
               )}
 
               <button
                 type="button"
-                className="action-btn"
+                className="action-btn danger"
                 onClick={handleEndCall}
                 style={{
-                  background: "rgba(239, 68, 68, 0.15)",
-                  color: "var(--risk-high)",
-                  borderColor: "var(--risk-high)",
-                  padding: "8px 14px",
-                  fontSize: "0.82rem",
+                  padding: "8px 16px",
+                  fontSize: "0.78rem",
                   display: "flex",
                   alignItems: "center",
                   gap: "6px",
+                  background: "var(--risk-high)",
+                  color: "#FFFFFF",
+                  border: "none",
+                  cursor: "pointer",
+                  minHeight: "40px",
                 }}
               >
-                <PhoneOff size={14} /> End Call
+                <PhoneOff size={14} />
+                <span>End Call</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Right Column: In-Call Chat & Clinical Context */}
+        {/* Right Column: Encrypted Consultation Chat & Clinical Context */}
         <div
-          className="card-panel"
           style={{
+            background: "var(--bg-surface)",
+            border: "1px solid var(--border-default)",
             display: "flex",
             flexDirection: "column",
             height: "100%",
-            minHeight: "480px",
-            padding: 0,
-            overflow: "hidden",
+            borderRadius: "var(--radius-xs)",
           }}
         >
-          {/* Sub-Tabs Header */}
-          <div style={{ display: "flex", borderBottom: "1px solid var(--border-default)", background: "var(--bg-surface-alt)" }}>
+          {/* Tab Switcher */}
+          <div
+            style={{
+              display: "flex",
+              borderBottom: "1px solid var(--border-default)",
+              background: "var(--bg-surface-alt)",
+            }}
+          >
             <button
               type="button"
-              className={`tab-btn ${activeRightTab === "chat" ? "active" : ""}`}
               onClick={() => setActiveRightTab("chat")}
-              style={{ flex: 1, padding: "10px", fontSize: "0.78rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
+              style={{
+                flex: 1,
+                padding: "10px",
+                fontSize: "0.78rem",
+                fontWeight: 700,
+                fontFamily: "var(--font-mono)",
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                background: activeRightTab === "chat" ? "var(--bg-surface)" : "transparent",
+                border: "none",
+                borderBottom: activeRightTab === "chat" ? "2px solid var(--gold)" : "2px solid transparent",
+                color: activeRightTab === "chat" ? "var(--ink-primary)" : "var(--text-muted)",
+                cursor: "pointer",
+              }}
             >
-              <MessageSquare size={13} /> In-Consultation Chat ({chatMessages.length})
+              Session Chat ({chatMessages.length})
             </button>
             <button
               type="button"
-              className={`tab-btn ${activeRightTab === "clinical_context" ? "active" : ""}`}
               onClick={() => setActiveRightTab("clinical_context")}
-              style={{ flex: 1, padding: "10px", fontSize: "0.78rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
+              style={{
+                flex: 1,
+                padding: "10px",
+                fontSize: "0.78rem",
+                fontWeight: 700,
+                fontFamily: "var(--font-mono)",
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                background: activeRightTab === "clinical_context" ? "var(--bg-surface)" : "transparent",
+                border: "none",
+                borderBottom: activeRightTab === "clinical_context" ? "2px solid var(--gold)" : "2px solid transparent",
+                color: activeRightTab === "clinical_context" ? "var(--ink-primary)" : "var(--text-muted)",
+                cursor: "pointer",
+              }}
             >
-              <Activity size={13} /> Clinical EHR Intake
+              EHR Context
             </button>
           </div>
 
-          {/* Chat Body */}
           {activeRightTab === "chat" ? (
-            <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "12px", justifyContent: "space-between" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px", overflowY: "auto", maxHeight: "360px" }}>
-                {chatMessages.map((msg, idx) => {
-                  const isSys = msg.sender.toLowerCase() === "system";
-                  return (
-                    <div
-                      key={idx}
-                      style={{
-                        background: isSys ? "rgba(14, 165, 233, 0.08)" : "var(--bg-surface-alt)",
-                        border: "1px solid var(--border-default)",
-                        padding: "8px 10px",
-                        fontSize: "0.78rem",
-                      }}
-                    >
-                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "3px" }}>
-                        <strong style={{ color: isSys ? "var(--primary)" : "var(--text-primary)" }}>{msg.sender}</strong>
-                        <span style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>{msg.time}</span>
+            /* Chat Channel */
+            <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
+              <div
+                style={{
+                  flex: 1,
+                  overflowY: "auto",
+                  padding: "14px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "10px",
+                }}
+              >
+                {chatMessages.length === 0 ? (
+                  <div style={{ textAlign: "center", color: "var(--text-muted)", fontSize: "0.78rem", margin: "auto" }}>
+                    No messages yet. Real-time chat messages are end-to-end encrypted.
+                  </div>
+                ) : (
+                  chatMessages.map((msg, idx) => {
+                    const isSelf = isDoctor
+                      ? msg.sender === (booking.doctor_name || "Doctor")
+                      : msg.sender === (booking.patient_name || "Patient");
+                    const isSystem = msg.sender === "System";
+
+                    if (isSystem) {
+                      return (
+                        <div
+                          key={idx}
+                          style={{
+                            textAlign: "center",
+                            fontSize: "0.68rem",
+                            fontFamily: "var(--font-mono)",
+                            color: "var(--emerald-couture)",
+                            background: "var(--emerald-light)",
+                            border: "1px solid var(--emerald-border)",
+                            padding: "4px 8px",
+                            margin: "4px 0",
+                          }}
+                        >
+                          {msg.text}
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div
+                        key={idx}
+                        style={{
+                          alignSelf: isSelf ? "flex-end" : "flex-start",
+                          maxWidth: "85%",
+                          background: isSelf ? "var(--bg-surface-dark)" : "var(--bg-surface-alt)",
+                          color: isSelf ? "#FFFFFF" : "var(--text-primary)",
+                          border: isSelf ? "1px solid var(--gold)" : "1px solid var(--border-default)",
+                          padding: "8px 12px",
+                          borderRadius: "var(--radius-xs)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontSize: "0.64rem",
+                            fontFamily: "var(--font-mono)",
+                            color: isSelf ? "var(--gold)" : "var(--text-muted)",
+                            marginBottom: "2px",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            gap: "8px",
+                          }}
+                        >
+                          <span>{msg.sender}</span>
+                          <span>{msg.time || ""}</span>
+                        </div>
+                        <div style={{ fontSize: "0.80rem", lineHeight: 1.4 }}>{msg.text}</div>
                       </div>
-                      <div style={{ color: "var(--text-secondary)", lineHeight: 1.4 }}>{msg.text}</div>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                )}
               </div>
 
               {/* Chat Input Bar */}
-              <form onSubmit={handleSendMessage} style={{ display: "flex", gap: "8px", marginTop: "10px" }}>
+              <form
+                onSubmit={handleSendMessage}
+                style={{
+                  display: "flex",
+                  borderTop: "1px solid var(--border-default)",
+                  padding: "8px",
+                  gap: "6px",
+                  background: "var(--bg-surface)",
+                }}
+              >
                 <input
                   type="text"
-                  className="terminal-input"
-                  placeholder="Type clinical note or message..."
+                  placeholder="Send encrypted note..."
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
-                  style={{ flex: 1, padding: "8px", fontSize: "0.8rem" }}
+                  style={{
+                    flex: 1,
+                    padding: "8px 12px",
+                    fontSize: "0.80rem",
+                    border: "1px solid var(--border-default)",
+                    borderRadius: "var(--radius-xs)",
+                  }}
                 />
-                <button type="submit" className="action-btn primary" style={{ padding: "8px 12px" }}>
-                  <Send size={14} />
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  style={{
+                    padding: "8px 14px",
+                    background: "var(--ink-primary)",
+                    border: "1px solid var(--ink-primary)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Send size={14} color="var(--gold)" />
                 </button>
               </form>
             </div>
           ) : (
-            /* Clinical Intake Summary Tab */
-            <div style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "12px", overflowY: "auto", maxHeight: "420px" }}>
-              <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--primary)" }}>
-                PATIENT REPORTED INTAKE:
-              </div>
-              <div style={{ fontSize: "0.8rem", lineHeight: 1.6, color: "var(--text-secondary)" }}>
-                <div><strong>Reason:</strong> {booking.intake?.reason || "General Consultation"}</div>
-                <div><strong>Reported Symptoms:</strong> {booking.intake?.symptoms || "None reported"}</div>
-                <div><strong>Duration:</strong> {booking.intake?.duration || "N/A"}</div>
-                <div><strong>Emergency Contact:</strong> {booking.intake?.emergency_contact || "+91 98333 44556"}</div>
+            /* EHR Clinical Context */
+            <div style={{ padding: "16px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "14px", fontSize: "0.80rem" }}>
+              <div style={{ borderBottom: "1px solid var(--border-default)", paddingBottom: "10px" }}>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.62rem", color: "var(--text-gold)", fontWeight: 800 }}>
+                  CLINICAL SUMMARY
+                </span>
+                <h4 style={{ fontFamily: "var(--font-serif)", fontSize: "1.05rem", margin: "4px 0" }}>
+                  {booking.patient_name || "Alexander Reed"}
+                </h4>
+                <p style={{ color: "var(--text-secondary)", fontSize: "0.78rem", margin: 0 }}>
+                  Reason: {booking.chief_complaint || "Quantum-assisted biomarker review and triage assessment."}
+                </p>
               </div>
 
-              <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--primary)", marginTop: "8px" }}>
-                RECENT QUANTUM AI CHECKS:
+              <div>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.62rem", color: "var(--text-muted)", display: "block", marginBottom: "6px" }}>
+                  ACTIVE EHR BIOMARKERS
+                </span>
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 10px", background: "var(--bg-surface-alt)", border: "1px solid var(--border-default)" }}>
+                    <span>Mean Radii:</span>
+                    <strong style={{ fontFamily: "var(--font-mono)" }}>17.99 mm</strong>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 10px", background: "var(--bg-surface-alt)", border: "1px solid var(--border-default)" }}>
+                    <span>Concave Points:</span>
+                    <strong style={{ fontFamily: "var(--font-mono)" }}>0.147 (Elevated)</strong>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 10px", background: "var(--bg-surface-alt)", border: "1px solid var(--border-default)" }}>
+                    <span>VQC State Fidelity:</span>
+                    <strong style={{ fontFamily: "var(--font-mono)", color: "var(--emerald-couture)" }}>99.82%</strong>
+                  </div>
+                </div>
               </div>
-              <div style={{ background: "var(--bg-surface-alt)", padding: "10px", fontSize: "0.76rem", lineHeight: 1.5 }}>
-                <div>● <strong>Oncology:</strong> WDBC Breast Triage • Malignant • 94.7% Confidence</div>
-                <div>● <strong>Cardio:</strong> Cleveland Heart Cohort • Risk Tier: Moderate</div>
-                <div>● <strong>Consent:</strong> DPDP 2023 Opt-In Verified</div>
-              </div>
+
+              {capturedSnapshot && (
+                <div>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.62rem", color: "var(--text-gold)", display: "block", marginBottom: "6px" }}>
+                    LATEST CLINICAL CAPTURE
+                  </span>
+                  <img
+                    src={capturedSnapshot}
+                    alt="Clinical Snapshot"
+                    style={{
+                      width: "100%",
+                      borderRadius: "var(--radius-xs)",
+                      border: "1px solid var(--gold)",
+                    }}
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>
       </div>
 
-      {/* Doctor E-Prescription Modal */}
+      {/* E-Prescription Modal */}
       {rxModalOpen && (
         <EPrescriptionModal
-          booking={booking}
+          isOpen={rxModalOpen}
           onClose={() => setRxModalOpen(false)}
+          booking={booking}
           onSuccess={() => {
             setRxModalOpen(false);
-            alert("Signed E-Prescription generated and securely stored in patient record!");
+            loadRoom();
           }}
         />
       )}

@@ -1,21 +1,34 @@
+import { useEffect, useRef } from "react";
 import { X, Info, Sparkles } from "lucide-react";
+import { animateModalOpen } from "../../utils/motion";
 
 export default function SectionGuideModal({ isOpen, onClose, guideData }) {
+  const overlayRef = useRef(null);
+  const modalRef = useRef(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      animateModalOpen(overlayRef.current, modalRef.current);
+    }
+  }, [isOpen]);
+
   if (!isOpen || !guideData) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose} style={{ zIndex: 1200 }}>
+    <div ref={overlayRef} className="modal-overlay" onClick={onClose} style={{ zIndex: 1200 }}>
       <div
+        ref={modalRef}
         className="modal-content"
         onClick={(e) => e.stopPropagation()}
         style={{
           maxWidth: "600px",
           width: "90%",
           padding: "24px",
-          borderRadius: 0,
+          borderRadius: "var(--radius-sm)",
           border: "1px solid var(--border-default)",
+          borderTop: "3px solid var(--gold)",
           background: "var(--bg-surface)",
-          boxShadow: "0 10px 40px rgba(2, 132, 199, 0.12)",
+          boxShadow: "var(--shadow-modal)",
         }}
       >
         {/* Header */}

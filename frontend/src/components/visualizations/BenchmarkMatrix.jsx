@@ -1,15 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { BarChart3, Zap, Activity, CheckCircle2, RefreshCw } from "lucide-react";
 import { benchmarksApi } from "../../api/benchmarks";
+import { animateEntrance, animateCardStagger } from "../../utils/motion";
 
 export default function BenchmarkMatrix({ disease = "breast_cancer" }) {
+  const containerRef = useRef(null);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
     benchmarksApi.getBenchmarkMatrix(disease)
-      .then((res) => setData(res))
+      .then((res) => {
+        setData(res);
+        if (containerRef.current) {
+          animateEntrance(containerRef.current, { y: 15, duration: 0.35 });
+          animateCardStagger(containerRef.current, ".bento-stat");
+        }
+      })
       .catch(() => setData(null))
       .finally(() => setLoading(false));
   }, [disease]);
@@ -19,7 +27,7 @@ export default function BenchmarkMatrix({ disease = "breast_cancer" }) {
   const bestModel = models.find((m) => m.status === "Active SOTA") || models[0] || {};
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "12px", height: "100%", overflowY: "auto", padding: "4px" }}>
+    <div ref={containerRef} style={{ display: "flex", flexDirection: "column", gap: "16px", height: "100%", overflowY: "auto", padding: "6px" }}>
       {/* QAS Bento Hero Cards */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "8px" }}>
         <div className="bento-stat">

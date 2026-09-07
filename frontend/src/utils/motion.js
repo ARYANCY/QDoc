@@ -80,12 +80,72 @@ export function animateCounter(targetRef, startVal, endVal, decimals = 1, suffix
   const obj = { val: startVal };
   return gsap.to(obj, {
     val: endVal,
-    duration: 0.8,
+    duration: 0.9,
     ease: "power2.out",
     onUpdate: () => {
       if (targetRef) {
         targetRef.textContent = `${obj.val.toFixed(decimals)}${suffix}`;
       }
     },
+  });
+}
+
+/**
+ * Editorial Hero Entrance with luxury staggered fade and slide.
+ */
+export function animateEditorialHero(containerRef) {
+  if (!containerRef || isReducedMotion()) return;
+  const elements = containerRef.querySelectorAll(".editorial-reveal");
+  if (!elements || elements.length === 0) return;
+
+  return gsap.fromTo(
+    elements,
+    { opacity: 0, y: 22, filter: "blur(4px)" },
+    {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      duration: 0.65,
+      stagger: 0.08,
+      ease: "power3.out",
+      clearProps: "all",
+    }
+  );
+}
+
+/**
+ * Editorial Grid / Cards staggered entrance.
+ */
+export function animateCardStagger(containerRef, cardSelector = ".editorial-card") {
+  if (!containerRef || isReducedMotion()) return;
+  const cards = containerRef.querySelectorAll(cardSelector);
+  if (!cards || cards.length === 0) return;
+
+  return gsap.fromTo(
+    cards,
+    { opacity: 0, y: 16, scale: 0.98 },
+    {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      duration: 0.45,
+      stagger: 0.06,
+      ease: "power2.out",
+      clearProps: "transform",
+    }
+  );
+}
+
+/**
+ * Subtle breathing pulse glow on status or telemetry nodes.
+ */
+export function animatePulseGlow(targetRef) {
+  if (!targetRef || isReducedMotion()) return;
+  return gsap.to(targetRef, {
+    boxShadow: "0 0 16px rgba(212, 175, 55, 0.45)",
+    repeat: -1,
+    yoyo: true,
+    duration: 1.6,
+    ease: "sine.inOut",
   });
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Users,
   UserPlus,
@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { usersApi } from "../../api/users";
+import { animateEntrance, animateCardStagger } from "../../utils/motion";
 
 export default function UserManagementConsole() {
   const [users, setUsers] = useState([]);
@@ -24,6 +25,7 @@ export default function UserManagementConsole() {
   const [filterRole, setFilterRole] = useState("all");
   const [error, setError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
+  const containerRef = useRef(null);
 
   // Modal States
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -59,6 +61,10 @@ export default function UserManagementConsole() {
 
   useEffect(() => {
     loadUsers();
+    if (containerRef.current) {
+      animateEntrance(containerRef.current, { y: 15, duration: 0.35 });
+      animateCardStagger(containerRef.current, ".panel");
+    }
   }, []);
 
   async function handleCreate(e) {
@@ -133,19 +139,22 @@ export default function UserManagementConsole() {
   });
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", gap: "12px" }}>
+    <div ref={containerRef} style={{ display: "flex", flexDirection: "column", height: "100%", gap: "16px" }}>
       {/* Header Bar */}
-      <div className="panel" style={{ padding: "14px 18px", background: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <div style={{ padding: "8px", background: "var(--primary-soft)", color: "var(--primary)" }}>
-              <Users size={20} />
+      <div className="panel" style={{ padding: "18px 22px", background: "var(--bg-surface)", border: "1px solid var(--border-default)", borderLeft: "3px solid var(--gold)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{ padding: "10px", background: "var(--bg-surface-alt)", color: "var(--gold)" }}>
+              <Users size={22} />
             </div>
             <div>
-              <h2 style={{ fontSize: "1.05rem", fontWeight: 800, color: "var(--text-primary)", margin: 0 }}>
-                Enterprise User & Authority Management
-              </h2>
-              <p style={{ fontSize: "0.72rem", color: "var(--text-secondary)", margin: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                <span className="step-badge gold">ADMIN GOVERNANCE</span>
+                <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "1.35rem", fontWeight: 900, color: "var(--ink-primary)", margin: 0 }}>
+                  Enterprise User & Authority Management
+                </h2>
+              </div>
+              <p style={{ fontSize: "0.78rem", color: "var(--text-secondary)", margin: 0 }}>
                 Manage role access control, credentials, institutional profiles, and emergency routing in SQLite.
               </p>
             </div>

@@ -1,13 +1,22 @@
+import { useEffect, useRef } from "react";
 import { Activity, Atom, FileText, Sparkles } from "lucide-react";
+import { animateEntrance } from "../../utils/motion";
 
 export default function ExplainabilityView({ explainability, diseaseName = "Health Screening" }) {
+  const containerRef = useRef(null);
   const topFeatures = explainability?.top_features || [];
   const narrative = explainability?.clinical_narrative || "Awaiting instant Quantum AI checkup (ready to evaluate).";
 
+  useEffect(() => {
+    if (containerRef.current) {
+      animateEntrance(containerRef.current, { y: 12, duration: 0.35 });
+    }
+  }, [explainability]);
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+    <div ref={containerRef} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
       {/* Patient Natural Language Summary Card */}
-      <div className="narrative-card" style={{ borderRadius: 0, border: "1px solid var(--border-default)" }}>
+      <div className="narrative-card" style={{ borderRadius: "var(--radius-xs)", border: "1px solid var(--border-default)", borderLeft: "3px solid var(--gold)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
           <Sparkles size={16} color="var(--primary)" />
           <strong style={{ fontSize: "0.85rem", color: "var(--primary)" }}>AI Health Summary & Guidance:</strong>

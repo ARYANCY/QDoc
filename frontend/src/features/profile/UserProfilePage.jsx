@@ -27,8 +27,10 @@ import {
 } from "lucide-react";
 import { profileApi } from "../../api/profile";
 import { authApi } from "../../api/auth";
+import { animateEntrance } from "../../utils/motion";
 
 export default function UserProfilePage({ currentUser, onProfileUpdated, onProfileDeleted }) {
+  const containerRef = useRef(null);
   const [profile, setProfile] = useState({
     user_id: currentUser?.user_id || currentUser?.id || "PT-ALEX",
     username: currentUser?.username || "alex.patient",
@@ -66,6 +68,9 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
 
   useEffect(() => {
     fetchProfileData();
+    if (containerRef.current) {
+      animateEntrance(containerRef.current, { y: 15, duration: 0.35 });
+    }
   }, [activeUserId]);
 
   async function fetchProfileData() {
@@ -152,7 +157,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
   );
 
   return (
-    <div style={{ height: "100%", overflowY: "auto", padding: "14px 18px", background: "var(--bg-canvas)" }}>
+    <div ref={containerRef} style={{ height: "100%", overflowY: "auto", padding: "14px 18px", background: "var(--bg-canvas)" }}>
       {/* ── Zara Magazine Editorial Header ───────────────────────────────────── */}
       <div
         style={{

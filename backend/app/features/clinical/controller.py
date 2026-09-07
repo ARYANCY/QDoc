@@ -31,27 +31,47 @@ import torch
 # Pre-warmed model & preprocessor cache
 _CACHE: dict[str, Any] = {}
 
+MODEL_CONFIGS = {
+    "breast_cancer": {"checkpoint": "OncoPulse-VQC.pt", "n_qubits": 8, "n_layers": 3, "arch": "OncoPulse-VQC"},
+    "wdbc": {"checkpoint": "OncoPulse-VQC.pt", "n_qubits": 8, "n_layers": 3, "arch": "OncoPulse-VQC"},
+    "heart": {"checkpoint": "CardioWave-VQC.pt", "n_qubits": 8, "n_layers": 3, "arch": "CardioWave-VQC"},
+    "cleveland": {"checkpoint": "CardioWave-VQC.pt", "n_qubits": 8, "n_layers": 3, "arch": "CardioWave-VQC"},
+    "parkinsons": {"checkpoint": "NeuroSynapse-VQC.pt", "n_qubits": 6, "n_layers": 2, "arch": "NeuroSynapse-VQC"},
+    "diabetes": {"checkpoint": "Diabetes-VQC.pt", "n_qubits": 8, "n_layers": 2, "arch": "Diabetes-VQC"},
+}
+
 
 def get_trained_module(disease: str):
     if disease not in _CACHE:
         df, target, feat_names = load_disease_benchmark(disease)
-        preprocessor = QuantumPreprocessor(n_qubits=8, scaling="quantum_angle", use_pca=True)
+        config = MODEL_CONFIGS.get(
+            disease,
+            {"checkpoint": f"VQC_{disease}.pt", "n_qubits": 8, "n_layers": 2, "arch": f"VQC_{disease}"},
+        )
+        n_qubits = config["n_qubits"]
+        n_layers = config["n_layers"]
+        ckpt_filename = config["checkpoint"]
+
+        preprocessor = QuantumPreprocessor(n_qubits=n_qubits, scaling="quantum_angle", use_pca=True)
         X_q = preprocessor.fit_transform(df.values, target.values)
 
-        vqc = VariationalQuantumClassifier(n_qubits=8, n_layers=2)
-        ckpt_path = settings.MODELS_DIR / "quantum" / f"VQC_{disease}.pt"
+        vqc = VariationalQuantumClassifier(n_qubits=n_qubits, n_layers=n_layers, data_reupload=True)
+        ckpt_path = settings.MODELS_DIR / "quantum" / ckpt_filename
 
         if ckpt_path.exists():
             try:
-                state = torch.load(ckpt_path, map_location="cpu", weights_only=False)
-                vqc.load_state_dict(state["model"])
+                vqc.load_checkpoint(ckpt_path)
             except Exception:
-                vqc.fit_dataset(X_q[:64], target.values[:64], epochs=4, lr=0.03, batch_size=16)
+                try:
+                    state = torch.load(ckpt_path, map_location="cpu", weights_only=False)
+                    vqc.load_state_dict(state.get("state_dict", state.get("model", state)))
+                except Exception:
+                    vqc.fit_dataset(X_q[:64], target.values[:64], epochs=4, lr=0.03, batch_size=16)
         else:
             vqc.fit_dataset(X_q[:64], target.values[:64], epochs=4, lr=0.03, batch_size=16)
             try:
                 ckpt_path.parent.mkdir(parents=True, exist_ok=True)
-                torch.save({"model": vqc.state_dict()}, ckpt_path)
+                vqc.save_checkpoint(ckpt_path)
             except Exception:
                 pass
 
@@ -68,6 +88,7 @@ def get_trained_module(disease: str):
             "vqc": vqc,
             "baselines": baselines,
             "explainer": explainer,
+            "arch": config.get("arch", "VQC"),
         }
     return _CACHE[disease]
 
@@ -122,6 +143,9 @@ async def run_clinical_diagnosis(req: DiagnosticRequest):
     elif disease_key in {"heart", "cleveland"}:
         class_labels = ["No Coronary Disease", "Cardiovascular Disease Present"]
         disease_name = "Cardiology (Cleveland)"
+    elif disease_key in {"parkinsons"}:
+        class_labels = ["Healthy Control", "Parkinson's Disease"]
+        disease_name = "Neurodegeneration (Parkinson's Voice)"
     else:
         class_labels = ["Negative / Non-diabetic", "Positive / Diabetic"]
         disease_name = "Metabolic Disorder (PIMA)"
@@ -139,17 +163,22 @@ async def run_clinical_diagnosis(req: DiagnosticRequest):
 
     elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
 
+    arch_name = module.get("arch", "VQC")
+    q_qubits = getattr(vqc, "n_qubits", 8)
+    q_layers = getattr(vqc, "n_layers", 2)
+    q_entanglement = getattr(vqc, "entanglement", "circular").title() + " CNOT"
+
     result_payload = {
         "request_id": str(uuid.uuid4()),
         "patient_id": req.patient_id,
         "disease": disease_name,
-        "model_architecture": f"VQC (8-Qubit Hardware-Efficient Ansatz)" if not fallback_used else "Classical Fallback (Random Forest)",
+        "model_architecture": f"{arch_name} ({q_qubits}-Qubit Hardware-Efficient Ansatz)" if not fallback_used else "Classical Fallback (Random Forest)",
         "fallback_mode": fallback_used,
         "prediction": {
             "class": predicted_label,
             "class_index": q_class_idx,
             "confidence": round(q_conf, 4),
-            "severity": "danger" if q_class_idx == 0 and "malignant" in predicted_label.lower() or q_class_idx == 1 and "disease" in predicted_label.lower() else "normal",
+            "severity": "danger" if (q_class_idx == 0 and "malignant" in predicted_label.lower()) or (q_class_idx == 1 and ("disease" in predicted_label.lower() or "diabetic" in predicted_label.lower())) else "normal",
         },
         "probabilities": {
             class_labels[i] if i < len(class_labels) else f"Class {i}": round(float(q_probs[i]), 4)
@@ -164,10 +193,10 @@ async def run_clinical_diagnosis(req: DiagnosticRequest):
             "clinical_narrative": narrative,
         },
         "quantum_telemetry": {
-            "qubits": 8,
-            "layers": 2,
-            "data_reupload": True,
-            "entanglement": "Circular CNOT",
+            "qubits": q_qubits,
+            "layers": q_layers,
+            "data_reupload": getattr(vqc, "data_reupload", True),
+            "entanglement": q_entanglement,
             "device": "PennyLane default.qubit",
         },
         "inference_ms": elapsed_ms,

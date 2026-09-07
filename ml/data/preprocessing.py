@@ -83,6 +83,12 @@ class QuantumPreprocessor:
         self.fitted = True
         return self
 
+    @property
+    def explained_variance_ratio(self) -> float:
+        if self.use_pca and hasattr(self.pca, "explained_variance_ratio_"):
+            return float(self.pca.explained_variance_ratio_.sum())
+        return 1.0
+
     def transform(self, X: np.ndarray | pd.DataFrame) -> np.ndarray:
         if not self.fitted:
             raise RuntimeError("QuantumPreprocessor must be fitted before transforming.")

@@ -1,8 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { User, Mail, Phone, Shield, CheckCircle2, Save, X, Bell, Cpu, Building, Heart, Stethoscope } from "lucide-react";
 import { profileApi } from "../../api/profile";
+import { animateModalOpen } from "../../utils/motion";
 
 export default function ProfileSettingsModal({ isOpen, onClose, userId = "PT-ALEX-01", userRole = "patient", onProfileUpdated }) {
+  const overlayRef = useRef(null);
+  const modalRef = useRef(null);
   const [profile, setProfile] = useState({
     name: "Alexander Reed",
     role: "patient",
@@ -25,6 +28,7 @@ export default function ProfileSettingsModal({ isOpen, onClose, userId = "PT-ALE
 
   useEffect(() => {
     if (isOpen) {
+      animateModalOpen(overlayRef.current, modalRef.current);
       profileApi.getProfile(userId)
         .then((res) => {
           if (res.profile) {
@@ -59,8 +63,8 @@ export default function ProfileSettingsModal({ isOpen, onClose, userId = "PT-ALE
   const effectiveRole = userRole || profile.role || "clinician";
 
   return (
-    <div className="modal-overlay" style={{ borderRadius: 0 }}>
-      <div className="modal-content" style={{ maxWidth: "640px", padding: "20px", borderRadius: 0, border: "1px solid var(--border-default)" }}>
+    <div ref={overlayRef} className="modal-overlay" style={{ borderRadius: 0 }}>
+      <div ref={modalRef} className="modal-content" style={{ maxWidth: "640px", padding: "24px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-default)", borderTop: "3px solid var(--gold)" }}>
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px", borderBottom: "1px solid var(--border-default)", paddingBottom: "10px" }}>
           <div>

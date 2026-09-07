@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   X,
   ShieldCheck,
@@ -15,6 +15,7 @@ import {
   Heart,
 } from "lucide-react";
 import { consultationsApi } from "../../api/consultations";
+import { animateModalOpen } from "../../utils/motion";
 
 export default function BookingModal({ doctor, initialSlot, onClose, onSuccess }) {
   const [step, setStep] = useState(1);
@@ -31,6 +32,13 @@ export default function BookingModal({ doctor, initialSlot, onClose, onSuccess }
   const [bookingLoading, setBookingLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [confirmedBooking, setConfirmedBooking] = useState(null);
+
+  const overlayRef = useRef(null);
+  const modalRef = useRef(null);
+
+  useEffect(() => {
+    animateModalOpen(overlayRef.current, modalRef.current);
+  }, []);
 
   // Step 2 triage check before proceeding to payment
   async function handleProceedToTriage() {
@@ -80,14 +88,15 @@ export default function BookingModal({ doctor, initialSlot, onClose, onSuccess }
 
   return (
     <div
+      ref={overlayRef}
       style={{
         position: "fixed",
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: "rgba(3, 7, 18, 0.82)",
-        backdropFilter: "blur(6px)",
+        backgroundColor: "rgba(12, 13, 14, 0.7)",
+        backdropFilter: "blur(8px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -96,13 +105,15 @@ export default function BookingModal({ doctor, initialSlot, onClose, onSuccess }
       }}
     >
       <div
+        ref={modalRef}
         className="card-panel"
         style={{
           width: "100%",
           maxWidth: "640px",
           background: "var(--bg-surface)",
           border: "1px solid var(--border-default)",
-          boxShadow: "0 20px 40px rgba(0, 0, 0, 0.5)",
+          borderTop: "3px solid var(--gold)",
+          boxShadow: "var(--shadow-modal)",
           padding: 0,
           overflow: "hidden",
         }}

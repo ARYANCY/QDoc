@@ -1,14 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { User, Activity, Heart, Shield, CheckCircle2, Clock, Calendar, FileText, Pill, AlertCircle, RefreshCw } from "lucide-react";
-import DigitalTwin2D from "../../components/visualizations/DigitalTwin2D";
+import DigitalTwin3D from "../../components/visualizations/DigitalTwin3D";
 import { clinicalApi } from "../../api/clinical";
 import { complianceApi } from "../../api/compliance";
+import { animateEntrance, animateCardStagger } from "../../utils/motion";
 
 export default function PatientPortal({ patientId = "PT-89421" }) {
   const [activeSubTab, setActiveSubTab] = useState("overview");
   const [patient, setPatient] = useState(null);
   const [auditLogs, setAuditLogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     async function loadData() {
@@ -25,27 +27,31 @@ export default function PatientPortal({ patientId = "PT-89421" }) {
       }
     }
     loadData();
+    if (containerRef.current) {
+      animateEntrance(containerRef.current, { y: 15, duration: 0.35 });
+      animateCardStagger(containerRef.current, ".card-panel");
+    }
   }, [patientId]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
+    <div ref={containerRef} style={{ display: "flex", flexDirection: "column", gap: "20px", maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
       {/* Patient Welcome Hero */}
-      <div className="card-panel" style={{ background: "var(--bg-surface-alt)", borderRadius: 0, border: "1px solid var(--border-default)" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
+      <div className="card-panel" style={{ background: "var(--bg-surface)", border: "1px solid var(--border-default)", borderLeft: "3px solid var(--gold)", padding: "22px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "14px" }}>
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-              <span className="step-badge">PATIENT</span>
-              <h2 style={{ fontSize: "1.2rem", color: "var(--primary)", margin: 0, fontWeight: 800 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px" }}>
+              <span className="step-badge gold">PATIENT ARCHIVE</span>
+              <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "1.45rem", color: "var(--ink-primary)", margin: 0, fontWeight: 900 }}>
                 {patient?.name || "Patient Portal"}
               </h2>
             </div>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.78rem", margin: 0 }}>
+            <p style={{ color: "var(--text-secondary)", fontSize: "0.80rem", margin: 0 }}>
               Patient ID: <code style={{ fontFamily: "var(--font-mono)", fontWeight: 700 }}>{patientId}</code> • MRN: <code style={{ fontFamily: "var(--font-mono)" }}>{patient?.mrn || "MRN-PENDING"}</code>
             </p>
           </div>
           <div style={{ display: "flex", gap: "8px" }}>
-            <span className="consent-badge-verified" style={{ borderRadius: 0, padding: "4px 8px", fontSize: "0.75rem" }}>
-              <Shield size={12} /> DPDP 2023 Compliant
+            <span className="step-badge" style={{ padding: "6px 12px", fontSize: "0.74rem", background: "var(--bg-surface-alt)", display: "flex", alignItems: "center", gap: "6px" }}>
+              <Shield size={13} color="var(--emerald-couture)" /> DPDP 2023 & HIPAA Compliant
             </span>
           </div>
         </div>
@@ -157,15 +163,15 @@ export default function PatientPortal({ patientId = "PT-89421" }) {
             </div>
           </div>
 
-          {/* Right: 2D Interactive Digital Twin */}
+          {/* Right: 3D Interactive Digital Twin */}
           <div className="card-panel" style={{ borderRadius: 0, border: "1px solid var(--border-default)" }}>
             <div className="card-header">
               <span className="card-title">
-                <Activity size={16} color="var(--primary)" /> 2D Physiological Avatar
+                <Activity size={16} color="var(--primary)" /> 3D Physiological Twin
               </span>
               <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>Live Synchronized</span>
             </div>
-            <DigitalTwin2D patientId={patientId} />
+            <DigitalTwin3D patientId={patientId} />
           </div>
         </div>
       )}

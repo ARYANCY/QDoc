@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Cpu, Play, RefreshCw, CheckCircle2, Zap, Sliders, Database, Layers, Terminal, Activity } from "lucide-react";
 import { researcherApi } from "../../api/researcher";
+import { animateEntrance, animateCardStagger } from "../../utils/motion";
 
 export default function ResearcherConsole() {
+  const containerRef = useRef(null);
   const [dataset, setDataset] = useState("wdbc");
   const [modelArchitecture, setModelArchitecture] = useState("VQC");
   const [qubits, setQubits] = useState(8);
@@ -14,6 +16,13 @@ export default function ResearcherConsole() {
   const [loading, setLoading] = useState(false);
   const [jobResult, setJobResult] = useState(null);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      animateEntrance(containerRef.current, { y: 15, duration: 0.35 });
+      animateCardStagger(containerRef.current, ".card-panel");
+    }
+  }, []);
 
   async function handleTrain(e) {
     e.preventDefault();
@@ -39,7 +48,7 @@ export default function ResearcherConsole() {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
+    <div ref={containerRef} style={{ display: "flex", flexDirection: "column", gap: "20px", maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
       {/* Retraining Form Controls */}
       <div className="card-panel" style={{ borderRadius: 0, border: "1px solid var(--border-default)" }}>
         <div className="card-header">

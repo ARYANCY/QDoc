@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Search,
   Filter,
@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { consultationsApi } from "../../api/consultations";
 import BookingModal from "./BookingModal";
+import { animateEntrance, animateCardStagger } from "../../utils/motion";
 
 export default function DoctorDiscovery({ onOpenBooking, onJoinRoom }) {
   const [doctors, setDoctors] = useState([]);
@@ -27,10 +28,18 @@ export default function DoctorDiscovery({ onOpenBooking, onJoinRoom }) {
   const [slotHold, setSlotHold] = useState(null);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const containerRef = useRef(null);
 
   useEffect(() => {
     loadDoctors();
   }, [selectedSpecialty]);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      animateEntrance(containerRef.current, { y: 15, duration: 0.35 });
+      animateCardStagger(containerRef.current, ".card-panel");
+    }
+  }, [doctors]);
 
   async function loadDoctors() {
     setLoading(true);
@@ -74,36 +83,33 @@ export default function DoctorDiscovery({ onOpenBooking, onJoinRoom }) {
   });
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "20px", width: "100%" }}>
+    <div ref={containerRef} style={{ display: "flex", flexDirection: "column", gap: "24px", width: "100%" }}>
       {/* Header Banner */}
       <div
         className="card-panel"
         style={{
           background: "var(--bg-surface)",
           border: "1px solid var(--border-default)",
-          borderLeft: "4px solid var(--primary)",
-          padding: "20px",
+          borderLeft: "3px solid var(--gold)",
+          padding: "24px",
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "14px" }}>
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-              <span className="step-badge">MODULE F</span>
-              <h2 style={{ fontSize: "1.25rem", color: "var(--primary)", fontWeight: 800, margin: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px" }}>
+              <span className="step-badge gold">CLINICAL NETWORK</span>
+              <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "1.45rem", color: "var(--ink-primary)", fontWeight: 900, margin: 0 }}>
                 Verified Medical Specialist Network & Tele-Consultation
               </h2>
             </div>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.84rem", margin: 0, maxWidth: "700px" }}>
+            <p style={{ color: "var(--text-secondary)", fontSize: "0.82rem", margin: 0, maxWidth: "700px" }}>
               Connect with board-certified oncologists, cardiologists, and pulmonologists. Two-way synchronized calendar
-              with 5-minute soft-lock protection prevents double-booking and phantom appointments.
+              with 5-minute soft-lock protection prevents double-booking.
             </p>
           </div>
           <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-            <span className="consent-badge-verified" style={{ padding: "6px 12px", fontSize: "0.8rem" }}>
-              <ShieldCheck size={14} /> Medical Council Verified
-            </span>
-            <span className="consent-badge-verified" style={{ padding: "6px 12px", fontSize: "0.8rem", background: "rgba(16, 185, 129, 0.1)", color: "var(--risk-low)" }}>
-              <Lock size={14} /> DTLS-SRTP Ready
+            <span className="step-badge" style={{ padding: "6px 12px", fontSize: "0.74rem", background: "var(--bg-surface-alt)", display: "flex", alignItems: "center", gap: "6px" }}>
+              <ShieldCheck size={14} color="var(--emerald-couture)" /> Medical Council Verified
             </span>
           </div>
         </div>

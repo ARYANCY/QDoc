@@ -9,12 +9,38 @@ import pandas as pd
 from sklearn.datasets import load_breast_cancer
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
-DATA_CACHE_DIR = ROOT_DIR / "datasets" / "tabular_cache"
+DATA_DIR = ROOT_DIR / "datasets"
+DATA_CACHE_DIR = DATA_DIR / "tabular_cache"
 DATA_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+WDBC_FEATURE_NAMES = [
+    "mean_radius", "mean_texture", "mean_perimeter", "mean_area", "mean_smoothness",
+    "mean_compactness", "mean_concavity", "mean_concave_points", "mean_symmetry", "mean_fractal_dimension",
+    "radius_error", "texture_error", "perimeter_error", "area_error", "smoothness_error",
+    "compactness_error", "concavity_error", "concave_points_error", "symmetry_error", "fractal_dimension_error",
+    "worst_radius", "worst_texture", "worst_perimeter", "worst_area", "worst_smoothness",
+    "worst_compactness", "worst_concavity", "worst_concave_points", "worst_symmetry", "worst_fractal_dimension"
+]
+
+CLEVELAND_COLS = [
+    "age", "sex", "cp", "trestbps", "chol", "fbs", "restecg",
+    "thalach", "exang", "oldpeak", "slope", "ca", "thal", "target"
+]
 
 
 def get_wdbc_dataset() -> tuple[pd.DataFrame, pd.Series, list[str]]:
-    """Loads Wisconsin Diagnostic Breast Cancer (WDBC) dataset (30 features, binary: 0=Malignant, 1=Benign)."""
+    """Loads Wisconsin Diagnostic Breast Cancer (WDBC) dataset (30 features, binary: 0=Malignant, 1=Benign).
+    Prefers raw datasets/breast+cancer+wisconsin+diagnostic/wdbc.data, falling back to sklearn.
+    """
+    raw_path = DATA_DIR / "breast+cancer+wisconsin+diagnostic" / "wdbc.data"
+    if raw_path.exists():
+        df_raw = pd.read_csv(raw_path, header=None)
+        # Col 0: ID, Col 1: Diagnosis (M/B), Cols 2..31: 30 Real-valued features
+        y = (df_raw[1] == "B").astype(int)
+        X = df_raw.iloc[:, 2:32].copy()
+        X.columns = WDBC_FEATURE_NAMES
+        return X, y, WDBC_FEATURE_NAMES
+
     raw = load_breast_cancer(as_frame=True)
     df = raw.data.copy()
     target = raw.target.copy()
@@ -22,46 +48,68 @@ def get_wdbc_dataset() -> tuple[pd.DataFrame, pd.Series, list[str]]:
     return df, target, feature_names
 
 
-def get_cleveland_heart_dataset() -> tuple[pd.DataFrame, pd.Series, list[str]]:
-    """Loads Cleveland Heart Disease dataset (14 clinical features, binary: 0=Normal, 1=Disease)."""
+def get_cleveland_heart_dataset(multiclass: bool = False) -> tuple[pd.DataFrame, pd.Series, list[str]]:
+    """Loads Cleveland Heart Disease dataset (14 clinical features).
+    If multiclass is False: binary classification (0=No disease, 1=Disease present).
+    If multiclass is True: 5-class severity staging (0 to 4).
+    """
+    raw_path = DATA_DIR / "heart+disease" / "processed.cleveland.data"
+    if raw_path.exists():
+        df_raw = pd.read_csv(raw_path, header=None, names=CLEVELAND_COLS, na_values="?")
+        # Impute missing values (ca has 4 missing, thal has 2 missing) using median
+        df_clean = df_raw.fillna(df_raw.median())
+        features = [c for c in CLEVELAND_COLS if c != "target"]
+        X = df_clean[features].astype(np.float32)
+        if multiclass:
+            y = df_clean["target"].astype(int)
+        else:
+            y = (df_clean["target"] > 0).astype(int)
+        return X, y, features
+
+    # Fallback to cache if present
     cache_file = DATA_CACHE_DIR / "cleveland_heart.csv"
     if cache_file.exists():
         df_all = pd.read_csv(cache_file)
-    else:
-        # Standard benchmark synthetic generator modeled after Cleveland cohort statistics
-        np.random.seed(42)
-        n_samples = 303
-        data = {
-            "age": np.random.randint(29, 77, size=n_samples),
-            "sex": np.random.choice([0, 1], size=n_samples, p=[0.32, 0.68]),
-            "cp": np.random.choice([0, 1, 2, 3], size=n_samples, p=[0.47, 0.16, 0.28, 0.09]),
-            "trestbps": np.random.normal(131.6, 17.5, size=n_samples).clip(94, 200),
-            "chol": np.random.normal(246.0, 51.8, size=n_samples).clip(126, 564),
-            "fbs": np.random.choice([0, 1], size=n_samples, p=[0.85, 0.15]),
-            "restecg": np.random.choice([0, 1, 2], size=n_samples, p=[0.49, 0.48, 0.03]),
-            "thalach": np.random.normal(149.6, 22.9, size=n_samples).clip(71, 202),
-            "exang": np.random.choice([0, 1], size=n_samples, p=[0.67, 0.33]),
-            "oldpeak": np.random.exponential(1.0, size=n_samples).clip(0, 6.2),
-            "slope": np.random.choice([0, 1, 2], size=n_samples, p=[0.46, 0.46, 0.08]),
-            "ca": np.random.choice([0, 1, 2, 3], size=n_samples, p=[0.58, 0.22, 0.13, 0.07]),
-            "thal": np.random.choice([1, 2, 3], size=n_samples, p=[0.06, 0.55, 0.39]),
-        }
-        # Risk outcome score function
-        risk_score = (
-            (data["age"] > 55).astype(int) * 1.2
-            + (data["cp"] > 0).astype(int) * 1.5
-            + (data["thalach"] < 140).astype(int) * 1.4
-            + (data["oldpeak"] > 1.5).astype(int) * 1.6
-            + (data["ca"] > 0).astype(int) * 1.8
-            + np.random.normal(0, 1.0, size=n_samples)
-        )
-        target = (risk_score > 3.0).astype(int)
-        df_all = pd.DataFrame(data)
-        df_all["target"] = target
-        df_all.to_csv(cache_file, index=False)
+        feature_names = [c for c in df_all.columns if c != "target"]
+        return df_all[feature_names], df_all["target"], feature_names
 
-    feature_names = [c for c in df_all.columns if c != "target"]
-    return df_all[feature_names], df_all["target"], feature_names
+    raise FileNotFoundError("Cleveland heart dataset not found in datasets/heart+disease/")
+
+
+def get_parkinsons_dataset() -> tuple[pd.DataFrame, pd.Series, list[str]]:
+    """Loads Parkinson's Voice Telemonitoring dataset (22 biomedical features, binary: 0=Healthy, 1=Parkinson's).
+    Strips 'name' subject identifier to uphold HIPAA PHI de-identification rules.
+    """
+    raw_path = DATA_DIR / "parkinsons" / "parkinsons.data"
+    if not raw_path.exists():
+        raise FileNotFoundError(f"Parkinson's dataset not found at {raw_path}")
+
+    df_raw = pd.read_csv(raw_path)
+    # Strip patient subject identifier
+    if "name" in df_raw.columns:
+        df_raw = df_raw.drop(columns=["name"])
+
+    y = df_raw["status"].astype(int)
+    features = [c for c in df_raw.columns if c != "status"]
+    X = df_raw[features].astype(np.float32)
+    return X, y, features
+
+
+def get_framingham_dataset() -> tuple[pd.DataFrame, pd.Series, list[str]]:
+    """Loads Framingham Heart Study dataset (4,240 samples, 15 features, binary: TenYearCHD).
+    Used for cross-dataset external validation of CardioWave models per model.md Section 5.3.
+    """
+    raw_path = DATA_DIR / "Framingham heart study dataset" / "framingham.csv"
+    if not raw_path.exists():
+        raise FileNotFoundError(f"Framingham dataset not found at {raw_path}")
+
+    df_raw = pd.read_csv(raw_path)
+    target_col = "TenYearCHD"
+    features = [c for c in df_raw.columns if c != target_col]
+    df_clean = df_raw.fillna(df_raw.median())
+    X = df_clean[features].astype(np.float32)
+    y = df_clean[target_col].astype(int)
+    return X, y, features
 
 
 def get_pima_diabetes_dataset() -> tuple[pd.DataFrame, pd.Series, list[str]]:
@@ -69,41 +117,24 @@ def get_pima_diabetes_dataset() -> tuple[pd.DataFrame, pd.Series, list[str]]:
     cache_file = DATA_CACHE_DIR / "pima_diabetes.csv"
     if cache_file.exists():
         df_all = pd.read_csv(cache_file)
-    else:
-        np.random.seed(1337)
-        n_samples = 768
-        data = {
-            "pregnancies": np.random.poisson(3.8, size=n_samples).clip(0, 17),
-            "glucose": np.random.normal(120.9, 31.9, size=n_samples).clip(44, 199),
-            "blood_pressure": np.random.normal(69.1, 19.3, size=n_samples).clip(24, 122),
-            "skin_thickness": np.random.normal(20.5, 15.9, size=n_samples).clip(0, 99),
-            "insulin": np.random.exponential(80.0, size=n_samples).clip(0, 846),
-            "bmi": np.random.normal(31.9, 7.8, size=n_samples).clip(18.2, 67.1),
-            "diabetes_pedigree": np.random.normal(0.47, 0.33, size=n_samples).clip(0.078, 2.42),
-            "age": np.random.randint(21, 81, size=n_samples),
-        }
-        risk = (
-            (data["glucose"] > 140).astype(int) * 2.2
-            + (data["bmi"] > 30).astype(int) * 1.5
-            + (data["age"] > 45).astype(int) * 1.1
-            + (data["diabetes_pedigree"] > 0.5).astype(int) * 1.2
-            + np.random.normal(0, 1.0, size=n_samples)
-        )
-        target = (risk > 2.5).astype(int)
-        df_all = pd.DataFrame(data)
-        df_all["target"] = target
-        df_all.to_csv(cache_file, index=False)
+        feature_names = [c for c in df_all.columns if c != "target"]
+        return df_all[feature_names], df_all["target"], feature_names
 
-    feature_names = [c for c in df_all.columns if c != "target"]
-    return df_all[feature_names], df_all["target"], feature_names
+    raise FileNotFoundError("PIMA dataset not found in tabular_cache")
 
 
-def load_disease_benchmark(disease_id: str) -> tuple[pd.DataFrame, pd.Series, list[str]]:
-    """Unified disease dataset dispatcher supporting WDBC, Cleveland, PIMA, and HAM10000 metadata."""
-    if disease_id.lower() in {"wdbc", "breast_cancer", "cancer"}:
+def load_disease_benchmark(disease_id: str, multiclass: bool = False) -> tuple[pd.DataFrame, pd.Series, list[str]]:
+    """Unified disease dataset dispatcher supporting WDBC, Cleveland, Parkinson's, Framingham, and PIMA."""
+    d_clean = disease_id.lower().strip()
+    if d_clean in {"wdbc", "breast_cancer", "breast", "cancer", "onco"}:
         return get_wdbc_dataset()
-    if disease_id.lower() in {"cleveland", "heart", "cardio", "cardiovascular"}:
-        return get_cleveland_heart_dataset()
-    if disease_id.lower() in {"pima", "diabetes", "metabolic"}:
+    if d_clean in {"cleveland", "heart", "cardio", "cardiovascular"}:
+        return get_cleveland_heart_dataset(multiclass=multiclass)
+    if d_clean in {"parkinsons", "parkinson", "neuro", "neurological"}:
+        return get_parkinsons_dataset()
+    if d_clean in {"framingham", "framingham_heart"}:
+        return get_framingham_dataset()
+    if d_clean in {"pima", "diabetes", "metabolic"}:
         return get_pima_diabetes_dataset()
     raise ValueError(f"Unknown benchmark dataset: {disease_id}")
+

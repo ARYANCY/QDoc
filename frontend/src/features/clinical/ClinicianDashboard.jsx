@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Users,
   Calendar,
@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { consultationsApi } from "../../api/consultations";
 import VirtualConsultationRoom from "../consultation/VirtualConsultationRoom";
+import { animateEntrance, animateCardStagger } from "../../utils/motion";
 
 export default function ClinicianDashboard({ doctorId = "DOC-KAVITA" }) {
   const [bookings, setBookings] = useState([]);
@@ -23,9 +24,14 @@ export default function ClinicianDashboard({ doctorId = "DOC-KAVITA" }) {
   const [overrideModalOpen, setOverrideModalOpen] = useState(false);
   const [overrideReason, setOverrideReason] = useState("");
   const [selectedPatientForOverride, setSelectedPatientForOverride] = useState(null);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     loadBookings();
+    if (containerRef.current) {
+      animateEntrance(containerRef.current, { y: 15, duration: 0.4 });
+      animateCardStagger(containerRef.current, ".card-panel");
+    }
   }, [doctorId]);
 
   async function loadBookings() {
@@ -106,32 +112,32 @@ export default function ClinicianDashboard({ doctorId = "DOC-KAVITA" }) {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "20px", width: "100%" }}>
+    <div ref={containerRef} style={{ display: "flex", flexDirection: "column", gap: "24px", width: "100%" }}>
       {/* Clinician Hero Card */}
       <div
         className="card-panel"
         style={{
           background: "var(--bg-surface)",
           border: "1px solid var(--border-default)",
-          borderLeft: "4px solid var(--accent-teal)",
-          padding: "20px",
+          borderLeft: "3px solid var(--gold)",
+          padding: "24px",
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "14px" }}>
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-              <span className="step-badge" style={{ background: "var(--accent-teal)" }}>CLINICIAN COCKPIT</span>
-              <h2 style={{ fontSize: "1.25rem", color: "var(--primary)", fontWeight: 800, margin: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
+              <span className="step-badge gold">CLINICIAN COCKPIT // TRIAGE</span>
+              <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "1.45rem", color: "var(--ink-primary)", fontWeight: 900, margin: 0 }}>
                 Dr. Kavita Rao, MD (Cardiology & Preventive Medicine)
               </h2>
             </div>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.82rem", margin: 0 }}>
-              AIIMS New Delhi • Medical Registration: <strong>MCI-2014-89312</strong> (Verified) • Department Care Team Alpha
+            <p style={{ color: "var(--text-secondary)", fontSize: "0.82rem", margin: 0, fontFamily: "var(--font-sans)" }}>
+              AIIMS New Delhi • Medical Registration: <strong style={{ fontFamily: "var(--font-mono)" }}>MCI-2014-89312</strong> (Verified) • Department Care Team Alpha
             </p>
           </div>
           <div style={{ display: "flex", gap: "10px" }}>
-            <span className="consent-badge-verified" style={{ padding: "6px 12px", fontSize: "0.8rem" }}>
-              <ShieldCheck size={14} /> ABAC Care-Team Enforced
+            <span className="step-badge" style={{ padding: "6px 12px", fontSize: "0.74rem", background: "var(--bg-surface-alt)", display: "flex", alignItems: "center", gap: "6px" }}>
+              <ShieldCheck size={14} color="var(--emerald-couture)" /> ABAC Care-Team Enforced
             </span>
           </div>
         </div>

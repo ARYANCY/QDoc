@@ -1,12 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ShieldCheck, Lock, Database, CheckCircle2 } from "lucide-react";
 import { complianceApi } from "../../api/compliance";
+import { animateEntrance, animateCardStagger } from "../../utils/motion";
 
 export default function ComplianceConsole({ patientId = "PT-89421" }) {
   const [auditLogs, setAuditLogs] = useState([]);
   const [registry, setRegistry] = useState([]);
   const [consent, setConsent] = useState({ storage: true, research: true, sharing: false });
   const [saved, setSaved] = useState(false);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     complianceApi.getAuditLogs()
@@ -16,6 +18,11 @@ export default function ComplianceConsole({ patientId = "PT-89421" }) {
     complianceApi.getModelRegistry()
       .then((data) => setRegistry(data.models || []))
       .catch(() => {});
+
+    if (containerRef.current) {
+      animateEntrance(containerRef.current, { y: 15, duration: 0.35 });
+      animateCardStagger(containerRef.current, ".card-panel");
+    }
   }, []);
 
   async function handleConsentSave() {
@@ -31,9 +38,9 @@ export default function ComplianceConsole({ patientId = "PT-89421" }) {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "12px", height: "100%", overflowY: "auto", padding: "4px" }}>
+    <div ref={containerRef} style={{ display: "flex", flexDirection: "column", gap: "16px", height: "100%", overflowY: "auto", padding: "6px" }}>
       {/* DPDP Act 2023 Consent Management Card (SRS Section 9.1) */}
-      <div className="card-panel">
+      <div className="card-panel" style={{ borderLeft: "3px solid var(--gold)" }}>
         <div className="card-header">
           <span className="card-title">
             <Lock size={15} color="var(--primary)" /> DPDP Act, 2023 — Granular Patient Consent Controls

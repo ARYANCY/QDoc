@@ -1,14 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Cpu, Layers, Zap, Activity, ChevronDown, ChevronUp } from "lucide-react";
 import { quantumTelemetryApi } from "../../api/quantumTelemetry";
+import { animateEntrance } from "../../utils/motion";
 
 export default function QuantumCircuitViewer({ modelName = "VQC-8Q" }) {
+  const containerRef = useRef(null);
   const [telemetry, setTelemetry] = useState(null);
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     quantumTelemetryApi.getCircuit(modelName)
-      .then((data) => setTelemetry(data))
+      .then((data) => {
+        setTelemetry(data);
+        if (containerRef.current) {
+          animateEntrance(containerRef.current, { y: 10, duration: 0.3 });
+        }
+      })
       .catch(() => {});
   }, [modelName]);
 
@@ -24,7 +31,7 @@ export default function QuantumCircuitViewer({ modelName = "VQC-8Q" }) {
   ];
 
   return (
-    <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", padding: "10px", marginTop: "auto" }}>
+    <div ref={containerRef} style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", borderLeft: "3px solid var(--gold)", padding: "12px", marginTop: "auto" }}>
       {/* Header bar with toggle */}
       <div
         onClick={() => setExpanded(!expanded)}

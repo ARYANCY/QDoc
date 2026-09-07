@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -69,11 +70,15 @@ class MultiClassQuantumNeuralNetwork(nn.Module):
         self,
         X_train: np.ndarray,
         y_train: np.ndarray,
-        epochs: int = 15,
+        X_val: np.ndarray | None = None,
+        y_val: np.ndarray | None = None,
+        epochs: int = 25,
         lr: float = 0.015,
         batch_size: int = 16,
+        patience: int = 15,
     ) -> dict[str, Any]:
         optimizer = torch.optim.AdamW(self.parameters(), lr=lr, weight_decay=1e-3)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-4)
         criterion = nn.CrossEntropyLoss()
 
         X_t = torch.tensor(X_train, dtype=torch.float32)
@@ -83,9 +88,13 @@ class MultiClassQuantumNeuralNetwork(nn.Module):
         loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
         history = []
+        best_val_loss = float("inf")
+        best_state = None
+        no_improve = 0
+
         start_time = time.perf_counter()
-        self.train()
         for epoch in range(epochs):
+            self.train()
             epoch_loss = 0.0
             correct = 0
             total = 0
@@ -101,11 +110,51 @@ class MultiClassQuantumNeuralNetwork(nn.Module):
                 correct += (preds == by).sum().item()
                 total += bx.size(0)
 
-            acc = correct / max(total, 1)
-            history.append({"epoch": epoch + 1, "loss": epoch_loss / total, "accuracy": acc})
+            scheduler.step()
+            train_acc = correct / max(total, 1)
+            train_loss = epoch_loss / max(total, 1)
+
+            val_loss = train_loss
+            val_acc = train_acc
+            if X_val is not None and y_val is not None:
+                self.eval()
+                with torch.no_grad():
+                    X_v = torch.tensor(X_val, dtype=torch.float32)
+                    y_v = torch.tensor(y_val, dtype=torch.long)
+                    val_out = self(X_v)
+                    val_loss = criterion(val_out, y_v).item()
+                    val_acc = (val_out.argmax(dim=1) == y_v).float().mean().item()
+
+                if val_loss < best_val_loss:
+                    best_val_loss = val_loss
+                    best_state = {k: v.cpu().clone() for k, v in self.state_dict().items()}
+                    no_improve = 0
+                else:
+                    no_improve += 1
+
+            history.append({
+                "epoch": epoch + 1,
+                "train_loss": train_loss,
+                "train_accuracy": train_acc,
+                "val_loss": val_loss,
+                "val_accuracy": val_acc,
+            })
+
+            print(f"      [Epoch {epoch+1:02d}/{epochs:02d}] Train Loss: {train_loss:.4f} Acc: {train_acc:.3f} | Val Loss: {val_loss:.4f} Acc: {val_acc:.3f}", flush=True)
+
+            if no_improve >= patience and epoch >= 10:
+                break
+
+        if best_state is not None:
+            self.load_state_dict(best_state)
 
         train_time = time.perf_counter() - start_time
-        return {"train_time_sec": train_time, "history": history, "final_acc": history[-1]["accuracy"]}
+        return {
+            "train_time_sec": round(train_time, 2),
+            "history": history,
+            "final_acc": history[-1]["val_accuracy"] if X_val is not None else history[-1]["train_accuracy"],
+            "epochs_run": len(history),
+        }
 
     @torch.no_grad()
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
@@ -116,3 +165,19 @@ class MultiClassQuantumNeuralNetwork(nn.Module):
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         return self.predict_proba(X).argmax(axis=1)
+
+    def save_checkpoint(self, path: str | Path) -> None:
+        p = Path(path)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        torch.save({
+            "state_dict": self.state_dict(),
+            "num_classes": self.num_classes,
+            "n_qubits": self.n_qubits,
+            "n_layers": self.n_layers,
+        }, p)
+
+    def load_checkpoint(self, path: str | Path) -> None:
+        p = Path(path)
+        data = torch.load(p, map_location="cpu")
+        self.load_state_dict(data["state_dict"])
+
