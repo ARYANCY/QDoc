@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException
+from backend.app.core.security import get_current_user
 from backend.app.db.repository import DatabaseRepository
 from ml.digital_twin.digital_twin import DigitalTwinEngine
 
@@ -36,10 +37,13 @@ async def get_digital_twin_state(
     patient_id: str,
     visit_index: int = -1,
     view: str = "all",
+    current_user: dict = Depends(get_current_user),
 ):
     """Returns 2D Digital Twin physiological parameters, CRS score, organ heatmaps, and timeline scrubber data.
     Populates dynamically from real SQLite diagnostic records if present.
     """
+    if current_user.get("role") == "doctor":
+        raise HTTPException(status_code=403, detail="Digital Twin access is restricted to patients and administrators.")
     records = DatabaseRepository.get_patient_diagnostic_records(patient_id)
     visits = list(_VISITS)
 

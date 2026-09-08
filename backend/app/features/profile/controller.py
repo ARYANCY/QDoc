@@ -19,6 +19,8 @@ class ProfileUpdateRequest(BaseModel):
     emergency_phone: str | None = "+91 98333 44556"
     phone: str | None = "+91 98333 44556"
     blood_group: str | None = "O+"
+    age: int | None = 48
+    gender: str | None = "Unspecified"
     department: str | None = "Patient Self-Analysis & Care"
     hospital: str | None = "AIIMS Cardiology & Oncology OPD"
     license_id: str | None = "PT-REC-89421"
@@ -35,6 +37,7 @@ async def get_user_profile(user_id: str):
         user = DatabaseRepository.get_user_by_username(user_id)
     
     if user:
+        patient = DatabaseRepository.get_patient(user.get("id") or user_id)
         profile = {
             "user_id": user.get("id") or user_id,
             "name": user["name"],
@@ -43,7 +46,9 @@ async def get_user_profile(user_id: str):
             "extra_email": user.get("secondary_email") or "",
             "emergency_phone": user.get("emergency_phone") or "+91 98333 44556",
             "phone": user.get("emergency_phone") or "+91 98333 44556",
-            "blood_group": "O+",
+            "blood_group": patient.get("blood_group", "O+") if patient else "O+",
+            "age": patient.get("age", 48) if patient else 48,
+            "gender": patient.get("gender", "Unspecified") if patient else "Unspecified",
             "department": "Patient Self-Analysis & Care",
             "hospital": user.get("hospital_affiliation") or "AIIMS Clinical AI OPD",
             "license_id": user.get("license_number") or "PT-REC-89421",
@@ -62,6 +67,8 @@ async def get_user_profile(user_id: str):
             "emergency_phone": "+91 98333 44556",
             "phone": "+91 98333 44556",
             "blood_group": "O+",
+            "age": 48,
+            "gender": "Unspecified",
             "department": "Patient Self-Analysis & Care",
             "hospital": "AIIMS Clinical AI OPD",
             "license_id": "PT-REC-89421",
@@ -101,6 +108,8 @@ async def update_user_profile(user_id: str, req: ProfileUpdateRequest):
         "emergency_phone": req.emergency_phone,
         "phone": req.phone,
         "blood_group": req.blood_group,
+        "age": req.age,
+        "gender": req.gender,
         "department": req.department,
         "hospital": req.hospital,
         "license_id": req.license_id,

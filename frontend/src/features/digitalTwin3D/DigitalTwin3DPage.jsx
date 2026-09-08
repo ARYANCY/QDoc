@@ -18,7 +18,7 @@ import './digitalTwin.css';
  *   patientId  - Optional patient ID from parent page (e.g. from the diagnostic tab)
  *   result     - Optional ML result from the parent diagnostic run, used to pre-populate disease overlay
  */
-export default function DigitalTwin3DPage({ patientId, result }) {
+export default function DigitalTwin3DPage({ patientId, result, onExportReport }) {
   const canvasRef = useRef();
   const loadPatientFromDB = useTwinStore((s) => s.loadPatientFromDB);
   const currentPatient = useTwinStore((s) => s.patient);
@@ -35,7 +35,7 @@ export default function DigitalTwin3DPage({ patientId, result }) {
     <ErrorBoundary>
       <div className="dt-workspace">
         {/* Top Controls & Navigation */}
-        <TopNavbar canvasRef={canvasRef} />
+        <TopNavbar canvasRef={canvasRef} onExportReport={onExportReport} />
 
         {/* 3-Column Studio Layout */}
         <div className="dt-main-grid">

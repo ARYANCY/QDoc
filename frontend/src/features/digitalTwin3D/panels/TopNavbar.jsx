@@ -11,10 +11,9 @@ import {
   Download
 } from 'lucide-react';
 
-export default function TopNavbar() {
+export default function TopNavbar({ onExportReport }) {
   const layers = useTwinStore((state) => state.layers);
   const toggleLayer = useTwinStore((state) => state.toggleLayer);
-  const setReportOpen = useTwinStore((state) => state.setReportOpen);
   const setComparisonOpen = useTwinStore((state) => state.setComparisonOpen);
   const setTimelineOpen = useTwinStore((state) => state.setTimelineOpen);
   const patient = useTwinStore((state) => state.patient);
@@ -179,7 +178,7 @@ export default function TopNavbar() {
         {/* Export Report Action */}
         <button
           type="button"
-          onClick={() => setReportOpen(true)}
+          onClick={onExportReport}
           className="dt-action-btn dt-action-btn-gold"
         >
           <Download size={14} strokeWidth={2.5} />

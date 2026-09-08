@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import {
   User, Activity, Heart, Shield, CheckCircle2, Clock, Calendar,
-  FileText, Pill, AlertCircle, RefreshCw, Video, AlertTriangle,
+  FileText, Pill, AlertCircle, RefreshCw, Video, AlertTriangle, CreditCard,
   Stethoscope, UserCheck, ShieldCheck, ChevronRight, Wind, Thermometer
 } from "lucide-react";
 import { clinicalApi } from "../../api/clinical";
@@ -9,7 +9,7 @@ import { complianceApi } from "../../api/compliance";
 import { consultationsApi } from "../../api/consultations";
 import { animateEntrance, animateCardStagger } from "../../utils/motion";
 
-export default function PatientPortal({ patientId = "PT-89421", currentUser = null, onOpenBooking = null }) {
+export default function PatientPortal({ patientId = "PT-89421", currentUser = null, onOpenBooking = null, onOpenCard = null }) {
   const [activeSubTab, setActiveSubTab] = useState("overview");
   const [patient, setPatient] = useState(null);
   const [auditLogs, setAuditLogs] = useState([]);
@@ -381,6 +381,11 @@ export default function PatientPortal({ patientId = "PT-89421", currentUser = nu
           <span className="step-badge" style={{ padding: "6px 12px", fontSize: "0.74rem", background: "var(--bg-surface-alt)", display: "flex", alignItems: "center", gap: "6px" }}>
             <Shield size={13} color="var(--emerald-couture)" /> DPDP 2023 & HIPAA Compliant
           </span>
+          {onOpenCard && (
+            <button type="button" className="btn-primary" onClick={onOpenCard} style={{ padding: "8px 12px", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+              <CreditCard size={14} /> View & Print Card
+            </button>
+          )}
         </div>
       </div>
 

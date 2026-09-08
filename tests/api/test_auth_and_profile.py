@@ -35,6 +35,8 @@ def test_profile_retrieval_and_update():
     payload = {
         "name": "Alexander Reed (Updated)",
         "role": "patient",
+        "age": 52,
+        "gender": "Female",
         "primary_email": "alexander.reed@email.com",
         "extra_email": "alex.backup@gmail.com",
         "emergency_phone": "+91 99887 76655",
@@ -52,6 +54,8 @@ def test_profile_retrieval_and_update():
     updated = res_put.json()["profile"]
     assert updated["extra_email"] == "alex.backup@gmail.com"
     assert updated["emergency_phone"] == "+91 99887 76655"
+    assert updated["age"] == 52
+    assert updated["gender"] == "Female"
 
 
 def test_security_headers():

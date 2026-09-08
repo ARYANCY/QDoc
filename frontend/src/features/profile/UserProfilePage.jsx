@@ -27,7 +27,7 @@ import { clinicalApi } from "../../api/clinical";
 import { authApi } from "../../api/auth";
 import { animateEntrance } from "../../utils/motion";
 
-export default function UserProfilePage({ currentUser, onProfileUpdated, onProfileDeleted }) {
+export default function UserProfilePage({ currentUser, onProfileUpdated, onProfileDeleted, openCard = false, onCardOpened }) {
   const containerRef = useRef(null);
   const activeUserId = currentUser?.user_id || currentUser?.id || currentUser?.username || "PT-ALEX";
 
@@ -36,6 +36,8 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
     username: currentUser?.username || "alex.patient",
     name: currentUser?.name || "",
     role: currentUser?.role || "patient",
+    age: 48,
+    gender: "Unspecified",
     primary_email: currentUser?.email || "",
     extra_email: "",
     emergency_phone: "",
@@ -89,6 +91,13 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
     }
   }, [activeUserId]);
 
+  useEffect(() => {
+    if (openCard) {
+      setViewCardOpen(true);
+      if (onCardOpened) onCardOpened();
+    }
+  }, [openCard, onCardOpened]);
+
   async function fetchProfileData() {
     setLoading(true);
     setError(null);
@@ -124,6 +133,8 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
       const res = await profileApi.updateProfile(activeUserId, payload);
       await clinicalApi.updatePatientRecord(activeUserId, {
         name: payload.name,
+        age: payload.age,
+        gender: payload.gender,
         blood_group: payload.blood_group,
         medical_history: medicalHistory,
         medications,
@@ -212,6 +223,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
   const medicationSummary = Array.isArray(medications)
     ? medications.filter((item) => item.name).map((item) => `${item.name}${item.dose ? ` ${item.dose}` : ""}${item.frequency ? ` (${item.frequency})` : ""}`).join(" · ")
     : (typeof profile.active_medications === "string" ? profile.active_medications : "");
+  const primaryEmergencyContact = emergencyContacts.find((contact) => contact.is_primary) || emergencyContacts[0] || {};
   const emergencyQrUrl = `/api/v1/emergency/${profile.user_id || activeUserId}/qr.png`;
 
   return (
@@ -534,6 +546,38 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                   readOnly
                   style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--border-default)", fontSize: "0.78rem", background: "var(--bg-canvas)", color: "var(--text-muted)", cursor: "not-allowed" }}
                 />
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
+                  Age
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="130"
+                  value={profile.age ?? ""}
+                  onChange={(e) => handleFieldChange("age", e.target.value === "" ? "" : Number(e.target.value))}
+                  onBlur={handleFieldBlur}
+                  style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--border-default)", fontSize: "0.78rem", background: "var(--bg-surface)", color: "var(--text-primary)" }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
+                  Sex
+                </label>
+                <select
+                  value={profile.gender || "Unspecified"}
+                  onChange={(e) => handleFieldChange("gender", e.target.value)}
+                  onBlur={handleFieldBlur}
+                  style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--border-default)", fontSize: "0.78rem", background: "var(--bg-surface)", color: "var(--text-primary)" }}
+                >
+                  <option value="Unspecified">Prefer not to say</option>
+                  <option value="Female">Female</option>
+                  <option value="Male">Male</option>
+                  <option value="Intersex">Intersex</option>
+                </select>
               </div>
             </div>
 
@@ -1102,7 +1146,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
       {viewCardOpen && (
         <div className="modal-overlay" onClick={() => setViewCardOpen(false)}>
           <div
-            className="modal-content"
+            className="modal-content emergency-card-modal"
             onClick={(e) => e.stopPropagation()}
             style={{
               maxWidth: "680px",
@@ -1127,23 +1171,6 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
               </div>
 
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <button
-                  type="button"
-                  onClick={() => setCardTheme(cardTheme === "light" ? "dark" : "light")}
-                  style={{
-                    padding: "4px 10px",
-                    fontSize: "0.65rem",
-                    fontWeight: 800,
-                    textTransform: "uppercase",
-                    background: cardTheme === "light" ? "#38BDF8" : "#1E293B",
-                    color: cardTheme === "light" ? "#000000" : "#F8FAFC",
-                    border: "1px solid #38BDF8",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                  }}
-                >
-                  {cardTheme === "light" ? "☀️ White Print Edition" : "🌙 Midnight Navy Edition"}
-                </button>
                 <button
                   type="button"
                   onClick={() => setViewCardOpen(false)}

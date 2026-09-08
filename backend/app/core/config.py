@@ -4,6 +4,12 @@ import os
 from pathlib import Path
 from typing import List
 
+from dotenv import load_dotenv
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+load_dotenv(PROJECT_ROOT / ".env")
+
 
 class Settings:
     PROJECT_NAME: str = "Q-MedSense — Quantum Clinical Decision Support API"

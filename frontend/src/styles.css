@@ -1997,6 +1997,7 @@ body.high-contrast {
 .emergency-card-modal > div:first-child { color: var(--text-primary) !important; border-color: var(--border-default) !important; }
 .emergency-card-modal h3 { color: var(--text-primary) !important; }
 .emergency-card-modal .digital-id-card-wrapper { padding: 12px 0 4px; background: #f7fafc; border: 1px solid #e2e8f0; }
+.emergency-card-modal { width: min(680px, calc(100vw - 24px)); max-height: calc(100vh - 16px); overflow-y: auto; }
 .emergency-card-modal .digital-id-card { width: min(100%, 620px); min-height: 330px; border-radius: 12px !important; border: 1px solid #0f766e !important; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 72%, #ecfeff 100%) !important; box-shadow: 0 12px 28px rgba(15, 23, 42, 0.14) !important; }
 .emergency-card-modal .digital-id-card::before { background: linear-gradient(135deg, rgba(15, 118, 110, 0.08), transparent 55%); }
 .emergency-card-modal .emergency-card-qr { display: block; width: 105px; height: 105px; object-fit: contain; background: #fff; image-rendering: pixelated; }
@@ -2004,6 +2005,14 @@ body.high-contrast {
 .emergency-card-modal .digital-id-card-wrapper + div { border-color: var(--border-default) !important; }
 .emergency-card-modal .digital-id-card-wrapper + div .btn-secondary { background: var(--bg-surface-alt) !important; border-color: var(--border-default) !important; color: var(--text-primary) !important; }
 .emergency-card-modal .digital-id-card-wrapper + div .btn-primary { background: var(--ink-primary) !important; border-color: var(--ink-primary) !important; color: #fff !important; }
+
+@media (max-width: 640px) {
+  .emergency-card-modal { padding: 12px !important; }
+  .emergency-card-modal .digital-id-card { padding: 12px !important; }
+  .emergency-card-modal .digital-id-card > div:nth-child(2) { grid-template-columns: minmax(0, 1fr) 96px !important; gap: 8px !important; }
+  .emergency-card-modal .digital-id-card > div:nth-child(2) > div:last-child { padding: 4px !important; }
+  .emergency-card-modal .emergency-card-qr { width: 84px; height: 84px; }
+}
 
 @media (max-width: 560px) {
   .emergency-page header { min-height: 58px; padding-inline: 0.75rem; }

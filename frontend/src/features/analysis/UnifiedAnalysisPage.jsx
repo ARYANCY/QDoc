@@ -445,6 +445,7 @@ export default function UnifiedAnalysisPage() {
 
   // Auth & Profile Modal States
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [profileCardRequested, setProfileCardRequested] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [activeGuide, setActiveGuide] = useState(null);
   const [selectedBookingForRoom, setSelectedBookingForRoom] = useState(null);
@@ -456,7 +457,29 @@ export default function UnifiedAnalysisPage() {
 
   // Current Role Config & Active Tab declared before effects
   const roleConfig = currentUser ? (ROLE_PERMISSIONS[currentUser.role] || ROLE_PERMISSIONS.patient) : ROLE_PERMISSIONS.patient;
-  const [activeTab, setActiveTab] = useState(roleConfig.defaultTab);
+  const [activeTab, setActiveTabState] = useState(roleConfig.defaultTab);
+
+  function navigateToTab(nextTab, { replace = false } = {}) {
+    setActiveTabState(nextTab);
+    const url = new URL(window.location.href);
+    url.searchParams.set("tab", nextTab);
+    window.history[replace ? "replaceState" : "pushState"]({}, "", url);
+  }
+
+  function setActiveTab(nextTab) {
+    navigateToTab(nextTab);
+  }
+
+  useEffect(() => {
+    const urlTab = new URLSearchParams(window.location.search).get("tab");
+    if (urlTab && roleConfig.allowedTabs.includes(urlTab)) setActiveTabState(urlTab);
+    const handlePopState = () => {
+      const nextTab = new URLSearchParams(window.location.search).get("tab") || roleConfig.defaultTab;
+      setActiveTabState(roleConfig.allowedTabs.includes(nextTab) ? nextTab : roleConfig.defaultTab);
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [currentUser?.role]);
 
   useEffect(() => {
     if (activeTab === "my_consultations") {
@@ -501,6 +524,22 @@ export default function UnifiedAnalysisPage() {
       setActiveTab(nextRoleCfg.defaultTab);
     } catch (err) {
       setError(err.message || "Quick role switch failed.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleRegistration(registrationData) {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await authApi.register(registrationData);
+      setCurrentUser(data.user);
+      setPatientId(resolvePatientId(data.user));
+      const nextRoleCfg = ROLE_PERMISSIONS[data.user.role] || ROLE_PERMISSIONS.patient;
+      setActiveTab(nextRoleCfg.defaultTab);
+    } catch (err) {
+      setError(err.message || "Registration failed. Please check the account details.");
     } finally {
       setLoading(false);
     }
@@ -781,11 +820,11 @@ export default function UnifiedAnalysisPage() {
     try {
       const data = await reportsApi.generateReport({
         patient_id: patientId,
-        disease: result.disease || currentStudy.label,
-        prediction_class: result.prediction?.class || "Evaluated",
-        confidence: result.prediction?.confidence || 0.94,
-        classical_confidence: result.classical_baseline?.confidence || 0.91,
-        top_biomarkers: result.explainability?.top_features?.map((f) => `${f.feature} (${f.percentage}%)`) || [],
+        disease: result?.disease || currentStudy.label,
+        prediction_class: result?.prediction?.class || "Clinical review pending",
+        confidence: result?.prediction?.confidence || 0,
+        classical_confidence: result?.classical_baseline?.confidence || 0,
+        top_biomarkers: result?.explainability?.top_features?.map((f) => `${f.feature} (${f.percentage}%)`) || [],
       });
       const blob = new Blob([data.report_html], { type: "text/html" });
       const url = URL.createObjectURL(blob);
@@ -804,6 +843,7 @@ export default function UnifiedAnalysisPage() {
     return (
       <EditorialLoginPage
         onLogin={(u, p, r) => handleQuickRoleSwitch(u, p, r)}
+        onRegister={handleRegistration}
         loading={loading}
         error={error}
       />
@@ -1372,6 +1412,7 @@ export default function UnifiedAnalysisPage() {
                 </div>
 
                 {/* COLUMN 3: 3D Physiological Digital Twin & Clinical Actions (Minimizable) */}
+                {currentUser?.role !== "doctor" && (
                 <div
                   className="cockpit-col"
                   style={{
@@ -1474,7 +1515,7 @@ export default function UnifiedAnalysisPage() {
                           type="button"
                           className="btn-primary"
                           onClick={exportReport}
-                          disabled={!result}
+                          disabled={false}
                           style={{ padding: "10px", borderRadius: 0, width: "100%" }}
                         >
                           <Download size={14} />
@@ -1489,6 +1530,7 @@ export default function UnifiedAnalysisPage() {
                     </div>
                   )}
                 </div>
+                )}
               </div>
             </div>
           )}
@@ -1496,7 +1538,7 @@ export default function UnifiedAnalysisPage() {
           {/* ── VIEW 2: 3D DIGITAL TWIN EXPLORER — Full Screen ─────────────── */}
           {activeTab === "twin" && (
             <div style={{ height: "100%", overflow: "hidden", display: "flex", flexDirection: "column" }}>
-              <DigitalTwin3DPage patientId={patientId} result={result} />
+              <DigitalTwin3DPage patientId={patientId} result={result} onExportReport={exportReport} />
             </div>
           )}
 
@@ -1589,6 +1631,10 @@ export default function UnifiedAnalysisPage() {
               <PatientPortal
                 patientId={patientId}
                 currentUser={currentUser}
+                onOpenCard={() => {
+                  setProfileCardRequested(true);
+                  setActiveTab("profile");
+                }}
                 onOpenBooking={(b) => {
                   setSelectedBookingForRoom(b);
                   setActiveTab("my_consultations");
@@ -1609,6 +1655,8 @@ export default function UnifiedAnalysisPage() {
             <div style={{ height: "100%", overflowY: "auto" }}>
               <UserProfilePage
                 currentUser={currentUser}
+                openCard={profileCardRequested}
+                onCardOpened={() => setProfileCardRequested(false)}
                 onProfileUpdated={(updated) => setCurrentUser((prev) => ({ ...prev, ...updated }))}
                 onProfileDeleted={() => {
                   authApi.logout();

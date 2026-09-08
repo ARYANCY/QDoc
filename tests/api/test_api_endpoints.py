@@ -37,12 +37,27 @@ def test_benchmark_matrix_endpoint():
 
 
 def test_digital_twin_endpoint():
-    res = client.get("/api/v1/digital-twin/state/PT-TEST-101")
+    patient_login = client.post(
+        "/api/v1/auth/login",
+        json={"username": "alex.patient", "password": "patient123", "role": "patient"},
+    )
+    assert patient_login.status_code == 200
+    patient_headers = {"Authorization": f"Bearer {patient_login.json()['access_token']}"}
+    res = client.get("/api/v1/digital-twin/state/PT-TEST-101", headers=patient_headers)
     assert res.status_code == 200
     data = res.json()
     assert "composite_risk_score" in data
     assert "organs" in data
     assert len(data["organs"]) >= 4
+
+    doctor_login = client.post(
+        "/api/v1/auth/login",
+        json={"username": "dr.kavita", "password": "doctor123", "role": "doctor"},
+    )
+    assert doctor_login.status_code == 200
+    doctor_headers = {"Authorization": f"Bearer {doctor_login.json()['access_token']}"}
+    denied = client.get("/api/v1/digital-twin/state/PT-TEST-101", headers=doctor_headers)
+    assert denied.status_code == 403
 
 
 def test_compliance_and_reports_endpoints():

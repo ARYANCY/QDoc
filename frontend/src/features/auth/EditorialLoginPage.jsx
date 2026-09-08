@@ -20,11 +20,16 @@ import {
 import { animateEntrance, animateEditorialHero } from "../../utils/motion";
 import gsap from "gsap";
 
-export default function EditorialLoginPage({ onLogin, loading, error }) {
-  const [authMode, setAuthMode] = useState("vip"); // "vip" (quick test) | "credentials"
+export default function EditorialLoginPage({ onLogin, onRegister, loading, error }) {
+  const [authMode, setAuthMode] = useState("vip"); // "vip" (quick test) | "credentials" | "register"
   const [username, setUsername] = useState("alex.patient");
   const [password, setPassword] = useState("patient123");
   const [selectedRole, setSelectedRole] = useState("patient");
+  const [registerName, setRegisterName] = useState("");
+  const [registerUsername, setRegisterUsername] = useState("");
+  const [registerEmail, setRegisterEmail] = useState("");
+  const [registerPassword, setRegisterPassword] = useState("");
+  const [registerRole, setRegisterRole] = useState("patient");
   const [showPassword, setShowPassword] = useState(false);
   const [activePersonaId, setActivePersonaId] = useState("patient");
 
@@ -109,6 +114,17 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
   function handleSubmit(e) {
     e.preventDefault();
     onLogin(username, password, selectedRole);
+  }
+
+  async function handleRegister(e) {
+    e.preventDefault();
+    await onRegister({
+      username: registerUsername,
+      password: registerPassword,
+      name: registerName,
+      email: registerEmail,
+      role: registerRole,
+    });
   }
 
   return (
@@ -470,6 +486,27 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
             >
               Manual Login
             </button>
+            <button
+              type="button"
+              onClick={() => setAuthMode("register")}
+              style={{
+                flex: 1,
+                padding: "8px",
+                fontSize: "0.72rem",
+                fontFamily: "var(--font-mono)",
+                fontWeight: authMode === "register" ? 800 : 600,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                border: "none",
+                background: authMode === "register" ? "#FFFFFF" : "transparent",
+                color: authMode === "register" ? "var(--ink-primary)" : "var(--text-muted)",
+                boxShadow: authMode === "register" ? "0 1px 3px rgba(0,0,0,0.06)" : "none",
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+              }}
+            >
+              Create Account
+            </button>
           </div>
 
           {/* TAB 1: 1-Click Test Demo Personas */}
@@ -555,7 +592,7 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
                 );
               })}
             </div>
-          ) : (
+          ) : authMode === "credentials" ? (
             /* TAB 2: Direct Credentials Form */
             <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               {/* Role Selection Radio Buttons */}
@@ -714,6 +751,40 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
                     <ArrowRight size={15} color="var(--gold)" />
                   </>
                 )}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <div>
+                <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", display: "block", marginBottom: "4px" }}>
+                  Full Name
+                </label>
+                <input type="text" value={registerName} onChange={(e) => setRegisterName(e.target.value)} required style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }} />
+              </div>
+              <div>
+                <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", display: "block", marginBottom: "4px" }}>
+                  Username
+                </label>
+                <input type="text" value={registerUsername} onChange={(e) => setRegisterUsername(e.target.value)} required style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }} />
+              </div>
+              <div>
+                <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", display: "block", marginBottom: "4px" }}>
+                  Email
+                </label>
+                <input type="email" value={registerEmail} onChange={(e) => setRegisterEmail(e.target.value)} required style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }} />
+              </div>
+              <div>
+                <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", display: "block", marginBottom: "4px" }}>
+                  Password
+                </label>
+                <input type="password" value={registerPassword} onChange={(e) => setRegisterPassword(e.target.value)} required style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }} />
+              </div>
+              <select value={registerRole} onChange={(e) => setRegisterRole(e.target.value)} style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }}>
+                <option value="patient">Patient</option>
+                <option value="admin">Administrator</option>
+              </select>
+              <button type="submit" disabled={loading} className="btn-primary" style={{ marginTop: "8px", padding: "12px", fontSize: "0.82rem", width: "100%", minHeight: "44px" }}>
+                {loading ? "Creating Account..." : "Create Account & Sign In"}
               </button>
             </form>
           )}
