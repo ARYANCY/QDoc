@@ -207,7 +207,7 @@ export default function DigitalTwin3D({ patientId = "PT-89421", analysisResult =
           background: "#07080A",
         }}
       >
-        <DigitalTwinViewer canvasRef={canvasRef} />
+        <DigitalTwinViewer canvasRef={canvasRef} compact={true} />
       </div>
 
       {/* Interactive Quick Organ Chips & Telemetry */}

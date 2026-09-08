@@ -7,6 +7,7 @@ from backend.app.core.qr_service import (
     generate_qr_svg_string,
 )
 from backend.app.db.repository import DatabaseRepository
+from backend.app.core.config import settings
 
 router = APIRouter(prefix="/api/v1/emergency", tags=["Emergency Triage"])
 
@@ -27,7 +28,7 @@ async def get_emergency_card_data(patient_id: str):
     if not record:
         record = DatabaseRepository.get_emergency_profile("PT-89421")
 
-    emergency_url = f"http://localhost:5174/#emergency/{patient_id}"
+    emergency_url = f"{settings.FRONTEND_URL.rstrip('/')}/#emergency/{patient_id}"
     qr_base64 = generate_qr_base64_data_uri(emergency_url)
 
     return {
@@ -59,7 +60,7 @@ async def get_emergency_card_data(patient_id: str):
 @router.get("/{patient_id}/qr")
 async def get_emergency_qr_png(patient_id: str):
     """Streams high-contrast PNG QR code image bytes directly from Python."""
-    emergency_url = f"http://localhost:5174/#emergency/{patient_id}"
+    emergency_url = f"{settings.FRONTEND_URL.rstrip('/')}/#emergency/{patient_id}"
     png_bytes = generate_qr_png_bytes(emergency_url, box_size=10, border=2)
     return Response(content=png_bytes, media_type="image/png")
 
@@ -67,7 +68,7 @@ async def get_emergency_qr_png(patient_id: str):
 @router.get("/{patient_id}/qr.svg")
 async def get_emergency_qr_svg(patient_id: str):
     """Streams vector SVG QR code string directly from Python."""
-    emergency_url = f"http://localhost:5174/#emergency/{patient_id}"
+    emergency_url = f"{settings.FRONTEND_URL.rstrip('/')}/#emergency/{patient_id}"
     svg_str = generate_qr_svg_string(emergency_url)
     return Response(content=svg_str, media_type="image/svg+xml")
 

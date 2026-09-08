@@ -52,9 +52,25 @@ def init_database():
         conditions_json TEXT NOT NULL,
         baseline_vitals_json TEXT NOT NULL,
         emergency_contact TEXT,
+        medical_history_json TEXT,
+        allergies_json TEXT,
+        medications_json TEXT,
+        emergency_contacts_json TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     """)
+
+    # Safe migrations for databases created before structured emergency data existed.
+    for column in (
+        "medical_history_json",
+        "allergies_json",
+        "medications_json",
+        "emergency_contacts_json",
+    ):
+        try:
+            cursor.execute(f"ALTER TABLE patients ADD COLUMN {column} TEXT;")
+        except sqlite3.OperationalError:
+            pass
 
     # Diagnostic Records Table
     cursor.execute("""
@@ -186,6 +202,19 @@ def init_database():
     );
     """)
 
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS consultation_signals (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        booking_id TEXT NOT NULL,
+        sender_id TEXT NOT NULL,
+        sender_role TEXT NOT NULL,
+        signal_type TEXT NOT NULL,
+        payload_json TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (booking_id) REFERENCES bookings (id)
+    );
+    """)
+
     # E-Prescriptions & Care Plans (Module H)
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS prescriptions (
@@ -218,6 +247,12 @@ def init_database():
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     """)
+
+    # Production databases are schema-only. Demo fixtures are isolated in qmedsense_demo.db.
+    if settings.DB_MODE != "demo":
+        conn.commit()
+        conn.close()
+        return
 
     # M7: Guard legacy cleanup — only run if the old seed IDs actually exist in the DB.
     cursor.execute("SELECT COUNT(*) FROM users WHERE username IN ('dr.aryan', 'priya.qml') OR role IN ('clinician', 'researcher') OR id IN ('DR-ARYAN', 'RES-PRIYA');")
@@ -313,57 +348,6 @@ def init_database():
         INSERT OR IGNORE INTO doctors (id, user_id, name, specialty, registration_number, council_name, experience_years, fee_inr, rating, languages_json, hospital_affiliation, available_slots_json, verification_status)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         """, (did, duid, dname, dspec, dreg, dcoun, dexp, dfee, drat, dlang, daff, dslots, dstat))
-
-    # Seed Initial Booking BK-2026-8801 (Patient Alexander with Dr. Kavita)
-    cursor.execute("""
-    INSERT OR IGNORE INTO bookings (id, patient_id, doctor_id, slot_time, mode, status, payment_status, intake_json, triage_risk)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
-    """, (
-        "BK-2026-8801",
-        "PT-89421",
-        "DOC-KAVITA",
-        "Today at 02:00 PM",
-        "video",
-        "confirmed",
-        "authorized",
-        json.dumps({
-            "reason": "Preventive Cardiology checkup following VQC risk evaluation",
-            "symptoms": "Mild exertional breathlessness, family history of CAD",
-            "duration": "2 weeks",
-            "medications": ["Atorvastatin 10mg"],
-        }),
-        "normal"
-    ))
-
-    # Seed Room for BK-2026-8801
-    cursor.execute("""
-    INSERT OR IGNORE INTO consultation_rooms (id, booking_id, room_token, status, doctor_joined, patient_joined, chat_messages_json)
-    VALUES (?, ?, ?, ?, ?, ?, ?);
-    """, (
-        "ROOM-8801",
-        "BK-2026-8801",
-        "TOKEN-RTC-99420",
-        "waiting",
-        0,
-        1,
-        json.dumps([
-            {"sender": "system", "text": "Patient Alexander Reed has checked into the virtual waiting room.", "time": "01:55 PM"},
-            {"sender": "Alexander Reed", "text": "Hello Doctor, I have uploaded my recent VQC coronary analysis for review.", "time": "01:58 PM"},
-        ])
-    ))
-
-    # Seed Notifications for Alexander and Dr. Kavita
-    seed_notifications = [
-        ("NOTIF-101", "alex.patient", "Appointment Confirmed", "Your video consultation with Dr. Kavita Rao is confirmed for Today at 02:00 PM.", "REF-BK-8801", "booking"),
-        ("NOTIF-102", "alex.patient", "Quantum AI Checkup Ready", "Your Wisconsin Breast Oncology analysis has completed with 94.7% confidence.", "REF-DX-7721", "diagnostic"),
-        ("NOTIF-201", "dr.kavita", "New Tele-Consultation Booked", "Patient Alexander Reed has booked a video consultation for Today at 02:00 PM.", "REF-BK-8801", "booking"),
-    ]
-    for nid, nuid, ntitle, nmsg, nref, ncat in seed_notifications:
-        cursor.execute("""
-        INSERT OR IGNORE INTO notifications (id, user_id, title, message, reference_code, category)
-        VALUES (?, ?, ?, ?, ?, ?);
-        """, (nid, nuid, ntitle, nmsg, nref, ncat))
-
 
 
     # Seed Default Patient PT-89421

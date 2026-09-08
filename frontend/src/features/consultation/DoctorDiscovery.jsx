@@ -18,7 +18,7 @@ import { consultationsApi } from "../../api/consultations";
 import BookingModal from "./BookingModal";
 import { animateEntrance, animateCardStagger } from "../../utils/motion";
 
-export default function DoctorDiscovery({ onOpenBooking, onJoinRoom }) {
+export default function DoctorDiscovery({ onOpenBooking, onJoinRoom, patientId }) {
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedSpecialty, setSelectedSpecialty] = useState("all");
@@ -61,7 +61,7 @@ export default function DoctorDiscovery({ onOpenBooking, onJoinRoom }) {
     setSelectedSlot(slot);
     setErrorMsg("");
     try {
-      const holdRes = await consultationsApi.holdSlot(doctor.id, slot, "PT-89421");
+      const holdRes = await consultationsApi.holdSlot(doctor.id, slot, patientId);
       setSlotHold(holdRes);
     } catch (err) {
       setErrorMsg(err.message || "Failed to reserve slot.");
@@ -303,6 +303,7 @@ export default function DoctorDiscovery({ onOpenBooking, onJoinRoom }) {
         <BookingModal
           doctor={selectedDoctor}
           initialSlot={selectedSlot}
+          patientId={patientId}
           onClose={() => setBookingModalOpen(false)}
           onSuccess={(booking) => {
             setBookingModalOpen(false);

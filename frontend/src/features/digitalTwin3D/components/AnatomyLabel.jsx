@@ -11,7 +11,7 @@ export default function AnatomyLabel({ anatomyId, position }) {
   const layers = useTwinStore((state) => state.layers);
   const setSelectedAnatomy = useTwinStore((state) => state.setSelectedAnatomy);
 
-  if (layers.labels === false) return null;
+  if (layers.labels === false || anatomyId === 'SKIN' || anatomyId === 'VASCULAR_SYSTEM') return null;
 
   const anatomy = ANATOMY_REGISTRY[anatomyId];
   if (!anatomy || !anatomy.position) return null;
@@ -32,32 +32,53 @@ export default function AnatomyLabel({ anatomyId, position }) {
       position={[targetPos[0], targetPos[1] + 0.08, targetPos[2]]}
       distanceFactor={4.5}
       center
-      style={{ pointerEvents: 'auto', transition: 'opacity 0.05s ease' }}
+      style={{ pointerEvents: 'auto', transition: 'opacity 0.1s ease' }}
     >
       <div
         onClick={(e) => {
           e.stopPropagation();
           setSelectedAnatomy(isSelected ? null : anatomyId);
         }}
-        className={`px-2.5 py-1 rounded-lg backdrop-blur-md text-[11px] font-medium transition-all shadow-2xl flex flex-col gap-0.5 border cursor-pointer ${
-          isSelected
-            ? 'bg-[#0284C7]/90 border-sky-300 text-white ring-2 ring-sky-400/50 shadow-sky-500/20'
+        className="dt-anatomy-label-badge"
+        style={{
+          background: isSelected
+            ? 'rgba(15, 118, 110, 0.95)'
             : percentage > 40
-            ? 'bg-rose-950/90 border-rose-500 text-rose-100 shadow-rose-900/40'
-            : 'bg-[#0C1220]/95 border-[#1E293B] text-slate-200 hover:border-sky-400'
-        }`}
+            ? 'rgba(159, 18, 57, 0.95)'
+            : 'rgba(14, 16, 23, 0.92)',
+          borderColor: isSelected
+            ? 'var(--dt-teal-glow)'
+            : percentage > 40
+            ? '#F43F5E'
+            : 'var(--dt-border-default)',
+          boxShadow: isSelected
+            ? '0 0 16px rgba(45, 212, 191, 0.35)'
+            : percentage > 40
+            ? '0 0 16px rgba(244, 63, 94, 0.35)'
+            : '0 4px 14px rgba(0,0,0,0.5)',
+        }}
       >
-        <div className="flex items-center gap-1.5 whitespace-nowrap">
-          <span className="font-bold">{anatomy.label}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+          <span style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.68rem', fontWeight: 800, color: '#FFFFFF' }}>
+            {anatomy.label}
+          </span>
           {percentage > 0 && (
-            <span className={`font-mono text-[10px] font-bold px-1.5 py-0.2 rounded ${
-              percentage > 40 ? 'bg-rose-600/60 text-white' : 'bg-emerald-600/50 text-white'
-            }`}>
+            <span
+              style={{
+                fontFamily: 'var(--dt-font-mono)',
+                fontSize: '0.60rem',
+                fontWeight: 800,
+                padding: '1px 5px',
+                borderRadius: '3px',
+                background: percentage > 40 ? 'rgba(239, 68, 68, 0.4)' : 'rgba(16, 185, 129, 0.4)',
+                color: '#FFFFFF'
+              }}
+            >
               {percentage}%
             </span>
           )}
         </div>
-        <div className="text-[9px] font-mono text-slate-400">
+        <div style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.56rem', color: percentage > 40 ? '#FCA5A5' : 'var(--dt-text-muted)', marginTop: '1px' }}>
           {percentage > 40 ? 'Elevated Biomarker Telemetry' : 'Normal Physiological State'}
         </div>
       </div>

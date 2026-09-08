@@ -12,26 +12,27 @@ export default function HeartDiseaseControls() {
   const tier = getSeverityTier(diseaseParams.percentage);
 
   return (
-    <div className="space-y-4">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
       {/* Heart Involvement Slider */}
-      <div className="p-3.5 rounded-xl bg-surface-secondary/70 border border-slate-800 space-y-2">
-        <div className="flex items-center justify-between">
-          <label className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
-            <Heart className="w-3.5 h-3.5 text-red-500" />
+      <div style={{ background: '#0D0E15', padding: '10px', borderRadius: '6px', border: '1px solid var(--dt-border-subtle)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <label style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.68rem', fontWeight: 700, color: 'var(--dt-text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Heart size={14} color="#EF4444" />
             Cardiac Involvement
           </label>
-          <span className={`text-xs px-2 py-0.5 rounded font-mono font-bold ${tier.badgeClass}`}>
+          <span style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.60rem', fontWeight: 800, padding: '1px 6px', borderRadius: '4px', background: `${tier.hexColor}20`, color: tier.hexColor }}>
             {diseaseParams.percentage}% ({tier.label})
           </span>
         </div>
-        <div className="flex items-center gap-3">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <input
             type="range"
             min="0"
             max="100"
             value={diseaseParams.percentage}
             onChange={(e) => updateDiseaseParam('HEART_DISEASE', 'percentage', Number(e.target.value))}
-            className="w-full accent-red-500 h-1.5 bg-slate-700 rounded-lg cursor-pointer"
+            className="dt-range-slider"
+            style={{ flex: 1 }}
           />
           <input
             type="number"
@@ -39,47 +40,46 @@ export default function HeartDiseaseControls() {
             max="100"
             value={diseaseParams.percentage}
             onChange={(e) => updateDiseaseParam('HEART_DISEASE', 'percentage', Math.max(0, Math.min(100, Number(e.target.value))))}
-            className="w-14 px-1.5 py-1 text-xs font-mono bg-slate-900 border border-slate-700 rounded text-center text-slate-200"
+            className="dt-input"
+            style={{ width: '54px', padding: '4px 6px', textAlign: 'center', fontSize: '0.68rem' }}
           />
         </div>
       </div>
 
       {/* Cardiac Substructure Focus */}
-      <div className="p-3.5 rounded-xl bg-surface-secondary/70 border border-slate-800 space-y-2">
-        <label className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
-          <Activity className="w-3.5 h-3.5 text-red-400" />
+      <div style={{ background: '#0D0E15', padding: '10px', borderRadius: '6px', border: '1px solid var(--dt-border-subtle)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <label style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.64rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--dt-text-muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Activity size={12} color="#EF4444" />
           Cardiac Substructure Simulation
         </label>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="dt-grid-2">
           {disease.subregions.map((sub) => (
             <button
               key={sub.id}
+              type="button"
               onClick={() => updateDiseaseParam('HEART_DISEASE', 'selectedSubregion', sub.label)}
-              className={`text-left px-3 py-2 rounded-lg text-xs transition border ${
-                diseaseParams.selectedSubregion === sub.label
-                  ? 'bg-red-500/20 border-red-500/50 text-red-200 font-medium'
-                  : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
-              }`}
+              className={`dt-affected-item ${diseaseParams.selectedSubregion === sub.label ? 'active' : ''}`}
+              style={{ padding: '6px 8px', fontSize: '0.66rem' }}
             >
-              {sub.label}
+              <span>{sub.label}</span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Dynamic Pulsatile Emissive Feedback Toggle */}
-      <div className="p-3 rounded-xl bg-surface-secondary/50 border border-slate-800 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Waves className="w-4 h-4 text-red-400" />
-          <span className="text-xs text-slate-300">Pulsatile Cardiac Animation</span>
+      {/* Pulsatile Emissive Animation Toggle */}
+      <div style={{ background: '#0D0E15', padding: '10px', borderRadius: '6px', border: '1px solid var(--dt-border-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Waves size={14} color="#EF4444" />
+          <span style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.68rem', color: 'var(--dt-text-secondary)' }}>
+            Pulsatile Cardiac Animation
+          </span>
         </div>
         <button
+          type="button"
           onClick={() => updateDiseaseParam('HEART_DISEASE', 'pulseIntensity', !diseaseParams.pulseIntensity)}
-          className={`px-2 py-0.5 rounded text-[11px] font-medium transition ${
-            diseaseParams.pulseIntensity
-              ? 'bg-red-500/20 text-red-300 border border-red-500/40'
-              : 'bg-slate-800 text-slate-400'
-          }`}
+          className="dt-action-btn"
+          style={{ padding: '2px 8px', fontSize: '0.58rem' }}
         >
           {diseaseParams.pulseIntensity ? 'Active' : 'Static'}
         </button>
@@ -87,3 +87,4 @@ export default function HeartDiseaseControls() {
     </div>
   );
 }
+

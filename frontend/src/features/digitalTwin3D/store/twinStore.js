@@ -3,6 +3,7 @@ import { DISEASE_REGISTRY } from '../data/diseaseRegistry';
 import { StorageService } from '../utils/storage';
 import {
   fetchPatientTwinState,
+  fetchClinicalPatient,
   mapRisksToInvolvement,
   detectPrimaryDisease
 } from '../api/twinApi';
@@ -287,14 +288,25 @@ export const useTwinStore = create((set, get) => ({
   // ── DB Patient Load ─────────────────────────────────────────────────────────
   loadPatientFromDB: async (patientId) => {
     if (!patientId?.trim()) return;
+    const pid = patientId.trim();
     set({ patientMode: 'loading', patientError: null });
     try {
-      const data = await fetchPatientTwinState(patientId.trim());
-      const moduleRisks = data?.selected_visit?.module_risks || data?.module_risks || {};
+      const [twinRes, clinicalRes] = await Promise.allSettled([
+        fetchPatientTwinState(pid),
+        fetchClinicalPatient(pid)
+      ]);
+
+      const twinData = twinRes.status === 'fulfilled' ? twinRes.value : null;
+      const clinicalData = clinicalRes.status === 'fulfilled' ? (clinicalRes.value?.patient || clinicalRes.value) : null;
+
+      if (!twinData && !clinicalData) {
+        throw new Error(twinRes.reason?.message || clinicalRes.reason?.message || 'Failed to fetch patient record from database');
+      }
+
+      const moduleRisks = twinData?.selected_visit?.module_risks || twinData?.module_risks || {};
       const involvementMap = mapRisksToInvolvement(moduleRisks);
       const detectedDisease = detectPrimaryDisease(moduleRisks);
-      const visitDate = data?.selected_visit?.date || '';
-      const visitNotes = data?.selected_visit?.notes || '';
+      const visitNotes = twinData?.selected_visit?.notes || '';
 
       // Build updated disease params from DB data
       const newDiseaseParams = { ...DEFAULT_DISEASE_PARAMS };
@@ -305,17 +317,119 @@ export const useTwinStore = create((set, get) => ({
       if (involvementMap.BREAST_RIGHT) newDiseaseParams.BREAST_CANCER.rightPercentage = involvementMap.BREAST_RIGHT;
       if (involvementMap.PANCREAS)     newDiseaseParams.DIABETES.pancreas = involvementMap.PANCREAS;
 
+      // Extract details from clinical DB record if available
+      let firstName = get().patient.firstName;
+      let lastName = get().patient.lastName;
+      if (clinicalData?.name) {
+        const parts = clinicalData.name.trim().split(' ');
+        firstName = parts[0] || '';
+        lastName = parts.slice(1).join(' ') || '';
+      }
+
+      let sex = get().patient.sex;
+      if (clinicalData?.gender) {
+        const g = clinicalData.gender.toLowerCase();
+        if (g.includes('fem') || g === 'f') sex = 'female';
+        else if (g.includes('mal') || g === 'm') sex = 'male';
+      }
+
+      let ageGroup = get().patient.ageGroup;
+      if (clinicalData?.age) {
+        const ageNum = Number(clinicalData.age);
+        if (ageNum < 18) ageGroup = '<18';
+        else if (ageNum <= 40) ageGroup = '18-40';
+        else if (ageNum <= 60) ageGroup = '40-60';
+        else ageGroup = '60+';
+      }
+
+      // Parse baseline vitals from DB
+      const dbVitals = clinicalData?.baseline_vitals || {};
+      let systolic = get().patient.vitals.bloodPressureSystolic;
+      let diastolic = get().patient.vitals.bloodPressureDiastolic;
+      if (dbVitals.blood_pressure) {
+        const match = String(dbVitals.blood_pressure).match(/(\d+)\s*\/\s*(\d+)/);
+        if (match) {
+          systolic = match[1];
+          diastolic = match[2];
+        }
+      }
+
+      const vitals = {
+        ...get().patient.vitals,
+        bloodPressureSystolic: systolic || '120',
+        bloodPressureDiastolic: diastolic || '80',
+        heartRate: dbVitals.heart_rate_bpm || dbVitals.heart_rate || '72',
+        spo2: dbVitals.spo2_percent || dbVitals.spo2 || '98',
+        temperature: dbVitals.temperature_f || dbVitals.temperature || '98.6',
+        respiratoryRate: dbVitals.respiratory_rate || '16',
+        glucose: dbVitals.glucose || '95',
+        cholesterol: dbVitals.cholesterol || '180'
+      };
+
+      // Medical history parsing
+      let medicalHistory = get().patient.medicalHistory;
+      if (Array.isArray(clinicalData?.medical_history) && clinicalData.medical_history.length > 0) {
+        medicalHistory = clinicalData.medical_history.map((item, idx) => {
+          if (typeof item === 'string') {
+            return { id: idx + 1, condition: item, diagnosedYear: '2024', status: 'active' };
+          }
+          return { id: item.id || idx + 1, condition: item.condition || item.name || '', diagnosedYear: item.diagnosedYear || '2024', status: item.status || 'active' };
+        });
+      }
+
+      // Allergies parsing
+      let allergies = get().patient.allergies;
+      if (Array.isArray(clinicalData?.allergies) && clinicalData.allergies.length > 0) {
+        allergies = clinicalData.allergies.map((item, idx) => {
+          if (typeof item === 'string') {
+            return { id: idx + 1, allergen: item, severity: 'high', reaction: 'Sensitivity' };
+          }
+          return { id: item.id || idx + 1, allergen: item.allergen || item.name || '', severity: item.severity || 'high', reaction: item.reaction || 'Allergic reaction' };
+        });
+      }
+
+      // Medications parsing
+      let medications = get().patient.medications;
+      if (Array.isArray(clinicalData?.medications) && clinicalData.medications.length > 0) {
+        medications = clinicalData.medications.map((item, idx) => {
+          if (typeof item === 'string') {
+            return { id: idx + 1, name: item, dose: 'Standard', frequency: 'OD', startDate: '', prescribedBy: 'Dr. Physician' };
+          }
+          return { id: item.id || idx + 1, name: item.name || '', dose: item.dose || '', frequency: item.frequency || 'od', startDate: item.startDate || '', prescribedBy: item.prescribedBy || '' };
+        });
+      }
+
+      // Symptoms / conditions list
+      let symptoms = get().patient.symptoms;
+      if (Array.isArray(clinicalData?.conditions) && clinicalData.conditions.length > 0) {
+        symptoms = clinicalData.conditions;
+      }
+
       set({
         patientMode: 'active',
-        dbData: data,
+        dbData: twinData || { status: 'success', patient: clinicalData },
         involvementMap,
         selectedDisease: detectedDisease || get().selectedDisease,
         diseaseParams: newDiseaseParams,
         selectedAnatomy: null,
         patient: {
           ...get().patient,
-          patientId,
-          notes: visitNotes,
+          patientId: pid,
+          firstName,
+          lastName,
+          sex,
+          ageGroup,
+          bloodType: clinicalData?.blood_group || get().patient.bloodType || 'O+',
+          heightCm: clinicalData?.height_cm || get().patient.heightCm || 175,
+          weightKg: clinicalData?.weight_kg || get().patient.weightKg || 70,
+          notes: visitNotes || (clinicalData?.conditions ? `Diagnosed Conditions: ${clinicalData.conditions.join(', ')}` : get().patient.notes),
+          vitals,
+          symptoms,
+          medicalHistory,
+          allergies,
+          medications,
+          abhaId: clinicalData?.abha_id || '91-4829-1092-8821',
+          emergencyContact: clinicalData?.emergency_contact || '+91 98333 44556'
         },
         layers: { ...get().layers, diseaseOverlay: true }
       });

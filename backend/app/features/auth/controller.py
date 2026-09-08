@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from backend.app.core.security import create_access_token, get_current_user, hash_password, verify_password
+from backend.app.core.config import settings
 from backend.app.db.repository import DatabaseRepository
 
 
@@ -89,7 +90,7 @@ async def login(req: LoginRequest):
     if not verify_password(req.password, stored_hash):
         raise HTTPException(status_code=401, detail="Invalid username or password.")
 
-    is_test_account = req.username in {"alex.patient", "admin.audit"} or user.get("id") in {"PT-ALEX", "ADM-SYSTEM"}
+    is_test_account = settings.DB_MODE == "demo"
 
     # If user explicitly switched role during login (e.g., a user with admin role logging in as patient)
     if req.role and req.role != user.get("role"):

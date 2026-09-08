@@ -67,6 +67,17 @@ export const consultationsApi = {
     });
   },
 
+  async publishSignal(bookingId, signalType, payload) {
+    return apiClient.post(`/api/v1/consultations/rooms/${bookingId}/signals`, {
+      signal_type: signalType,
+      payload,
+    });
+  },
+
+  async listSignals(bookingId, afterId = 0) {
+    return apiClient.get(`/api/v1/consultations/rooms/${bookingId}/signals?after_id=${afterId}`);
+  },
+
   async checkDrugInteractions(candidateDrugs, currentMedications = []) {
     return apiClient.post("/api/v1/consultations/prescriptions/check-interactions", {
       candidate_drugs: candidateDrugs,

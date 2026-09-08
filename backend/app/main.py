@@ -89,11 +89,3 @@ def root():
     }
 
 
-@app.get("/api/v1/emergency/{patient_id}")
-def get_public_emergency_card(patient_id: str):
-    """Direct public emergency card lookup endpoint for QR scanners."""
-    from backend.app.db.repository import DatabaseRepository
-    record = DatabaseRepository.get_emergency_profile(patient_id)
-    if not record:
-        record = DatabaseRepository.get_emergency_profile("PT-89421")
-    return record

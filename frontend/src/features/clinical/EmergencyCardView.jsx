@@ -23,42 +23,7 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
         const res = await apiClient.get(`/api/v1/emergency/${patientId}`);
         setData(res);
       } catch (err) {
-        // Resilient emergency fallback
-        setData({
-          patient_id: patientId,
-          name: 'Alexander Reed',
-          age: 48,
-          gender: 'Male',
-          blood_group: 'O+',
-          organ_donor: true,
-          abha_id: '91-4829-1092-8821',
-          address: 'Flat 402, Green Glen Heights, New Delhi - 110029',
-          emergency_contact: '+91 98333 44556',
-          emergency_contacts: [
-            { name: 'Liam Reed', phone: '+91 98333 44556', relation: 'Brother / Next of Kin', is_primary: true },
-            { name: 'Dr. Kavita Rao (AIIMS)', phone: '+91 98111 22334', relation: 'Primary Cardiologist', is_primary: false },
-          ],
-          critical_alerts: [
-            'Blood Group: O+ (Universal Red Cell Donor)',
-            'Severe Anaphylaxis Risk: Penicillin',
-            'Active Antiplatelet Therapy (Aspirin 75mg)',
-          ],
-          allergies: [
-            { id: '1', allergen: 'Penicillin', severity: 'high', reaction: 'Anaphylaxis / Respiratory Distress' },
-            { id: '2', allergen: 'Sulfa Drugs', severity: 'moderate', reaction: 'Contact Dermatitis / Severe Rash' },
-          ],
-          medications: [
-            { id: '1', name: 'Atorvastatin', dose: '20mg', frequency: 'Once daily (OD) - Night' },
-            { id: '2', name: 'Aspirin (Ecosprin)', dose: '75mg', frequency: 'Once daily (OD) - Post Meal' },
-          ],
-          conditions: ['Coronary Plaque Risk', 'Dense Breast Tissue', 'Mild Dyslipidemia'],
-          baseline_vitals: {
-            heart_rate_bpm: 72,
-            blood_pressure: '120/78 mmHg',
-            spo2_percent: 98,
-            temperature_f: 98.6,
-          },
-        });
+        setError(err.message || 'Unable to load this patient emergency record.');
       } finally {
         setLoading(false);
       }
@@ -105,9 +70,9 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
   }, []);
 
   const primaryContact = data?.emergency_contacts?.find((c) => c.is_primary) || {
-    name: 'Liam Reed',
-    phone: '+91 98333 44556',
-    relation: 'Brother / Next of Kin',
+    name: 'No primary contact listed',
+    phone: '',
+    relation: 'Not provided',
   };
 
   const INDIA_HELPLINES = [
@@ -121,7 +86,7 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#07080B] text-white flex flex-col items-center justify-center p-6 text-center">
+      <div className="emergency-page emergency-loading">
         <div className="w-12 h-12 rounded-full border-2 border-red-500 border-t-transparent animate-spin mb-4" />
         <h2 className="text-sm font-mono font-bold tracking-widest uppercase text-red-400">Loading Medical Emergency Record...</h2>
         <p className="text-xs text-slate-400 font-mono mt-1">Authenticating WORM Cryptographic Seal</p>
@@ -129,8 +94,21 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
     );
   }
 
+  if (error || !data) {
+    return (
+      <div className="emergency-page emergency-loading">
+        <div className="emergency-error-card">
+          <AlertOctagon size={30} />
+          <h2>Emergency record unavailable</h2>
+          <p>{error || 'No verified patient record was returned by the clinical API.'}</p>
+          <span>Patient ID: {patientId}</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-[#07080B] text-slate-100 font-sans pb-24 selection:bg-red-500 selection:text-white">
+    <div className="emergency-page">
       {/* ── Emergency Top Bar ────────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 bg-[#0C0E14]/95 border-b border-[#252935] backdrop-blur-md px-4 py-3 flex items-center justify-between shadow-2xl">
         <div className="flex items-center gap-2">
@@ -311,22 +289,27 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
           </div>
 
           <div className="space-y-2">
-            {data?.allergies?.map((alg, idx) => (
-              <div
-                key={idx}
-                className="p-3 rounded-xl bg-red-950/25 border border-red-900/50 flex items-start justify-between gap-2"
-              >
-                <div>
-                  <div className="text-xs font-bold text-red-200 font-mono flex items-center gap-1.5">
-                    <span>{alg.allergen}</span>
-                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-red-600 text-white font-black uppercase">
-                      {alg.severity}
-                    </span>
+            {data?.allergies?.map((alg, idx) => {
+              const allergenName = typeof alg === 'string' ? alg : (alg?.allergen || alg?.name || 'Allergen');
+              const severity = (typeof alg === 'object' && alg?.severity) ? alg.severity : 'HIGH';
+              const reaction = (typeof alg === 'object' && alg?.reaction) ? alg.reaction : 'Allergic sensitivity';
+              return (
+                <div
+                  key={idx}
+                  className="p-3 rounded-xl bg-red-950/25 border border-red-900/50 flex items-start justify-between gap-2"
+                >
+                  <div>
+                    <div className="text-xs font-bold text-red-200 font-mono flex items-center gap-1.5">
+                      <span>{allergenName}</span>
+                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-red-600 text-white font-black uppercase">
+                        {severity}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-slate-400 font-mono mt-0.5">{reaction}</div>
                   </div>
-                  <div className="text-[11px] text-slate-400 font-mono mt-0.5">{alg.reaction}</div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -340,17 +323,22 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
           </div>
 
           <div className="space-y-2">
-            {data?.medications?.map((med, idx) => (
-              <div key={idx} className="p-3 rounded-xl bg-[#141722] border border-[#232736] flex justify-between items-center">
-                <div>
-                  <div className="text-xs font-bold text-slate-100 font-mono">{med.name}</div>
-                  <div className="text-[10px] text-slate-400 font-mono">{med.frequency}</div>
+            {data?.medications?.map((med, idx) => {
+              const medName = typeof med === 'string' ? med : (med?.name || 'Medication');
+              const frequency = (typeof med === 'object' && med?.frequency) ? med.frequency : 'Daily Regimen';
+              const dose = (typeof med === 'object' && med?.dose) ? med.dose : 'Standard';
+              return (
+                <div key={idx} className="p-3 rounded-xl bg-[#141722] border border-[#232736] flex justify-between items-center">
+                  <div>
+                    <div className="text-xs font-bold text-slate-100 font-mono">{medName}</div>
+                    <div className="text-[10px] text-slate-400 font-mono">{frequency}</div>
+                  </div>
+                  <span className="text-xs font-mono font-bold text-cyan-400 px-2 py-1 rounded bg-cyan-950/60 border border-cyan-800/40">
+                    {dose}
+                  </span>
                 </div>
-                <span className="text-xs font-mono font-bold text-cyan-400 px-2 py-1 rounded bg-cyan-950/60 border border-cyan-800/40">
-                  {med.dose}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -379,7 +367,7 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
             <div className="flex flex-wrap gap-1.5">
               {data?.conditions?.map((cond, idx) => (
                 <span key={idx} className="px-2.5 py-1 rounded-lg bg-[#1A1D28] border border-[#2B303E] text-[10px] font-mono text-slate-300">
-                  {cond}
+                  {typeof cond === 'string' ? cond : (cond?.name || cond?.condition || 'Clinical Condition')}
                 </span>
               ))}
             </div>

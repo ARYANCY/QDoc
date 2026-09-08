@@ -9,6 +9,10 @@ export const clinicalApi = {
     return apiClient.get(`/api/v1/clinical/patient/${patientId}`);
   },
 
+  async updatePatientRecord(patientId = "PT-89421", patientData = {}) {
+    return apiClient.put(`/api/v1/clinical/patient/${patientId}`, patientData);
+  },
+
   async getDiseaseFeatures(disease = "breast_cancer", patientId = "PT-89421") {
     return apiClient.get(`/api/v1/clinical/patient/${patientId}/features/${disease}`);
   },

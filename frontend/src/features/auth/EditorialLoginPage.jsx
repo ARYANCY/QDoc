@@ -14,11 +14,14 @@ import {
   Stethoscope,
   KeyRound,
   FileCheck,
+  Layers,
+  HeartPulse,
 } from "lucide-react";
 import { animateEntrance, animateEditorialHero } from "../../utils/motion";
+import gsap from "gsap";
 
 export default function EditorialLoginPage({ onLogin, loading, error }) {
-  const [authMode, setAuthMode] = useState("vip"); // "vip" | "credentials"
+  const [authMode, setAuthMode] = useState("vip"); // "vip" (quick test) | "credentials"
   const [username, setUsername] = useState("alex.patient");
   const [password, setPassword] = useState("patient123");
   const [selectedRole, setSelectedRole] = useState("patient");
@@ -27,15 +30,23 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
 
   const pageRef = useRef(null);
   const cardRef = useRef(null);
+  const personaContainerRef = useRef(null);
 
   useEffect(() => {
     if (pageRef.current) {
       animateEditorialHero(pageRef.current);
     }
     if (cardRef.current) {
-      animateEntrance(cardRef.current, { y: 24, duration: 0.5 });
+      animateEntrance(cardRef.current, { y: 20, duration: 0.5 });
     }
-  }, []);
+    if (personaContainerRef.current) {
+      gsap.fromTo(
+        personaContainerRef.current.children,
+        { opacity: 0, y: 12 },
+        { opacity: 1, y: 0, duration: 0.4, stagger: 0.08, ease: "power2.out", delay: 0.15 }
+      );
+    }
+  }, [authMode]);
 
   const personas = [
     {
@@ -44,9 +55,9 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
       username: "alex.patient",
       pass: "patient123",
       label: "PATIENT",
-      badge: "VIP PASSPORT",
+      badge: "PATIENT DEMO",
       icon: User,
-      desc: "Full Health Checkup, 3D Twin, Rx & Video Consultations",
+      desc: "Full Health Checkup, 3D Digital Twin, Vitals & Doctor Consultations",
       palette: "var(--emerald-couture)",
     },
     {
@@ -55,9 +66,9 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
       username: "dr.kavita",
       pass: "doctor123",
       label: "CLINICIAN",
-      badge: "CARDIOLOGY MD",
+      badge: "DOCTOR DEMO",
       icon: Stethoscope,
-      desc: "Triage Cohort, Tele-Consultations & Prescription Issuer",
+      desc: "Patient Triage, Tele-Consultations & Prescription Issuer",
       palette: "var(--gold)",
     },
     {
@@ -66,9 +77,9 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
       username: "admin.audit",
       pass: "admin123",
       label: "GOVERNANCE",
-      badge: "AUDIT DIRECT",
+      badge: "ADMIN / COMPLIANCE",
       icon: ShieldCheck,
-      desc: "HIPAA/GDPR Console, RBAC Management & Benchmarks",
+      desc: "HIPAA/GDPR Audit Console, RBAC Management & Benchmarks",
       palette: "var(--electric-rose)",
     },
   ];
@@ -116,7 +127,7 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
         position: "relative",
       }}
     >
-      {/* ── Top Editorial Folio Bar ── */}
+      {/* ── Top Folio Bar ── */}
       <header
         className="editorial-reveal login-folio-bar"
         style={{
@@ -154,7 +165,7 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
               fontWeight: 800,
             }}
           >
-            ISSUE 2026 // VOL. IV
+            CLINICAL INTELLIGENCE // 2026
           </span>
         </div>
 
@@ -170,13 +181,13 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
             alignItems: "center",
           }}
         >
-          <span>PARIS</span>
+          <span>AI DIAGNOSTICS</span>
           <span>•</span>
-          <span>BASEL</span>
+          <span>3D DIGITAL TWIN</span>
           <span>•</span>
-          <span>NEW YORK</span>
+          <span>DOCTOR PORTAL</span>
           <span>•</span>
-          <span>ZURICH</span>
+          <span>COMPLIANCE</span>
         </div>
       </header>
 
@@ -194,7 +205,7 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
           alignSelf: "center",
         }}
       >
-        {/* Left Column: Magazine Feature & Manifesto */}
+        {/* Left Column: Feature Highlights & Summary */}
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
           <div className="editorial-reveal">
             <span
@@ -209,24 +220,24 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
                 marginBottom: "8px",
               }}
             >
-              COLLECTION CLINIQUE // ARCHIVE NO. 42
+              CLINICAL AI & BIOMECHANICAL PLATFORM
             </span>
             <h1
               style={{
                 fontFamily: "var(--font-serif)",
-                fontSize: "clamp(2.4rem, 4.6vw, 4.2rem)",
+                fontSize: "clamp(2.3rem, 4.2vw, 3.8rem)",
                 fontWeight: 900,
-                lineHeight: 1.04,
+                lineHeight: 1.08,
                 letterSpacing: "-0.03em",
                 color: "var(--ink-primary)",
                 margin: 0,
               }}
             >
-              The Quantum <br />
+              Intelligent Clinical <br />
               <span style={{ fontStyle: "italic", fontWeight: 400, color: "#785E0E" }}>
-                Intelligence
+                Diagnosis & 3D Twin
               </span>{" "}
-              Manifesto.
+              Workspace.
             </h1>
           </div>
 
@@ -240,7 +251,7 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
               margin: 0,
             }}
           >
-            A high-fashion synthesis of Variational Quantum Classifiers (VQC), autonomous 3D Digital Health Twin telemetry, and zero-knowledge SaMD clinical governance. Engineered for precision medicine.
+            An all-in-one medical AI workspace combining 3D Digital Health Twin organ simulation, multi-disease risk assessment, real-time doctor tele-consultations, and automated health record analytics.
           </p>
 
           {/* Live Telemetry Ticker Pills */}
@@ -267,7 +278,7 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
               }}
             >
               <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--emerald-couture)" }} />
-              QPU FIDELITY: 99.82%
+              SYSTEM STATUS: ONLINE
             </span>
             <span
               style={{
@@ -283,7 +294,7 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
                 gap: "5px",
               }}
             >
-              <Sparkles size={11} /> 8-QUBIT VQC SOTA
+              <Sparkles size={11} /> 25 3D ORGAN GLB MODELS
             </span>
             <span
               style={{
@@ -296,11 +307,11 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
                 fontWeight: 700,
               }}
             >
-              LATENCY: 12 MS
+              RESPONSE LATENCY: 12 MS
             </span>
           </div>
 
-          {/* Editorial Feature Highlights */}
+          {/* Feature Pillars */}
           <div
             className="editorial-reveal"
             style={{
@@ -314,43 +325,43 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
           >
             <div>
               <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", color: "var(--text-muted)", display: "block" }}>
-                PILLAR 01
+                MODULE 01
               </span>
               <strong style={{ fontFamily: "var(--font-display)", fontSize: "0.86rem", display: "block", marginTop: "2px" }}>
-                VQC 0.947 SOTA
+                AI Diagnostics
               </strong>
               <span style={{ fontSize: "0.70rem", color: "var(--text-muted)" }}>
-                8-Qubit Entanglement
+                Multi-disease risk analysis
               </span>
             </div>
 
             <div>
               <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", color: "var(--text-muted)", display: "block" }}>
-                PILLAR 02
+                MODULE 02
               </span>
               <strong style={{ fontFamily: "var(--font-display)", fontSize: "0.86rem", display: "block", marginTop: "2px" }}>
                 3D Digital Twin
               </strong>
               <span style={{ fontSize: "0.70rem", color: "var(--text-muted)" }}>
-                Organ Hologram Telemetry
+                Interactive organ simulation
               </span>
             </div>
 
             <div>
               <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", color: "var(--text-muted)", display: "block" }}>
-                PILLAR 03
+                MODULE 03
               </span>
               <strong style={{ fontFamily: "var(--font-display)", fontSize: "0.86rem", display: "block", marginTop: "2px" }}>
-                Zero-Knowledge
+                Doctor Portal
               </strong>
               <span style={{ fontSize: "0.70rem", color: "var(--text-muted)" }}>
-                SaMD & FDA Class IIa
+                Tele-consultations & Rx
               </span>
             </div>
           </div>
         </div>
 
-        {/* Right Column: Haute Luxury Auth Card */}
+        {/* Right Column: Clean Authentication Card */}
         <div
           ref={cardRef}
           className="login-auth-card"
@@ -388,7 +399,7 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
                 marginBottom: "4px",
               }}
             >
-              AUTHENTICATION // GATEWAY 04
+              AUTHENTICATION & DEMO ACCESS
             </span>
             <h2
               style={{
@@ -400,14 +411,14 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
                 margin: 0,
               }}
             >
-              Access the Sanctuary
+              Sign In to Q-MedSense
             </h2>
             <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: "4px" }}>
-              Select a verified backstage persona or enter master cryptographic keys.
+              Select a pre-configured demo account for instant testing, or sign in with your credentials.
             </p>
           </div>
 
-          {/* Mode Switcher Pills: VIP Pass vs Credentials */}
+          {/* Mode Switcher: Quick Test Accounts vs Manual Login */}
           <div
             style={{
               display: "flex",
@@ -436,7 +447,7 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
                 transition: "all 0.15s ease",
               }}
             >
-              ★ 1-Click VIP Passes
+              ★ Quick Test Accounts
             </button>
             <button
               type="button"
@@ -457,13 +468,13 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
                 transition: "all 0.15s ease",
               }}
             >
-              Master Keyphrase
+              Manual Login
             </button>
           </div>
 
-          {/* TAB 1: 1-Click VIP Personas */}
+          {/* TAB 1: 1-Click Test Demo Personas */}
           {authMode === "vip" ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "8px" }}>
+            <div ref={personaContainerRef} style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "8px" }}>
               {personas.map((p) => {
                 const isSelected = activePersonaId === p.role;
                 const IconComponent = p.icon;
@@ -473,6 +484,7 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
                     type="button"
                     onClick={() => handleSelectPersona(p)}
                     disabled={loading}
+                    className="persona-test-card"
                     style={{
                       display: "flex",
                       alignItems: "center",
@@ -484,7 +496,7 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
                       borderRadius: "var(--radius-xs)",
                       cursor: "pointer",
                       textAlign: "left",
-                      transition: "all 0.18s ease",
+                      transition: "all 0.18s cubic-bezier(0.16, 1, 0.3, 1)",
                       minHeight: "48px",
                     }}
                   >
@@ -560,7 +572,7 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
                     marginBottom: "6px",
                   }}
                 >
-                  Target Sanctuary Role
+                  Select Account Role
                 </label>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "6px" }}>
                   {["patient", "doctor", "admin"].map((r) => (
@@ -600,7 +612,7 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
                     marginBottom: "4px",
                   }}
                 >
-                  Access Identifier
+                  Username
                 </label>
                 <input
                   type="text"
@@ -615,6 +627,7 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
                     border: "1px solid var(--border-default)",
                     borderRadius: "var(--radius-xs)",
                     fontFamily: "var(--font-sans)",
+                    outline: "none",
                   }}
                 />
               </div>
@@ -632,7 +645,7 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
                     marginBottom: "4px",
                   }}
                 >
-                  Encrypted Keyphrase
+                  Password
                 </label>
                 <div style={{ position: "relative" }}>
                   <input
@@ -648,6 +661,7 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
                       border: "1px solid var(--border-default)",
                       borderRadius: "var(--radius-xs)",
                       fontFamily: "var(--font-sans)",
+                      outline: "none",
                     }}
                   />
                   <button
@@ -688,13 +702,15 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
                   alignItems: "center",
                   justifyContent: "center",
                   gap: "8px",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
                 }}
               >
                 {loading ? (
-                  <span>Authenticating Q-Keys...</span>
+                  <span>Signing In...</span>
                 ) : (
                   <>
-                    <span>Enter the Clinical Sanctuary</span>
+                    <span>Sign In to Portal</span>
                     <ArrowRight size={15} color="var(--gold)" />
                   </>
                 )}
@@ -720,7 +736,7 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
         </div>
       </main>
 
-      {/* ── Bottom Editorial Ticker Footer ── */}
+      {/* ── Bottom Ticker Footer ── */}
       <footer
         className="editorial-reveal login-footer-bar"
         style={{
@@ -738,9 +754,9 @@ export default function EditorialLoginPage({ onLogin, loading, error }) {
         }}
       >
         <div>
-          <span>Q-MEDSENSE PROTOCOL © 2026</span>
+          <span>Q-MEDSENSE CLINICAL INTELLIGENCE PLATFORM © 2026</span>
           <span style={{ margin: "0 10px" }}>•</span>
-          <span>FDA CLASS II EXEMPT SaMD</span>
+          <span>MULTI-ORGAN 3D SIMULATION ENGINE</span>
         </div>
         <div>
           <span style={{ color: "var(--gold)" }}>● TELEMETRY ONLINE</span>

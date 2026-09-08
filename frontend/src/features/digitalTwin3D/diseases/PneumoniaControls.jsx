@@ -13,26 +13,27 @@ export default function PneumoniaControls() {
   const rightTier = getSeverityTier(diseaseParams.rightPercentage);
 
   return (
-    <div className="space-y-4">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
       {/* Right Lung Involvement */}
-      <div className="p-3.5 rounded-xl bg-surface-secondary/70 border border-slate-800 space-y-2">
-        <div className="flex items-center justify-between">
-          <label className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
-            <Wind className="w-3.5 h-3.5 text-cyan-400" />
-            Right Lung Involvement
+      <div style={{ background: '#0D0E15', padding: '10px', borderRadius: '6px', border: '1px solid var(--dt-border-subtle)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <label style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.68rem', fontWeight: 700, color: 'var(--dt-text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Wind size={14} color="#38BDF8" />
+            Right Lung Tissue
           </label>
-          <span className={`text-xs px-2 py-0.5 rounded font-mono font-bold ${rightTier.badgeClass}`}>
+          <span style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.60rem', fontWeight: 800, padding: '1px 6px', borderRadius: '4px', background: `${rightTier.hexColor}20`, color: rightTier.hexColor }}>
             {diseaseParams.rightPercentage}% ({rightTier.label})
           </span>
         </div>
-        <div className="flex items-center gap-3">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <input
             type="range"
             min="0"
             max="100"
             value={diseaseParams.rightPercentage}
             onChange={(e) => updateDiseaseParam('PNEUMONIA', 'rightPercentage', Number(e.target.value))}
-            className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer"
+            className="dt-range-slider"
+            style={{ flex: 1 }}
           />
           <input
             type="number"
@@ -40,30 +41,32 @@ export default function PneumoniaControls() {
             max="100"
             value={diseaseParams.rightPercentage}
             onChange={(e) => updateDiseaseParam('PNEUMONIA', 'rightPercentage', Math.max(0, Math.min(100, Number(e.target.value))))}
-            className="w-14 px-1.5 py-1 text-xs font-mono bg-slate-900 border border-slate-700 rounded text-center text-slate-200"
+            className="dt-input"
+            style={{ width: '54px', padding: '4px 6px', textAlign: 'center', fontSize: '0.68rem' }}
           />
         </div>
       </div>
 
       {/* Left Lung Involvement */}
-      <div className="p-3.5 rounded-xl bg-surface-secondary/70 border border-slate-800 space-y-2">
-        <div className="flex items-center justify-between">
-          <label className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
-            <Wind className="w-3.5 h-3.5 text-cyan-400" />
-            Left Lung Involvement
+      <div style={{ background: '#0D0E15', padding: '10px', borderRadius: '6px', border: '1px solid var(--dt-border-subtle)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <label style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.68rem', fontWeight: 700, color: 'var(--dt-text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Wind size={14} color="#38BDF8" />
+            Left Lung Tissue
           </label>
-          <span className={`text-xs px-2 py-0.5 rounded font-mono font-bold ${leftTier.badgeClass}`}>
+          <span style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.60rem', fontWeight: 800, padding: '1px 6px', borderRadius: '4px', background: `${leftTier.hexColor}20`, color: leftTier.hexColor }}>
             {diseaseParams.leftPercentage}% ({leftTier.label})
           </span>
         </div>
-        <div className="flex items-center gap-3">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <input
             type="range"
             min="0"
             max="100"
             value={diseaseParams.leftPercentage}
             onChange={(e) => updateDiseaseParam('PNEUMONIA', 'leftPercentage', Number(e.target.value))}
-            className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer"
+            className="dt-range-slider"
+            style={{ flex: 1 }}
           />
           <input
             type="number"
@@ -71,30 +74,29 @@ export default function PneumoniaControls() {
             max="100"
             value={diseaseParams.leftPercentage}
             onChange={(e) => updateDiseaseParam('PNEUMONIA', 'leftPercentage', Math.max(0, Math.min(100, Number(e.target.value))))}
-            className="w-14 px-1.5 py-1 text-xs font-mono bg-slate-900 border border-slate-700 rounded text-center text-slate-200"
+            className="dt-input"
+            style={{ width: '54px', padding: '4px 6px', textAlign: 'center', fontSize: '0.68rem' }}
           />
         </div>
       </div>
 
       {/* Lobar Pulmonary Zone Mapping */}
-      <div className="p-3.5 rounded-xl bg-surface-secondary/70 border border-slate-800 space-y-2">
-        <label className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
-          <Layers className="w-3.5 h-3.5 text-cyan-400" />
+      <div style={{ background: '#0D0E15', padding: '10px', borderRadius: '6px', border: '1px solid var(--dt-border-subtle)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <label style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.64rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--dt-text-muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Layers size={12} color="#38BDF8" />
           Lobar Pulmonary Zone Mapping
         </label>
-        <div className="grid grid-cols-1 gap-1.5">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           {disease.lungZones.map((zone) => (
             <button
               key={zone.id}
+              type="button"
               onClick={() => updateDiseaseParam('PNEUMONIA', 'selectedZone', zone.label)}
-              className={`text-left px-3 py-1.5 rounded-lg text-xs transition border flex items-center justify-between ${
-                diseaseParams.selectedZone === zone.label
-                  ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-200 font-medium'
-                  : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
-              }`}
+              className={`dt-affected-item ${diseaseParams.selectedZone === zone.label ? 'active' : ''}`}
+              style={{ padding: '6px 8px', fontSize: '0.66rem' }}
             >
               <span>{zone.label}</span>
-              <span className="text-[10px] text-slate-500 font-mono">
+              <span style={{ fontSize: '0.58rem', color: 'var(--dt-text-muted)' }}>
                 {zone.organ === 'LUNG_RIGHT' ? 'Right' : 'Left'}
               </span>
             </button>
@@ -104,3 +106,4 @@ export default function PneumoniaControls() {
     </div>
   );
 }
+

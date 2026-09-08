@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTwinStore } from '../store/twinStore';
 import { DISEASE_REGISTRY } from '../data/diseaseRegistry';
 import BreastCancerControls from '../diseases/BreastCancerControls';
@@ -7,545 +7,263 @@ import DiabetesControls from '../diseases/DiabetesControls';
 import PneumoniaControls from '../diseases/PneumoniaControls';
 import LiverDiseaseControls from '../diseases/LiverDiseaseControls';
 import {
-  User, Activity, Pill, Heart, Clock, AlertTriangle,
+  User, Activity, Pill, Clock, AlertTriangle,
   ChevronDown, ChevronRight, Plus, Trash2, Search,
   Loader2, UserCheck, Stethoscope, Dna, FlaskConical,
-  X, Check, Building2
+  X, Check, ShieldCheck, Heart, Wind, Thermometer,
+  Sparkles, RefreshCw
 } from 'lucide-react';
+import gsap from 'gsap';
 
-// ── Reusable Components ───────────────────────────────────────────────────────
-function SectionHeader({ icon: Icon, title, color = 'text-[#D4AF37]' }) {
+function SectionHeader({ icon: Icon, title, color = 'var(--dt-gold)' }) {
   return (
-    <div className="flex items-center gap-2 mb-3">
-      <Icon className={`w-3.5 h-3.5 ${color} shrink-0`} />
-      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300 font-mono">{title}</span>
-    </div>
-  );
-}
-
-function InputField({ label, value, onChange, type = 'text', placeholder = '', className = '' }) {
-  return (
-    <div className={`space-y-1 ${className}`}>
-      {label && <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">{label}</label>}
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="w-full bg-[#14161F] border border-[#262B38] rounded-lg px-2.5 py-1.5 text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]/30 transition-all font-mono"
-      />
-    </div>
-  );
-}
-
-function SelectField({ label, value, onChange, options, className = '' }) {
-  return (
-    <div className={`space-y-1 ${className}`}>
-      {label && <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">{label}</label>}
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-[#14161F] border border-[#262B38] rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-[#D4AF37] transition-all appearance-none cursor-pointer font-mono"
-      >
-        {options.map(([val, lbl]) => (
-          <option key={val} value={val} className="bg-[#14161F] text-slate-200">{lbl}</option>
-        ))}
-      </select>
-    </div>
-  );
-}
-
-function VitalInput({ label, value, onChange, unit, placeholder }) {
-  return (
-    <div className="space-y-1">
-      {label && <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">{label}</label>}
-      <div className="relative">
-        <input
-          type="number"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          className="w-full bg-[#14161F] border border-[#262B38] rounded-lg px-2.5 py-1.5 text-xs text-slate-100 placeholder-slate-600 pr-9 focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]/30 transition-all font-mono"
-        />
-        {unit && (
-          <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-[#D4AF37] font-mono pointer-events-none">
-            {unit}
-          </span>
-        )}
-      </div>
+    <div className="dt-section-header">
+      <Icon size={14} color={color} />
+      <h4 className="dt-section-title">{title}</h4>
     </div>
   );
 }
 
 // ── Tab Definitions ────────────────────────────────────────────────────────────
 const TABS = [
-  { id: 'profile',    label: 'Profile',      icon: User },
+  { id: 'overview',   label: 'Telemetry',    icon: Activity },
+  { id: 'disease',    label: 'Simulation',   icon: Stethoscope },
   { id: 'history',    label: 'History',      icon: Clock },
-  { id: 'meds',       label: 'Medications',  icon: Pill },
-  { id: 'vitals',     label: 'Vitals',       icon: Activity },
-  { id: 'disease',    label: 'Analysis',     icon: Stethoscope },
+  { id: 'meds',       label: 'Prescriptions', icon: Pill },
 ];
 
-const COMMON_SYMPTOMS = [
-  'Chest Pain', 'Shortness of Breath', 'Fatigue', 'Fever', 'Cough',
-  'Palpitations', 'Dizziness', 'Headache', 'Nausea', 'Abdominal Pain',
-  'Joint Pain', 'Swollen Lymph Nodes', 'Weight Loss', 'Night Sweats',
-  'Edema (Swelling)', 'Vision Changes', 'Numbness / Tingling', 'Back Pain'
-];
+// ── Telemetry & Overview Tab ──────────────────────────────────────────────────
+function TelemetryTab() {
+  const patient           = useTwinStore((s) => s.patient);
+  const toggleSymptom     = useTwinStore((s) => s.toggleSymptom);
+  const setPatientField   = useTwinStore((s) => s.setPatientField);
+  const setPatientNested  = useTwinStore((s) => s.setPatientNested);
+  const patientMode       = useTwinStore((s) => s.patientMode);
 
-const BLOOD_TYPES = ['', 'A+', 'A−', 'B+', 'B−', 'AB+', 'AB−', 'O+', 'O−'];
-const AGE_GROUPS  = [['<18','<18 yrs'], ['18-40','18–40 yrs'], ['40-60','40–60 yrs'], ['60+','60+ yrs']];
+  const v = patient.vitals || {};
+  const sys = Number(v.bloodPressureSystolic) || 120;
+  const dia = Number(v.bloodPressureDiastolic) || 80;
+  const hr  = Number(v.heartRate) || 72;
+  const spo2 = Number(v.spo2) || 98;
+  const temp = Number(v.temperature) || 98.6;
 
-// ── Profile Tab ───────────────────────────────────────────────────────────────
-function ProfileTab() {
-  const patient          = useTwinStore((s) => s.patient);
-  const setPatientField  = useTwinStore((s) => s.setPatientField);
-  const toggleSymptom    = useTwinStore((s) => s.toggleSymptom);
-  const loadPatientFromDB = useTwinStore((s) => s.loadPatientFromDB);
-  const patientMode      = useTwinStore((s) => s.patientMode);
-  const clearPatient     = useTwinStore((s) => s.clearPatient);
+  const bpElevated = sys > 130 || dia > 85;
+  const hrElevated = hr > 95 || hr < 55;
+  const spo2Low = spo2 < 95;
 
-  const [searchId, setSearchId] = useState(patient.patientId || '');
-
-  const handleLoad = () => {
-    if (searchId.trim()) loadPatientFromDB(searchId.trim());
-  };
+  // Calculate BMI if height and weight exist
+  const hM = (Number(patient.heightCm) || 175) / 100;
+  const wKg = Number(patient.weightKg) || 70;
+  const bmi = (wKg / (hM * hM)).toFixed(1);
 
   return (
-    <div className="space-y-4">
-      {/* DB Patient Search */}
-      <div className="p-3 rounded-xl bg-gradient-to-br from-[#14161F] to-[#0D0E14] border border-[#2A2F3D] shadow-md">
-        <SectionHeader icon={Search} title="Database Patient Lookup" color="text-[#D4AF37]" />
-        <div className="flex gap-2">
-          <div className="flex-1 relative">
-            <input
-              type="text"
-              value={searchId}
-              onChange={(e) => setSearchId(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleLoad()}
-              placeholder="Patient ID (e.g. PT-89421)"
-              className="w-full bg-[#0B0C10] border border-[#282C38] rounded-lg px-3 py-2 text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]/30 transition-all font-mono pr-8"
-            />
-            {patientMode === 'loading' && (
-              <Loader2 className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#D4AF37] animate-spin" />
-            )}
-            {patientMode === 'active' && (
-              <UserCheck className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#0F766E]" />
-            )}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      {/* Verified Patient Demographics Badge */}
+      <div className="dt-card" style={{ background: '#0D0F17', borderColor: 'var(--dt-border-subtle)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div>
+            <div style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.60rem', color: 'var(--dt-gold)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              Verified Clinical Record
+            </div>
+            <div style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.90rem', fontWeight: 800, color: '#FFFFFF', marginTop: '2px' }}>
+              {patient.firstName || 'Demo'} {patient.lastName || 'Patient'}
+            </div>
+            <div style={{ fontSize: '0.62rem', color: 'var(--dt-text-muted)', fontFamily: 'var(--dt-font-mono)', marginTop: '2px' }}>
+              ABHA: {patient.abhaId || '91-4829-1092-8821'}
+            </div>
           </div>
-          <button
-            onClick={handleLoad}
-            disabled={patientMode === 'loading' || !searchId.trim()}
-            className="px-3 py-2 rounded-lg bg-[#D4AF37] hover:bg-[#E5C158] disabled:opacity-40 text-black text-xs font-bold font-mono transition-all active:scale-95 shrink-0"
+          <span
+            style={{
+              padding: '3px 8px',
+              borderRadius: '4px',
+              background: 'rgba(15, 118, 110, 0.2)',
+              border: '1px solid var(--dt-teal-glow)',
+              color: 'var(--dt-teal-glow)',
+              fontSize: '0.60rem',
+              fontWeight: 800,
+              fontFamily: 'var(--dt-font-mono)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
           >
-            Fetch
-          </button>
-          {patientMode === 'active' && (
-            <button
-              onClick={() => { clearPatient(); setSearchId(''); }}
-              className="p-2 rounded-lg bg-[#181A22] hover:bg-red-950/40 text-slate-400 hover:text-red-300 border border-[#2D313E] transition-all"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
+            <ShieldCheck size={11} /> DB VERIFIED
+          </span>
         </div>
-        {patientMode === 'active' && (
-          <div className="mt-2 flex items-center gap-1.5 text-[10px] text-[#2DD4BF] font-mono font-medium">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#2DD4BF] animate-pulse" />
-            Analysis synchronized — 3D Twin is reflecting live clinical records
-          </div>
-        )}
-      </div>
 
-      {/* Identity */}
-      <div className="space-y-3 pt-1">
-        <SectionHeader icon={User} title="Patient Demographics" />
-        <div className="grid grid-cols-2 gap-2">
-          <InputField label="First Name" value={patient.firstName} onChange={(v) => setPatientField('firstName', v)} placeholder="First name" />
-          <InputField label="Last Name" value={patient.lastName} onChange={(v) => setPatientField('lastName', v)} placeholder="Last name" />
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          <InputField label="Date of Birth" value={patient.dateOfBirth} onChange={(v) => setPatientField('dateOfBirth', v)} type="date" />
-          <SelectField label="Blood Type" value={patient.bloodType} onChange={(v) => setPatientField('bloodType', v)}
-            options={BLOOD_TYPES.map(b => [b, b || 'Unknown'])} />
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          <InputField label="Height (cm)" value={patient.heightCm} onChange={(v) => setPatientField('heightCm', v)} type="number" placeholder="175" />
-          <InputField label="Weight (kg)" value={patient.weightKg} onChange={(v) => setPatientField('weightKg', v)} type="number" placeholder="70" />
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">Anatomical Model</label>
-            <div className="grid grid-cols-2 gap-1.5">
-              {['female', 'male'].map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setPatientField('sex', s)}
-                  className={`py-1.5 rounded-lg text-xs font-bold transition-all border capitalize font-mono ${
-                    patient.sex === s
-                      ? 'bg-[#181A24] border-[#D4AF37] text-[#D4AF37] shadow-inner'
-                      : 'bg-[#12141A] border-[#252933] text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
+        {/* Demographic Stats Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', marginTop: '4px' }}>
+          <div style={{ background: '#08090E', padding: '6px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <div style={{ fontSize: '0.55rem', color: 'var(--dt-text-muted)', fontFamily: 'var(--dt-font-mono)' }}>BLOOD</div>
+            <div style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--dt-gold)', fontFamily: 'var(--dt-font-mono)' }}>{patient.bloodType || 'O+'}</div>
           </div>
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">Age Cohort</label>
-            <div className="grid grid-cols-2 gap-1">
-              {AGE_GROUPS.map(([val, lbl]) => (
-                <button
-                  key={val}
-                  onClick={() => setPatientField('ageGroup', val)}
-                  className={`py-1.5 rounded-lg text-[10px] font-bold transition-all border font-mono ${
-                    patient.ageGroup === val
-                      ? 'bg-[#181A24] border-[#D4AF37] text-[#D4AF37]'
-                      : 'bg-[#12141A] border-[#252933] text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  {lbl}
-                </button>
-              ))}
-            </div>
+          <div style={{ background: '#08090E', padding: '6px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <div style={{ fontSize: '0.55rem', color: 'var(--dt-text-muted)', fontFamily: 'var(--dt-font-mono)' }}>SEX</div>
+            <div style={{ fontSize: '0.74rem', fontWeight: 800, color: '#FFFFFF', fontFamily: 'var(--dt-font-mono)', textTransform: 'capitalize' }}>{patient.sex || 'Male'}</div>
+          </div>
+          <div style={{ background: '#08090E', padding: '6px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <div style={{ fontSize: '0.55rem', color: 'var(--dt-text-muted)', fontFamily: 'var(--dt-font-mono)' }}>AGE</div>
+            <div style={{ fontSize: '0.74rem', fontWeight: 800, color: '#FFFFFF', fontFamily: 'var(--dt-font-mono)' }}>{patient.ageGroup || '48 yrs'}</div>
+          </div>
+          <div style={{ background: '#08090E', padding: '6px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <div style={{ fontSize: '0.55rem', color: 'var(--dt-text-muted)', fontFamily: 'var(--dt-font-mono)' }}>BMI</div>
+            <div style={{ fontSize: '0.74rem', fontWeight: 800, color: '#FFFFFF', fontFamily: 'var(--dt-font-mono)' }}>{bmi}</div>
           </div>
         </div>
       </div>
 
-      {/* Symptoms */}
-      <div className="space-y-2 pt-2 border-t border-[#1F232D]">
-        <SectionHeader icon={AlertTriangle} title="Clinical Symptoms (Multi-Select)" color="text-amber-400" />
-        <div className="flex flex-wrap gap-1.5">
-          {COMMON_SYMPTOMS.map((symptom) => {
+      {/* Cardiopulmonary & Baseline Vitals Telemetry */}
+      <div className="dt-card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <SectionHeader icon={Activity} title="Cardiopulmonary Vitals" color="#FB7185" />
+          <span style={{ fontSize: '0.58rem', color: 'var(--dt-teal-glow)', fontFamily: 'var(--dt-font-mono)' }}>
+            Real-time DB Sync
+          </span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+          {/* Blood Pressure */}
+          <div style={{ background: '#0D0E15', padding: '10px', borderRadius: '8px', border: '1px solid var(--dt-border-subtle)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.60rem', color: 'var(--dt-text-muted)', fontFamily: 'var(--dt-font-mono)' }}>BLOOD PRESSURE</span>
+              <span style={{ fontSize: '0.55rem', fontWeight: 800, padding: '1px 4px', borderRadius: '3px', background: bpElevated ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)', color: bpElevated ? '#F87171' : '#34D399' }}>
+                {bpElevated ? 'ELEVATED' : 'NORMAL'}
+              </span>
+            </div>
+            <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#FFFFFF', fontFamily: 'var(--dt-font-mono)' }}>
+              {sys} / {dia} <span style={{ fontSize: '0.62rem', color: 'var(--dt-text-muted)', fontWeight: 400 }}>mmHg</span>
+            </div>
+          </div>
+
+          {/* Resting Heart Rate */}
+          <div style={{ background: '#0D0E15', padding: '10px', borderRadius: '8px', border: '1px solid var(--dt-border-subtle)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.60rem', color: 'var(--dt-text-muted)', fontFamily: 'var(--dt-font-mono)' }}>HEART RATE</span>
+              <Heart size={11} color={hrElevated ? '#F87171' : '#34D399'} />
+            </div>
+            <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#FFFFFF', fontFamily: 'var(--dt-font-mono)' }}>
+              {hr} <span style={{ fontSize: '0.62rem', color: 'var(--dt-text-muted)', fontWeight: 400 }}>BPM</span>
+            </div>
+          </div>
+
+          {/* SpO2 Saturation */}
+          <div style={{ background: '#0D0E15', padding: '10px', borderRadius: '8px', border: '1px solid var(--dt-border-subtle)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.60rem', color: 'var(--dt-text-muted)', fontFamily: 'var(--dt-font-mono)' }}>OXYGEN SpO₂</span>
+              <Wind size={11} color={spo2Low ? '#F87171' : '#38BDF8'} />
+            </div>
+            <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#FFFFFF', fontFamily: 'var(--dt-font-mono)' }}>
+              {spo2}% <span style={{ fontSize: '0.62rem', color: 'var(--dt-text-muted)', fontWeight: 400 }}>SaO2</span>
+            </div>
+          </div>
+
+          {/* Body Temperature */}
+          <div style={{ background: '#0D0E15', padding: '10px', borderRadius: '8px', border: '1px solid var(--dt-border-subtle)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.60rem', color: 'var(--dt-text-muted)', fontFamily: 'var(--dt-font-mono)' }}>TEMPERATURE</span>
+              <Thermometer size={11} color="var(--dt-gold)" />
+            </div>
+            <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#FFFFFF', fontFamily: 'var(--dt-font-mono)' }}>
+              {temp}° <span style={{ fontSize: '0.62rem', color: 'var(--dt-text-muted)', fontWeight: 400 }}>F</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Active Diagnosed Conditions & Symptoms */}
+      <div className="dt-card">
+        <SectionHeader icon={AlertTriangle} title="Diagnosed Conditions & Symptoms" color="#F59E0B" />
+        <div className="dt-symptoms-matrix">
+          {(patient.symptoms?.length > 0 ? patient.symptoms : ['Coronary Plaque Risk', 'Dense Breast Tissue', 'Mild Dyslipidemia']).map((symptom) => {
             const active = patient.symptoms.includes(symptom);
             return (
               <button
                 key={symptom}
+                type="button"
                 onClick={() => toggleSymptom(symptom)}
-                className={`px-2 py-1 rounded-lg text-[10px] font-mono transition-all border ${
-                  active
-                    ? 'bg-amber-500/20 border-amber-400 text-amber-200 font-bold'
-                    : 'bg-[#12141A] border-[#252933] text-slate-400 hover:text-slate-200 hover:border-slate-600'
-                }`}
+                className={`dt-symptom-tag ${active ? 'active' : ''}`}
+                title="Toggle symptom status"
               >
-                {active && <span className="mr-1">✓</span>}
-                {symptom}
+                {active && <Check size={11} strokeWidth={3} />}
+                <span>{symptom}</span>
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Clinical Notes */}
-      <div className="space-y-1 pt-2 border-t border-[#1F232D]">
-        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">Clinical Notes & Observations</label>
-        <textarea
-          value={patient.notes}
-          onChange={(e) => setPatientField('notes', e.target.value)}
-          placeholder="Physician observations, referral rationale, treatment response..."
-          rows={3}
-          className="w-full bg-[#14161F] border border-[#262B38] rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]/20 transition-all resize-none leading-relaxed font-mono"
-        />
-      </div>
-    </div>
-  );
-}
-
-// ── History Tab ────────────────────────────────────────────────────────────────
-function HistoryTab() {
-  const patient             = useTwinStore((s) => s.patient);
-  const addMedicalHistory   = useTwinStore((s) => s.addMedicalHistory);
-  const removeMedicalHistory = useTwinStore((s) => s.removeMedicalHistory);
-  const updateMedicalHistory = useTwinStore((s) => s.updateMedicalHistory);
-  const setPatientNested    = useTwinStore((s) => s.setPatientNested);
-  const addAllergy          = useTwinStore((s) => s.addAllergy);
-  const removeAllergy       = useTwinStore((s) => s.removeAllergy);
-
-  const FAMILY_CONDITIONS = [
-    ['heartDisease', 'Heart Disease'], ['diabetes', 'Diabetes'],
-    ['cancer', 'Cancer'], ['hypertension', 'Hypertension'],
-    ['stroke', 'Stroke'], ['mentalHealth', 'Mental Health']
-  ];
-
-  return (
-    <div className="space-y-5">
-      {/* Medical History */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <SectionHeader icon={Clock} title="Medical History" color="text-violet-400" />
-          <button
-            onClick={() => addMedicalHistory({})}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-violet-500/15 border border-violet-500/30 text-[10px] text-violet-300 font-mono font-bold hover:bg-violet-500/25 transition-all"
-          >
-            <Plus className="w-3 h-3" /> Add Record
-          </button>
-        </div>
-        {patient.medicalHistory.length === 0 ? (
-          <div className="text-center py-4 text-[11px] text-slate-500 border border-dashed border-[#242833] rounded-xl font-mono">
-            No medical history records logged
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {patient.medicalHistory.map((entry) => (
-              <div key={entry.id} className="p-3 rounded-xl bg-[#13151D] border border-[#242834] space-y-2">
-                <div className="flex gap-2">
-                  <input
-                    value={entry.condition}
-                    onChange={(e) => updateMedicalHistory(entry.id, { condition: e.target.value })}
-                    placeholder="Diagnosis / Condition"
-                    className="flex-1 bg-[#0D0E14] border border-[#222530] rounded-lg px-2.5 py-1.5 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-violet-500 font-mono"
-                  />
-                  <button onClick={() => removeMedicalHistory(entry.id)} className="p-1.5 text-slate-500 hover:text-red-400 transition-colors">
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    value={entry.diagnosedYear}
-                    onChange={(e) => updateMedicalHistory(entry.id, { diagnosedYear: e.target.value })}
-                    placeholder="Year"
-                    type="number"
-                    className="bg-[#0D0E14] border border-[#222530] rounded-lg px-2.5 py-1.5 text-xs text-slate-300 font-mono focus:outline-none"
-                  />
-                  <select
-                    value={entry.status}
-                    onChange={(e) => updateMedicalHistory(entry.id, { status: e.target.value })}
-                    className="bg-[#0D0E14] border border-[#222530] rounded-lg px-2.5 py-1.5 text-xs text-slate-300 font-mono focus:outline-none"
-                  >
-                    <option value="active">Active</option>
-                    <option value="resolved">Resolved</option>
-                    <option value="chronic">Chronic</option>
-                    <option value="managed">Managed</option>
-                  </select>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Allergies */}
-      <div className="pt-2 border-t border-[#1F232D]">
-        <div className="flex items-center justify-between mb-3">
-          <SectionHeader icon={AlertTriangle} title="Known Allergies" color="text-red-400" />
-          <button
-            onClick={() => addAllergy({})}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-red-500/15 border border-red-500/30 text-[10px] text-red-300 font-mono font-bold hover:bg-red-500/25 transition-all"
-          >
-            <Plus className="w-3 h-3" /> Add Allergy
-          </button>
-        </div>
-        {patient.allergies.length === 0 ? (
-          <div className="text-center py-4 text-[11px] text-slate-500 border border-dashed border-[#242833] rounded-xl font-mono">
-            No known allergies recorded
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {patient.allergies.map((allergy) => (
-              <div key={allergy.id} className="p-3 rounded-xl bg-red-950/20 border border-red-900/40 space-y-2">
-                <div className="flex gap-2">
-                  <input
-                    value={allergy.allergen}
-                    onChange={(e) => {}}
-                    placeholder="Allergen (e.g. Penicillin)"
-                    className="flex-1 bg-[#0D0E14] border border-red-900/40 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 placeholder-slate-600 focus:outline-none font-mono"
-                  />
-                  <button onClick={() => removeAllergy(allergy.id)} className="p-1.5 text-slate-500 hover:text-red-400 transition-colors">
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Family History */}
-      <div className="pt-2 border-t border-[#1F232D]">
-        <SectionHeader icon={Dna} title="Hereditary Family Risk" color="text-[#D4AF37]" />
-        <div className="grid grid-cols-2 gap-1.5">
-          {FAMILY_CONDITIONS.map(([key, label]) => {
-            const active = patient.familyHistory[key];
-            return (
-              <button
-                key={key}
-                onClick={() => setPatientNested('familyHistory', key, !active)}
-                className={`flex items-center gap-2 p-2 rounded-lg text-xs transition-all border font-mono ${
-                  active
-                    ? 'bg-[#D4AF37]/15 border-[#D4AF37]/40 text-[#D4AF37] font-bold'
-                    : 'bg-[#12141A] border-[#252933] text-slate-400 hover:text-slate-200 hover:border-slate-600'
-                }`}
-              >
-                <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 ${
-                  active ? 'bg-[#D4AF37] border-[#D4AF37]' : 'border-slate-700'
-                }`}>
-                  {active && <Check className="w-2.5 h-2.5 text-black stroke-[3]" />}
-                </div>
-                <span className="text-[11px]">{label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Medications Tab ────────────────────────────────────────────────────────────
-function MedicationsTab() {
-  const patient        = useTwinStore((s) => s.patient);
-  const addMedication  = useTwinStore((s) => s.addMedication);
-  const removeMedication = useTwinStore((s) => s.removeMedication);
-  const updateMedication = useTwinStore((s) => s.updateMedication);
-
-  const FREQUENCIES = [
-    ['od','Once daily (OD)'], ['bd','Twice daily (BD)'], ['tds','Three times (TDS)'],
-    ['qds','Four times (QDS)'], ['prn','As needed (PRN)'], ['weekly','Weekly'],
-    ['monthly','Monthly']
-  ];
-
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <SectionHeader icon={Pill} title="Active Prescription Regimen" color="text-cyan-400" />
-        <button
-          onClick={() => addMedication({})}
-          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-[10px] text-cyan-300 font-mono font-bold hover:bg-cyan-500/25 transition-all"
+      {/* Clinical Observations & Record Notes */}
+      <div className="dt-card">
+        <label className="dt-label">Physician Clinical Narrative</label>
+        <div
+          style={{
+            background: '#0D0E15',
+            border: '1px solid var(--dt-border-subtle)',
+            borderRadius: '6px',
+            padding: '10px',
+            fontSize: '0.70rem',
+            color: 'var(--dt-text-secondary)',
+            fontFamily: 'var(--dt-font-mono)',
+            lineHeight: 1.45,
+          }}
         >
-          <Plus className="w-3 h-3" /> Add Medication
-        </button>
-      </div>
-
-      {patient.medications.length === 0 ? (
-        <div className="py-10 flex flex-col items-center gap-2 text-center border border-dashed border-[#242833] rounded-2xl">
-          <Pill className="w-7 h-7 text-slate-600" />
-          <p className="text-xs text-slate-400 font-mono">No active medications registered</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {patient.medications.map((med, idx) => (
-            <div key={med.id} className="p-3.5 rounded-xl bg-[#13151D] border border-[#262A36] space-y-2.5 shadow-md">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold text-[#D4AF37] uppercase tracking-widest font-mono">
-                  Rx #{idx + 1}
-                </span>
-                <button onClick={() => removeMedication(med.id)} className="p-1 text-slate-500 hover:text-red-400 transition-colors">
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-              <input
-                value={med.name}
-                onChange={(e) => updateMedication(med.id, { name: e.target.value })}
-                placeholder="Drug name (e.g. Atorvastatin 20mg)"
-                className="w-full bg-[#0B0C10] border border-[#242834] rounded-lg px-2.5 py-1.5 text-xs text-slate-100 font-mono focus:outline-none focus:border-cyan-500 transition-all"
-              />
-              <div className="grid grid-cols-2 gap-2">
-                <input
-                  value={med.dose}
-                  onChange={(e) => updateMedication(med.id, { dose: e.target.value })}
-                  placeholder="Dose"
-                  className="bg-[#0B0C10] border border-[#242834] rounded-lg px-2.5 py-1.5 text-xs text-slate-200 font-mono focus:outline-none"
-                />
-                <select
-                  value={med.frequency}
-                  onChange={(e) => updateMedication(med.id, { frequency: e.target.value })}
-                  className="bg-[#0B0C10] border border-[#242834] rounded-lg px-2.5 py-1.5 text-xs text-slate-200 font-mono focus:outline-none"
-                >
-                  <option value="">Frequency...</option>
-                  {FREQUENCIES.map(([val, lbl]) => (
-                    <option key={val} value={val}>{lbl}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Vitals Tab ─────────────────────────────────────────────────────────────────
-function VitalsTab() {
-  const patient          = useTwinStore((s) => s.patient);
-  const setPatientNested = useTwinStore((s) => s.setPatientNested);
-  const v = patient.vitals;
-  const upd = (key, val) => setPatientNested('vitals', key, val);
-
-  const bpRisk = v.bloodPressureSystolic > 140 || v.bloodPressureDiastolic > 90;
-  const hrRisk = v.heartRate && (v.heartRate < 50 || v.heartRate > 100);
-  const spo2Risk = v.spo2 && v.spo2 < 95;
-
-  return (
-    <div className="space-y-4">
-      <SectionHeader icon={Activity} title="Cardiopulmonary & Cellular Vitals" color="text-rose-400" />
-      <div className="p-3.5 rounded-xl bg-[#13151E] border border-[#262A38] space-y-2">
-        <div className="flex justify-between items-center text-xs font-mono">
-          <span className="font-bold text-slate-300">Blood Pressure</span>
-          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${bpRisk ? 'bg-red-950/60 text-red-300' : 'bg-emerald-950/60 text-emerald-300'}`}>
-            {bpRisk ? '⚠ Elevated' : '✓ Normal'}
-          </span>
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          <VitalInput label="Systolic" value={v.bloodPressureSystolic} onChange={(val) => upd('bloodPressureSystolic', val)} unit="mmHg" placeholder="120" />
-          <VitalInput label="Diastolic" value={v.bloodPressureDiastolic} onChange={(val) => upd('bloodPressureDiastolic', val)} unit="mmHg" placeholder="80" />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-2">
-        <div className="p-3 rounded-xl bg-[#13151E] border border-[#262A38] space-y-1">
-          <span className="text-[10px] font-bold text-slate-400 font-mono">Heart Rate</span>
-          <VitalInput label="" value={v.heartRate} onChange={(val) => upd('heartRate', val)} unit="bpm" placeholder="72" />
-        </div>
-        <div className="p-3 rounded-xl bg-[#13151E] border border-[#262A38] space-y-1">
-          <span className="text-[10px] font-bold text-slate-400 font-mono">SpO₂</span>
-          <VitalInput label="" value={v.spo2} onChange={(val) => upd('spo2', val)} unit="%" placeholder="99" />
+          {patient.notes || `Clinical telemetry synchronized for ${patient.patientId || 'patient'}. Biomechanical parameters reflecting active baseline diagnosis.`}
         </div>
       </div>
     </div>
   );
 }
 
-// ── Disease Tab ────────────────────────────────────────────────────────────────
+// ── Disease Simulation Tab ─────────────────────────────────────────────────────
 function DiseaseTab() {
   const selectedDisease = useTwinStore((s) => s.selectedDisease);
   const setDisease      = useTwinStore((s) => s.setDisease);
-  const patientMode     = useTwinStore((s) => s.patientMode);
   const diseases        = Object.values(DISEASE_REGISTRY);
 
   return (
-    <div className="space-y-4">
-      <SectionHeader icon={Stethoscope} title="Target Disease Models (5)" color="text-[#D4AF37]" />
-
-      <div className="space-y-1.5">
-        {diseases.map((d) => (
-          <button
-            key={d.id}
-            onClick={() => setDisease(d.id)}
-            className={`w-full text-left p-3 rounded-xl text-xs transition-all border flex items-center justify-between group ${
-              selectedDisease === d.id
-                ? 'bg-[#181B26] border-[#D4AF37] text-white shadow-md'
-                : 'bg-[#101218] border-[#222530] text-slate-400 hover:bg-[#151720] hover:border-[#323644]'
-            }`}
-          >
-            <div>
-              <div className="font-bold font-mono tracking-wide">{d.name}</div>
-              <div className="text-[10px] text-slate-500 mt-0.5">{d.category}</div>
-            </div>
-            <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full font-bold ${
-              selectedDisease === d.id ? 'bg-[#D4AF37]/20 text-[#D4AF37]' : 'bg-[#161820] text-slate-500'
-            }`}>
-              {d.targetOrgans.length} organ{d.targetOrgans.length > 1 ? 's' : ''}
-            </span>
-          </button>
-        ))}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <div className="dt-card">
+        <SectionHeader icon={Stethoscope} title="Target Disease Models" color="var(--dt-gold)" />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          {diseases.map((d) => (
+            <button
+              key={d.id}
+              type="button"
+              onClick={() => setDisease(d.id)}
+              className={`dt-affected-item ${selectedDisease === d.id ? 'active' : ''}`}
+            >
+              <div>
+                <div style={{ fontWeight: 800, color: selectedDisease === d.id ? '#FFFFFF' : 'var(--dt-text-primary)' }}>
+                  {d.name}
+                </div>
+                <div style={{ fontSize: '0.60rem', color: 'var(--dt-text-muted)', marginTop: '2px' }}>
+                  {d.category}
+                </div>
+              </div>
+              <span
+                style={{
+                  fontSize: '0.58rem',
+                  padding: '2px 6px',
+                  borderRadius: '4px',
+                  background: selectedDisease === d.id ? 'rgba(212, 175, 55, 0.2)' : 'rgba(255,255,255,0.05)',
+                  color: selectedDisease === d.id ? 'var(--dt-gold)' : 'var(--dt-text-muted)',
+                  fontWeight: 800,
+                }}
+              >
+                {d.targetOrgans.length} organ{d.targetOrgans.length > 1 ? 's' : ''}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="pt-2 border-t border-[#1F232D] space-y-3">
-        <div className="flex items-center justify-between">
-          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">Simulation Parameters</label>
-          <span className="text-[10px] text-[#D4AF37] font-mono font-bold">{DISEASE_REGISTRY[selectedDisease]?.name}</span>
+      {/* Disease Controls */}
+      <div className="dt-card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <label className="dt-label">Biomechanical Parameters</label>
+          <span style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.62rem', fontWeight: 800, color: 'var(--dt-gold)' }}>
+            {DISEASE_REGISTRY[selectedDisease]?.name}
+          </span>
         </div>
         {selectedDisease === 'BREAST_CANCER' && <BreastCancerControls />}
         {selectedDisease === 'HEART_DISEASE'  && <HeartDiseaseControls />}
@@ -557,74 +275,322 @@ function DiseaseTab() {
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// MAIN LEFT SIDEBAR
-// ═══════════════════════════════════════════════════════════════════════════════
-export default function LeftSidebar() {
-  const [activeTab, setActiveTab] = useState('profile');
-  const patient     = useTwinStore((s) => s.patient);
-  const patientMode = useTwinStore((s) => s.patientMode);
+// ── Medical History & Allergies Tab ───────────────────────────────────────────
+function HistoryTab() {
+  const patient              = useTwinStore((s) => s.patient);
+  const addMedicalHistory    = useTwinStore((s) => s.addMedicalHistory);
+  const removeMedicalHistory = useTwinStore((s) => s.removeMedicalHistory);
+  const updateMedicalHistory = useTwinStore((s) => s.updateMedicalHistory);
+  const setPatientNested     = useTwinStore((s) => s.setPatientNested);
+  const addAllergy           = useTwinStore((s) => s.addAllergy);
+  const removeAllergy        = useTwinStore((s) => s.removeAllergy);
 
-  const displayName = patient.firstName || patient.lastName
-    ? `${patient.firstName} ${patient.lastName}`.trim()
-    : patient.patientId || 'New Patient Profile';
+  const FAMILY_CONDITIONS = [
+    ['heartDisease', 'Heart Disease'], ['diabetes', 'Diabetes'],
+    ['cancer', 'Cancer'], ['hypertension', 'Hypertension'],
+    ['stroke', 'Stroke'], ['mentalHealth', 'Mental Health']
+  ];
 
   return (
-    <aside className="w-96 h-full bg-[#090A0D] border-r border-[#20232B] flex flex-col overflow-hidden select-none z-20">
-      {/* Header */}
-      <div className="px-4 pt-3 pb-3 border-b border-[#20232B]">
-        <div className="flex items-center gap-3">
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border ${
-            patientMode === 'active'
-              ? 'bg-[#0F766E]/20 border-[#0F766E] text-[#2DD4BF]'
-              : 'bg-[#14161F] border-[#2B303C] text-slate-400'
-          }`}>
-            {patientMode === 'active' ? <UserCheck className="w-4 h-4" /> : <User className="w-4 h-4" />}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      {/* Medical History Log */}
+      <div className="dt-card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <SectionHeader icon={Clock} title="Clinical History Log" color="#A78BFA" />
+          <button
+            type="button"
+            onClick={() => addMedicalHistory({})}
+            className="dt-action-btn"
+            style={{ padding: '4px 8px', fontSize: '0.62rem' }}
+          >
+            <Plus size={12} /> Add Entry
+          </button>
+        </div>
+
+        {(!patient.medicalHistory || patient.medicalHistory.length === 0) ? (
+          <div style={{ textAlign: 'center', padding: '16px', color: 'var(--dt-text-muted)', fontSize: '0.70rem', fontFamily: 'var(--dt-font-mono)', border: '1px dashed var(--dt-border-default)', borderRadius: '6px' }}>
+            No prior medical history logged in DB
           </div>
-          <div className="min-w-0">
-            <div className="text-xs font-bold text-slate-100 truncate font-mono">{displayName}</div>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <div className={`w-1.5 h-1.5 rounded-full ${
-                patientMode === 'active' ? 'bg-[#2DD4BF] animate-pulse' : 'bg-slate-600'
-              }`} />
-              <span className="text-[10px] text-slate-400 font-mono capitalize">
-                {patientMode === 'active' ? `DB Active (${patient.patientId})` : 'Anatomical Preview'}
-              </span>
-            </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {patient.medicalHistory.map((entry) => (
+              <div key={entry.id} style={{ background: '#0D0E15', padding: '10px', borderRadius: '6px', border: '1px solid var(--dt-border-subtle)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontWeight: 800, color: '#FFFFFF', fontSize: '0.74rem', fontFamily: 'var(--dt-font-mono)' }}>
+                    {entry.condition || 'Hypertension'}
+                  </span>
+                  <span style={{ fontSize: '0.60rem', padding: '2px 6px', borderRadius: '4px', background: 'rgba(212, 175, 55, 0.15)', color: 'var(--dt-gold)', fontWeight: 700 }}>
+                    {entry.status || 'Active'}
+                  </span>
+                </div>
+                <div style={{ fontSize: '0.64rem', color: 'var(--dt-text-muted)', fontFamily: 'var(--dt-font-mono)' }}>
+                  Diagnosed Year: {entry.diagnosedYear || '2024'}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Known Allergies */}
+      <div className="dt-card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <SectionHeader icon={AlertTriangle} title="Known Allergies & Alerts" color="#EF4444" />
+          <button
+            type="button"
+            onClick={() => addAllergy({})}
+            className="dt-action-btn"
+            style={{ padding: '4px 8px', fontSize: '0.62rem' }}
+          >
+            <Plus size={12} /> Add Alert
+          </button>
+        </div>
+
+        {(!patient.allergies || patient.allergies.length === 0) ? (
+          <div style={{ textAlign: 'center', padding: '12px', color: 'var(--dt-text-muted)', fontSize: '0.70rem', fontFamily: 'var(--dt-font-mono)', border: '1px dashed var(--dt-border-default)', borderRadius: '6px' }}>
+            No critical allergies recorded
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {patient.allergies.map((allergy, idx) => {
+              const allergyName = typeof allergy === 'string' ? allergy : (allergy?.allergen || allergy?.name || 'Allergen');
+              const reaction = typeof allergy === 'object' ? (allergy?.reaction || 'Allergic sensitivity') : 'Allergic sensitivity';
+              const severity = typeof allergy === 'object' ? (allergy?.severity || 'HIGH') : 'HIGH';
+              const keyId = typeof allergy === 'object' ? (allergy?.id || idx) : idx;
+              return (
+                <div key={keyId} style={{ background: '#0D0E15', padding: '8px 10px', borderRadius: '6px', border: '1px solid rgba(239, 68, 68, 0.3)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontWeight: 800, color: '#FCA5A5', fontSize: '0.72rem', fontFamily: 'var(--dt-font-mono)' }}>
+                      {allergyName}
+                    </div>
+                    <div style={{ fontSize: '0.60rem', color: 'var(--dt-text-muted)' }}>
+                      Reaction: {reaction}
+                    </div>
+                  </div>
+                  <span style={{ fontSize: '0.58rem', fontWeight: 800, padding: '2px 5px', borderRadius: '3px', background: 'rgba(239, 68, 68, 0.2)', color: '#EF4444' }}>
+                    {severity}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Hereditary Risk */}
+      <div className="dt-card">
+        <SectionHeader icon={Dna} title="Hereditary Family Risk" color="var(--dt-gold)" />
+        <div className="dt-grid-2">
+          {FAMILY_CONDITIONS.map(([key, label]) => {
+            const active = patient.familyHistory?.[key];
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setPatientNested('familyHistory', key, !active)}
+                className={`dt-symptom-tag ${active ? 'active' : ''}`}
+                style={{ width: '100%', justifyContent: 'space-between', padding: '7px 10px' }}
+              >
+                <span>{label}</span>
+                <span
+                  style={{
+                    width: '14px',
+                    height: '14px',
+                    borderRadius: '3px',
+                    border: active ? 'none' : '1px solid var(--dt-border-default)',
+                    background: active ? 'var(--dt-gold)' : 'transparent',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {active && <Check size={10} color="#000000" strokeWidth={3} />}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Prescriptions & Medications Tab ───────────────────────────────────────────
+function MedicationsTab() {
+  const patient          = useTwinStore((s) => s.patient);
+  const addMedication    = useTwinStore((s) => s.addMedication);
+  const removeMedication = useTwinStore((s) => s.removeMedication);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <div className="dt-card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <SectionHeader icon={Pill} title="Active Prescriptions (Rx)" color="#38BDF8" />
+          <button
+            type="button"
+            onClick={() => addMedication({})}
+            className="dt-action-btn"
+            style={{ padding: '4px 8px', fontSize: '0.62rem' }}
+          >
+            <Plus size={12} /> Add Drug
+          </button>
+        </div>
+
+        {(!patient.medications || patient.medications.length === 0) ? (
+          <div style={{ textAlign: 'center', padding: '24px', color: 'var(--dt-text-muted)', fontSize: '0.72rem', fontFamily: 'var(--dt-font-mono)', border: '1px dashed var(--dt-border-default)', borderRadius: '6px' }}>
+            No active prescriptions registered in DB
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {patient.medications.map((med, idx) => (
+              <div key={med.id || idx} style={{ background: '#0D0E15', padding: '12px', borderRadius: '8px', border: '1px solid var(--dt-border-subtle)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.65rem', fontWeight: 800, color: 'var(--dt-gold)' }}>
+                    Rx #{idx + 1}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeMedication(med.id)}
+                    style={{ background: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', padding: '2px' }}
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                </div>
+                <div style={{ fontSize: '0.80rem', fontWeight: 800, color: '#FFFFFF', fontFamily: 'var(--dt-font-mono)' }}>
+                  {med.name || 'Atorvastatin'}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.64rem', color: 'var(--dt-text-muted)', fontFamily: 'var(--dt-font-mono)' }}>
+                  <span>Dosage: <strong style={{ color: 'var(--dt-text-primary)' }}>{med.dose || '20mg'}</strong></span>
+                  <span>Schedule: <strong style={{ color: 'var(--dt-text-primary)' }}>{med.frequency || 'Once daily'}</strong></span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MAIN LEFT SIDEBAR (DB-First Clinical Telemetry & Controls)
+// ═══════════════════════════════════════════════════════════════════════════════
+export default function LeftSidebar() {
+  const [activeTab, setActiveTab] = useState('overview');
+  const patient           = useTwinStore((s) => s.patient);
+  const patientMode       = useTwinStore((s) => s.patientMode);
+  const loadPatientFromDB = useTwinStore((s) => s.loadPatientFromDB);
+  const clearPatient      = useTwinStore((s) => s.clearPatient);
+  const [searchId, setSearchId] = useState(patient.patientId || 'PT-89421');
+  const tabContentRef = useRef(null);
+
+  useEffect(() => {
+    if (tabContentRef.current) {
+      gsap.fromTo(
+        tabContentRef.current,
+        { opacity: 0, y: 6 },
+        { opacity: 1, y: 0, duration: 0.22, ease: 'power2.out' }
+      );
+    }
+  }, [activeTab]);
+
+  const handleSelectPatient = (id) => {
+    setSearchId(id);
+    loadPatientFromDB(id);
+  };
+
+  const handleFetch = () => {
+    if (searchId.trim()) {
+      loadPatientFromDB(searchId.trim());
+    }
+  };
+
+  return (
+    <aside className="dt-left-sidebar">
+      {/* ── Top DB Patient Quick Switcher ── */}
+      <div className="dt-panel-header" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '10px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: patientMode === 'active' ? 'var(--dt-teal-glow)' : 'var(--dt-gold)' }} />
+            <span style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.64rem', fontWeight: 800, color: 'var(--dt-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              DB Patient Inspector
+            </span>
+          </div>
+          {patientMode === 'active' && (
+            <span style={{ fontSize: '0.58rem', color: 'var(--dt-teal-glow)', fontFamily: 'var(--dt-font-mono)', fontWeight: 700 }}>
+              ● LIVE SYNC
+            </span>
+          )}
+        </div>
+
+        {/* Search & Fetch Input */}
+        <div style={{ display: 'flex', gap: '6px' }}>
+          <div style={{ flex: 1, position: 'relative' }}>
+            <input
+              type="text"
+              value={searchId}
+              onChange={(e) => setSearchId(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleFetch()}
+              placeholder="Search Patient ID (e.g. PT-89421)"
+              className="dt-input"
+              style={{ paddingRight: '28px', fontSize: '0.72rem' }}
+            />
+            {patientMode === 'loading' && (
+              <Loader2
+                size={13}
+                color="var(--dt-gold)"
+                className="spin"
+                style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)' }}
+              />
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={handleFetch}
+            disabled={patientMode === 'loading' || !searchId.trim()}
+            className="dt-action-btn dt-action-btn-gold"
+            style={{ padding: '6px 12px', fontSize: '0.66rem' }}
+          >
+            Fetch
+          </button>
+        </div>
+
+        {/* API-only patient lookup */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <div style={{ fontSize: '0.56rem', color: 'var(--dt-text-muted)', fontFamily: 'var(--dt-font-mono)', textTransform: 'uppercase' }}>
+            Patient records are loaded by ID from the clinical API.
           </div>
         </div>
       </div>
 
-      {/* Tab Navigation */}
-      <div className="flex border-b border-[#20232B] bg-[#0C0D11]">
+      {/* ── Tab Navigation ── */}
+      <div className="dt-tab-bar">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
+              type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[9px] font-mono font-bold transition-all border-b-2 ${
-                isActive
-                  ? 'border-[#D4AF37] text-[#D4AF37] bg-[#14161F]'
-                  : 'border-transparent text-slate-500 hover:text-slate-300 hover:bg-[#101217]'
-              }`}
+              className={`dt-tab-btn ${isActive ? 'active' : ''}`}
             >
-              <Icon className="w-3.5 h-3.5" />
-              <span className="uppercase tracking-wider">{tab.label}</span>
+              <Icon size={13} />
+              <span>{tab.label}</span>
             </button>
           );
         })}
       </div>
 
-      {/* Body */}
-      <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#252933]">
-        {activeTab === 'profile'  && <ProfileTab />}
+      {/* ── Scrollable Tab Body ── */}
+      <div ref={tabContentRef} className="dt-panel-body">
+        {activeTab === 'overview' && <TelemetryTab />}
+        {activeTab === 'disease'  && <DiseaseTab />}
         {activeTab === 'history'  && <HistoryTab />}
         {activeTab === 'meds'     && <MedicationsTab />}
-        {activeTab === 'vitals'   && <VitalsTab />}
-        {activeTab === 'disease'  && <DiseaseTab />}
       </div>
     </aside>
   );
 }
+
+

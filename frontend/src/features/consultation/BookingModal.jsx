@@ -17,7 +17,7 @@ import {
 import { consultationsApi } from "../../api/consultations";
 import { animateModalOpen } from "../../utils/motion";
 
-export default function BookingModal({ doctor, initialSlot, onClose, onSuccess }) {
+export default function BookingModal({ doctor, initialSlot, onClose, onSuccess, patientId }) {
   const [step, setStep] = useState(1);
   const [slot, setSlot] = useState(initialSlot || doctor?.available_slots?.[0] || "Today at 02:00 PM");
   const [mode, setMode] = useState("video");
@@ -67,7 +67,7 @@ export default function BookingModal({ doctor, initialSlot, onClose, onSuccess }
         doctor_id: doctor.id,
         slot_time: slot,
         mode,
-        patient_id: "PT-89421",
+        patient_id: patientId,
         reason,
         symptoms,
         duration,

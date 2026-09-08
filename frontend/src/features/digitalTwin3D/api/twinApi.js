@@ -33,6 +33,20 @@ export async function fetchPatientTwinState(patientId) {
 /**
  * Fetch all clinical reports for a patient.
  */
+export async function fetchClinicalPatient(patientId) {
+  const res = await fetch(`${BASE}/clinical/patient/${encodeURIComponent(patientId)}`, {
+    headers: { ...authHeaders(), 'Content-Type': 'application/json' }
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(err.detail || `HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
+/**
+ * Fetch all clinical reports for a patient.
+ */
 export async function fetchPatientReports(patientId) {
   const res = await fetch(`${BASE}/reports?patient_id=${encodeURIComponent(patientId)}`, {
     headers: { ...authHeaders() }

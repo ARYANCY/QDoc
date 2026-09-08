@@ -254,7 +254,7 @@ const ROLE_PERMISSIONS = {
     label: "Patient (Autonomous Health Checkups & Twin)",
     badgeColor: "var(--primary)",
     defaultTab: "home",
-    allowedTabs: ["home", "diagnostic", "twin", "early_detection", "doctor_booking", "my_consultations", "benchmarks", "telemetry", "portal", "profile"],
+    allowedTabs: ["home", "diagnostic", "twin", "early_detection", "doctor_booking", "my_consultations", "portal", "profile"],
     sections: [
       {
         title: "Editorial Overview",
@@ -278,13 +278,6 @@ const ROLE_PERMISSIONS = {
         ],
       },
       {
-        title: "AI & Telemetry",
-        items: [
-          { id: "benchmarks", label: "AI Health Benchmarks", icon: NavBenchmarkSvg },
-          { id: "telemetry", label: "Quantum Telemetry", icon: NavTelemetrySvg },
-        ],
-      },
-      {
         title: "Health Records",
         items: [
           { id: "portal", label: "My Health Records", icon: NavPortalSvg },
@@ -301,8 +294,8 @@ const ROLE_PERMISSIONS = {
   doctor: {
     label: "Doctor / Clinician (Tele-Consultations & Triage)",
     badgeColor: "var(--accent-teal)",
-    defaultTab: "home",
-    allowedTabs: ["home", "clinician_dashboard", "diagnostic", "twin", "benchmarks", "telemetry", "portal", "profile"],
+    defaultTab: "clinician_dashboard",
+    allowedTabs: ["home", "clinician_dashboard", "portal", "profile"],
     sections: [
       {
         title: "Editorial Overview",
@@ -314,15 +307,6 @@ const ROLE_PERMISSIONS = {
         title: "Clinical Practice",
         items: [
           { id: "clinician_dashboard", label: "Consultation Queue & Triage", icon: NavUsersSvg },
-          { id: "diagnostic", label: "AI Clinical Diagnosis", icon: NavDiagnosticSvg },
-          { id: "twin", label: "3D Digital Health Twin", icon: NavTwinSvg },
-        ],
-      },
-      {
-        title: "AI & Telemetry",
-        items: [
-          { id: "benchmarks", label: "AI Health Benchmarks", icon: NavBenchmarkSvg },
-          { id: "telemetry", label: "Quantum Telemetry", icon: NavTelemetrySvg },
         ],
       },
       {
@@ -343,7 +327,7 @@ const ROLE_PERMISSIONS = {
     label: "System & Compliance Administrator",
     badgeColor: "var(--accent-teal)",
     defaultTab: "home",
-    allowedTabs: ["home", "compliance", "users", "benchmarks", "portal", "profile"],
+    allowedTabs: ["home", "compliance", "users", "benchmarks", "telemetry", "portal", "profile"],
     sections: [
       {
         title: "Editorial Overview",
@@ -356,8 +340,14 @@ const ROLE_PERMISSIONS = {
         items: [
           { id: "compliance", label: "Compliance & Audit", icon: NavComplianceSvg },
           { id: "users", label: "User Management", icon: NavUsersSvg },
-          { id: "benchmarks", label: "Benchmark Matrix", icon: NavBenchmarkSvg },
-          { id: "portal", label: "Health Records", icon: NavPortalSvg },
+          { id: "portal", label: "Patient Registry", icon: NavPortalSvg },
+        ],
+      },
+      {
+        title: "AI & Telemetry",
+        items: [
+          { id: "benchmarks", label: "AI Health Benchmarks", icon: NavBenchmarkSvg },
+          { id: "telemetry", label: "Quantum Telemetry", icon: NavTelemetrySvg },
         ],
       },
       {
@@ -434,48 +424,11 @@ const STUDIES = {
   },
 };
 
-const DEFAULT_STUDY_FEATURES = {
-  breast_cancer: [
-    { name: "Mean Radius", value: 17.99, mean: 14.127, unit: "mm" },
-    { name: "Mean Texture", value: 10.38, mean: 19.289, unit: "a.u." },
-    { name: "Mean Perimeter", value: 122.8, mean: 91.969, unit: "mm" },
-    { name: "Mean Area", value: 1001.0, mean: 654.889, unit: "mm²" },
-    { name: "Mean Smoothness", value: 0.1184, mean: 0.096, unit: "a.u." },
-    { name: "Mean Compactness", value: 0.2776, mean: 0.104, unit: "a.u." },
-  ],
-  heart: [
-    { name: "Age", value: 58, mean: 54.4, unit: "yrs" },
-    { name: "Resting Blood Pressure", value: 136, mean: 131.6, unit: "mmHg" },
-    { name: "Serum Cholesterol", value: 248, mean: 246.3, unit: "mg/dL" },
-    { name: "Fasting Blood Sugar > 120", value: 1, mean: 0.15, unit: "binary" },
-    { name: "Max Heart Rate (Thalach)", value: 142, mean: 149.6, unit: "BPM" },
-    { name: "ST Depression (Oldpeak)", value: 1.8, mean: 1.04, unit: "mm" },
-  ],
-  diabetes: [
-    { name: "Pregnancies Count", value: 3, mean: 3.8, unit: "count" },
-    { name: "Fasting Glucose", value: 148, mean: 120.9, unit: "mg/dL" },
-    { name: "Diastolic Blood Pressure", value: 72, mean: 69.1, unit: "mmHg" },
-    { name: "Triceps Skin Fold", value: 35, mean: 20.5, unit: "mm" },
-    { name: "2-Hour Serum Insulin", value: 168, mean: 79.8, unit: "µU/mL" },
-    { name: "Body Mass Index (BMI)", value: 33.6, mean: 32.0, unit: "kg/m²" },
-  ],
-  pneumonia: [
-    { name: "Radiographic Opacity", value: "High Consolidation", mean: "Clear Lungs", unit: "CXR" },
-    { name: "Infiltration Index", value: "0.78", mean: "0.08", unit: "Ratio" },
-    { name: "Pleural Effusion Flag", value: "Negative", mean: "Negative", unit: "binary" },
-  ],
-  skin: [
-    { name: "Lesion Diameter", value: "6.2 mm", mean: "4.5 mm", unit: "mm" },
-    { name: "Border Asymmetry", value: "Elevated (0.72)", mean: "Symmetric", unit: "a.u." },
-    { name: "Pigment Network", value: "Atypical Reticular", mean: "Homogeneous", unit: "Derm" },
-  ],
-};
-
 export default function UnifiedAnalysisPage() {
   const [study, setStudy] = useState("breast_cancer");
-  const [patientId, setPatientId] = useState("PT-89421");
+  const [patientId, setPatientId] = useState("");
   const [patientData, setPatientData] = useState(null);
-  const [rawFeatures, setRawFeatures] = useState(DEFAULT_STUDY_FEATURES.breast_cancer);
+  const [rawFeatures, setRawFeatures] = useState([]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [twinCollapsed, setTwinCollapsed] = useState(false);
@@ -531,12 +484,19 @@ export default function UnifiedAnalysisPage() {
     }
   }, [activeTab]);
 
+  function resolvePatientId(user) {
+    if (!user || user.role !== "patient") return "";
+    if (user.username === "alex.patient" || user.id === "PT-ALEX") return "PT-89421";
+    return user.patient_id || user.user_id || user.id || "PT-89421";
+  }
+
   async function handleQuickRoleSwitch(u, p, r) {
     setLoading(true);
     setError(null);
     try {
       const data = await authApi.login(u, p, r);
       setCurrentUser(data.user);
+      setPatientId(resolvePatientId(data.user));
       const nextRoleCfg = ROLE_PERMISSIONS[data.user.role] || ROLE_PERMISSIONS.patient;
       setActiveTab(nextRoleCfg.defaultTab);
     } catch (err) {
@@ -558,6 +518,7 @@ export default function UnifiedAnalysisPage() {
     try {
       const data = await authApi.login(loginUsername, loginPassword, "patient");
       setCurrentUser(data.user);
+      setPatientId(resolvePatientId(data.user));
       const nextRoleCfg = ROLE_PERMISSIONS[data.user.role] || ROLE_PERMISSIONS.patient;
       setActiveTab(nextRoleCfg.defaultTab);
     } catch (err) {
@@ -586,8 +547,10 @@ export default function UnifiedAnalysisPage() {
 
   // Load real patient record & baseline features on mount and study change
   useEffect(() => {
-    if (DEFAULT_STUDY_FEATURES[study]) {
-      setRawFeatures(DEFAULT_STUDY_FEATURES[study]);
+    if (!patientId) {
+      setPatientData(null);
+      setRawFeatures([]);
+      return;
     }
 
     clinicalApi.getPatientRecord(patientId)
@@ -1623,7 +1586,14 @@ export default function UnifiedAnalysisPage() {
                   <Info size={14} />
                 </button>
               </div>
-              <PatientPortal patientId={patientId} />
+              <PatientPortal
+                patientId={patientId}
+                currentUser={currentUser}
+                onOpenBooking={(b) => {
+                  setSelectedBookingForRoom(b);
+                  setActiveTab("my_consultations");
+                }}
+              />
             </div>
           )}
 
@@ -1653,6 +1623,7 @@ export default function UnifiedAnalysisPage() {
           {activeTab === "doctor_booking" && (
             <div style={{ height: "100%", overflowY: "auto" }}>
               <DoctorDiscovery
+                patientId={patientId}
                 onOpenBooking={(b) => {
                   setSelectedBookingForRoom(b);
                   setActiveTab("my_consultations");
@@ -1787,6 +1758,7 @@ export default function UnifiedAnalysisPage() {
         onClose={() => setAuthModalOpen(false)}
         onLoginSuccess={(user) => {
           setCurrentUser(user);
+          setPatientId(resolvePatientId(user));
           const nextRoleCfg = ROLE_PERMISSIONS[user.role] || ROLE_PERMISSIONS.patient;
           setActiveTab(nextRoleCfg.defaultTab);
         }}

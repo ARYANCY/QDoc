@@ -103,7 +103,7 @@ export default function EPrescriptionModal({ booking, onClose, onSuccess }) {
     try {
       const payload = {
         booking_id: booking.id,
-        patient_id: booking.patient_id || "PT-89421",
+        patient_id: booking.patient_id,
         doctor_id: booking.doctor_id || "DOC-KAVITA",
         diagnosis,
         medications,

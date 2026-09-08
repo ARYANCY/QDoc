@@ -1,3 +1,11 @@
+import os
+import tempfile
+from pathlib import Path
+
+os.environ["QMED_DB_MODE"] = "demo"
+os.environ["QMED_DEMO_DB_PATH"] = str(Path(tempfile.gettempdir()) / f"qmedsense-tests-{os.getpid()}.db")
+Path(os.environ["QMED_DEMO_DB_PATH"]).unlink(missing_ok=True)
+
 import pytest
 from fastapi.testclient import TestClient
 from backend.app.main import app

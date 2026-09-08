@@ -6,22 +6,14 @@ import ErrorBoundary from './ErrorBoundary';
 import { useTwinStore } from '../store/twinStore';
 import {
   RotateCcw, Eye, Maximize2, Minimize2,
-  Crosshair, Loader2, AlertTriangle, UserCheck, Dna,
-  Layers, Sparkles
+  Crosshair, Layers
 } from 'lucide-react';
 
-export default function DigitalTwinViewer({ canvasRef }) {
+export default function DigitalTwinViewer({ canvasRef, compact = false }) {
   const setCameraAction    = useTwinStore((s) => s.setCameraAction);
   const selectedAnatomy    = useTwinStore((s) => s.selectedAnatomy);
   const xrayMode           = useTwinStore((s) => s.xrayMode);
   const setXrayMode        = useTwinStore((s) => s.setXrayMode);
-  const xrayIntensity      = useTwinStore((s) => s.xrayIntensity);
-  const setXrayIntensity   = useTwinStore((s) => s.setXrayIntensity);
-  const patientMode        = useTwinStore((s) => s.patientMode);
-  const patient            = useTwinStore((s) => s.patient);
-  const patientError       = useTwinStore((s) => s.patientError);
-  const clearPatient       = useTwinStore((s) => s.clearPatient);
-  const dbData             = useTwinStore((s) => s.dbData);
 
   const containerRef = useRef();
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -36,33 +28,33 @@ export default function DigitalTwinViewer({ canvasRef }) {
     }
   };
 
-  const cameraPresets = ['Front', 'Back', 'Left', 'Right', 'Top'];
+  const cameraPresets = compact ? ['Front', 'Top'] : ['Front', 'Back', 'Left', 'Right', 'Top'];
 
   return (
     <ErrorBoundary>
-      <div ref={containerRef} className="relative w-full h-full bg-[#07080A] overflow-hidden flex flex-col select-none">
+      <div ref={containerRef} style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', userSelect: 'none' }}>
 
         {/* 3D WebGL Canvas */}
         <Canvas
           ref={canvasRef}
           gl={{ preserveDrawingBuffer: true, antialias: true, alpha: true, powerPreference: 'high-performance' }}
-          camera={{ position: [0, 0.38, 2.35], fov: 44, near: 0.05, far: 60 }}
+          camera={{ position: [0, 0.38, 2.35], fov: compact ? 48 : 44, near: 0.05, far: 60 }}
           shadows
-          className="w-full h-full cursor-grab active:cursor-grabbing"
+          style={{ width: '100%', height: '100%', cursor: 'grab' }}
         >
-          <color attach="background" args={['#07080A']} />
+          <color attach="background" args={['#07080B']} />
 
-          {/* Cinematic Haute Studio Lighting */}
+          {/* Cinematic Studio Lighting */}
           <ambientLight intensity={0.95} />
-          <directionalLight position={[5, 8, 5]}  intensity={1.5} castShadow shadow-mapSize={[2048, 2048]} />
+          <directionalLight position={[5, 8, 5]} intensity={1.5} castShadow shadow-mapSize={[2048, 2048]} />
           <directionalLight position={[-5, 6, -4]} intensity={0.8} color="#D4AF37" />
-          <directionalLight position={[0, -2, 4]}  intensity={0.4} color="#0F766E" />
+          <directionalLight position={[0, -2, 4]} intensity={0.4} color="#0F766E" />
           <pointLight position={[0, 0.4, 2.2]} intensity={1.0} color="#ffffff" distance={7} />
           <hemisphereLight skyColor="#1A1C24" groundColor="#060708" intensity={0.6} />
 
           {/* Holographic Floor Grid */}
           <gridHelper
-            args={[6, 24, '#D4AF3730', '#20243040']}
+            args={[6, 24, '#D4AF3740', '#20243050']}
             position={[0, -0.90, 0]}
           />
 
@@ -72,81 +64,132 @@ export default function DigitalTwinViewer({ canvasRef }) {
           <CameraControls />
         </Canvas>
 
-        {/* ── TOP UNIFIED TOOLBAR: Non-overlapping responsive HUD ─────────── */}
-        <div className="absolute top-2 left-2 right-2 z-10 flex items-center justify-between pointer-events-none gap-2">
-          {/* Left: Compact Camera Presets */}
-          <div className="flex items-center gap-1 p-1 rounded-lg bg-[#0C0E14]/90 border border-[#232734] backdrop-blur-md shadow-xl pointer-events-auto">
+        {/* ── Floating Top HUD Toolbar ── */}
+        <div className={`dt-floating-hud-top ${compact ? 'compact' : ''}`}>
+          {/* Left: Camera Orientation Presets */}
+          <div className="dt-hud-group">
             {cameraPresets.map((label) => (
               <button
                 key={label}
+                type="button"
                 onClick={() => setCameraAction(label.toLowerCase())}
-                className="px-2 py-0.5 text-[9px] font-mono font-bold rounded text-slate-400 hover:text-white hover:bg-white/10 transition-all uppercase tracking-wider"
+                className="dt-hud-btn"
                 title={`View from ${label}`}
               >
                 {label}
               </button>
             ))}
-            <div className="w-px h-3 bg-[#252935] mx-0.5" />
+            <div style={{ width: '1px', height: '14px', background: 'var(--dt-border-default)', margin: '0 2px' }} />
             <button
+              type="button"
               onClick={() => setCameraAction('reset')}
               title="Reset 3D Camera"
-              className="p-1 rounded text-slate-400 hover:text-[#38BDF8] hover:bg-white/10 transition-all"
+              className="dt-hud-btn"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
-              <RotateCcw className="w-3 h-3" />
+              <RotateCcw size={12} />
             </button>
           </div>
 
           {/* Right: X-Ray & Fullscreen */}
-          <div className="flex items-center gap-1.5 pointer-events-auto">
+          <div className="dt-hud-group">
             <button
+              type="button"
               onClick={() => setXrayMode(!xrayMode)}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#0C0E14]/90 border text-[9px] font-mono font-bold backdrop-blur-md transition shadow-xl ${
-                xrayMode ? 'border-[#0F766E] text-[#2DD4BF]' : 'border-[#232734] text-slate-400 hover:text-white'
-              }`}
-              title="Toggle Anatomical X-Ray Transparency"
+              className={`dt-hud-btn ${xrayMode ? 'active' : ''}`}
+              title="Toggle Anatomical X-Ray Tissue Transparency"
+              style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
             >
-              <Eye className={`w-3 h-3 ${xrayMode ? 'text-[#2DD4BF]' : 'text-slate-500'}`} />
-              <span className="uppercase tracking-wider">X-Ray {xrayMode ? 'ON' : 'OFF'}</span>
+              <Eye size={12} color={xrayMode ? 'var(--dt-teal-glow)' : 'var(--dt-text-muted)'} />
+              <span>{compact ? (xrayMode ? 'X-Ray' : 'Solid') : `X-Ray ${xrayMode ? 'ON' : 'OFF'}`}</span>
             </button>
 
-            <button
-              onClick={toggleFullscreen}
-              className="p-1.5 rounded-lg bg-[#0C0E14]/90 border border-[#232734] text-slate-400 hover:text-white hover:border-[#383E50] backdrop-blur-md transition shadow-xl"
-              title="Toggle Fullscreen 3D Studio"
-            >
-              {isFullscreen ? <Minimize2 className="w-3 h-3" /> : <Maximize2 className="w-3 h-3" />}
-            </button>
+            {!compact && (
+              <>
+                <div style={{ width: '1px', height: '14px', background: 'var(--dt-border-default)', margin: '0 2px' }} />
+                <button
+                  type="button"
+                  onClick={toggleFullscreen}
+                  className="dt-hud-btn"
+                  title="Toggle Fullscreen 3D View"
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  {isFullscreen ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
+                </button>
+              </>
+            )}
           </div>
         </div>
 
-        {/* ── BOTTOM LEFT: Organ Selection HUD ──────────────────────────────── */}
-        <div className="absolute bottom-3 left-3 z-10 pointer-events-none">
+        {/* ── Floating Bottom-Left: Organ Selection HUD ── */}
+        <div style={{ position: 'absolute', bottom: '16px', left: '16px', zIndex: 15, pointerEvents: 'none' }}>
           {selectedAnatomy ? (
-            <div className="p-3 rounded-xl bg-[#0C0E14]/90 border border-[#252935] backdrop-blur-md shadow-xl flex items-center gap-3">
-              <div className="w-7 h-7 rounded-lg bg-[#D4AF37]/15 border border-[#D4AF37]/30 flex items-center justify-center">
-                <Crosshair className="w-4 h-4 text-[#D4AF37]" />
+            <div className="dt-hud-organ-badge" style={{ pointerEvents: 'auto' }}>
+              <div
+                style={{
+                  width: '30px',
+                  height: '30px',
+                  borderRadius: '6px',
+                  background: 'rgba(212, 175, 55, 0.15)',
+                  border: '1px solid var(--dt-gold)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Crosshair size={16} color="var(--dt-gold)" />
               </div>
               <div>
-                <div className="text-[9px] font-mono text-slate-500 uppercase tracking-wider">Selected Organ</div>
-                <div className="text-xs font-mono font-bold text-slate-100">{selectedAnatomy}</div>
+                <div style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.58rem', color: 'var(--dt-text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                  Selected Organ
+                </div>
+                <div style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.78rem', fontWeight: 800, color: '#FFFFFF' }}>
+                  {selectedAnatomy}
+                </div>
               </div>
             </div>
           ) : (
-            <div className="px-3 py-1.5 rounded-lg bg-[#0C0E14]/70 border border-[#20232E] backdrop-blur-sm text-[10px] font-mono text-slate-500">
-              Hover / click organ mesh to inspect
+            <div
+              style={{
+                background: 'rgba(14, 16, 23, 0.8)',
+                backdropFilter: 'blur(8px)',
+                border: '1px solid var(--dt-border-default)',
+                borderRadius: '6px',
+                padding: '6px 10px',
+                fontFamily: 'var(--dt-font-mono)',
+                fontSize: '0.64rem',
+                color: 'var(--dt-text-muted)',
+              }}
+            >
+              Hover / click organ mesh to inspect telemetry
             </div>
           )}
         </div>
 
-        {/* ── BOTTOM RIGHT: System Tag ──────────────────────────────────────── */}
-        <div className="absolute bottom-3 right-3 z-10 pointer-events-none">
-          <div className="px-2.5 py-1 rounded-lg bg-[#0C0E14]/70 border border-[#20232E] backdrop-blur-sm flex items-center gap-2 text-[9px] font-mono text-slate-400">
-            <span className="text-[#D4AF37] font-bold">25 GLB</span>
-            <span className="text-slate-600">|</span>
-            <span>WebGL PBR</span>
+        {/* ── Floating Bottom-Right: Engine Tag ── */}
+        <div style={{ position: 'absolute', bottom: '16px', right: '16px', zIndex: 15, pointerEvents: 'none' }}>
+          <div
+            style={{
+              background: 'rgba(14, 16, 23, 0.8)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid var(--dt-border-default)',
+              borderRadius: '6px',
+              padding: '6px 10px',
+              fontFamily: 'var(--dt-font-mono)',
+              fontSize: '0.60rem',
+              color: 'var(--dt-text-muted)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            <span style={{ color: 'var(--dt-gold)', fontWeight: 800 }}>25 3D MESHES</span>
+            <span>|</span>
+            <span>WebGL 2.0 PBR</span>
           </div>
         </div>
       </div>
     </ErrorBoundary>
   );
 }
+

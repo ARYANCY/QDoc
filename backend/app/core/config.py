@@ -15,9 +15,13 @@ class Settings:
     BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent.parent
     BACKEND_DIR: Path = Path(__file__).resolve().parent.parent.parent
     DATA_DIR: Path = BACKEND_DIR
-    DB_PATH: Path = BACKEND_DIR / "qmedsense.db"
+    DB_MODE: str = os.getenv("QMED_DB_MODE", "production").strip().lower()
+    REAL_DB_PATH: Path = Path(os.getenv("QMED_REAL_DB_PATH", str(BACKEND_DIR / "qmedsense.db")))
+    DEMO_DB_PATH: Path = Path(os.getenv("QMED_DEMO_DB_PATH", str(BACKEND_DIR / "qmedsense_demo.db")))
+    DB_PATH: Path = Path(os.getenv("QMED_DB_PATH", str(DEMO_DB_PATH if DB_MODE == "demo" else REAL_DB_PATH)))
     MODELS_DIR: Path = BASE_DIR / "models"
     REPORTS_DIR: Path = BASE_DIR / "reports"
+    FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
     # Security & Auth
     JWT_SECRET: str = os.getenv("JWT_SECRET", "qmed-sih2026-super-secret-key-change-in-prod")
@@ -44,3 +48,5 @@ class Settings:
 
 
 settings = Settings()
+if settings.DB_MODE not in {"production", "demo"}:
+    raise ValueError("QMED_DB_MODE must be 'production' or 'demo'.")

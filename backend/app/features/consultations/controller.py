@@ -113,6 +113,11 @@ class ChatMessageRequest(BaseModel):
     text: str
 
 
+class WebRTCSignalRequest(BaseModel):
+    signal_type: str
+    payload: dict[str, Any]
+
+
 class MedicationItem(BaseModel):
     name: str
     dosage: str
@@ -408,6 +413,36 @@ def send_consultation_chat_message(booking_id: str, req: ChatMessageRequest):
     """Module G: Sends message in the encrypted in-consultation chat channel."""
     messages = DatabaseRepository.add_room_chat_message(booking_id, req.sender, req.text)
     return {"status": "success", "chat_messages": messages}
+
+
+@router.post("/rooms/{booking_id}/signals")
+def publish_webrtc_signal(booking_id: str, req: WebRTCSignalRequest, current_user: dict = Depends(get_optional_user)):
+    """Persists an authenticated SDP/ICE signal for the other consultation participant."""
+    if req.signal_type not in {"offer", "answer", "ice-candidate"}:
+        raise HTTPException(status_code=400, detail="Unsupported WebRTC signal type.")
+    if not DatabaseRepository.get_room_by_booking(booking_id):
+        raise HTTPException(status_code=404, detail="Consultation room not found.")
+    signal = DatabaseRepository.add_room_signal(
+        booking_id,
+        current_user.get("user_id", current_user.get("username", "unknown")),
+        current_user.get("role", "participant"),
+        req.signal_type,
+        req.payload,
+    )
+    return {"status": "success", "signal": signal}
+
+
+@router.get("/rooms/{booking_id}/signals")
+def list_webrtc_signals(booking_id: str, after_id: int = 0, current_user: dict = Depends(get_optional_user)):
+    """Returns new signals for the opposite consultation participant only."""
+    if not DatabaseRepository.get_room_by_booking(booking_id):
+        raise HTTPException(status_code=404, detail="Consultation room not found.")
+    signals = DatabaseRepository.list_room_signals(
+        booking_id,
+        after_id=after_id,
+        sender_id=current_user.get("user_id", current_user.get("username")),
+    )
+    return {"status": "success", "signals": signals}
 
 
 # ── E-Prescriptions & Drug Safety (Module H) ───────────────────────────────────

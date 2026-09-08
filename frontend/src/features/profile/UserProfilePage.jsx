@@ -20,11 +20,12 @@ import {
   Clock,
   Sparkles,
   ExternalLink,
+  Plus,
 } from "lucide-react";
 import { profileApi } from "../../api/profile";
+import { clinicalApi } from "../../api/clinical";
 import { authApi } from "../../api/auth";
 import { animateEntrance } from "../../utils/motion";
-import QRCodeSVG from "../../components/common/QRCodeSVG.jsx";
 
 export default function UserProfilePage({ currentUser, onProfileUpdated, onProfileDeleted }) {
   const containerRef = useRef(null);
@@ -33,20 +34,20 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
   const [profile, setProfile] = useState({
     user_id: activeUserId,
     username: currentUser?.username || "alex.patient",
-    name: currentUser?.name || "Alexander Reed",
+    name: currentUser?.name || "",
     role: currentUser?.role || "patient",
-    primary_email: currentUser?.email || "alexander.reed@email.com",
-    extra_email: "alex.emergency@gmail.com",
-    emergency_phone: "+91 98333 44556",
-    emergency_contact_name: "Liam Reed",
-    emergency_contact_relation: "Brother",
-    phone: "+91 98333 44556",
-    blood_group: "O+",
-    allergies: "Penicillin (Anaphylaxis), Peanuts",
-    active_medications: "Atorvastatin 20mg (OD), Aspirin 75mg (OD)",
-    medical_history: "Hypertension (Stage 1), Mild Hyperlipidemia",
-    abha_id: "91-4829-1092-8821",
-    organ_donor: true,
+    primary_email: currentUser?.email || "",
+    extra_email: "",
+    emergency_phone: "",
+    emergency_contact_name: "",
+    emergency_contact_relation: "",
+    phone: "",
+    blood_group: "",
+    allergies: "",
+    active_medications: "",
+    medical_history: "",
+    abha_id: "",
+    organ_donor: false,
     department: "Patient Self-Analysis & Care",
     hospital: "AIIMS Cardiology & Oncology OPD",
     license_id: "PT-REC-89421",
@@ -54,7 +55,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
     compute_cluster: "PennyLane-QPU-Rigetti-Sim",
     clearance_level: "Level 4 (Audit & Governance)",
     compliance_standard: "HIPAA / FDA 21 CFR Part 11 / DPDP Act",
-    attending_physician: "Dr. Sarah Lin (Cardiologist)",
+    attending_physician: "",
     notifications_sms: true,
     notifications_email: true,
     notifications_critical_qpu: true,
@@ -69,6 +70,15 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
   const [viewCardOpen, setViewCardOpen] = useState(false);
   const [copiedPass, setCopiedPass] = useState(false);
   const [cardTheme, setCardTheme] = useState("light");
+  const [medicalHistory, setMedicalHistory] = useState([
+    { id: "history-1", condition: "", notes: "" },
+  ]);
+  const [medications, setMedications] = useState([
+    { id: "med-1", name: "", dose: "", frequency: "" },
+  ]);
+  const [emergencyContacts, setEmergencyContacts] = useState([
+    { id: "contact-1", name: "", relation: "", phone: "", email: "", is_primary: true },
+  ]);
 
   const isDeleteAuthorized = deleteConfirmText.trim().toLowerCase() === "confirm deletion account";
 
@@ -92,6 +102,14 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
           username: currentUser?.username || prev.username,
         }));
       }
+      const clinical = await clinicalApi.getPatientRecord(activeUserId);
+      if (clinical.patient) {
+        const patient = clinical.patient;
+        setMedicalHistory(Array.isArray(patient.medical_history) ? patient.medical_history.map((item, index) => typeof item === "string" ? { id: `history-${index}`, condition: item, notes: "" } : item) : []);
+        setMedications(Array.isArray(patient.medications) ? patient.medications : []);
+        setEmergencyContacts(Array.isArray(patient.emergency_contacts) ? patient.emergency_contacts.map((item, index) => ({ id: `contact-${index}`, ...item })) : []);
+        setProfile((prev) => ({ ...prev, ...patient, user_id: patient.id || prev.user_id }));
+      }
     } catch (err) {
       // Retain fallback metadata
     } finally {
@@ -104,6 +122,14 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
     setSyncStatus("saving");
     try {
       const res = await profileApi.updateProfile(activeUserId, payload);
+      await clinicalApi.updatePatientRecord(activeUserId, {
+        name: payload.name,
+        blood_group: payload.blood_group,
+        medical_history: medicalHistory,
+        medications,
+        emergency_contacts: emergencyContacts,
+        emergency_contact: emergencyContacts.find((contact) => contact.is_primary)?.phone || payload.emergency_phone,
+      });
       setSyncStatus("synced");
       if (onProfileUpdated) {
         onProfileUpdated(res.profile || payload);
@@ -123,6 +149,30 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
 
   function handleFieldBlur() {
     autoSaveToDb(profile);
+  }
+
+  function updateMedicalHistory(id, field, value) {
+    setMedicalHistory((items) => items.map((item) => item.id === id ? { ...item, [field]: value } : item));
+  }
+
+  function updateMedication(id, field, value) {
+    setMedications((items) => items.map((item) => item.id === id ? { ...item, [field]: value } : item));
+  }
+
+  function updateEmergencyContact(id, field, value) {
+    setEmergencyContacts((items) => items.map((item) => item.id === id ? { ...item, [field]: value } : { ...item, is_primary: field === "is_primary" ? false : item.is_primary }));
+  }
+
+  function addMedicalHistory() {
+    setMedicalHistory((items) => [...items, { id: `history-${Date.now()}`, condition: "", notes: "" }]);
+  }
+
+  function addMedication() {
+    setMedications((items) => [...items, { id: `med-${Date.now()}`, name: "", dose: "", frequency: "" }]);
+  }
+
+  function addEmergencyContact() {
+    setEmergencyContacts((items) => [...items, { id: `contact-${Date.now()}`, name: "", relation: "", phone: "", email: "", is_primary: false }]);
   }
 
   async function handleDeleteProfile() {
@@ -147,8 +197,22 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
 
   const effectiveRole = currentUser?.role || profile.role || "patient";
   const emergencyPortalUrl = typeof window !== "undefined"
-    ? `http://localhost:5174/#emergency/${profile.user_id || "PT-ALEX"}`
+    ? `${window.location.origin}/#emergency/${profile.user_id || "PT-ALEX"}`
     : `https://qmedsense.health/#emergency/${profile.user_id || "PT-ALEX"}`;
+  const formSteps = [
+    { label: "Identity", complete: Boolean(profile.name && profile.primary_email) },
+    { label: "Emergency contact", complete: emergencyContacts.some((contact) => contact.name && contact.phone) },
+    { label: "Clinical history", complete: medicalHistory.some((item) => item.condition) },
+    { label: "Medications", complete: medications.some((item) => item.name && item.dose) },
+  ];
+  const completedSteps = formSteps.filter((step) => step.complete).length;
+  const allergySummary = Array.isArray(profile.allergies)
+    ? profile.allergies.map((item) => typeof item === "string" ? item : `${item.allergen || item.name || ""}${item.severity ? ` (${item.severity})` : ""}`).filter(Boolean).join(", ")
+    : (typeof profile.allergies === "string" ? profile.allergies : "");
+  const medicationSummary = Array.isArray(medications)
+    ? medications.filter((item) => item.name).map((item) => `${item.name}${item.dose ? ` ${item.dose}` : ""}${item.frequency ? ` (${item.frequency})` : ""}`).join(" · ")
+    : (typeof profile.active_medications === "string" ? profile.active_medications : "");
+  const emergencyQrUrl = `/api/v1/emergency/${profile.user_id || activeUserId}/qr.png`;
 
   return (
     <div ref={containerRef} style={{ height: "100%", overflowY: "auto", padding: "14px 18px", background: "var(--bg-canvas)" }}>
@@ -400,13 +464,29 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
             <span className="bento-stat-arrow">↗</span>
           </div>
           <div className="bento-stat-value" style={{ fontSize: "0.78rem", fontWeight: 800, color: "var(--text-primary)" }}>
-            {profile.allergies ? (profile.allergies.length > 25 ? profile.allergies.slice(0, 25) + "..." : profile.allergies) : "None Reported"}
+            {allergySummary ? (allergySummary.length > 25 ? allergySummary.slice(0, 25) + "..." : allergySummary) : "None Reported"}
           </div>
           <div className="bento-stat-footer">
             <span className="bento-stat-tag">TRIAGE ALERT</span>
             <span className="bento-stat-sub">Printed on QR card</span>
           </div>
         </div>
+      </div>
+
+      <div className="profile-completion-bar" role="status" aria-live="polite">
+        <div>
+          <strong>Emergency dossier completion</strong>
+          <span>{completedSteps} of {formSteps.length} sections ready for the QR triage card</span>
+        </div>
+        <div className="profile-progress-track" aria-label={`${completedSteps} of ${formSteps.length} profile sections complete`}>
+          <span style={{ width: `${(completedSteps / formSteps.length) * 100}%` }} />
+        </div>
+        <div className="profile-step-list">
+          {formSteps.map((step, index) => <span className={step.complete ? "complete" : ""} key={step.label}>{index + 1}. {step.label}</span>)}
+        </div>
+        <button type="button" className="btn-primary profile-save-button" onClick={() => autoSaveToDb(profile)} disabled={syncStatus === "saving"}>
+          <CheckCircle2 size={14} /> {syncStatus === "saving" ? "Saving..." : "Save dossier"}
+        </button>
       </div>
 
       <form onSubmit={(e) => e.preventDefault()}>
@@ -638,7 +718,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                 />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "10px", marginBottom: "12px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "10px", marginBottom: "12px" }}>
                 <div>
                   <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
                     Contact Name
@@ -675,6 +755,22 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                       fontSize: "0.78rem",
                       background: "var(--bg-surface)",
                     }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
+                    Contact Email
+                  </label>
+                  <input
+                    type="email"
+                    value={emergencyContacts.find((contact) => contact.is_primary)?.email || ""}
+                    onChange={(e) => {
+                      const primary = emergencyContacts.find((contact) => contact.is_primary);
+                      if (primary) updateEmergencyContact(primary.id, "email", e.target.value);
+                    }}
+                    onBlur={handleFieldBlur}
+                    placeholder="name@example.com"
+                    style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--border-default)", fontSize: "0.78rem", background: "var(--bg-surface)" }}
                   />
                 </div>
               </div>
@@ -755,13 +851,13 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                 <span className="step-badge">SEC. 03</span>
               </div>
 
-              <div style={{ marginBottom: "10px" }}>
+              <div style={{ marginBottom: "14px" }}>
                 <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--risk-high)", marginBottom: "4px" }}>
                   Severe Allergies (Printed prominently on QR card)
                 </label>
                 <input
                   type="text"
-                  value={profile.allergies || ""}
+                  value={typeof profile.allergies === "string" ? profile.allergies : allergySummary}
                   onChange={(e) => handleFieldChange("allergies", e.target.value)}
                   onBlur={handleFieldBlur}
                   placeholder="e.g. Penicillin, Sulfa, Peanuts"
@@ -775,44 +871,50 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                 />
               </div>
 
-              <div style={{ marginBottom: "10px" }}>
-                <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
-                  Active Prescriptions / Regular Medications
-                </label>
-                <input
-                  type="text"
-                  value={profile.active_medications || ""}
-                  onChange={(e) => handleFieldChange("active_medications", e.target.value)}
-                  onBlur={handleFieldBlur}
-                  placeholder="e.g. Atorvastatin 20mg, Aspirin 75mg"
-                  style={{
-                    width: "100%",
-                    padding: "8px 10px",
-                    border: "1px solid var(--border-default)",
-                    fontSize: "0.78rem",
-                    background: "var(--bg-surface)",
-                  }}
-                />
+              <div className="profile-repeatable-section">
+                <div className="profile-repeatable-heading">
+                  <label>Medical History</label>
+                  <button type="button" className="btn-secondary profile-add-button" onClick={addMedicalHistory}><Plus size={13} /> Add history</button>
+                </div>
+                {medicalHistory.map((item) => (
+                  <div className="profile-repeatable-row" key={item.id}>
+                    <input type="text" value={item.condition || ""} onChange={(e) => updateMedicalHistory(item.id, "condition", e.target.value)} placeholder="Condition or previous procedure" />
+                    <input type="text" value={item.notes || ""} onChange={(e) => updateMedicalHistory(item.id, "notes", e.target.value)} placeholder="Notes, year, or status" />
+                    <button type="button" className="profile-icon-button" aria-label="Remove medical history" onClick={() => setMedicalHistory((items) => items.filter((entry) => entry.id !== item.id))}><Trash2 size={14} /></button>
+                  </div>
+                ))}
               </div>
 
-              <div>
-                <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
-                  Chronic Medical History
-                </label>
-                <input
-                  type="text"
-                  value={profile.medical_history || ""}
-                  onChange={(e) => handleFieldChange("medical_history", e.target.value)}
-                  onBlur={handleFieldBlur}
-                  placeholder="e.g. Hypertension, Type 2 Diabetes"
-                  style={{
-                    width: "100%",
-                    padding: "8px 10px",
-                    border: "1px solid var(--border-default)",
-                    fontSize: "0.78rem",
-                    background: "var(--bg-surface)",
-                  }}
-                />
+              <div className="profile-repeatable-section">
+                <div className="profile-repeatable-heading">
+                  <label>Current Medications</label>
+                  <button type="button" className="btn-secondary profile-add-button" onClick={addMedication}><Plus size={13} /> Add medication</button>
+                </div>
+                {medications.map((item) => (
+                  <div className="profile-repeatable-row profile-medication-row" key={item.id}>
+                    <input type="text" value={item.name || ""} onChange={(e) => updateMedication(item.id, "name", e.target.value)} placeholder="Medicine name" />
+                    <input type="text" value={item.dose || ""} onChange={(e) => updateMedication(item.id, "dose", e.target.value)} placeholder="Dose" />
+                    <input type="text" value={item.frequency || ""} onChange={(e) => updateMedication(item.id, "frequency", e.target.value)} placeholder="Frequency" />
+                    <button type="button" className="profile-icon-button" aria-label="Remove medication" onClick={() => setMedications((items) => items.filter((entry) => entry.id !== item.id))}><Trash2 size={14} /></button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="profile-repeatable-section">
+                <div className="profile-repeatable-heading">
+                  <label>Emergency Contacts</label>
+                  <button type="button" className="btn-secondary profile-add-button" onClick={addEmergencyContact}><Plus size={13} /> Add contact</button>
+                </div>
+                {emergencyContacts.map((item) => (
+                  <div className="profile-repeatable-row profile-contact-row" key={item.id}>
+                    <input type="text" value={item.name || ""} onChange={(e) => updateEmergencyContact(item.id, "name", e.target.value)} placeholder="Full name" />
+                    <input type="text" value={item.relation || ""} onChange={(e) => updateEmergencyContact(item.id, "relation", e.target.value)} placeholder="Relationship" />
+                    <input type="tel" value={item.phone || ""} onChange={(e) => updateEmergencyContact(item.id, "phone", e.target.value)} placeholder="Phone number" />
+                    <input type="email" value={item.email || ""} onChange={(e) => updateEmergencyContact(item.id, "email", e.target.value)} placeholder="Email" />
+                    <label className="profile-primary-toggle"><input type="radio" name="primary-emergency-contact" checked={!!item.is_primary} onChange={() => setEmergencyContacts((items) => items.map((entry) => ({ ...entry, is_primary: entry.id === item.id })))} /> Primary</label>
+                    <button type="button" className="profile-icon-button" aria-label="Remove emergency contact" onClick={() => setEmergencyContacts((items) => items.filter((entry) => entry.id !== item.id))}><Trash2 size={14} /></button>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -881,7 +983,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
       {deleteConfirmOpen && (
         <div className="modal-overlay" style={{ backdropFilter: "blur(6px)", zIndex: 1000 }}>
           <div
-            className="modal-content"
+            className="modal-content emergency-card-modal"
             style={{
               maxWidth: "520px",
               padding: "24px",
@@ -1005,10 +1107,10 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
             style={{
               maxWidth: "680px",
               padding: "24px",
-              background: "#0B0F19",
-              border: "1px solid #1E293B",
+              background: "var(--bg-surface)",
+              border: "1px solid var(--border-default)",
               boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.8)",
-              color: "#F8FAFC",
+              color: "var(--text-primary)",
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", borderBottom: "1px solid #1E293B", paddingBottom: "10px" }}>
@@ -1090,17 +1192,20 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                     <div>
                       <div style={{ fontSize: "0.54rem", fontWeight: 800, color: cardTheme === "light" ? "#64748B" : "#94A3B8", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>Next of Kin Hotline</div>
                       <div style={{ fontWeight: 900, color: "#DC2626", marginTop: "1px", fontSize: "0.78rem", fontFamily: "var(--font-mono)" }}>
-                        {profile.emergency_phone || "+91 98333 44556"}
+                        {primaryEmergencyContact.phone || profile.emergency_phone || "+91 98333 44556"}
                       </div>
                       <div style={{ fontSize: "0.58rem", color: cardTheme === "light" ? "#0284C7" : "#38BDF8", fontWeight: 700 }}>
-                        {profile.emergency_contact_name || "Liam Reed"} ({profile.emergency_contact_relation || "Brother"})
+                        {primaryEmergencyContact.name || profile.emergency_contact_name || "Liam Reed"} ({primaryEmergencyContact.relation || profile.emergency_contact_relation || "Brother"})
+                      </div>
+                      <div style={{ fontSize: "0.56rem", color: cardTheme === "light" ? "#64748B" : "#94A3B8", marginTop: "2px" }}>
+                        {primaryEmergencyContact.email || "No email provided"}
                       </div>
                     </div>
 
                     <div>
                       <div style={{ fontSize: "0.54rem", fontWeight: 800, color: cardTheme === "light" ? "#64748B" : "#94A3B8", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>Severe Allergies</div>
                       <div style={{ fontWeight: 800, color: "#DC2626", marginTop: "1px", fontSize: "0.70rem" }}>
-                        {profile.allergies || "Penicillin (Anaphylaxis)"}
+                        {allergySummary || "Penicillin (Anaphylaxis)"}
                       </div>
                     </div>
 
@@ -1121,18 +1226,13 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                     <div style={{ gridColumn: "span 2" }}>
                       <div style={{ fontSize: "0.54rem", fontWeight: 800, color: cardTheme === "light" ? "#64748B" : "#94A3B8", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>Active Prescriptions</div>
                       <div style={{ fontSize: "0.66rem", color: cardTheme === "light" ? "#334155" : "#CBD5E1", marginTop: "1px", fontWeight: 600 }}>
-                        {profile.active_medications || "Atorvastatin 20mg (OD) · Aspirin 75mg (OD)"}
+                        {medicationSummary || profile.active_medications || "No active medication listed"}
                       </div>
                     </div>
                   </div>
 
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#FFFFFF", padding: "8px", borderRadius: "10px", border: "1px solid #CBD5E1", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
-                    <QRCodeSVG
-                      value={emergencyPortalUrl}
-                      size={105}
-                      fgColor="#000000"
-                      bgColor="#FFFFFF"
-                    />
+                    <img className="emergency-card-qr" src={emergencyQrUrl} alt={`Scannable emergency portal QR code for ${profile.name || "patient"}`} />
                     <span style={{ fontSize: "0.48rem", fontWeight: 900, color: "#000000", fontFamily: "var(--font-mono)", marginTop: "4px", textTransform: "uppercase", letterSpacing: "0.04em", textAlign: "center" }}>
                       Scan Triage Portal
                     </span>
@@ -1141,7 +1241,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
 
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "12px", borderTop: cardTheme === "light" ? "1px solid #E2E8F0" : "1px solid rgba(255,255,255,0.1)", paddingTop: "6px" }}>
                   <div style={{ fontSize: "0.50rem", color: cardTheme === "light" ? "#64748B" : "#94A3B8", fontFamily: "var(--font-mono)" }}>
-                    PORTAL: localhost:5174/#emergency/{profile.user_id || "PT-ALEX"}
+                    PORTAL: {emergencyPortalUrl.replace(/^https?:\/\//, "")}
                   </div>
                   <div style={{ fontSize: "0.52rem", color: "#0284C7", fontWeight: 800, fontFamily: "var(--font-mono)", textTransform: "uppercase" }}>
                     SECURE LIVE TELEMETRY PASS
@@ -1185,7 +1285,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                   style={{ padding: "8px 16px", fontSize: "0.74rem", display: "flex", alignItems: "center", gap: "6px", background: "#0284C7", border: "1px solid #38BDF8", color: "#FFFFFF", fontWeight: 800 }}
                 >
                   <Printer size={13} />
-                  Print ISO Physical Card
+                  Print / Save PDF
                 </button>
                 <button
                   type="button"

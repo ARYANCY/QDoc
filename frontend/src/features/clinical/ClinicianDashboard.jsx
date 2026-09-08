@@ -48,45 +48,7 @@ export default function ClinicianDashboard({ doctorId = "DOC-KAVITA" }) {
     }
   }
 
-  // Simulated triage patient cohort sorted by Composite Risk Score (CRS)
-  const triageCohort = [
-    {
-      id: "PT-89421",
-      mrn: "MRN-89421-QX",
-      name: "Alexander Reed",
-      age: 48,
-      gender: "Male",
-      crs: 68,
-      riskTier: "High Risk",
-      primaryModule: "Coronary Atheroma (VQC 0.947)",
-      lastCheckup: "Today",
-      status: "Scheduled at 02:00 PM",
-    },
-    {
-      id: "PT-77120",
-      mrn: "MRN-77120-BL",
-      name: "Elena Rostova",
-      age: 54,
-      gender: "Female",
-      crs: 52,
-      riskTier: "Moderate Risk",
-      primaryModule: "Breast Oncology (WDBC Triage)",
-      lastCheckup: "Yesterday",
-      status: "Review Pending",
-    },
-    {
-      id: "PT-66014",
-      mrn: "MRN-66014-KL",
-      name: "Marcus Vance",
-      age: 62,
-      gender: "Male",
-      crs: 28,
-      riskTier: "Low Baseline",
-      primaryModule: "Pulmonary Parenchyma (PneuVision)",
-      lastCheckup: "3 days ago",
-      status: "Stable",
-    },
-  ];
+  const triageCohort = [];
 
   if (activeBookingForRoom) {
     return (
@@ -128,11 +90,11 @@ export default function ClinicianDashboard({ doctorId = "DOC-KAVITA" }) {
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
               <span className="step-badge gold">CLINICIAN COCKPIT // TRIAGE</span>
               <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "1.45rem", color: "var(--ink-primary)", fontWeight: 900, margin: 0 }}>
-                Dr. Kavita Rao, MD (Cardiology & Preventive Medicine)
+                Clinical Care Team
               </h2>
             </div>
             <p style={{ color: "var(--text-secondary)", fontSize: "0.82rem", margin: 0, fontFamily: "var(--font-sans)" }}>
-              AIIMS New Delhi • Medical Registration: <strong style={{ fontFamily: "var(--font-mono)" }}>MCI-2014-89312</strong> (Verified) • Department Care Team Alpha
+              Live clinician workspace • Provider: <strong style={{ fontFamily: "var(--font-mono)" }}>{doctorId}</strong>
             </p>
           </div>
           <div style={{ display: "flex", gap: "10px" }}>
@@ -177,7 +139,7 @@ export default function ClinicianDashboard({ doctorId = "DOC-KAVITA" }) {
                 >
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "3px" }}>
-                      <strong style={{ fontSize: "0.88rem", color: "var(--text-primary)" }}>{b.patient_name || "Alexander Reed"}</strong>
+                      <strong style={{ fontSize: "0.88rem", color: "var(--text-primary)" }}>{b.patient_name || "Unknown patient"}</strong>
                       <span className="step-badge" style={{ fontSize: "0.68rem" }}>{b.status.toUpperCase()}</span>
                     </div>
                     <div style={{ fontSize: "0.76rem", color: "var(--text-secondary)" }}>
@@ -211,7 +173,11 @@ export default function ClinicianDashboard({ doctorId = "DOC-KAVITA" }) {
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            {triageCohort.map((pat) => (
+            {triageCohort.length === 0 ? (
+              <div style={{ padding: "24px 12px", textAlign: "center", color: "var(--text-muted)", fontSize: "0.78rem" }}>
+                No triage records returned by the clinical API.
+              </div>
+            ) : triageCohort.map((pat) => (
               <div
                 key={pat.id}
                 style={{

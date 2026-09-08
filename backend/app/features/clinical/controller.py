@@ -14,6 +14,7 @@ from backend.app.core.qr_service import (
     generate_qr_svg_string,
 )
 from backend.app.core.security import check_inference_rate_limit
+from backend.app.core.config import settings
 from backend.app.db.repository import DatabaseRepository
 from ml.data.dataset_registry import load_disease_benchmark
 from ml.data.preprocessing import QuantumPreprocessor, deidentify_dataframe
@@ -261,7 +262,7 @@ async def get_emergency_patient_card(patient_id: str):
         record = DatabaseRepository.get_emergency_profile("PT-89421")
     
     # Target standalone card-frontend URL
-    emergency_url = f"http://localhost:5174/#emergency/{patient_id}"
+    emergency_url = f"{settings.FRONTEND_URL.rstrip('/')}/#emergency/{patient_id}"
     record["qr_code_data_uri"] = generate_qr_base64_data_uri(emergency_url)
     record["emergency_url"] = emergency_url
     return record
@@ -271,7 +272,7 @@ async def get_emergency_patient_card(patient_id: str):
 @router.get("/emergency/{patient_id}/qr")
 async def get_emergency_qr_png(patient_id: str):
     """Streams high-contrast PNG QR code image bytes directly from Python."""
-    emergency_url = f"http://localhost:5174/#emergency/{patient_id}"
+    emergency_url = f"{settings.FRONTEND_URL.rstrip('/')}/#emergency/{patient_id}"
     png_bytes = generate_qr_png_bytes(emergency_url, box_size=10, border=2)
     return Response(content=png_bytes, media_type="image/png")
 
@@ -279,7 +280,7 @@ async def get_emergency_qr_png(patient_id: str):
 @router.get("/emergency/{patient_id}/qr.svg")
 async def get_emergency_qr_svg(patient_id: str):
     """Streams vector SVG QR code string directly from Python."""
-    emergency_url = f"http://localhost:5174/#emergency/{patient_id}"
+    emergency_url = f"{settings.FRONTEND_URL.rstrip('/')}/#emergency/{patient_id}"
     svg_str = generate_qr_svg_string(emergency_url)
     return Response(content=svg_str, media_type="image/svg+xml")
 

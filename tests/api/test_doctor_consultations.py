@@ -110,7 +110,22 @@ def test_booking_lifecycle_state_machine():
 
 def test_webrtc_room_and_admit():
     """Verify consultation room metadata, doctor admit, and in-call chat."""
-    booking_id = "BK-2026-8801"
+    # Create booking dynamically
+    booking_req = {
+        "doctor_id": "DOC-KAVITA",
+        "slot_time": "02:00 PM",
+        "mode": "video",
+        "patient_id": "PT-89421",
+        "reason": "Preventative Cardiology checkup",
+        "symptoms": "Mild exertional breathlessness",
+        "duration": "2 weeks",
+        "existing_medications": ["Atorvastatin 10mg"],
+        "emergency_contact": "+91 98333 44556",
+    }
+    res_book = client.post("/api/v1/consultations/book", json=booking_req)
+    assert res_book.status_code == 200
+    booking_id = res_book.json()["booking"]["id"]
+
     # Get room
     res_room = client.get(f"/api/v1/consultations/rooms/{booking_id}")
     assert res_room.status_code == 200
@@ -155,8 +170,24 @@ def test_drug_interaction_checker():
 
 def test_eprescription_creation_and_signature():
     """Verify creation of cryptographically signed E-Prescription with SOAP notes."""
+    # Create booking dynamically
+    booking_req = {
+        "doctor_id": "DOC-KAVITA",
+        "slot_time": "04:30 PM",
+        "mode": "video",
+        "patient_id": "PT-89421",
+        "reason": "Prescription renewal and ECG follow-up",
+        "symptoms": "Occasional palpitations",
+        "duration": "1 week",
+        "existing_medications": ["Atorvastatin 20mg"],
+        "emergency_contact": "+91 98333 44556",
+    }
+    res_book = client.post("/api/v1/consultations/book", json=booking_req)
+    assert res_book.status_code == 200
+    booking_id = res_book.json()["booking"]["id"]
+
     rx_payload = {
-        "booking_id": "BK-2026-8801",
+        "booking_id": booking_id,
         "patient_id": "PT-89421",
         "doctor_id": "DOC-KAVITA",
         "diagnosis": "Stage 1 Coronary Calcification Risk",

@@ -1,49 +1,48 @@
 import React from 'react';
 import { useTwinStore } from '../store/twinStore';
 import { getSeverityTier } from '../data/visualizationRules';
-import { Network, Activity } from 'lucide-react';
+import { Network } from 'lucide-react';
 
 export default function DiabetesControls() {
   const diseaseParams = useTwinStore((state) => state.diseaseParams.DIABETES);
   const updateDiseaseParam = useTwinStore((state) => state.updateDiseaseParam);
 
   const targets = [
-    { key: 'pancreas', label: 'Pancreas (Endocrine/Islet)', val: diseaseParams.pancreas, color: 'accent-yellow-500' },
-    { key: 'kidneyLeft', label: 'Left Kidney (Renal/Nephron)', val: diseaseParams.kidneyLeft, color: 'accent-purple-500' },
-    { key: 'kidneyRight', label: 'Right Kidney (Renal/Nephron)', val: diseaseParams.kidneyRight, color: 'accent-purple-500' },
-    { key: 'heart', label: 'Heart (Cardiovascular Baseline)', val: diseaseParams.heart, color: 'accent-red-500' },
-    { key: 'vascular', label: 'Vascular Network (Micro/Macro)', val: diseaseParams.vascular, color: 'accent-rose-500' },
+    { key: 'pancreas', label: 'Pancreas (Endocrine/Islet)', val: diseaseParams.pancreas },
+    { key: 'kidneyLeft', label: 'Left Kidney (Renal/Nephron)', val: diseaseParams.kidneyLeft },
+    { key: 'kidneyRight', label: 'Right Kidney (Renal/Nephron)', val: diseaseParams.kidneyRight },
+    { key: 'heart', label: 'Heart (Cardiovascular Baseline)', val: diseaseParams.heart },
+    { key: 'vascular', label: 'Vascular Network (Micro/Macro)', val: diseaseParams.vascular },
   ];
 
   return (
-    <div className="space-y-3.5">
-      <div className="p-2.5 rounded-lg bg-amber-950/30 border border-amber-800/40 text-[11px] text-amber-300/90 leading-relaxed flex items-start gap-2">
-        <Network className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-        <span>
-          <strong>Systemic Metabolic Model:</strong> Adjust configured involvement across multiple distributed target organs simultaneously.
-        </span>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <div style={{ padding: '8px 10px', borderRadius: '6px', background: 'rgba(212, 175, 55, 0.1)', border: '1px solid var(--dt-gold-glow)', fontSize: '0.66rem', color: 'var(--dt-gold)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <Network size={14} color="var(--dt-gold)" />
+        <span><strong>Systemic Model:</strong> Adjust involvement across multiple target organs simultaneously.</span>
       </div>
 
       {targets.map((item) => {
         const tier = getSeverityTier(item.val);
         return (
-          <div key={item.key} className="p-3 rounded-xl bg-surface-secondary/70 border border-slate-800 space-y-1.5">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-slate-200">
+          <div key={item.key} style={{ background: '#0D0E15', padding: '10px', borderRadius: '6px', border: '1px solid var(--dt-border-subtle)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <label style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.68rem', fontWeight: 700, color: 'var(--dt-text-secondary)' }}>
                 {item.label}
               </label>
-              <span className={`text-[11px] px-2 py-0.5 rounded font-mono font-bold ${tier.badgeClass}`}>
+              <span style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.60rem', fontWeight: 800, padding: '1px 6px', borderRadius: '4px', background: `${tier.hexColor}20`, color: tier.hexColor }}>
                 {item.val}% ({tier.label})
               </span>
             </div>
-            <div className="flex items-center gap-3">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <input
                 type="range"
                 min="0"
                 max="100"
                 value={item.val}
                 onChange={(e) => updateDiseaseParam('DIABETES', item.key, Number(e.target.value))}
-                className={`w-full ${item.color} h-1.5 bg-slate-700 rounded-lg cursor-pointer`}
+                className="dt-range-slider"
+                style={{ flex: 1 }}
               />
               <input
                 type="number"
@@ -51,7 +50,8 @@ export default function DiabetesControls() {
                 max="100"
                 value={item.val}
                 onChange={(e) => updateDiseaseParam('DIABETES', item.key, Math.max(0, Math.min(100, Number(e.target.value))))}
-                className="w-14 px-1.5 py-1 text-xs font-mono bg-slate-900 border border-slate-700 rounded text-center text-slate-200"
+                className="dt-input"
+                style={{ width: '54px', padding: '4px 6px', textAlign: 'center', fontSize: '0.68rem' }}
               />
             </div>
           </div>
@@ -60,3 +60,4 @@ export default function DiabetesControls() {
     </div>
   );
 }
+

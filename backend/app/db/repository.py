@@ -153,19 +153,18 @@ class DatabaseRepository:
         except Exception:
             d["baseline_vitals"] = {"heart_rate_bpm": 72, "blood_pressure": "120/80 mmHg", "spo2_percent": 98, "temperature_f": 98.6}
 
-        # Structured extended medical metadata if embedded
-        d["allergies"] = d.get("allergies") or [
-            {"id": "alg-1", "allergen": "Penicillin", "severity": "high", "reaction": "Anaphylaxis / Urticaria"},
-            {"id": "alg-2", "allergen": "Sulfa Drugs", "severity": "moderate", "reaction": "Contact Dermatitis / Rash"}
-        ]
-        d["medications"] = d.get("medications") or [
-            {"id": "med-1", "name": "Atorvastatin", "dose": "20mg", "frequency": "Once daily (OD) - Night"},
-            {"id": "med-2", "name": "Aspirin (Ecosprin)", "dose": "75mg", "frequency": "Once daily (OD) - Post Meal"}
-        ]
-        d["emergency_contacts"] = d.get("emergency_contacts") or [
-            {"name": "Liam Reed", "phone": "+91 98333 44556", "relation": "Brother / Next of Kin", "is_primary": True},
-            {"name": "Dr. Kavita Rao (AIIMS)", "phone": "+91 98111 22334", "relation": "Primary Cardiologist", "is_primary": False}
-        ]
+        for field, fallback in (
+            ("medical_history", ["Hypertension (Stage 1)", "Mild Hyperlipidemia"]),
+            ("allergies", [{"id": "alg-1", "allergen": "Penicillin", "severity": "high", "reaction": "Anaphylaxis / Urticaria"}]),
+            ("medications", [{"id": "med-1", "name": "Atorvastatin", "dose": "20mg", "frequency": "Once daily (OD) - Night"}]),
+            ("emergency_contacts", [{"name": "Liam Reed", "phone": "+91 98333 44556", "email": "", "relation": "Brother / Next of Kin", "is_primary": True}]),
+        ):
+            json_field = f"{field}_json"
+            try:
+                d[field] = json.loads(d.get(json_field) or "null") or fallback
+            except (TypeError, json.JSONDecodeError):
+                d[field] = fallback
+
         d["organ_donor"] = d.get("organ_donor", True)
         d["abha_id"] = d.get("abha_id", "91-4829-1092-8821")
         d["address"] = d.get("address", "Flat 402, Green Glen Heights, New Delhi - 110029")
@@ -219,10 +218,14 @@ class DatabaseRepository:
         conds = json.dumps(patient_data.get("conditions", ["Coronary Plaque Risk", "Dense Breast Tissue", "Mild Dyslipidemia"]))
         vitals = json.dumps(patient_data.get("baseline_vitals", {"heart_rate_bpm": 72, "blood_pressure": "120/78 mmHg", "spo2_percent": 98, "temperature_f": 98.6}))
         em = patient_data.get("emergency_contact", "+91 98333 44556 (Brother: Liam Reed)")
+        history = json.dumps(patient_data.get("medical_history", ["Hypertension (Stage 1)"]))
+        allergies = json.dumps(patient_data.get("allergies", []))
+        medications = json.dumps(patient_data.get("medications", []))
+        contacts = json.dumps(patient_data.get("emergency_contacts", []))
 
         conn.execute("""
-        INSERT INTO patients (id, mrn, name, age, gender, blood_group, height_cm, weight_kg, conditions_json, baseline_vitals_json, emergency_contact)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO patients (id, mrn, name, age, gender, blood_group, height_cm, weight_kg, conditions_json, baseline_vitals_json, emergency_contact, medical_history_json, allergies_json, medications_json, emergency_contacts_json)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
             name=excluded.name,
             age=excluded.age,
@@ -232,8 +235,12 @@ class DatabaseRepository:
             weight_kg=excluded.weight_kg,
             conditions_json=excluded.conditions_json,
             baseline_vitals_json=excluded.baseline_vitals_json,
-            emergency_contact=excluded.emergency_contact;
-        """, (pid, mrn, name, age, gender, blood, h, w, conds, vitals, em))
+            emergency_contact=excluded.emergency_contact,
+            medical_history_json=excluded.medical_history_json,
+            allergies_json=excluded.allergies_json,
+            medications_json=excluded.medications_json,
+            emergency_contacts_json=excluded.emergency_contacts_json;
+        """, (pid, mrn, name, age, gender, blood, h, w, conds, vitals, em, history, allergies, medications, contacts))
         conn.commit()
         conn.close()
         return DatabaseRepository.get_patient(pid)
@@ -559,6 +566,39 @@ class DatabaseRepository:
         conn.commit()
         conn.close()
         return messages
+
+    @staticmethod
+    def add_room_signal(booking_id: str, sender_id: str, sender_role: str, signal_type: str, payload: dict[str, Any]) -> dict[str, Any]:
+        conn = get_db_connection()
+        cursor = conn.execute(
+            "INSERT INTO consultation_signals (booking_id, sender_id, sender_role, signal_type, payload_json) VALUES (?, ?, ?, ?, ?);",
+            (booking_id, sender_id, sender_role, signal_type, json.dumps(payload)),
+        )
+        conn.commit()
+        signal_id = cursor.lastrowid
+        row = conn.execute("SELECT * FROM consultation_signals WHERE id = ?;", (signal_id,)).fetchone()
+        conn.close()
+        signal = dict(row)
+        signal["payload"] = json.loads(signal.pop("payload_json"))
+        return signal
+
+    @staticmethod
+    def list_room_signals(booking_id: str, after_id: int = 0, sender_id: str | None = None) -> list[dict[str, Any]]:
+        conn = get_db_connection()
+        query = "SELECT * FROM consultation_signals WHERE booking_id = ? AND id > ?"
+        params: list[Any] = [booking_id, after_id]
+        if sender_id:
+            query += " AND sender_id != ?"
+            params.append(sender_id)
+        query += " ORDER BY id ASC;"
+        rows = conn.execute(query, tuple(params)).fetchall()
+        conn.close()
+        signals = []
+        for row in rows:
+            signal = dict(row)
+            signal["payload"] = json.loads(signal.pop("payload_json"))
+            signals.append(signal)
+        return signals
 
     # ── E-Prescriptions & Care Plans (Module H) ────────────────────────────────
 

@@ -162,20 +162,15 @@ export function createSyntheticMedicalStream({ label = "CLINICAL TELEMETRY FEED"
 /**
  * Acquire user media stream (camera + mic) with automatic synthetic fallback.
  */
-export async function getClinicalMediaStream({ video = true, audio = true, fallbackLabel = "LOCAL CLINICIAN" } = {}) {
+export async function getClinicalMediaStream({ video = true, audio = true } = {}) {
   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: video ? { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } } : false,
-        audio: audio ? { echoCancellation: true, noiseSuppression: true } : false,
-      });
-      return { stream, isSynthetic: false };
-    } catch (err) {
-      console.warn("Physical camera/mic unavailable or permission denied. Initializing synthetic clinical stream:", err.message);
-    }
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: video ? { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } } : false,
+      audio: audio ? { echoCancellation: true, noiseSuppression: true } : false,
+    });
+    return { stream, isSynthetic: false };
   }
-  const stream = createSyntheticMedicalStream({ label: fallbackLabel });
-  return { stream, isSynthetic: true };
+  throw new Error("Camera and microphone access are not supported in this browser.");
 }
 
 /**

@@ -6,6 +6,7 @@ import BottomBar from './panels/BottomBar';
 import DigitalTwinViewer from './components/DigitalTwinViewer';
 import ErrorBoundary from './components/ErrorBoundary';
 import { useTwinStore } from './store/twinStore';
+import './digitalTwin.css';
 
 /**
  * DigitalTwin3DPage
@@ -32,29 +33,28 @@ export default function DigitalTwin3DPage({ patientId, result }) {
 
   return (
     <ErrorBoundary>
-      <div className="w-full h-full flex flex-col bg-[#090A0D] text-slate-100 overflow-hidden font-sans" style={{ minHeight: 0 }}>
-
-        {/* Top Layer Controls */}
+      <div className="dt-workspace">
+        {/* Top Controls & Navigation */}
         <TopNavbar canvasRef={canvasRef} />
 
-        {/* 3-Column Layout */}
-        <div className="flex flex-1 overflow-hidden min-h-0">
-
-          {/* Left: Patient Details + Disease Controls */}
+        {/* 3-Column Studio Layout */}
+        <div className="dt-main-grid">
+          {/* Left: Patient Details + Clinical Inputs + Disease Controls */}
           <LeftSidebar />
 
-          {/* Center: 3D WebGL Viewer */}
-          <main className="flex-1 h-full relative overflow-hidden min-w-0">
+          {/* Center: 3D WebGL Anatomical Viewer */}
+          <main className="dt-center-viewer">
             <DigitalTwinViewer canvasRef={canvasRef} />
           </main>
 
-          {/* Right: Anatomy Inspector */}
+          {/* Right: Anatomy Inspector & Risk Metrics */}
           <RightSidebar />
         </div>
 
-        {/* Bottom: Legend + Analytics */}
+        {/* Bottom: Telemetry KPIs & Severity Legend */}
         <BottomBar />
       </div>
     </ErrorBoundary>
   );
 }
+
