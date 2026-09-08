@@ -7,10 +7,16 @@
 
 /**
  * Creates a synthetic animated canvas stream for environments where
- * physical webcams are blocked, unsupported, or absent.
+ * physical webcams are blocked, unsupported, or absent (e.g. 2 tabs on same machine).
  * Renders a futuristic medical HUD with live laser scans, ECG waveforms, and telemetry.
  */
-export function createSyntheticMedicalStream({ label = "CLINICAL TELEMETRY FEED", width = 1280, height = 720 } = {}) {
+export function createSyntheticMedicalStream({
+  label = "CLINICAL TELEMETRY FEED",
+  role = "doctor",
+  participantName = "",
+  width = 1280,
+  height = 720,
+} = {}) {
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
@@ -20,18 +26,22 @@ export function createSyntheticMedicalStream({ label = "CLINICAL TELEMETRY FEED"
   const ecgPoints = [];
   const maxEcgPoints = 120;
 
+  const isDoctorRole = role === "doctor";
+  const primaryAccent = isDoctorRole ? "#D4AF37" : "#10B981";
+  const secondaryAccent = isDoctorRole ? "#E2C366" : "#0EA5E9";
+
   function renderFrame() {
     frame++;
 
-    // Background gradient
+    // Deep slate medical background gradient
     const bgGrad = ctx.createRadialGradient(width / 2, height / 2, 80, width / 2, height / 2, width);
-    bgGrad.addColorStop(0, "#08101a");
+    bgGrad.addColorStop(0, isDoctorRole ? "#0c121e" : "#081519");
     bgGrad.addColorStop(1, "#020408");
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, width, height);
 
     // Subtle holographic grid
-    ctx.strokeStyle = "rgba(212, 175, 55, 0.08)";
+    ctx.strokeStyle = isDoctorRole ? "rgba(212, 175, 55, 0.07)" : "rgba(16, 185, 129, 0.07)";
     ctx.lineWidth = 1;
     const gridSize = 40;
     for (let x = 0; x < width; x += gridSize) {
@@ -48,23 +58,24 @@ export function createSyntheticMedicalStream({ label = "CLINICAL TELEMETRY FEED"
     }
 
     // Moving laser scanner line
-    const scanY = (frame * 2.5) % height;
-    const scanGrad = ctx.createLinearGradient(0, scanY - 30, 0, scanY);
-    scanGrad.addColorStop(0, "rgba(14, 165, 233, 0)");
-    scanGrad.addColorStop(1, "rgba(14, 165, 233, 0.35)");
+    const scanY = (frame * 2.2) % height;
+    const scanGrad = ctx.createLinearGradient(0, scanY - 35, 0, scanY);
+    scanGrad.addColorStop(0, "rgba(0, 0, 0, 0)");
+    scanGrad.addColorStop(1, isDoctorRole ? "rgba(212, 175, 55, 0.25)" : "rgba(14, 165, 233, 0.35)");
     ctx.fillStyle = scanGrad;
-    ctx.fillRect(0, scanY - 30, width, 30);
-    ctx.strokeStyle = "rgba(14, 165, 233, 0.8)";
+    ctx.fillRect(0, scanY - 35, width, 35);
+    ctx.strokeStyle = isDoctorRole ? "rgba(212, 175, 55, 0.7)" : "rgba(14, 165, 233, 0.8)";
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(0, scanY);
     ctx.lineTo(width, scanY);
     ctx.stroke();
 
-    // Central Human Silhouette / Diagnostic Target
+    // Central Diagnostic Target / Silhouette
     const cx = width / 2;
     const cy = height / 2 - 20;
-    ctx.strokeStyle = "rgba(212, 175, 55, 0.4)";
+
+    ctx.strokeStyle = isDoctorRole ? "rgba(212, 175, 55, 0.35)" : "rgba(16, 185, 129, 0.4)";
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.arc(cx, cy, 110, 0, Math.PI * 2);
@@ -75,29 +86,45 @@ export function createSyntheticMedicalStream({ label = "CLINICAL TELEMETRY FEED"
     ctx.save();
     ctx.translate(cx, cy);
     ctx.rotate(angle);
-    ctx.strokeStyle = "rgba(16, 185, 129, 0.5)";
+    ctx.strokeStyle = secondaryAccent;
     ctx.setLineDash([8, 12]);
     ctx.beginPath();
     ctx.arc(0, 0, 130, 0, Math.PI * 2);
     ctx.stroke();
     ctx.restore();
 
+    // Crosshairs
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.moveTo(cx - 150, cy);
+    ctx.lineTo(cx + 150, cy);
+    ctx.moveTo(cx, cy - 140);
+    ctx.lineTo(cx, cy + 140);
+    ctx.stroke();
+
+    // Center Avatar Symbol
+    ctx.fillStyle = primaryAccent;
+    ctx.font = "bold 28px 'Cinzel', serif";
+    ctx.textAlign = "center";
+    ctx.fillText(isDoctorRole ? "✚ CLINICIAN" : "👤 PATIENT", cx, cy + 10);
+    ctx.textAlign = "left";
+
     // ECG Pulse Calculation
     const pulsePhase = frame % 60;
     let ecgY = 0;
-    if (pulsePhase === 20) ecgY = -12;
-    else if (pulsePhase === 22) ecgY = 48;
-    else if (pulsePhase === 24) ecgY = -28;
-    else if (pulsePhase === 26) ecgY = 8;
+    if (pulsePhase === 20) ecgY = -14;
+    else if (pulsePhase === 22) ecgY = 52;
+    else if (pulsePhase === 24) ecgY = -32;
+    else if (pulsePhase === 26) ecgY = 10;
     else ecgY = Math.sin(frame * 0.15) * 3;
 
     ecgPoints.push(ecgY);
     if (ecgPoints.length > maxEcgPoints) ecgPoints.shift();
 
     // Draw ECG strip along bottom
-    ctx.strokeStyle = "#10b981";
-    ctx.lineWidth = 2;
-    ctx.setLineDash([]);
+    ctx.strokeStyle = isDoctorRole ? "#E2C366" : "#10B981";
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
     const stripStartX = width / 2 - 240;
     const stripY = height - 100;
@@ -110,32 +137,36 @@ export function createSyntheticMedicalStream({ label = "CLINICAL TELEMETRY FEED"
     ctx.stroke();
 
     // Medical HUD Text & Telemetry
-    ctx.fillStyle = "#D4AF37";
+    ctx.fillStyle = primaryAccent;
     ctx.font = "bold 15px 'JetBrains Mono', monospace";
-    ctx.fillText("● 1080p WEBRTC CLINICAL ENCRYPTED FEED", 40, 50);
+    ctx.fillText(`● 1080p WEBRTC ${isDoctorRole ? "CLINICAL PRACTITIONER" : "PATIENT BIOMETRIC"} FEED`, 40, 50);
+
+    ctx.fillStyle = "#E4E4E7";
+    ctx.font = "13px 'JetBrains Mono', monospace";
+    const displayName = participantName ? `${participantName.toUpperCase()}` : label;
+    ctx.fillText(`IDENT: ${displayName} [${role.toUpperCase()}]`, 40, 75);
 
     ctx.fillStyle = "#A1A1AA";
     ctx.font = "12px 'JetBrains Mono', monospace";
-    ctx.fillText(`TARGET: ${label}`, 40, 75);
-    ctx.fillText(`ENTROPY: 0.942 | FRAME: ${frame} | QPU LINK: SYNCHRONIZED`, 40, 95);
-    ctx.fillText("VITALS HUD: HR 74 BPM | SpO2 99% | BP 118/76", 40, 115);
+    ctx.fillText(`ENTROPY: 0.942 | FRAME: ${frame} | QPU TELEMETRY: ACTIVE`, 40, 95);
+    ctx.fillText("VITALS HUD: HR 74 BPM | SpO2 99% | BP 118/76 | T 36.8°C", 40, 115);
 
     ctx.fillStyle = "#10B981";
-    ctx.fillText("DTLS-SRTP 256-BIT SECURE", width - 260, 50);
+    ctx.fillText("DTLS-SRTP 256-BIT SECURE", width - 270, 50);
   }
 
   // Draw loop
   const intervalId = setInterval(renderFrame, 1000 / 30);
   const stream = canvas.captureStream(30);
 
-  // Synthesize a silent Web Audio track so audio controls don't crash
+  // Synthesize a silent Web Audio track so audio tracks are always valid
   try {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     if (AudioCtx) {
       const audioCtx = new AudioCtx();
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
-      gain.gain.value = 0.0001; // virtually silent tone to provide valid track
+      gain.gain.value = 0.00001; // silent carrier tone
       osc.connect(gain);
       const dest = audioCtx.createMediaStreamDestination();
       gain.connect(dest);
@@ -162,22 +193,40 @@ export function createSyntheticMedicalStream({ label = "CLINICAL TELEMETRY FEED"
 /**
  * Acquire user media stream (camera + mic) with automatic synthetic fallback.
  */
-export async function getClinicalMediaStream({ video = true, audio = true } = {}) {
-  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: video ? { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } } : false,
-      audio: audio ? { echoCancellation: true, noiseSuppression: true } : false,
-    });
-    return { stream, isSynthetic: false };
+export async function getClinicalMediaStream({
+  video = true,
+  audio = true,
+  role = "doctor",
+  participantName = "",
+} = {}) {
+  try {
+    if (typeof navigator !== "undefined" && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: video ? { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } } : false,
+        audio: audio ? { echoCancellation: true, noiseSuppression: true } : false,
+      });
+      if (stream && stream.getVideoTracks().length > 0) {
+        return { stream, isSynthetic: false };
+      }
+    }
+  } catch (err) {
+    console.warn("Real media hardware busy or unavailable. Falling back to synthetic telemetry stream:", err);
   }
-  throw new Error("Camera and microphone access are not supported in this browser.");
+
+  // Fallback to high-definition animated medical telemetry feed
+  const stream = createSyntheticMedicalStream({
+    label: role === "doctor" ? "DR. CLINICAL ENCRYPTED FEED" : "PATIENT BIOMETRIC SCAN FEED",
+    role,
+    participantName,
+  });
+  return { stream, isSynthetic: true };
 }
 
 /**
  * Capture screen share stream with seamless return.
  */
 export async function getScreenShareStream() {
-  if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+  if (typeof navigator !== "undefined" && navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
     return await navigator.mediaDevices.getDisplayMedia({
       video: { cursor: "always" },
       audio: false,
@@ -187,21 +236,25 @@ export async function getScreenShareStream() {
 }
 
 /**
- * Setup RTCPeerConnection with Google STUN infrastructure.
+ * Setup RTCPeerConnection with resilient Google & Cloudflare STUN infrastructure.
  */
 export function createClinicalPeerConnection({ onTrack, onIceCandidate, onConnectionStateChange } = {}) {
   const config = {
     iceServers: [
       { urls: "stun:stun.l.google.com:19302" },
       { urls: "stun:stun1.l.google.com:19302" },
+      { urls: "stun:stun2.l.google.com:19302" },
+      { urls: "stun:stun.cloudflare.com:3478" },
     ],
+    iceCandidatePoolSize: 10,
   };
 
   const pc = new RTCPeerConnection(config);
 
   if (onTrack) {
     pc.ontrack = (event) => {
-      onTrack(event.streams[0]);
+      const stream = event.streams && event.streams[0] ? event.streams[0] : new MediaStream([event.track]);
+      onTrack(stream);
     };
   }
 
@@ -242,3 +295,4 @@ export function captureVideoSnapshot(videoElement) {
 
   return canvas.toDataURL("image/jpeg", 0.92);
 }
+

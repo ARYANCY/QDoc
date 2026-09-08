@@ -67,6 +67,13 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
+
 def print_banner(host: str, port: int, mode: str) -> None:
     banner = r"""
 ================================================================================
@@ -79,12 +86,15 @@ def print_banner(host: str, port: int, mode: str) -> None:
   Hybrid Quantum Machine Learning Clinical Decision Support Platform
   Smart India Hackathon (SIH) Problem Statement ID: 26139
 ================================================================================
-  🚀 API Server:       http://""" + f"{host}:{port}\n" + r"""  📖 Swagger Docs:     http://""" + f"{host}:{port}/docs\n" + r"""  📋 ReDoc:            http://""" + f"{host}:{port}/redoc\n" + f"""  🗄️  Database Mode:   {mode.upper()} ({settings.DB_PATH.name})
-  ⚛️  Quantum Engine:  {settings.QUANTUM_BACKEND.upper()} ({settings.SIMULATOR_SHOTS} shots)
-  🌐 Frontend:        {settings.FRONTEND_URL}
+  API Server:       http://""" + f"{host}:{port}\n" + r"""  Swagger Docs:     http://""" + f"{host}:{port}/docs\n" + r"""  ReDoc:            http://""" + f"{host}:{port}/redoc\n" + f"""  Database Mode:   {mode.upper()} ({settings.DB_PATH.name})
+  Quantum Engine:  {settings.QUANTUM_BACKEND.upper()} ({settings.SIMULATOR_SHOTS} shots)
+  Frontend:        {settings.FRONTEND_URL}
 ================================================================================
 """
-    print(banner)
+    try:
+        print(banner)
+    except Exception:
+        pass
 
 
 def main() -> None:

@@ -67,15 +67,19 @@ export const consultationsApi = {
     });
   },
 
-  async publishSignal(bookingId, signalType, payload) {
+  async publishSignal(bookingId, signalType, payload, senderRole = null, senderId = null) {
     return apiClient.post(`/api/v1/consultations/rooms/${bookingId}/signals`, {
       signal_type: signalType,
       payload,
+      sender_role: senderRole,
+      sender_id: senderId,
     });
   },
 
-  async listSignals(bookingId, afterId = 0) {
-    return apiClient.get(`/api/v1/consultations/rooms/${bookingId}/signals?after_id=${afterId}`);
+  async listSignals(bookingId, afterId = 0, role = null) {
+    let url = `/api/v1/consultations/rooms/${bookingId}/signals?after_id=${afterId}`;
+    if (role) url += `&role=${encodeURIComponent(role)}`;
+    return apiClient.get(url);
   },
 
   async checkDrugInteractions(candidateDrugs, currentMedications = []) {

@@ -116,6 +116,8 @@ class ChatMessageRequest(BaseModel):
 class WebRTCSignalRequest(BaseModel):
     signal_type: str
     payload: dict[str, Any]
+    sender_role: Optional[str] = None
+    sender_id: Optional[str] = None
 
 
 class MedicationItem(BaseModel):
@@ -424,8 +426,8 @@ def publish_webrtc_signal(booking_id: str, req: WebRTCSignalRequest, current_use
         raise HTTPException(status_code=400, detail="Unsupported WebRTC signal type.")
     if not DatabaseRepository.get_room_by_booking(booking_id):
         raise HTTPException(status_code=404, detail="Consultation room not found.")
-    sender_id = (current_user.get("user_id") if current_user else None) or (current_user.get("username") if current_user else "unknown")
-    sender_role = current_user.get("role", "participant") if current_user else "participant"
+    sender_role = req.sender_role or (current_user.get("role") if current_user else None) or "participant"
+    sender_id = req.sender_id or (current_user.get("user_id") if current_user else None) or (current_user.get("username") if current_user else None) or sender_role
     signal = DatabaseRepository.add_room_signal(
         booking_id,
         sender_id,
@@ -437,7 +439,12 @@ def publish_webrtc_signal(booking_id: str, req: WebRTCSignalRequest, current_use
 
 
 @router.get("/rooms/{booking_id}/signals")
-def list_webrtc_signals(booking_id: str, after_id: int = 0, current_user: dict = Depends(get_optional_user)):
+def list_webrtc_signals(
+    booking_id: str,
+    after_id: int = 0,
+    role: Optional[str] = Query(None, description="Caller role to exclude self-signals"),
+    current_user: dict = Depends(get_optional_user),
+):
     """Returns new signals for the opposite consultation participant only."""
     if not DatabaseRepository.get_room_by_booking(booking_id):
         raise HTTPException(status_code=404, detail="Consultation room not found.")
@@ -446,6 +453,7 @@ def list_webrtc_signals(booking_id: str, after_id: int = 0, current_user: dict =
         booking_id,
         after_id=after_id,
         sender_id=current_sender_id,
+        exclude_role=role,
     )
     return {"status": "success", "signals": signals}
 

@@ -53,6 +53,8 @@ export default function VirtualConsultationRoom({ booking, isDoctor = false, onL
   const screenStreamRef = useRef(null);
   const peerConnectionRef = useRef(null);
   const signalCursorRef = useRef(0);
+  const pendingCandidatesRef = useRef([]);
+  const [hasRemoteStream, setHasRemoteStream] = useState(false);
 
   // GSAP Entrance
   useEffect(() => {
@@ -67,7 +69,13 @@ export default function VirtualConsultationRoom({ booking, isDoctor = false, onL
 
     async function initMedia() {
       try {
-        const { stream: localStream, isSynthetic } = await getClinicalMediaStream({ video: true, audio: true });
+        const callerName = isDoctor ? booking.doctor_name || "Doctor" : booking.patient_name || "Patient";
+        const { stream: localStream, isSynthetic } = await getClinicalMediaStream({
+          video: true,
+          audio: true,
+          role: isDoctor ? "doctor" : "patient",
+          participantName: callerName,
+        });
 
         if (!active) return;
 
@@ -82,24 +90,43 @@ export default function VirtualConsultationRoom({ booking, isDoctor = false, onL
         const peerConnection = createClinicalPeerConnection({
           onTrack: (stream) => {
             remoteStreamRef.current = stream;
+            setHasRemoteStream(true);
             if (remoteVideoRef.current) {
               remoteVideoRef.current.srcObject = stream;
               remoteVideoRef.current.play().catch(() => {});
             }
-            setConnectionStatus("DTLS-SRTP 256-Bit Encrypted • Peer connected");
+            setConnectionStatus("DTLS-SRTP 256-Bit Encrypted • Live Telemetry Active");
           },
           onIceCandidate: (candidate) => {
-            consultationsApi.publishSignal(booking.id, "ice-candidate", candidate.toJSON?.() || candidate).catch((err) => setMediaError(err.message));
+            consultationsApi.publishSignal(
+              booking.id,
+              "ice-candidate",
+              candidate.toJSON?.() || candidate,
+              isDoctor ? "doctor" : "patient",
+              callerName
+            ).catch(() => {});
           },
-          onConnectionStateChange: (state) => setConnectionStatus(`WebRTC connection: ${state}`),
+          onConnectionStateChange: (state) => {
+            if (state === "connected") {
+              setConnectionStatus("DTLS-SRTP 256-Bit Encrypted • Peer Connected");
+            } else if (state === "connecting") {
+              setConnectionStatus("Establishing DTLS-SRTP Peer Handshake...");
+            }
+          },
         });
         peerConnectionRef.current = peerConnection;
         localStream.getTracks().forEach((track) => peerConnection.addTrack(track, localStream));
 
         if (isDoctor) {
-          const offer = await peerConnection.createOffer();
+          const offer = await peerConnection.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: true });
           await peerConnection.setLocalDescription(offer);
-          await consultationsApi.publishSignal(booking.id, "offer", offer);
+          await consultationsApi.publishSignal(
+            booking.id,
+            "offer",
+            offer,
+            "doctor",
+            callerName
+          );
         }
       } catch (err) {
         console.error("WebRTC initialization error:", err);
@@ -129,28 +156,59 @@ export default function VirtualConsultationRoom({ booking, isDoctor = false, onL
   useEffect(() => {
     if (!booking?.id) return undefined;
     let active = true;
+    const callerRole = isDoctor ? "doctor" : "patient";
+    const callerName = isDoctor ? booking.doctor_name || "Doctor" : booking.patient_name || "Patient";
+
     async function pollSignals() {
       if (!peerConnectionRef.current) return;
       try {
-        const res = await consultationsApi.listSignals(booking.id, signalCursorRef.current);
+        const res = await consultationsApi.listSignals(booking.id, signalCursorRef.current, callerRole);
         for (const signal of res.signals || []) {
           signalCursorRef.current = Math.max(signalCursorRef.current, signal.id);
           const peer = peerConnectionRef.current;
-          if (!peer || signal.sender_role === (isDoctor ? "doctor" : "patient")) continue;
+          if (!peer || signal.sender_role === callerRole) continue;
+
           if (signal.signal_type === "offer" && !isDoctor) {
-            await peer.setRemoteDescription(signal.payload);
+            await peer.setRemoteDescription(new RTCSessionDescription(signal.payload));
+            // Flush queued candidates
+            for (const c of pendingCandidatesRef.current) {
+              try { await peer.addIceCandidate(new RTCIceCandidate(c)); } catch (e) {}
+            }
+            pendingCandidatesRef.current = [];
+
             const answer = await peer.createAnswer();
             await peer.setLocalDescription(answer);
-            await consultationsApi.publishSignal(booking.id, "answer", answer);
+            await consultationsApi.publishSignal(
+              booking.id,
+              "answer",
+              answer,
+              "patient",
+              callerName
+            );
           } else if (signal.signal_type === "answer" && isDoctor) {
-            await peer.setRemoteDescription(signal.payload);
+            if (peer.signalingState === "have-local-offer") {
+              await peer.setRemoteDescription(new RTCSessionDescription(signal.payload));
+              // Flush queued candidates
+              for (const c of pendingCandidatesRef.current) {
+                try { await peer.addIceCandidate(new RTCIceCandidate(c)); } catch (e) {}
+              }
+              pendingCandidatesRef.current = [];
+            }
           } else if (signal.signal_type === "ice-candidate") {
-            await peer.addIceCandidate(signal.payload);
+            if (peer.remoteDescription && peer.remoteDescription.type) {
+              try {
+                await peer.addIceCandidate(new RTCIceCandidate(signal.payload));
+              } catch (e) {
+                console.warn("Could not add ice candidate:", e);
+              }
+            } else {
+              pendingCandidatesRef.current.push(signal.payload);
+            }
           }
         }
         if (active) setMediaError(null);
       } catch (err) {
-        if (active) setMediaError(err.message || "WebRTC signaling unavailable.");
+        // silent retry
       }
     }
     const interval = setInterval(pollSignals, 1000);
@@ -158,7 +216,7 @@ export default function VirtualConsultationRoom({ booking, isDoctor = false, onL
     return () => { active = false; clearInterval(interval); };
   }, [booking?.id, isDoctor]);
 
-  // Hook local video element whenever room status changes
+  // Hook local and remote video elements whenever room status changes
   useEffect(() => {
     if (localVideoRef.current && localStreamRef.current) {
       localVideoRef.current.srcObject = localStreamRef.current;
@@ -168,15 +226,14 @@ export default function VirtualConsultationRoom({ booking, isDoctor = false, onL
       remoteVideoRef.current.srcObject = remoteStreamRef.current;
       remoteVideoRef.current.play().catch(() => {});
     }
-  }, [room?.status]);
+  }, [room?.status, hasRemoteStream]);
 
   // Periodic room status polling
   useEffect(() => {
-    if (booking?.id) {
-      loadRoom();
-      const interval = setInterval(loadRoom, 3500);
-      return () => clearInterval(interval);
-    }
+    if (!booking?.id) return;
+    loadRoom();
+    const interval = setInterval(loadRoom, 3500);
+    return () => clearInterval(interval);
   }, [booking?.id]);
 
   async function loadRoom() {
@@ -437,6 +494,41 @@ export default function VirtualConsultationRoom({ booking, isDoctor = false, onL
             ) : null}
 
             {/* Remote WebRTC Video Track (Primary Viewport) */}
+            {!isWaiting && !hasRemoteStream && (
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "radial-gradient(circle at center, #0c1524 0%, #020408 100%)",
+                  zIndex: 5,
+                  padding: "20px",
+                  textAlign: "center",
+                }}
+              >
+                <div
+                  style={{
+                    width: "48px",
+                    height: "48px",
+                    borderRadius: "50%",
+                    border: "2px solid var(--gold)",
+                    borderTopColor: "transparent",
+                    animation: "spin 1.2s linear infinite",
+                    marginBottom: "16px",
+                  }}
+                />
+                <h4 style={{ fontFamily: "var(--font-serif)", color: "var(--gold)", margin: "0 0 6px 0", fontSize: "1.1rem" }}>
+                  Synchronizing Peer Stream
+                </h4>
+                <p style={{ color: "var(--text-secondary)", fontSize: "0.78rem", margin: 0, fontFamily: "var(--font-mono)" }}>
+                  Connecting with {isDoctor ? (booking.patient_name || "Patient") : (booking.doctor_name || "Doctor")} via 256-bit DTLS-SRTP tunnel...
+                </p>
+              </div>
+            )}
+
             <video
               ref={remoteVideoRef}
               autoPlay
@@ -455,8 +547,8 @@ export default function VirtualConsultationRoom({ booking, isDoctor = false, onL
                 position: "absolute",
                 bottom: "16px",
                 right: "16px",
-                width: "150px",
-                height: "95px",
+                width: "160px",
+                height: "100px",
                 background: "#0A0D14",
                 border: "1px solid var(--gold)",
                 boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4)",
@@ -465,6 +557,7 @@ export default function VirtualConsultationRoom({ booking, isDoctor = false, onL
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                borderRadius: "var(--radius-xs)",
               }}
             >
               {isVideoOn ? (
@@ -494,12 +587,13 @@ export default function VirtualConsultationRoom({ booking, isDoctor = false, onL
                   fontSize: "0.58rem",
                   fontFamily: "var(--font-mono)",
                   color: "#FFFFFF",
-                  background: "rgba(0,0,0,0.7)",
-                  padding: "1px 4px",
+                  background: "rgba(0,0,0,0.75)",
+                  padding: "2px 5px",
                   letterSpacing: "0.06em",
+                  borderRadius: "2px",
                 }}
               >
-                SELF (YOU)
+                {isDoctor ? (booking.doctor_name || "Doctor") : (booking.patient_name || "Patient")} (YOU)
               </div>
             </div>
 

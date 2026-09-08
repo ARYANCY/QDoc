@@ -802,33 +802,51 @@ class DatabaseRepository:
     @staticmethod
     def add_room_signal(booking_id: str, sender_id: str, sender_role: str, signal_type: str, payload: dict[str, Any]) -> dict[str, Any]:
         conn = get_db_connection()
-        cursor = conn.execute(
-            "INSERT INTO consultation_signals (booking_id, sender_id, sender_role, signal_type, payload_json) VALUES (?, ?, ?, ?, ?);",
-            (booking_id, sender_id, sender_role, signal_type, json.dumps(payload)),
-        )
-        conn.commit()
-        signal_id = cursor.lastrowid
-        row = conn.execute("SELECT * FROM consultation_signals WHERE id = ?;", (signal_id,)).fetchone()
-        conn.close()
-        signal = dict(row)
-        signal["payload"] = json.loads(signal.pop("payload_json"))
-        return signal
+        is_postgres = isinstance(conn, PostgresConnectionWrapper)
+        payload_str = json.dumps(payload)
+        if is_postgres:
+            row = conn.execute(
+                "INSERT INTO consultation_signals (booking_id, sender_id, sender_role, signal_type, payload_json) VALUES (%s, %s, %s, %s, %s) RETURNING *;",
+                (booking_id, sender_id, sender_role, signal_type, payload_str),
+            ).fetchone()
+            conn.commit()
+            conn.close()
+            signal = dict(row)
+            signal["payload"] = json.loads(signal.pop("payload_json", "{}"))
+            return signal
+        else:
+            cursor = conn.execute(
+                "INSERT INTO consultation_signals (booking_id, sender_id, sender_role, signal_type, payload_json) VALUES (?, ?, ?, ?, ?);",
+                (booking_id, sender_id, sender_role, signal_type, payload_str),
+            )
+            conn.commit()
+            signal_id = cursor.lastrowid
+            row = conn.execute("SELECT * FROM consultation_signals WHERE id = ?;", (signal_id,)).fetchone()
+            conn.close()
+            signal = dict(row) if row else {"id": signal_id, "booking_id": booking_id, "sender_id": sender_id, "sender_role": sender_role, "signal_type": signal_type, "payload_json": payload_str}
+            signal["payload"] = json.loads(signal.pop("payload_json", "{}"))
+            return signal
 
     @staticmethod
-    def list_room_signals(booking_id: str, after_id: int = 0, sender_id: str | None = None) -> list[dict[str, Any]]:
+    def list_room_signals(booking_id: str, after_id: int = 0, sender_id: str | None = None, exclude_role: str | None = None) -> list[dict[str, Any]]:
         conn = get_db_connection()
-        query = "SELECT * FROM consultation_signals WHERE booking_id = ? AND id > ?"
+        is_postgres = isinstance(conn, PostgresConnectionWrapper)
+        placeholder = "%s" if is_postgres else "?"
+        query = f"SELECT * FROM consultation_signals WHERE booking_id = {placeholder} AND id > {placeholder}"
         params: list[Any] = [booking_id, after_id]
         if sender_id:
-            query += " AND sender_id != ?"
+            query += f" AND sender_id != {placeholder}"
             params.append(sender_id)
+        if exclude_role:
+            query += f" AND sender_role != {placeholder}"
+            params.append(exclude_role)
         query += " ORDER BY id ASC;"
         rows = conn.execute(query, tuple(params)).fetchall()
         conn.close()
         signals = []
         for row in rows:
             signal = dict(row)
-            signal["payload"] = json.loads(signal.pop("payload_json"))
+            signal["payload"] = json.loads(signal.pop("payload_json", "{}"))
             signals.append(signal)
         return signals
 
