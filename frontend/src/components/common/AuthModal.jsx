@@ -97,8 +97,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
           borderRadius: "var(--radius-sm)",
           border: "1px solid var(--border-default)",
           borderTop: "3px solid var(--gold)",
-          boxShadow: "var(--shadow-modal)",
-          boxShadow: "0 20px 50px rgba(2, 132, 199, 0.16)",
+          boxShadow: "var(--shadow-modal), 0 20px 50px rgba(2, 132, 199, 0.16)",
           background: "var(--bg-surface)",
         }}
       >
