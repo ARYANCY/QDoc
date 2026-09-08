@@ -14,6 +14,34 @@ logger = logging.getLogger("backend.database")
 DB_PATH = settings.DB_PATH
 
 
+_PG_POOL: Optional[Any] = None
+
+
+def _get_pg_pool() -> Optional[Any]:
+    global _PG_POOL
+    if _PG_POOL is not None and not getattr(_PG_POOL, "closed", False):
+        return _PG_POOL
+    if settings.DB_MODE == "production" and settings.DATABASE_URL:
+        pg_url = settings.DATABASE_URL
+        if pg_url.startswith("postgres://") or pg_url.startswith("postgresql://"):
+            try:
+                import psycopg2.pool
+                if pg_url.startswith("postgres://"):
+                    pg_url = pg_url.replace("postgres://", "postgresql://", 1)
+                _PG_POOL = psycopg2.pool.ThreadedConnectionPool(
+                    minconn=1,
+                    maxconn=15,
+                    dsn=pg_url,
+                    connect_timeout=6,
+                )
+                logger.info("Initialized PostgreSQL ThreadedConnectionPool (max 15 connections)")
+                return _PG_POOL
+            except Exception as exc:
+                logger.warning(f"PostgreSQL connection pool init failed ({exc}). Falling back to local SQLite at {settings.DB_PATH}")
+                _PG_POOL = None
+    return None
+
+
 class PostgresCursorWrapper:
     """Wraps a psycopg2 RealDictCursor with SQLite-compatible query execution."""
 
@@ -49,10 +77,12 @@ class PostgresCursorWrapper:
 
 
 class PostgresConnectionWrapper:
-    """Wraps a psycopg2 connection to mimic sqlite3.Connection interface."""
+    """Wraps a psycopg2 connection from the pool to mimic sqlite3.Connection interface."""
 
-    def __init__(self, raw_conn: Any):
+    def __init__(self, raw_conn: Any, pool: Any = None):
         self.raw_conn = raw_conn
+        self.pool = pool
+        self._closed = False
 
     def cursor(self) -> PostgresCursorWrapper:
         import psycopg2.extras
@@ -65,28 +95,46 @@ class PostgresConnectionWrapper:
         return cur
 
     def commit(self) -> None:
-        self.raw_conn.commit()
+        if not self._closed and not self.raw_conn.closed:
+            self.raw_conn.commit()
 
     def rollback(self) -> None:
-        self.raw_conn.rollback()
+        if not self._closed and not self.raw_conn.closed:
+            self.raw_conn.rollback()
 
     def close(self) -> None:
-        self.raw_conn.close()
+        if not self._closed:
+            self._closed = True
+            if self.pool is not None and not getattr(self.pool, "closed", False):
+                try:
+                    self.pool.putconn(self.raw_conn)
+                except Exception:
+                    try:
+                        self.raw_conn.close()
+                    except Exception:
+                        pass
+            else:
+                try:
+                    self.raw_conn.close()
+                except Exception:
+                    pass
 
 
 def get_db_connection() -> Any:
-    """Returns unified DB connection: PostgreSQL if DB_MODE is production and DATABASE_URL is set, else SQLite."""
-    if settings.DB_MODE == "production" and settings.DATABASE_URL:
-        pg_url = settings.DATABASE_URL
-        if pg_url.startswith("postgres://") or pg_url.startswith("postgresql://"):
-            try:
-                import psycopg2
-                if pg_url.startswith("postgres://"):
-                    pg_url = pg_url.replace("postgres://", "postgresql://", 1)
-                raw_conn = psycopg2.connect(pg_url)
-                return PostgresConnectionWrapper(raw_conn)
-            except Exception as exc:
-                logger.warning(f"PostgreSQL connection failed ({exc}). Falling back to local SQLite at {settings.DB_PATH}")
+    """Returns unified DB connection: PostgreSQL pool if active, else local SQLite."""
+    pool = _get_pg_pool()
+    if pool is not None:
+        try:
+            raw_conn = pool.getconn()
+            if raw_conn.closed:
+                pool.putconn(raw_conn, close=True)
+                raw_conn = pool.getconn()
+            # Ensure transaction is clean
+            if raw_conn.get_transaction_status() != 0:
+                raw_conn.rollback()
+            return PostgresConnectionWrapper(raw_conn, pool=pool)
+        except Exception as exc:
+            logger.warning(f"Error leasing connection from PostgreSQL pool ({exc}). Falling back to SQLite.")
 
     # SQLite connection for demo mode or local fallback
     conn = sqlite3.connect(str(settings.DB_PATH), check_same_thread=False, timeout=30.0)
@@ -101,7 +149,45 @@ def init_database():
     is_postgres = isinstance(conn, PostgresConnectionWrapper)
     cursor = conn.cursor()
 
-    if not is_postgres:
+    if is_postgres:
+        # Guarantee all auxiliary tables exist in PostgreSQL
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS consultation_rooms (
+            id TEXT PRIMARY KEY,
+            booking_id TEXT UNIQUE NOT NULL,
+            room_token TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'waiting',
+            doctor_joined INTEGER DEFAULT 0,
+            patient_joined INTEGER DEFAULT 0,
+            chat_messages_json TEXT DEFAULT '[]',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        """)
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS consultation_signals (
+            id SERIAL PRIMARY KEY,
+            booking_id TEXT NOT NULL,
+            sender_id TEXT NOT NULL,
+            sender_role TEXT NOT NULL,
+            signal_type TEXT NOT NULL,
+            payload_json TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        """)
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS notifications (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            title TEXT NOT NULL,
+            message TEXT NOT NULL,
+            reference_code TEXT,
+            category TEXT NOT NULL,
+            is_read INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        """)
+        conn.commit()
+    else:
         cursor.execute("PRAGMA journal_mode = WAL;")
         cursor.execute("PRAGMA synchronous = NORMAL;")
         cursor.execute("PRAGMA foreign_keys = ON;")
@@ -403,6 +489,35 @@ def init_database():
             INSERT OR IGNORE INTO audit_logs (id, timestamp, actor, action, resource, ip_address, status, hash_signature)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?);
             """, (aid, ts, actor, action, rsc, ip, status, hsig))
+
+    # Auto-sync any unlinked doctor accounts to doctors directory
+    doc_users = cursor.execute("SELECT id, username, name, hospital_affiliation, license_number FROM users WHERE LOWER(role) IN ('doctor', 'clinician');").fetchall()
+    existing_docs = {r["user_id"] if isinstance(r, dict) else r[0] for r in cursor.execute("SELECT user_id FROM doctors;").fetchall()}
+    for u in doc_users:
+        uid = u["id"] if isinstance(u, dict) else u[0]
+        if uid not in existing_docs:
+            uname = u["name"] if isinstance(u, dict) else u[2]
+            dname = uname if (uname.startswith("Dr.") or uname.startswith("Dr ")) else f"Dr. {uname}"
+            uaff = (u["hospital_affiliation"] if isinstance(u, dict) else u[3]) or "AIIMS Clinical AI OPD"
+            ulic = (u["license_number"] if isinstance(u, dict) else u[4]) or f"MCI-2026-{uuid.uuid4().hex[:5].upper()}"
+            cursor.execute("""
+            INSERT OR IGNORE INTO doctors (id, user_id, name, specialty, registration_number, council_name, experience_years, fee_inr, rating, languages_json, hospital_affiliation, available_slots_json, verification_status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+            """, (
+                f"DOC-{uid.replace('USR-', '')}",
+                uid,
+                dname,
+                "General Medicine & Clinical AI",
+                ulic,
+                "National Medical Commission",
+                6,
+                600.0,
+                4.9,
+                json.dumps(["English", "Hindi"]),
+                uaff,
+                json.dumps(["09:30 AM", "11:00 AM", "02:30 PM", "04:30 PM"]),
+                "verified"
+            ))
 
     conn.commit()
     conn.close()

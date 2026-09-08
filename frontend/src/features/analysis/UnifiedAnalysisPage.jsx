@@ -1780,7 +1780,10 @@ export default function UnifiedAnalysisPage() {
           {/* ── VIEW 13: CLINICIAN DASHBOARD (Module I) ─────────────────────── */}
           {activeTab === "clinician_dashboard" && (
             <div style={{ height: "100%", overflowY: "auto" }}>
-              <ClinicianDashboard doctorId={currentUser.role === "doctor" ? "DOC-KAVITA" : "DOC-KAVITA"} />
+              <ClinicianDashboard
+                doctorId={currentUser.doctor_id || (currentUser.id ? `DOC-${String(currentUser.id).replace('USR-', '')}` : "DOC-KAVITA")}
+                currentUser={currentUser}
+              />
             </div>
           )}
         </main>

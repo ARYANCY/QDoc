@@ -30,6 +30,8 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
   const [registerRole, setRegisterRole] = useState("patient");
+  const [registerSpecialty, setRegisterSpecialty] = useState("General Medicine & Clinical AI");
+  const [registerAffiliation, setRegisterAffiliation] = useState("AIIMS Clinical AI OPD");
   const [showPassword, setShowPassword] = useState(false);
   const [activePersonaId, setActivePersonaId] = useState("patient");
 
@@ -124,6 +126,8 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
       name: registerName,
       email: registerEmail,
       role: registerRole,
+      specialty: registerRole === "doctor" ? registerSpecialty : undefined,
+      hospital_affiliation: registerRole === "doctor" ? registerAffiliation : undefined,
     });
   }
 
@@ -649,13 +653,14 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                     marginBottom: "4px",
                   }}
                 >
-                  Username
+                  Username or Registered Email
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. alex.patient"
+                  placeholder="e.g. alex.patient or user@health.org"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
+                  autoComplete="username"
                   required
                   style={{
                     width: "100%",
@@ -690,6 +695,7 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="current-password"
                     required
                     style={{
                       width: "100%",
@@ -759,25 +765,25 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                 <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", display: "block", marginBottom: "4px" }}>
                   Full Name
                 </label>
-                <input type="text" value={registerName} onChange={(e) => setRegisterName(e.target.value)} required style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }} />
+                <input type="text" value={registerName} onChange={(e) => setRegisterName(e.target.value)} autoComplete="name" required style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }} />
               </div>
               <div>
                 <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", display: "block", marginBottom: "4px" }}>
                   Username
                 </label>
-                <input type="text" value={registerUsername} onChange={(e) => setRegisterUsername(e.target.value)} required style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }} />
+                <input type="text" value={registerUsername} onChange={(e) => setRegisterUsername(e.target.value)} autoComplete="username" required style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }} />
               </div>
               <div>
                 <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", display: "block", marginBottom: "4px" }}>
                   Email
                 </label>
-                <input type="email" value={registerEmail} onChange={(e) => setRegisterEmail(e.target.value)} required style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }} />
+                <input type="email" value={registerEmail} onChange={(e) => setRegisterEmail(e.target.value)} autoComplete="email" required style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }} />
               </div>
               <div>
                 <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", display: "block", marginBottom: "4px" }}>
                   Password
                 </label>
-                <input type="password" value={registerPassword} onChange={(e) => setRegisterPassword(e.target.value)} required style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }} />
+                <input type="password" value={registerPassword} onChange={(e) => setRegisterPassword(e.target.value)} autoComplete="new-password" required style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }} />
               </div>
               <div>
                 <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", display: "block", marginBottom: "4px" }}>
@@ -789,6 +795,44 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                   <option value="admin">Administrator (Compliance & Security)</option>
                 </select>
               </div>
+
+              {registerRole === "doctor" && (
+                <>
+                  <div>
+                    <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--gold)", display: "block", marginBottom: "4px" }}>
+                      ★ Clinical Specialty (Directory Display)
+                    </label>
+                    <select
+                      value={registerSpecialty}
+                      onChange={(e) => setRegisterSpecialty(e.target.value)}
+                      style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }}
+                    >
+                      <option value="General Medicine & Clinical AI">General Medicine & Clinical AI</option>
+                      <option value="Cardiology & Preventive Medicine">Cardiology & Preventive Medicine</option>
+                      <option value="Medical Oncology">Medical Oncology</option>
+                      <option value="Pulmonary & Respiratory Medicine">Pulmonary & Respiratory Medicine</option>
+                      <option value="Dermatology & Skin Lesions">Dermatology & Skin Lesions</option>
+                      <option value="Neurology & Neuro-imaging">Neurology & Neuro-imaging</option>
+                      <option value="Endocrinology & Diabetes">Endocrinology & Diabetes</option>
+                      <option value="Orthopedics & Joint Care">Orthopedics & Joint Care</option>
+                      <option value="Pediatrics & Child Health">Pediatrics & Child Health</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", display: "block", marginBottom: "4px" }}>
+                      Hospital / Clinic Affiliation
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. AIIMS Clinical AI OPD"
+                      value={registerAffiliation}
+                      onChange={(e) => setRegisterAffiliation(e.target.value)}
+                      style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }}
+                    />
+                  </div>
+                </>
+              )}
+
               <button type="submit" disabled={loading} className="btn-primary" style={{ marginTop: "8px", padding: "12px", fontSize: "0.82rem", width: "100%", minHeight: "44px" }}>
                 {loading ? "Creating Account..." : "Create Account & Sign In"}
               </button>

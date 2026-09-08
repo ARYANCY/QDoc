@@ -54,7 +54,7 @@ export default function DigitalTwinViewer({ canvasRef, compact = false }) {
 
           {/* Holographic Floor Grid */}
           <gridHelper
-            args={[6, 24, '#D4AF3740', '#20243050']}
+            args={[6, 24, '#D4AF37', '#202430']}
             position={[0, -0.90, 0]}
           />
 

@@ -346,6 +346,7 @@ export default function UserManagementConsole() {
                     required
                     value={newUser.username}
                     onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+                    autoComplete="username"
                     placeholder="e.g. rahul.user"
                     style={{ width: "100%", padding: "6px 8px", border: "1px solid var(--border-default)", fontSize: "0.76rem" }}
                   />
@@ -357,6 +358,7 @@ export default function UserManagementConsole() {
                     required
                     value={newUser.password}
                     onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                    autoComplete="new-password"
                     placeholder="Enter password"
                     style={{ width: "100%", padding: "6px 8px", border: "1px solid var(--border-default)", fontSize: "0.76rem" }}
                   />
@@ -371,6 +373,7 @@ export default function UserManagementConsole() {
                     required
                     value={newUser.name}
                     onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                    autoComplete="name"
                     placeholder="e.g. Rahul Verma"
                     style={{ width: "100%", padding: "6px 8px", border: "1px solid var(--border-default)", fontSize: "0.76rem" }}
                   />

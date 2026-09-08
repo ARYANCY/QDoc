@@ -22,6 +22,9 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
   const [regRole, setRegRole] = useState("patient");
   const [regPhone, setRegPhone] = useState("");
   const [regAffiliation, setRegAffiliation] = useState("");
+  const [regSpecialty, setRegSpecialty] = useState("General Medicine & Clinical AI");
+  const [regFee, setRegFee] = useState("600");
+  const [regExp, setRegExp] = useState("6");
 
   useEffect(() => {
     if (isOpen) {
@@ -68,8 +71,11 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
         email: regEmail.trim(),
         role: regRole,
         emergency_phone: regPhone || "+91 98765 43210",
-        hospital_affiliation: regAffiliation || (regRole === "doctor" ? "Metro Health Clinic" : "Community Hospital"),
+        hospital_affiliation: regAffiliation || (regRole === "doctor" ? "AIIMS Clinical AI OPD" : "Community Hospital"),
         license_number: defaultLicense,
+        specialty: regRole === "doctor" ? (regSpecialty || "General Medicine & Clinical AI") : undefined,
+        fee_inr: regRole === "doctor" ? (parseFloat(regFee) || 600.0) : undefined,
+        experience_years: regRole === "doctor" ? (parseInt(regExp, 10) || 6) : undefined,
       });
       if (onLoginSuccess) onLoginSuccess(data.user);
       onClose();
@@ -320,13 +326,14 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
           <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
               <label style={{ fontSize: "0.70rem", fontWeight: 700, color: "var(--text-secondary)" }}>
-                Username
+                Username or Registered Email
               </label>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="e.g. alex.patient"
+                autoComplete="username"
+                placeholder="e.g. alex.patient or user@health.org"
                 style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--border-default)", fontSize: "0.80rem" }}
                 required
               />
@@ -341,6 +348,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
                   placeholder="Enter your password"
                   style={{ width: "100%", padding: "8px 36px 8px 10px", border: "1px solid var(--border-default)", fontSize: "0.80rem" }}
                   required
@@ -358,7 +366,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
 
             <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
               <label style={{ fontSize: "0.70rem", fontWeight: 700, color: "var(--text-secondary)" }}>
-                Account Role
+                Role (Auto-Detected from Database)
               </label>
               <select
                 value={role}
@@ -366,8 +374,8 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
                 style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--border-default)", fontSize: "0.80rem" }}
               >
                 <option value="patient">Patient (Health Checkup & 3D Twin)</option>
-                <option value="doctor">Doctor (Diagnostics & Consultations)</option>
-                <option value="admin">Administrator (Security & Governance)</option>
+                <option value="doctor">Doctor / Clinician (Diagnostics & Tele-OPD)</option>
+                <option value="admin">Administrator (Compliance & Governance)</option>
               </select>
             </div>
 
@@ -378,7 +386,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
               style={{ width: "100%", padding: "10px", marginTop: "4px", minHeight: "38px" }}
             >
               <LogIn size={15} />
-              <span>{loading ? "Signing In..." : `Sign In as ${role.toUpperCase()}`}</span>
+              <span>{loading ? "Signing In..." : "Sign In to Portal"}</span>
             </button>
           </form>
         )}
@@ -395,6 +403,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
                   type="text"
                   value={regName}
                   onChange={(e) => setRegName(e.target.value)}
+                  autoComplete="name"
                   placeholder="e.g. Dr. Maya Patel"
                   style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--border-default)", fontSize: "0.78rem" }}
                   required
@@ -409,6 +418,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
                   type="text"
                   value={regUsername}
                   onChange={(e) => setRegUsername(e.target.value)}
+                  autoComplete="username"
                   placeholder="e.g. maya.patel"
                   style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--border-default)", fontSize: "0.78rem" }}
                   required
@@ -425,6 +435,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
                   type="email"
                   value={regEmail}
                   onChange={(e) => setRegEmail(e.target.value)}
+                  autoComplete="email"
                   placeholder="maya@example.com"
                   style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--border-default)", fontSize: "0.78rem" }}
                   required
@@ -439,6 +450,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
                   type="password"
                   value={regPassword}
                   onChange={(e) => setRegPassword(e.target.value)}
+                  autoComplete="new-password"
                   placeholder="••••••••"
                   style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--border-default)", fontSize: "0.78rem" }}
                   required
@@ -470,11 +482,85 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
                   type="text"
                   value={regPhone}
                   onChange={(e) => setRegPhone(e.target.value)}
+                  autoComplete="tel"
                   placeholder="+91 98765 43210"
                   style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--border-default)", fontSize: "0.78rem" }}
                 />
               </div>
             </div>
+
+            {/* Doctor Profile Specific Fields */}
+            {regRole === "doctor" && (
+              <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", borderLeft: "3px solid var(--gold)", padding: "10px 12px", display: "flex", flexDirection: "column", gap: "8px" }}>
+                <div style={{ fontSize: "0.68rem", fontWeight: 800, color: "var(--gold)", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                  ★ Clinical Practice Details (Appears in Find Doctors & Consultations)
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                  <div>
+                    <label style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: "2px" }}>
+                      Medical Specialty *
+                    </label>
+                    <select
+                      value={regSpecialty}
+                      onChange={(e) => setRegSpecialty(e.target.value)}
+                      style={{ width: "100%", padding: "7px 8px", border: "1px solid var(--border-default)", fontSize: "0.74rem" }}
+                    >
+                      <option value="General Medicine & Clinical AI">General Medicine & Clinical AI</option>
+                      <option value="Cardiology & Preventive Medicine">Cardiology & Preventive Medicine</option>
+                      <option value="Medical Oncology">Medical Oncology</option>
+                      <option value="Pulmonary & Respiratory Medicine">Pulmonary & Respiratory Medicine</option>
+                      <option value="Dermatology & Skin Lesions">Dermatology & Skin Lesions</option>
+                      <option value="Neurology & Neuro-imaging">Neurology & Neuro-imaging</option>
+                      <option value="Endocrinology & Diabetes">Endocrinology & Diabetes</option>
+                      <option value="Orthopedics & Joint Care">Orthopedics & Joint Care</option>
+                      <option value="Pediatrics & Child Health">Pediatrics & Child Health</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: "2px" }}>
+                      Hospital / Clinic Affiliation
+                    </label>
+                    <input
+                      type="text"
+                      value={regAffiliation}
+                      onChange={(e) => setRegAffiliation(e.target.value)}
+                      placeholder="e.g. AIIMS Clinical AI OPD"
+                      style={{ width: "100%", padding: "7px 8px", border: "1px solid var(--border-default)", fontSize: "0.74rem" }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                  <div>
+                    <label style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: "2px" }}>
+                      Consultation Fee (INR)
+                    </label>
+                    <input
+                      type="number"
+                      value={regFee}
+                      onChange={(e) => setRegFee(e.target.value)}
+                      placeholder="600"
+                      style={{ width: "100%", padding: "7px 8px", border: "1px solid var(--border-default)", fontSize: "0.74rem" }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: "2px" }}>
+                      Experience (Years)
+                    </label>
+                    <input
+                      type="number"
+                      value={regExp}
+                      onChange={(e) => setRegExp(e.target.value)}
+                      placeholder="6"
+                      style={{ width: "100%", padding: "7px 8px", border: "1px solid var(--border-default)", fontSize: "0.74rem" }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
 
             <button
               type="submit"

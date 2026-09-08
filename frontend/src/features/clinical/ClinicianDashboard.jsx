@@ -17,7 +17,7 @@ import { consultationsApi } from "../../api/consultations";
 import VirtualConsultationRoom from "../consultation/VirtualConsultationRoom";
 import { animateEntrance, animateCardStagger } from "../../utils/motion";
 
-export default function ClinicianDashboard({ doctorId = "DOC-KAVITA" }) {
+export default function ClinicianDashboard({ doctorId = "DOC-KAVITA", currentUser = null }) {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeBookingForRoom, setActiveBookingForRoom] = useState(null);
@@ -26,18 +26,20 @@ export default function ClinicianDashboard({ doctorId = "DOC-KAVITA" }) {
   const [selectedPatientForOverride, setSelectedPatientForOverride] = useState(null);
   const containerRef = useRef(null);
 
+  const resolvedDoctorId = currentUser?.doctor_id || doctorId;
+
   useEffect(() => {
     loadBookings();
     if (containerRef.current) {
       animateEntrance(containerRef.current, { y: 15, duration: 0.4 });
       animateCardStagger(containerRef.current, ".card-panel");
     }
-  }, [doctorId]);
+  }, [resolvedDoctorId]);
 
   async function loadBookings() {
     setLoading(true);
     try {
-      const res = await consultationsApi.listBookings(null, doctorId);
+      const res = await consultationsApi.listBookings(null, resolvedDoctorId);
       if (res?.bookings) {
         setBookings(res.bookings);
       }
@@ -48,7 +50,15 @@ export default function ClinicianDashboard({ doctorId = "DOC-KAVITA" }) {
     }
   }
 
-  const triageCohort = [];
+  const triageCohort = bookings.map((b) => ({
+    id: b.id,
+    name: b.patient_name || "Registered Patient",
+    patientId: b.patient_id,
+    risk: b.triage_risk === "emergency_red_flag" ? "High Risk" : "Routine",
+    score: b.triage_risk === "emergency_red_flag" ? 0.92 : 0.28,
+    symptoms: b.intake?.symptoms || "Standard Checkup",
+    booking: b,
+  }));
 
   if (activeBookingForRoom) {
     return (
@@ -94,7 +104,7 @@ export default function ClinicianDashboard({ doctorId = "DOC-KAVITA" }) {
               </h2>
             </div>
             <p style={{ color: "var(--text-secondary)", fontSize: "0.82rem", margin: 0, fontFamily: "var(--font-sans)" }}>
-              Live clinician workspace • Provider: <strong style={{ fontFamily: "var(--font-mono)" }}>{doctorId}</strong>
+              Live clinician workspace • Clinician: <strong>{currentUser?.name || "Dr. Practitioner"}</strong> • Verified Provider ID: <strong style={{ fontFamily: "var(--font-mono)" }}>{resolvedDoctorId}</strong>
             </p>
           </div>
           <div style={{ display: "flex", gap: "10px" }}>

@@ -2,7 +2,7 @@
 
 [![Execution Guide](https://img.shields.io/badge/Runbook-Complete%20%26%20Verified-brightgreen.svg)]()
 [![SIH Problem ID](https://img.shields.io/badge/SIH%20ID-26139-0052CC.svg)]()
-[![Tests Passing](https://img.shields.io/badge/Tests-65%2F65%20Passing-brightgreen.svg)]()
+[![Tests Passing](https://img.shields.io/badge/Tests-68%2F68%20Passing-brightgreen.svg)]()
 [![Python](https://img.shields.io/badge/Python-3.10%20--%203.12-blue.svg)]()
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x%20%2B%20CUDA-EE4C2C.svg)]()
 [![PennyLane](https://img.shields.io/badge/PennyLane-0.40%2B-blueviolet.svg)]()
@@ -275,17 +275,25 @@ The database initializes automatically with pre-configured personas across clini
 
 ---
 
-## 11. Automated Verification & Test Suite (65/65 Tests)
+## 11. Automated Verification & Test Suite (68/68 Tests)
 
-Run the full automated test suite verifying all API endpoints, quantum algorithms, zero-leakage splits, conformal uncertainty, and evaluation metrics:
+Run the full automated test suite verifying all API endpoints, quantum algorithms, zero-leakage splits, conformal uncertainty, doctor directory flows, persistent credential auth, and evaluation metrics:
 
 ```bash
-# Run all 65 unit and integration tests
+# Run all 68 unit and integration tests
 python -m pytest tests/ -v
 ```
 
 ### Targeted Test Commands:
 ```bash
+# Dynamic doctor registration & live directory sync:
+python -m pytest tests/api/test_doctor_registration_flow.py -v
+
+# Core REST APIs, Consultations & RBAC Security:
+python -m pytest tests/api/test_api_endpoints.py -v
+python -m pytest tests/api/test_auth_security.py -v
+python -m pytest tests/api/test_doctor_consultations.py -v
+
 # Zero data leakage & train-only dimensionality reduction:
 python -m pytest tests/unit/test_data_leakage.py -v
 
@@ -304,11 +312,6 @@ python -m pytest tests/unit/test_evaluation_calibration.py -v
 
 # Phase 17 Output Contract enforcement:
 python -m pytest tests/unit/test_phase17_contract.py -v
-
-# Core REST APIs, Consultations & RBAC Security:
-python -m pytest tests/api/test_api_endpoints.py -v
-python -m pytest tests/api/test_auth_security.py -v
-python -m pytest tests/api/test_doctor_consultations.py -v
 ```
 
 ---

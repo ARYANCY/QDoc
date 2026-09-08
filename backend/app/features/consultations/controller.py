@@ -291,8 +291,9 @@ def create_consultation_booking(req: BookingCreateRequest, current_user: dict = 
     _SLOT_LOCKS.pop(lock_key, None)
 
     # Send in-app notifications
+    patient_user_target = (current_user.get("username") if current_user else None) or (current_user.get("id") if current_user else None) or req.patient_id or "alex.patient"
     DatabaseRepository.create_notification(
-        user_id="alex.patient",
+        user_id=patient_user_target,
         title="Consultation Confirmed",
         message=f"Your {req.mode.title()} consultation with {doc['name']} has been confirmed for {req.slot_time}.",
         ref_code=f"REF-{bid}",
@@ -308,8 +309,9 @@ def create_consultation_booking(req: BookingCreateRequest, current_user: dict = 
         )
 
     # WORM Audit logging
+    actor_name = (current_user.get("username") if current_user else None) or req.patient_id or "alex.patient"
     DatabaseRepository.add_audit_log(
-        actor=current_user.get("username", req.patient_id),
+        actor=actor_name,
         action="BOOKING_CREATION",
         resource=f"{bid}:{doc['name']}",
         status="SUCCESS",
@@ -330,9 +332,9 @@ def list_bookings(
     current_user: dict = Depends(get_optional_user),
 ):
     """Module F & I: Lists bookings with role-based filtering."""
-    role = current_user.get("role", "patient")
-    if role == "doctor":
-        doc = DatabaseRepository.get_doctor_by_user_id(current_user["user_id"])
+    role = current_user.get("role", "patient") if current_user else "patient"
+    if current_user and role == "doctor":
+        doc = DatabaseRepository.get_doctor_by_user_id(current_user.get("user_id") or current_user.get("id"))
         if doc:
             doctor_id = doc["id"]
 
@@ -422,10 +424,12 @@ def publish_webrtc_signal(booking_id: str, req: WebRTCSignalRequest, current_use
         raise HTTPException(status_code=400, detail="Unsupported WebRTC signal type.")
     if not DatabaseRepository.get_room_by_booking(booking_id):
         raise HTTPException(status_code=404, detail="Consultation room not found.")
+    sender_id = (current_user.get("user_id") if current_user else None) or (current_user.get("username") if current_user else "unknown")
+    sender_role = current_user.get("role", "participant") if current_user else "participant"
     signal = DatabaseRepository.add_room_signal(
         booking_id,
-        current_user.get("user_id", current_user.get("username", "unknown")),
-        current_user.get("role", "participant"),
+        sender_id,
+        sender_role,
         req.signal_type,
         req.payload,
     )
@@ -437,10 +441,11 @@ def list_webrtc_signals(booking_id: str, after_id: int = 0, current_user: dict =
     """Returns new signals for the opposite consultation participant only."""
     if not DatabaseRepository.get_room_by_booking(booking_id):
         raise HTTPException(status_code=404, detail="Consultation room not found.")
+    current_sender_id = (current_user.get("user_id") if current_user else None) or (current_user.get("username") if current_user else None)
     signals = DatabaseRepository.list_room_signals(
         booking_id,
         after_id=after_id,
-        sender_id=current_user.get("user_id", current_user.get("username")),
+        sender_id=current_sender_id,
     )
     return {"status": "success", "signals": signals}
 
@@ -506,8 +511,9 @@ def create_e_prescription(req: PrescriptionCreateRequest, current_user: dict = D
     DatabaseRepository.update_room_status(req.booking_id, status="ended")
 
     # WORM Audit log
+    doc_actor = (current_user.get("name") if current_user else None) or (current_user.get("username") if current_user else None) or req.doctor_id
     DatabaseRepository.add_audit_log(
-        actor=current_user.get("name", req.doctor_id),
+        actor=doc_actor,
         action="PRESCRIPTION_ISSUED",
         resource=f"{created['id']}:PATIENT={req.patient_id}:SIG={created['digital_signature_hash'][:12]}",
         status="SUCCESS",
@@ -515,7 +521,7 @@ def create_e_prescription(req: PrescriptionCreateRequest, current_user: dict = D
 
     # In-app notification to patient
     DatabaseRepository.create_notification(
-        user_id="alex.patient",
+        user_id=req.patient_id or "alex.patient",
         title="E-Prescription & Care Plan Issued",
         message=f"Dr. has issued your digital e-prescription for diagnosis: {req.diagnosis}.",
         ref_code=f"REF-{created['id']}",

@@ -22,7 +22,7 @@ export default function PatientPortal({ patientId = "PT-89421", currentUser = nu
   const isAdmin = currentUser?.role === "admin";
   const isPatient = !isDoctor && !isAdmin;
 
-  const doctorId = currentUser?.doctor_id || "DOC-KAVITA";
+  const resolvedDoctorId = currentUser?.doctor_id || (currentUser?.id ? `DOC-${String(currentUser.id).replace('USR-', '')}` : "DOC-KAVITA");
 
   useEffect(() => {
     async function loadData() {
@@ -31,21 +31,18 @@ export default function PatientPortal({ patientId = "PT-89421", currentUser = nu
         if (isDoctor) {
           // Doctor View: Fetch doctor's appointments and patient records
           const [bRes, aRes] = await Promise.all([
-            consultationsApi.listBookings(null, doctorId).catch(() => ({ bookings: [] })),
+            consultationsApi.listBookings(null, resolvedDoctorId).catch(() => ({ bookings: [] })),
             complianceApi.getAuditLogs().catch(() => ({ logs: [] })),
           ]);
           setDoctorBookings(bRes?.bookings || []);
           if (aRes?.logs) setAuditLogs(aRes.logs);
         } else if (isAdmin) {
           // Admin View: Fetch patient registry and audit trail
-          const [p1, p2, p3, p4, aRes] = await Promise.all([
+          const [p1, aRes] = await Promise.all([
             clinicalApi.getPatientRecord("PT-89421").catch(() => null),
-            clinicalApi.getPatientRecord("PT-10492").catch(() => null),
-            clinicalApi.getPatientRecord("PT-77218").catch(() => null),
-            clinicalApi.getPatientRecord("PT-33109").catch(() => null),
             complianceApi.getAuditLogs().catch(() => ({ logs: [] })),
           ]);
-          const patientsList = [p1?.patient, p2?.patient, p3?.patient, p4?.patient].filter(Boolean);
+          const patientsList = [p1?.patient].filter(Boolean);
           setAllPatients(patientsList);
           if (aRes?.logs) setAuditLogs(aRes.logs);
         } else {
@@ -67,7 +64,7 @@ export default function PatientPortal({ patientId = "PT-89421", currentUser = nu
       animateEntrance(containerRef.current, { y: 15, duration: 0.35 });
       animateCardStagger(containerRef.current, ".card-panel");
     }
-  }, [patientId, isDoctor, isAdmin, isPatient, doctorId]);
+  }, [patientId, isDoctor, isAdmin, isPatient, resolvedDoctorId]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // 1. DOCTOR VIEW: PATIENT APPOINTMENTS & TEXT-FORMAT CLINICAL RECORDS
@@ -86,7 +83,7 @@ export default function PatientPortal({ patientId = "PT-89421", currentUser = nu
                 </h2>
               </div>
               <p style={{ color: "var(--text-secondary)", fontSize: "0.80rem", margin: 0 }}>
-                Clinician: <code style={{ fontFamily: "var(--font-mono)", fontWeight: 700 }}>{currentUser?.name || "Dr. Kavita Rao, MD"}</code> • Verified Provider ID: <code style={{ fontFamily: "var(--font-mono)" }}>{doctorId}</code>
+                Clinician: <code style={{ fontFamily: "var(--font-mono)", fontWeight: 700 }}>{currentUser?.name || "Dr. Practitioner"}</code> • Verified Provider ID: <code style={{ fontFamily: "var(--font-mono)" }}>{resolvedDoctorId}</code>
               </p>
             </div>
             <span className="step-badge" style={{ padding: "6px 12px", fontSize: "0.74rem", background: "var(--bg-surface-alt)", display: "flex", alignItems: "center", gap: "6px" }}>
@@ -122,7 +119,7 @@ export default function PatientPortal({ patientId = "PT-89421", currentUser = nu
                 onClick={async () => {
                   setLoading(true);
                   try {
-                    const res = await consultationsApi.listBookings(null, doctorId);
+                    const res = await consultationsApi.listBookings(null, resolvedDoctorId);
                     if (res?.bookings) setDoctorBookings(res.bookings);
                   } finally {
                     setLoading(false);
@@ -142,7 +139,7 @@ export default function PatientPortal({ patientId = "PT-89421", currentUser = nu
                 Active Patient Consultations ({doctorBookings.length})
               </h3>
               <span style={{ fontSize: "0.74rem", color: "var(--emerald-couture)", fontWeight: 700 }}>
-                ● Real-time SQLite Sync
+                ● Real-time PostgreSQL Sync
               </span>
             </div>
 
@@ -165,17 +162,17 @@ export default function PatientPortal({ patientId = "PT-89421", currentUser = nu
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
                       <h4 style={{ fontFamily: "var(--font-serif)", fontSize: "1.15rem", fontWeight: 800, color: "var(--ink-primary)", margin: 0 }}>
-                        {b.patient_name || "Alexander Reed"}
+                        {b.patient_name || "Registered Patient"}
                       </h4>
                       <span className="step-badge" style={{ fontSize: "0.68rem" }}>
-                        ID: {b.patient_id || "PT-89421"}
+                        ID: {b.patient_id}
                       </span>
                       <span className="step-badge" style={{ fontSize: "0.68rem", background: "var(--bg-surface-alt)" }}>
-                        MRN: {b.mrn || `MRN-${b.patient_id || "PT-89421"}-QX`}
+                        MRN: {b.mrn || `MRN-${b.patient_id}-QX`}
                       </span>
                     </div>
                     <div style={{ fontSize: "0.76rem", color: "var(--text-secondary)", fontFamily: "var(--font-mono)", marginTop: "3px" }}>
-                      ABHA ID: 91-4829-1092-8821 • Encounter #{b.id}
+                      Patient Phone: {b.patient_phone || b.intake?.emergency_contact || "N/A"} • Encounter #{b.id}
                     </div>
                   </div>
 
@@ -204,15 +201,20 @@ export default function PatientPortal({ patientId = "PT-89421", currentUser = nu
                 {/* Appointment Encounter Schedule & Reason in Text Format */}
                 <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-subtle)", padding: "12px 14px", display: "flex", flexDirection: "column", gap: "6px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", fontSize: "0.78rem" }}>
-                    <span><strong>Scheduled Encounter Time:</strong> {b.slot_time || "Today, 04:30 PM"}</span>
-                    <span><strong>Clinical Urgency:</strong> Routine Ambulatory Care</span>
+                    <span><strong>Scheduled Encounter Time:</strong> {b.slot_time}</span>
+                    <span><strong>Clinical Urgency:</strong> {b.triage_risk === "emergency_red_flag" ? "Urgent / Red-Flag Triage" : "Routine Ambulatory Care"}</span>
                   </div>
                   <div style={{ fontSize: "0.78rem", color: "var(--text-secondary)" }}>
-                    <strong>Reason for Consultation:</strong> {b.intake?.reason || b.reason || "Preventative Cardiovascular Assessment & Metabolic Checkup"}
+                    <strong>Reason for Consultation:</strong> {b.intake?.reason || b.reason || "General Clinical Consultation & Assessment"}
                   </div>
                   <div style={{ fontSize: "0.78rem", color: "var(--text-secondary)" }}>
-                    <strong>Reported Patient Symptoms:</strong> {b.intake?.symptoms || b.symptoms || "Mild hypertension, occasional palpitations, post-prandial glucose variance"}
+                    <strong>Reported Patient Symptoms:</strong> {b.intake?.symptoms || b.symptoms || "No acute symptoms reported"}
                   </div>
+                  {b.intake?.duration && (
+                    <div style={{ fontSize: "0.78rem", color: "var(--text-secondary)" }}>
+                      <strong>Symptom Duration:</strong> {b.intake.duration}
+                    </div>
+                  )}
                 </div>
 
                 {/* Patient Clinical Baseline Telemetry in Text Format */}
@@ -224,25 +226,25 @@ export default function PatientPortal({ patientId = "PT-89421", currentUser = nu
                     <div style={{ background: "var(--bg-surface-alt)", padding: "8px 10px", border: "1px solid var(--border-subtle)" }}>
                       <div style={{ fontSize: "0.62rem", color: "var(--text-secondary)", fontFamily: "var(--font-mono)" }}>BLOOD PRESSURE</div>
                       <div style={{ fontSize: "0.88rem", fontWeight: 800, color: "var(--ink-primary)", fontFamily: "var(--font-mono)" }}>
-                        120/78 <span style={{ fontSize: "0.65rem", fontWeight: 400, color: "var(--text-muted)" }}>mmHg</span>
+                        {b.baseline_vitals?.blood_pressure || "120/80"} <span style={{ fontSize: "0.65rem", fontWeight: 400, color: "var(--text-muted)" }}>mmHg</span>
                       </div>
                     </div>
                     <div style={{ background: "var(--bg-surface-alt)", padding: "8px 10px", border: "1px solid var(--border-subtle)" }}>
                       <div style={{ fontSize: "0.62rem", color: "var(--text-secondary)", fontFamily: "var(--font-mono)" }}>RESTING HEART RATE</div>
                       <div style={{ fontSize: "0.88rem", fontWeight: 800, color: "var(--ink-primary)", fontFamily: "var(--font-mono)" }}>
-                        72 <span style={{ fontSize: "0.65rem", fontWeight: 400, color: "var(--text-muted)" }}>BPM</span>
+                        {b.baseline_vitals?.heart_rate_bpm || 72} <span style={{ fontSize: "0.65rem", fontWeight: 400, color: "var(--text-muted)" }}>BPM</span>
                       </div>
                     </div>
                     <div style={{ background: "var(--bg-surface-alt)", padding: "8px 10px", border: "1px solid var(--border-subtle)" }}>
                       <div style={{ fontSize: "0.62rem", color: "var(--text-secondary)", fontFamily: "var(--font-mono)" }}>OXYGEN SATURATION</div>
                       <div style={{ fontSize: "0.88rem", fontWeight: 800, color: "var(--ink-primary)", fontFamily: "var(--font-mono)" }}>
-                        98% <span style={{ fontSize: "0.65rem", fontWeight: 400, color: "var(--text-muted)" }}>SpO₂</span>
+                        {b.baseline_vitals?.spo2_percent || 98}% <span style={{ fontSize: "0.65rem", fontWeight: 400, color: "var(--text-muted)" }}>SpO₂</span>
                       </div>
                     </div>
                     <div style={{ background: "var(--bg-surface-alt)", padding: "8px 10px", border: "1px solid var(--border-subtle)" }}>
                       <div style={{ fontSize: "0.62rem", color: "var(--text-secondary)", fontFamily: "var(--font-mono)" }}>TEMPERATURE & BMI</div>
                       <div style={{ fontSize: "0.88rem", fontWeight: 800, color: "var(--ink-primary)", fontFamily: "var(--font-mono)" }}>
-                        98.6°F <span style={{ fontSize: "0.65rem", fontWeight: 400, color: "var(--text-muted)" }}>• BMI 23.5</span>
+                        {b.baseline_vitals?.temperature_f || 98.6}°F <span style={{ fontSize: "0.65rem", fontWeight: 400, color: "var(--text-muted)" }}>• Verified</span>
                       </div>
                     </div>
                   </div>
@@ -255,8 +257,11 @@ export default function PatientPortal({ patientId = "PT-89421", currentUser = nu
                       Active Clinical Conditions
                     </div>
                     <div style={{ fontSize: "0.78rem", color: "var(--ink-primary)", lineHeight: 1.4 }}>
-                      • Hypertension (Stage 1 - Managed)<br />
-                      • Mild Hyperlipidemia (LDL 138 mg/dL)
+                      {Array.isArray(b.conditions) && b.conditions.length > 0 ? (
+                        b.conditions.map((c, i) => <div key={i}>• {c}</div>)
+                      ) : (
+                        <span style={{ color: "var(--text-muted)" }}>No pre-existing chronic conditions flagged</span>
+                      )}
                     </div>
                   </div>
 
@@ -265,8 +270,11 @@ export default function PatientPortal({ patientId = "PT-89421", currentUser = nu
                       Known Allergies & Active Rx
                     </div>
                     <div style={{ fontSize: "0.78rem", color: "var(--ink-primary)", lineHeight: 1.4 }}>
-                      • <strong style={{ color: "var(--rose-couture)" }}>Allergy:</strong> Penicillin (High Severity - Urticaria)<br />
-                      • <strong>Active Rx:</strong> Atorvastatin 20mg (OD Night)
+                      {b.intake?.medications && b.intake.medications.length > 0 ? (
+                        <div><strong>Active Medications:</strong> {b.intake.medications.join(", ")}</div>
+                      ) : (
+                        <span style={{ color: "var(--text-muted)" }}>No active medications reported</span>
+                      )}
                     </div>
                   </div>
                 </div>
