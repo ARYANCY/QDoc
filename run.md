@@ -7,8 +7,9 @@
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x%20%2B%20CUDA-EE4C2C.svg)]()
 [![PennyLane](https://img.shields.io/badge/PennyLane-0.40%2B-blueviolet.svg)]()
 [![React](https://img.shields.io/badge/React-18%20%2B%20Vite-61DAFB.svg)]()
+[![Prisma Postgres](https://img.shields.io/badge/Database-Prisma%20Postgres%20%2B%20SQLite-2D3748.svg)]()
 
-This guide provides complete, production-grade instructions for launching, testing, benchmarking, and developing both the **Backend API, Pretrained Medical Encoders & Quantum ML Subsystem** and the **Frontend Web Application** across Windows, macOS, and Linux.
+This guide provides complete, production-grade instructions for launching, testing, benchmarking, and developing both the **Backend API, Pretrained Medical Encoders, Quantum ML Subsystem & PostgreSQL Database** and the **Frontend Web Application** across Windows, macOS, and Linux.
 
 ---
 
@@ -19,24 +20,28 @@ This guide provides complete, production-grade instructions for launching, testi
 3. [Environment Setup & Dependency Installation](#3-environment-setup--dependency-installation)
    - [Option A: Using Conda (`sih2026`)](#option-a-using-conda-sih2026)
    - [Option B: Using Python `venv`](#option-b-using-python-venv)
-4. [Backend Execution Guide (FastAPI + Quantum ML + Foundation Models)](#4-backend-execution-guide-fastapi--quantum-ml--foundation-models)
+4. [Database & Prisma PostgreSQL Setup](#4-database--prisma-postgresql-setup)
+   - [Step 1: Configure `DATABASE_URL` in `.env`](#step-1-configure-database_url-in-env)
+   - [Step 2: Synchronize Prisma Schema (`npx prisma db push`)](#step-2-synchronize-prisma-schema)
+   - [Step 3: Visual Database Manager (`npx prisma studio`)](#step-3-visual-database-manager-prisma-studio)
+5. [Backend Execution Guide (FastAPI + Quantum ML + Foundation Models)](#5-backend-execution-guide-fastapi--quantum-ml--foundation-models)
    - [Method 1: Universal Root Launcher (`main.py`)](#method-1-universal-root-launcher-mainpy--recommended)
    - [Method 2: One-Click PowerShell Script](#method-2-one-click-powershell-script-windows)
    - [Method 3: Direct Uvicorn ASGI Server](#method-3-direct-uvicorn-asgi-server)
    - [Verifying Backend Health & Interactive Docs](#verifying-backend-health--interactive-docs)
-5. [Frontend Execution Guide (React 18 + Vite)](#5-frontend-execution-guide-react-18--vite)
+6. [Frontend Execution Guide (React 18 + Vite)](#6-frontend-execution-guide-react-18--vite)
    - [Step 1: Install Node Dependencies](#step-1-install-node-dependencies)
    - [Step 2: Launch Vite Dev Server](#step-2-launch-vite-dev-server)
    - [Step 3: Building for Production](#step-3-building-for-production)
-6. [Full-Stack Two-Terminal Workflow](#6-full-stack-two-terminal-workflow)
-7. [Pretrained Medical Models & Model Lab Workspace](#7-pretrained-medical-models--model-lab-workspace)
+7. [Full-Stack Three-Terminal Workflow](#7-full-stack-three-terminal-workflow)
+8. [Pretrained Medical Models & Model Lab Workspace](#8-pretrained-medical-models--model-lab-workspace)
    - [Model Downloads & Weight Staging](#1-model-downloads--weight-staging)
    - [Encoder Verification Smoke Tests](#2-encoder-verification-smoke-tests)
    - [Encoder Latency & Throughput Benchmark](#3-encoder-latency--throughput-benchmark)
-8. [Scientific Ablation Matrix & QAS Benchmarks](#8-scientific-ablation-matrix--qas-benchmarks)
-9. [Pre-Seeded Authority Personas & Credentials](#9-pre-seeded-authority-personas--credentials)
-10. [Automated Verification & Test Suite (65/65 Tests)](#10-automated-verification--test-suite-6565-tests)
-11. [Troubleshooting & FAQ Matrix](#11-troubleshooting--faq-matrix)
+9. [Scientific Ablation Matrix & QAS Benchmarks](#9-scientific-ablation-matrix--qas-benchmarks)
+10. [Pre-Seeded Authority Personas & Credentials](#10-pre-seeded-authority-personas--credentials)
+11. [Automated Verification & Test Suite (65/65 Tests)](#11-automated-verification--test-suite-6565-tests)
+12. [Troubleshooting & FAQ Matrix](#12-troubleshooting--faq-matrix)
 
 ---
 
@@ -49,6 +54,7 @@ This guide provides complete, production-grade instructions for launching, testi
 | **PennyLane** | `0.36.0` | `0.42.3` / `0.40.0` | `python -c "import pennylane as qml; print(qml.__version__)"` |
 | **Node.js** | `v18.0.0` | `v20.x` or higher | `node -v` |
 | **npm** | `v9.0.0` | `v10.x` or higher | `npm -v` |
+| **Prisma** | `5.x` | `5.22.0` | `npx -y prisma@5 --version` |
 | **Git** | `2.30+` | Latest | `git --version` |
 
 ---
@@ -57,10 +63,11 @@ This guide provides complete, production-grade instructions for launching, testi
 
 | Component | Port | URL | Description |
 | :--- | :---: | :--- | :--- |
-| **FastAPI Backend & QML Engine** | `8000` | [http://127.0.0.1:8000](http://127.0.0.1:8000) | Core REST API, Quantum Engine, Foundation Model Registry & SQLite |
+| **FastAPI Backend & QML Engine** | `8000` | [http://127.0.0.1:8000](http://127.0.0.1:8000) | Core REST API, Quantum Engine, Foundation Models & DB CRUD |
 | **Interactive Swagger Docs** | `8000` | [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) | Interactive OpenAPI 3.1 schema & request tester |
 | **ReDoc Schema Explorer** | `8000` | [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc) | Clean formatted API documentation |
-| **Primary Clinical Frontend** | `5173` | [http://localhost:5173](http://localhost:5173) | Main React 18 UI (Patient, Clinician, Researcher, Admin) |
+| **Primary Clinical Frontend** | `5173` | [http://localhost:5173](http://localhost:5173) | Main React 18 UI (Patient, Doctor, Researcher, Admin) |
+| **Prisma Studio GUI** | `5555` | [http://localhost:5555](http://localhost:5555) | Visual database manager & record editor |
 | **Emergency Medical Card Web App** | `5174` | [http://localhost:5174](http://localhost:5174) | Standalone Emergency QR Card Viewer HUD |
 
 ---
@@ -101,14 +108,34 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-*(Optional GPU Acceleration for CUDA 12.x)*:
-```bash
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu126
+---
+
+## 4. Database & Prisma PostgreSQL Setup
+
+The project supports both cloud **Prisma Postgres** and local **SQLite** (with zero external dependencies).
+
+### Step 1: Configure `DATABASE_URL` in `.env`
+Ensure your [.env](file:///f:/Hackathon/SIH(2026)/QDoc/.env) file contains your PostgreSQL connection string:
+```ini
+DATABASE_URL="postgres://user:password@pooled.db.prisma.io:5432/postgres?sslmode=require"
 ```
+
+### Step 2: Synchronize Prisma Schema
+To create/update all 12 database tables (`users`, `patients`, `diagnostic_records`, `audit_logs`, `doctors`, `bookings`, `prescriptions`, `notifications`, etc.):
+```bash
+npx -y prisma@5 db push
+```
+
+### Step 3: Visual Database Manager (Prisma Studio)
+To inspect, search, and edit database records visually in your browser:
+```bash
+npx -y prisma@5 studio
+```
+- Open [http://localhost:5555](http://localhost:5555) in your web browser.
 
 ---
 
-## 4. Backend Execution Guide (FastAPI + Quantum ML + Foundation Models)
+## 5. Backend Execution Guide (FastAPI + Quantum ML + Foundation Models)
 
 Choose any of the following methods to start the backend:
 
@@ -142,22 +169,12 @@ uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload
 
 ### Verifying Backend Health & Interactive Docs
 - **Health Endpoint:** [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
-  ```json
-  {
-    "platform": "Q-MedSense",
-    "version": "2.0.0",
-    "sih_problem_id": "26139",
-    "status": "online",
-    "quantum_engine": "PennyLane + Qiskit Aer",
-    "docs": "/docs"
-  }
-  ```
 - **Swagger UI:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 - **ReDoc:** [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
 ---
 
-## 5. Frontend Execution Guide (React 18 + Vite)
+## 6. Frontend Execution Guide (React 18 + Vite)
 
 ### Step 1: Install Node Dependencies
 Open a terminal in the `frontend/` directory:
@@ -177,57 +194,47 @@ npm run dev
 ```bash
 cd frontend
 npm run build
-# Outputs to frontend/dist/
-
-# Preview production build locally:
-npm run preview
+# Outputs to frontend/dist/ with 0 warnings
 ```
 
 ---
 
-## 6. Full-Stack Two-Terminal Workflow
+## 7. Full-Stack Three-Terminal Workflow
 
-For daily development, launch two side-by-side terminal windows:
+For regular full-stack development, open three side-by-side terminal windows:
 
 ```text
-┌──────────────────────────────────────────────┬──────────────────────────────────────────────┐
-│  TERMINAL 1: BACKEND + QUANTUM ML            │  TERMINAL 2: FRONTEND UI (VITE)              │
-├──────────────────────────────────────────────┼──────────────────────────────────────────────┤
-│  conda activate sih2026                      │  cd frontend                                 │
-│  python main.py                              │  npm run dev                                 │
-│                                              │                                              │
-│  API:  http://127.0.0.1:8000                 │  App:   http://localhost:5173                │
-│  Docs: http://127.0.0.1:8000/docs            │  Proxy: /api -> http://127.0.0.1:8000        │
-└──────────────────────────────────────────────┴──────────────────────────────────────────────┘
+┌──────────────────────────────┬──────────────────────────────┬──────────────────────────────┐
+│ TERMINAL 1: BACKEND (API)    │ TERMINAL 2: FRONTEND (UI)    │ TERMINAL 3: PRISMA STUDIO    │
+├──────────────────────────────┼──────────────────────────────┼──────────────────────────────┤
+│ conda activate sih2026       │ cd frontend                  │ npx -y prisma@5 studio       │
+│ python main.py               │ npm run dev                  │                              │
+│                              │                              │                              │
+│ API:  http://127.0.0.1:8000  │ App: http://localhost:5173   │ DB:  http://localhost:5555   │
+│ Docs: /docs                  │ Proxy: /api -> :8000         │ All 12 clinical tables       │
+└──────────────────────────────┴──────────────────────────────┴──────────────────────────────┘
 ```
 
 ---
 
-## 7. Pretrained Medical Models & Model Lab Workspace
+## 8. Pretrained Medical Models & Model Lab Workspace
 
 The `model_lab/` staging workspace provides scripts to download, verify, and benchmark medical foundation encoders (`biomedclip`, `medsiglip`, `medgemma`, `medicalnet`, `vista3d`):
 
-### 1. Model Downloads & Weight Staging
 ```bash
-# Downloads weights and computes SHA-256 integrity checksums
+# 1. Downloads weights and computes SHA-256 integrity checksums
 python model_lab/scripts/download_models.py
-```
 
-### 2. Encoder Verification Smoke Tests
-```bash
-# Validates shape contracts, L2-normalization, determinism, and device placement
+# 2. Validates shape contracts, L2-normalization, determinism, and device placement
 python model_lab/scripts/verify_models.py
-```
 
-### 3. Encoder Latency & Throughput Benchmark
-```bash
-# Benchmarks latency across batch sizes [1, 4, 8, 16]
+# 3. Benchmarks latency across batch sizes [1, 4, 8, 16]
 python model_lab/scripts/benchmark_encoders.py
 ```
 
 ---
 
-## 8. Scientific Ablation Matrix & QAS Benchmarks
+## 9. Scientific Ablation Matrix & QAS Benchmarks
 
 To execute the 6-experiment scientific ablation matrix (A–F) comparing classical baselines, foundation models, quantum kernels, VQCs, Hybrid QNNs, and calibrated ensembles:
 
@@ -253,22 +260,22 @@ F    Calibrated Ensemble Champion (B + E)        0.9125     0.900 [0.865-0.935] 
 
 ---
 
-## 9. Pre-Seeded Authority Personas & Credentials
+## 10. Pre-Seeded Authority Personas & Credentials
 
-The SQLite database initializes automatically with 4 pre-configured personas across clinical and administrative roles:
+The database initializes automatically with pre-configured personas across clinical and administrative roles:
 
 | Persona | Role | Username | Password | Accessible Views & Capabilities |
 | :--- | :--- | :--- | :--- | :--- |
-| **Alexander Reed** | `patient` | `alex.patient` | `patient123` | Autonomous Self-Analysis Cockpit, 2D Digital Twin, Early Detection, Emergency QR Card |
-| **Dr. Aryan Sharma** | `clinician` | `dr.aryan` | `clinician123` | Diagnostic Cockpit, Multi-Organ Ingestion, Patient History, Clinical PDF Export |
-| **Dr. Priya Nair** | `researcher` | `priya.qml` | `quantum123` | Live Retraining Studio, Hyperparameter Optimizer, Benchmark Matrix, Quantum Telemetry |
-| **Security Admin** | `admin` | `admin.audit` | `admin123` | Compliance Console, User Management, Immutable WORM Audit Logs, DPDP Consent Manager |
+| **Alexander Reed** | `patient` | `alex.patient` | `patient123` | Self-Analysis Cockpit, 3D Digital Twin, Early Detection, Emergency QR Card |
+| **Dr. Kavita Rao, MD** | `doctor` | `dr.kavita` | `doctor123` | Diagnostic Cockpit, Patient Triage, Tele-Consultations, E-Prescriptions |
+| **Dr. Priya Nair** | `researcher` | `priya.qml` | `quantum123` | Live Retraining Studio, Hyperparameter Optimizer, Quantum Telemetry |
+| **Security Admin** | `admin` | `admin.audit` | `admin123` | Compliance Console, User Management, Immutable WORM Audit Logs |
 
 > **1-Click Switching:** You can switch between personas directly in the UI by clicking the **User Profile Badge** in the sidebar or top header.
 
 ---
 
-## 10. Automated Verification & Test Suite (65/65 Tests)
+## 11. Automated Verification & Test Suite (65/65 Tests)
 
 Run the full automated test suite verifying all API endpoints, quantum algorithms, zero-leakage splits, conformal uncertainty, and evaluation metrics:
 
@@ -298,9 +305,6 @@ python -m pytest tests/unit/test_evaluation_calibration.py -v
 # Phase 17 Output Contract enforcement:
 python -m pytest tests/unit/test_phase17_contract.py -v
 
-# 11-Modality dynamic routing:
-python -m pytest tests/unit/test_modality_router.py -v
-
 # Core REST APIs, Consultations & RBAC Security:
 python -m pytest tests/api/test_api_endpoints.py -v
 python -m pytest tests/api/test_auth_security.py -v
@@ -309,7 +313,7 @@ python -m pytest tests/api/test_doctor_consultations.py -v
 
 ---
 
-## 11. Troubleshooting & FAQ Matrix
+## 12. Troubleshooting & FAQ Matrix
 
 | Issue Encountered | Root Cause | Exact Resolution |
 | :--- | :--- | :--- |
@@ -317,9 +321,9 @@ python -m pytest tests/api/test_doctor_consultations.py -v
 | **`UnauthorizedAccess / Script Execution Disabled`** | PowerShell security policy blocks `.ps1` execution. | Run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` in PowerShell. |
 | **`Port 8000 already in use`** | A lingering Python process is holding port 8000. | In PowerShell: `netstat -ano \| findstr :8000`<br>Then: `taskkill /PID <PID> /F` |
 | **`Port 5173 already in use`** | Another Vite dev server is running. | Vite will automatically switch to port 5174, or run `taskkill /IM node.exe /F`. |
+| **`Prisma db push command not found`** | Using newest Prisma 8 CLI release candidate. | Run with pinned version: `npx -y prisma@5 db push` or `npx -y prisma@5 studio`. |
 | **`502 Bad Gateway / Network Error in UI`** | Frontend cannot reach backend at `127.0.0.1:8000`. | Ensure `python main.py` is running in Terminal 1 before launching the frontend. |
-| **`sqlite3.OperationalError: database is locked`** | Concurrent connection conflict. | Fixed in database engine with `busy_timeout=30000` and `WAL` journal mode. |
-| **`Database Reset to Clean Seed State`** | Need to purge records and re-seed defaults. | Delete `backend/qmedsense.db` (or `qmedsense.db`) and restart `python main.py`. |
+| **`Database Reset to Clean Seed State`** | Need to purge records and re-seed defaults. | For SQLite: delete `backend/qmedsense.db`. For PostgreSQL: run `npx -y prisma@5 db push --force-reset`. |
 
 ---
 

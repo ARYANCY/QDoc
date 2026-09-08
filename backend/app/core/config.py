@@ -17,7 +17,7 @@ class Settings:
     SIH_PROBLEM_ID: str = "26139"
     API_V1_PREFIX: str = "/api/v1"
 
-    # Directory Paths
+    # Directory Paths & Database
     BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent.parent
     BACKEND_DIR: Path = Path(__file__).resolve().parent.parent.parent
     DATA_DIR: Path = BACKEND_DIR
@@ -25,6 +25,7 @@ class Settings:
     REAL_DB_PATH: Path = Path(os.getenv("QMED_REAL_DB_PATH", str(BACKEND_DIR / "qmedsense.db")))
     DEMO_DB_PATH: Path = Path(os.getenv("QMED_DEMO_DB_PATH", str(BACKEND_DIR / "qmedsense_demo.db")))
     DB_PATH: Path = Path(os.getenv("QMED_DB_PATH", str(DEMO_DB_PATH if DB_MODE == "demo" else REAL_DB_PATH)))
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "").strip()
     MODELS_DIR: Path = BASE_DIR / "models"
     REPORTS_DIR: Path = BASE_DIR / "reports"
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173")

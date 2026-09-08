@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Lock, User, Shield, X, CheckCircle2, Eye, EyeOff, KeyRound, LogIn, Sparkles, UserPlus } from "lucide-react";
+import { Lock, User, Shield, X, CheckCircle2, Eye, EyeOff, KeyRound, LogIn, Sparkles, UserPlus, Stethoscope } from "lucide-react";
 import { authApi } from "../../api/auth";
 import { animateModalOpen } from "../../utils/motion";
 
@@ -13,6 +13,15 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Register Form State
+  const [regName, setRegName] = useState("");
+  const [regUsername, setRegUsername] = useState("");
+  const [regEmail, setRegEmail] = useState("");
+  const [regPassword, setRegPassword] = useState("");
+  const [regRole, setRegRole] = useState("patient");
+  const [regPhone, setRegPhone] = useState("");
+  const [regAffiliation, setRegAffiliation] = useState("");
 
   useEffect(() => {
     if (isOpen) {
@@ -31,7 +40,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
       if (onLoginSuccess) onLoginSuccess(data.user);
       onClose();
     } catch (err) {
-      setError(err.message || "Authentication failed. Please verify your credentials.");
+      setError(err.message || "Sign in failed. Please check your username and password.");
     } finally {
       setLoading(false);
     }
@@ -40,21 +49,27 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
   async function handleRegister(e) {
     if (e) e.preventDefault();
     if (!regUsername || !regPassword || !regName || !regEmail) {
-      setError("Please fill in all required fields to register your account.");
+      setError("Please fill in your name, username, email, and password.");
       return;
     }
     setLoading(true);
     setError(null);
     try {
+      const defaultLicense = regRole === "doctor"
+        ? `DOC-LIC-${Math.floor(10000 + Math.random() * 90000)}`
+        : regRole === "admin"
+        ? `ADM-SEC-${Math.floor(1000 + Math.random() * 9000)}`
+        : `PT-REC-${Math.floor(10000 + Math.random() * 90000)}`;
+
       const data = await authApi.register({
         username: regUsername.trim().toLowerCase(),
         password: regPassword,
         name: regName.trim(),
         email: regEmail.trim(),
         role: regRole,
-        emergency_phone: regPhone,
-        hospital_affiliation: regAffiliation,
-        license_number: regRole === "admin" ? `ADM-SEC-${Math.floor(1000 + Math.random() * 9000)}` : `PT-REC-${Math.floor(10000 + Math.random() * 90000)}`,
+        emergency_phone: regPhone || "+91 98765 43210",
+        hospital_affiliation: regAffiliation || (regRole === "doctor" ? "Metro Health Clinic" : "Community Hospital"),
+        license_number: defaultLicense,
       });
       if (onLoginSuccess) onLoginSuccess(data.user);
       onClose();
@@ -76,7 +91,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
       if (onLoginSuccess) onLoginSuccess(data.user);
       onClose();
     } catch (err) {
-      setError(err.message || "Role switch failed.");
+      setError(err.message || "Sign in failed.");
     } finally {
       setLoading(false);
     }
@@ -92,8 +107,8 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
         aria-labelledby="auth-modal-title"
         onClick={(e) => e.stopPropagation()}
         style={{
-          maxWidth: "620px",
-          padding: "26px 30px",
+          maxWidth: "640px",
+          padding: "24px 28px",
           borderRadius: "var(--radius-sm)",
           border: "1px solid var(--border-default)",
           borderTop: "3px solid var(--gold)",
@@ -102,17 +117,17 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
         }}
       >
         {/* Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", borderBottom: "1px solid var(--border-default)", paddingBottom: "12px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px", borderBottom: "1px solid var(--border-default)", paddingBottom: "10px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <div style={{ padding: "8px", background: "var(--primary-gradient)", color: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <KeyRound size={20} />
             </div>
             <div>
-              <div style={{ fontSize: "0.58rem", fontWeight: 900, color: "var(--primary)", letterSpacing: "0.14em", textTransform: "uppercase" }}>
-                SECURITY & IDENTITY GATEWAY
+              <div style={{ fontSize: "0.60rem", fontWeight: 800, color: "var(--primary)", letterSpacing: "0.10em", textTransform: "uppercase" }}>
+                USER ACCOUNT
               </div>
-              <h2 id="auth-modal-title" style={{ fontSize: "1.15rem", fontWeight: 900, color: "var(--text-primary)", margin: "2px 0 0 0", letterSpacing: "-0.02em", textTransform: "uppercase" }}>
-                Access Authority Portal
+              <h2 id="auth-modal-title" style={{ fontSize: "1.10rem", fontWeight: 800, color: "var(--text-primary)", margin: "2px 0 0 0" }}>
+                Sign In or Create Account
               </h2>
             </div>
           </div>
@@ -120,14 +135,14 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
             type="button"
             onClick={onClose}
             style={{ background: "transparent", border: 0, cursor: "pointer", color: "var(--text-muted)", padding: "4px" }}
-            title="Close modal"
+            title="Close"
           >
             <X size={20} />
           </button>
         </div>
 
         {/* Mode Switcher Tabs */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "4px", marginBottom: "16px", background: "var(--bg-canvas)", padding: "3px", border: "1px solid var(--border-default)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "4px", marginBottom: "14px", background: "var(--bg-canvas)", padding: "3px", border: "1px solid var(--border-default)" }}>
           <button
             type="button"
             onClick={() => setAuthMode("cards")}
@@ -136,15 +151,13 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
               background: authMode === "cards" ? "var(--primary)" : "transparent",
               color: authMode === "cards" ? "#FFFFFF" : "var(--text-secondary)",
               border: 0,
-              fontSize: "0.70rem",
-              fontWeight: 800,
+              fontSize: "0.72rem",
+              fontWeight: 700,
               cursor: "pointer",
-              textTransform: "uppercase",
-              letterSpacing: "0.04em",
               transition: "all 0.15s ease",
             }}
           >
-            ⚡ Test Personas
+            ★ Demo Accounts
           </button>
 
           <button
@@ -155,15 +168,13 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
               background: authMode === "login" ? "var(--primary)" : "transparent",
               color: authMode === "login" ? "#FFFFFF" : "var(--text-secondary)",
               border: 0,
-              fontSize: "0.70rem",
-              fontWeight: 800,
+              fontSize: "0.72rem",
+              fontWeight: 700,
               cursor: "pointer",
-              textTransform: "uppercase",
-              letterSpacing: "0.04em",
               transition: "all 0.15s ease",
             }}
           >
-            🔑 Sign In
+            Sign In
           </button>
 
           <button
@@ -174,11 +185,9 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
               background: authMode === "register" ? "var(--primary)" : "transparent",
               color: authMode === "register" ? "#FFFFFF" : "var(--text-secondary)",
               border: 0,
-              fontSize: "0.70rem",
-              fontWeight: 800,
+              fontSize: "0.72rem",
+              fontWeight: 700,
               cursor: "pointer",
-              textTransform: "uppercase",
-              letterSpacing: "0.04em",
               transition: "all 0.15s ease",
               display: "flex",
               alignItems: "center",
@@ -186,56 +195,81 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
               gap: "4px",
             }}
           >
-            <Sparkles size={11} /> Create Account
+            <Sparkles size={12} /> Create Account
           </button>
         </div>
 
-        {/* MODE 1: 1-Click Persona Cards */}
+        {/* MODE 1: 1-Click Demo Persona Cards */}
         {authMode === "cards" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px" }}>
               {/* Patient */}
               <div
                 role="button"
                 tabIndex={0}
-                aria-label="Sign in as patient test persona"
+                aria-label="Sign in as Patient demo"
                 onClick={() => quickSwitch("alex.patient", "patient123", "patient")}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    quickSwitch("alex.patient", "patient123", "patient");
-                  }
-                }}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); quickSwitch("alex.patient", "patient123", "patient"); } }}
                 style={{
                   background: "var(--bg-surface)",
                   border: "1px solid var(--border-default)",
-                  borderLeft: "3px solid var(--primary)",
-                  padding: "14px",
+                  borderTop: "3px solid var(--emerald-couture)",
+                  padding: "12px",
                   cursor: "pointer",
                   display: "flex",
                   flexDirection: "column",
-                  gap: "6px",
+                  gap: "5px",
                   transition: "all 0.15s ease",
                   boxShadow: "var(--shadow-sm)",
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontSize: "0.82rem", fontWeight: 900, color: "var(--primary)", display: "flex", alignItems: "center", gap: "5px", textTransform: "uppercase" }}>
-                    <User size={15} /> Patient
-                  </span>
-                  <span style={{ fontSize: "0.58rem", background: "var(--risk-low-bg)", color: "var(--risk-low)", border: "1px solid var(--risk-low-border)", padding: "1px 6px", fontWeight: 800, textTransform: "uppercase" }}>
-                    BASELINE
+                  <span style={{ fontSize: "0.74rem", fontWeight: 800, color: "var(--emerald-couture)", display: "flex", alignItems: "center", gap: "4px" }}>
+                    <User size={14} /> Patient
                   </span>
                 </div>
-                <strong style={{ fontSize: "0.95rem", color: "var(--text-primary)" }}>Alexander Reed</strong>
+                <strong style={{ fontSize: "0.85rem", color: "var(--text-primary)" }}>Alexander Reed</strong>
                 <p style={{ fontSize: "0.68rem", color: "var(--text-secondary)", margin: 0, lineHeight: 1.3 }}>
-                  Personal Health Checkups, 3D Health Twin, Early Detection Map & Digital ID.
+                  Health checkups & 3D Digital Twin.
                 </p>
-                <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: "6px", marginTop: "4px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <code style={{ fontSize: "0.65rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
-                    alex.patient
-                  </code>
-                  <span style={{ fontSize: "0.62rem", color: "var(--primary)", fontWeight: 800 }}>CLICK TO AUTH ↗</span>
+                <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: "5px", marginTop: "3px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <code style={{ fontSize: "0.62rem", color: "var(--text-muted)" }}>alex.patient</code>
+                  <span style={{ fontSize: "0.62rem", color: "var(--emerald-couture)", fontWeight: 800 }}>Sign In ↗</span>
+                </div>
+              </div>
+
+              {/* Doctor / Clinician */}
+              <div
+                role="button"
+                tabIndex={0}
+                aria-label="Sign in as Doctor demo"
+                onClick={() => quickSwitch("dr.kavita", "doctor123", "doctor")}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); quickSwitch("dr.kavita", "doctor123", "doctor"); } }}
+                style={{
+                  background: "var(--bg-surface)",
+                  border: "1px solid var(--border-default)",
+                  borderTop: "3px solid var(--gold)",
+                  padding: "12px",
+                  cursor: "pointer",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "5px",
+                  transition: "all 0.15s ease",
+                  boxShadow: "var(--shadow-sm)",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span style={{ fontSize: "0.74rem", fontWeight: 800, color: "var(--gold)", display: "flex", alignItems: "center", gap: "4px" }}>
+                    <Stethoscope size={14} /> Doctor
+                  </span>
+                </div>
+                <strong style={{ fontSize: "0.85rem", color: "var(--text-primary)" }}>Dr. Kavita Rao</strong>
+                <p style={{ fontSize: "0.68rem", color: "var(--text-secondary)", margin: 0, lineHeight: 1.3 }}>
+                  Patient triage, diagnoses & prescriptions.
+                </p>
+                <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: "5px", marginTop: "3px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <code style={{ fontSize: "0.62rem", color: "var(--text-muted)" }}>dr.kavita</code>
+                  <span style={{ fontSize: "0.62rem", color: "var(--gold)", fontWeight: 800 }}>Sign In ↗</span>
                 </div>
               </div>
 
@@ -243,82 +277,72 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
               <div
                 role="button"
                 tabIndex={0}
-                aria-label="Sign in as administrator test persona"
+                aria-label="Sign in as Administrator demo"
                 onClick={() => quickSwitch("admin.audit", "admin123", "admin")}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    quickSwitch("admin.audit", "admin123", "admin");
-                  }
-                }}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); quickSwitch("admin.audit", "admin123", "admin"); } }}
                 style={{
                   background: "var(--bg-surface)",
                   border: "1px solid var(--border-default)",
-                  borderLeft: "3px solid var(--accent-violet)",
-                  padding: "14px",
+                  borderTop: "3px solid var(--accent-violet)",
+                  padding: "12px",
                   cursor: "pointer",
                   display: "flex",
                   flexDirection: "column",
-                  gap: "6px",
+                  gap: "5px",
                   transition: "all 0.15s ease",
                   boxShadow: "var(--shadow-sm)",
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontSize: "0.82rem", fontWeight: 900, color: "var(--accent-violet)", display: "flex", alignItems: "center", gap: "5px", textTransform: "uppercase" }}>
-                    <Shield size={15} /> Administrator
-                  </span>
-                  <span style={{ fontSize: "0.58rem", background: "var(--accent-violet-soft)", color: "var(--accent-violet)", border: "1px solid var(--accent-violet)", padding: "1px 6px", fontWeight: 800, textTransform: "uppercase" }}>
-                    BASELINE
+                  <span style={{ fontSize: "0.74rem", fontWeight: 800, color: "var(--accent-violet)", display: "flex", alignItems: "center", gap: "4px" }}>
+                    <Shield size={14} /> Admin
                   </span>
                 </div>
-                <strong style={{ fontSize: "0.95rem", color: "var(--text-primary)" }}>Audit & Security Admin</strong>
+                <strong style={{ fontSize: "0.85rem", color: "var(--text-primary)" }}>Compliance Officer</strong>
                 <p style={{ fontSize: "0.68rem", color: "var(--text-secondary)", margin: 0, lineHeight: 1.3 }}>
-                  Compliance Console, User Management, Benchmark Matrix & Tamper-Evident Logs.
+                  Security, user accounts & audit logs.
                 </p>
-                <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: "6px", marginTop: "4px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <code style={{ fontSize: "0.65rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
-                    admin.audit
-                  </code>
-                  <span style={{ fontSize: "0.62rem", color: "var(--accent-violet)", fontWeight: 800 }}>CLICK TO AUTH ↗</span>
+                <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: "5px", marginTop: "3px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <code style={{ fontSize: "0.62rem", color: "var(--text-muted)" }}>admin.audit</code>
+                  <span style={{ fontSize: "0.62rem", color: "var(--accent-violet)", fontWeight: 800 }}>Sign In ↗</span>
                 </div>
               </div>
             </div>
 
-            <div style={{ padding: "10px 12px", background: "var(--bg-card-sky)", border: "1px solid var(--border-light-blue)", fontSize: "0.68rem", color: "var(--primary-dark)" }}>
-              🔒 <strong>Note:</strong> Baseline test personas are protected and read-only. To customize details, select <strong>Create Account</strong>.
+            <div style={{ padding: "8px 12px", background: "var(--bg-card-sky)", border: "1px solid var(--border-light-blue)", fontSize: "0.70rem", color: "var(--primary-dark)" }}>
+              💡 <strong>Tip:</strong> Click any demo card above to sign in immediately, or switch to <strong>Create Account</strong> to register your own profile.
             </div>
           </div>
         )}
 
-        {/* MODE 2: Direct Credentials Form */}
+        {/* MODE 2: Sign In Form */}
         {authMode === "login" && (
-          <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-              <label style={{ fontSize: "0.68rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)" }}>
-                Username / Account Handle
+              <label style={{ fontSize: "0.70rem", fontWeight: 700, color: "var(--text-secondary)" }}>
+                Username
               </label>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="e.g. alex.patient or your.handle"
-                style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--border-default)", fontSize: "0.78rem" }}
+                placeholder="e.g. alex.patient"
+                style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--border-default)", fontSize: "0.80rem" }}
                 required
               />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-              <label style={{ fontSize: "0.68rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)" }}>
-                Password / Security Token
+              <label style={{ fontSize: "0.70rem", fontWeight: 700, color: "var(--text-secondary)" }}>
+                Password
               </label>
               <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your security password"
-                  style={{ width: "100%", padding: "8px 36px 8px 10px", border: "1px solid var(--border-default)", fontSize: "0.78rem" }}
+                  placeholder="Enter your password"
+                  style={{ width: "100%", padding: "8px 36px 8px 10px", border: "1px solid var(--border-default)", fontSize: "0.80rem" }}
                   required
                 />
                 <button
@@ -333,16 +357,17 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-              <label style={{ fontSize: "0.68rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)" }}>
-                Authority Role Access
+              <label style={{ fontSize: "0.70rem", fontWeight: 700, color: "var(--text-secondary)" }}>
+                Account Role
               </label>
               <select
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--border-default)", fontSize: "0.78rem" }}
+                style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--border-default)", fontSize: "0.80rem" }}
               >
-                <option value="patient">Patient (Autonomous Health Checkups & Twin)</option>
-                <option value="admin">Administrator (Audit & Security Governance)</option>
+                <option value="patient">Patient (Health Checkup & 3D Twin)</option>
+                <option value="doctor">Doctor (Diagnostics & Consultations)</option>
+                <option value="admin">Administrator (Security & Governance)</option>
               </select>
             </div>
 
@@ -350,42 +375,42 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
               type="submit"
               className="btn-primary"
               disabled={loading}
-              style={{ width: "100%", padding: "10px", marginTop: "4px", minHeight: "40px" }}
+              style={{ width: "100%", padding: "10px", marginTop: "4px", minHeight: "38px" }}
             >
               <LogIn size={15} />
-              <span>{loading ? "Authenticating Authority Token..." : `Sign In as ${role.toUpperCase()}`}</span>
+              <span>{loading ? "Signing In..." : `Sign In as ${role.toUpperCase()}`}</span>
             </button>
           </form>
         )}
 
-        {/* MODE 3: Create New Account (Full Editing Authority) */}
+        {/* MODE 3: Create Account Form */}
         {authMode === "register" && (
           <form onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
               <div>
-                <label style={{ fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)" }}>
-                  Full Legal Name *
+                <label style={{ fontSize: "0.70rem", fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: "3px" }}>
+                  Full Name *
                 </label>
                 <input
                   type="text"
                   value={regName}
                   onChange={(e) => setRegName(e.target.value)}
-                  placeholder="e.g. Maya Lin"
-                  style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--border-default)", fontSize: "0.76rem" }}
+                  placeholder="e.g. Dr. Maya Patel"
+                  style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--border-default)", fontSize: "0.78rem" }}
                   required
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)" }}>
-                  Username / Handle *
+                <label style={{ fontSize: "0.70rem", fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: "3px" }}>
+                  Username *
                 </label>
                 <input
                   type="text"
                   value={regUsername}
                   onChange={(e) => setRegUsername(e.target.value)}
-                  placeholder="maya.lin"
-                  style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--border-default)", fontSize: "0.76rem" }}
+                  placeholder="e.g. maya.patel"
+                  style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--border-default)", fontSize: "0.78rem" }}
                   required
                 />
               </div>
@@ -393,29 +418,29 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
               <div>
-                <label style={{ fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)" }}>
+                <label style={{ fontSize: "0.70rem", fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: "3px" }}>
                   Email Address *
                 </label>
                 <input
                   type="email"
                   value={regEmail}
                   onChange={(e) => setRegEmail(e.target.value)}
-                  placeholder="maya.lin@domain.org"
-                  style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--border-default)", fontSize: "0.76rem" }}
+                  placeholder="maya@example.com"
+                  style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--border-default)", fontSize: "0.78rem" }}
                   required
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)" }}>
-                  Security Password *
+                <label style={{ fontSize: "0.70rem", fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: "3px" }}>
+                  Password *
                 </label>
                 <input
                   type="password"
                   value={regPassword}
                   onChange={(e) => setRegPassword(e.target.value)}
                   placeholder="••••••••"
-                  style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--border-default)", fontSize: "0.76rem" }}
+                  style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--border-default)", fontSize: "0.78rem" }}
                   required
                 />
               </div>
@@ -423,29 +448,30 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
               <div>
-                <label style={{ fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)" }}>
-                  Account Authority Role
+                <label style={{ fontSize: "0.70rem", fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: "3px" }}>
+                  I am registering as: *
                 </label>
                 <select
                   value={regRole}
                   onChange={(e) => setRegRole(e.target.value)}
-                  style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--border-default)", fontSize: "0.76rem" }}
+                  style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--border-default)", fontSize: "0.78rem" }}
                 >
-                  <option value="patient">Patient (Autonomous Health & Twin)</option>
-                  <option value="admin">Administrator (Audit & Security)</option>
+                  <option value="patient">Patient (Personal Health & Checkups)</option>
+                  <option value="doctor">Doctor / Clinician (Clinical Diagnosis & Consultations)</option>
+                  <option value="admin">Administrator (Security & Audits)</option>
                 </select>
               </div>
 
               <div>
-                <label style={{ fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)" }}>
-                  Emergency Contact Phone
+                <label style={{ fontSize: "0.70rem", fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: "3px" }}>
+                  Phone Number (Optional)
                 </label>
                 <input
                   type="text"
                   value={regPhone}
                   onChange={(e) => setRegPhone(e.target.value)}
                   placeholder="+91 98765 43210"
-                  style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--border-default)", fontSize: "0.76rem" }}
+                  style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--border-default)", fontSize: "0.78rem" }}
                 />
               </div>
             </div>
@@ -454,16 +480,16 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
               type="submit"
               className="btn-primary"
               disabled={loading}
-              style={{ width: "100%", padding: "10px", marginTop: "4px", minHeight: "40px" }}
+              style={{ width: "100%", padding: "10px", marginTop: "4px", minHeight: "38px" }}
             >
               <UserPlus size={15} />
-              <span>{loading ? "Creating Account & Authorizing..." : "Create Account & Sign In (Full Authority)"}</span>
+              <span>{loading ? "Creating Account..." : `Create ${regRole.toUpperCase()} Account & Sign In`}</span>
             </button>
           </form>
         )}
 
         {error && (
-          <div style={{ background: "var(--risk-high-bg)", color: "var(--risk-high)", border: "1px solid rgba(220, 38, 38, 0.4)", padding: "10px 12px", fontSize: "0.74rem", marginTop: "12px", fontWeight: 700 }}>
+          <div style={{ background: "var(--risk-high-bg)", color: "var(--risk-high)", border: "1px solid rgba(220, 38, 38, 0.4)", padding: "8px 12px", fontSize: "0.72rem", marginTop: "10px", fontWeight: 600 }}>
             {error}
           </div>
         )}
@@ -471,4 +497,3 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
     </div>
   );
 }
-

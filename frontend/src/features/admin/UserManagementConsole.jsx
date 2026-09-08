@@ -217,7 +217,7 @@ export default function UserManagementConsole() {
       )}
 
       {/* Bento Stat Metric Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
         <div className="bento-stat">
           <div className="corner-tag-arrow">↗</div>
           <div className="bento-stat-num">{users.length}</div>
@@ -230,12 +230,19 @@ export default function UserManagementConsole() {
           </div>
           <div className="bento-stat-label">Patients</div>
         </div>
+        <div className="bento-stat" style={{ background: "var(--bg-surface-alt)" }}>
+          <div className="corner-tag-arrow">↗</div>
+          <div className="bento-stat-num" style={{ color: "var(--gold)" }}>
+            {users.filter((u) => u.role === "doctor" || u.role === "clinician").length}
+          </div>
+          <div className="bento-stat-label">Doctors</div>
+        </div>
         <div className="bento-stat">
           <div className="corner-tag-arrow">↗</div>
           <div className="bento-stat-num" style={{ color: "var(--text-primary)" }}>
             {users.filter((u) => u.role === "admin").length}
           </div>
-          <div className="bento-stat-label">Admins & SecOps</div>
+          <div className="bento-stat-label">Admins</div>
         </div>
       </div>
 
@@ -270,11 +277,11 @@ export default function UserManagementConsole() {
                         padding: "2px 6px",
                         border: "1px solid var(--border-default)",
                         borderRadius: 0,
-                        background: u.role === "admin" ? "var(--accent-violet-soft)" : "var(--risk-low-bg)",
-                        color: u.role === "admin" ? "var(--accent-violet)" : "var(--risk-low)",
+                        background: u.role === "admin" ? "var(--accent-violet-soft)" : (u.role === "doctor" || u.role === "clinician") ? "rgba(217, 119, 6, 0.15)" : "var(--risk-low-bg)",
+                        color: u.role === "admin" ? "var(--accent-violet)" : (u.role === "doctor" || u.role === "clinician") ? "var(--gold)" : "var(--risk-low)",
                         textTransform: "capitalize",
                       }}>
-                        {u.role === "admin" ? "Administrator" : "Patient"}
+                        {u.role === "admin" ? "Administrator" : (u.role === "doctor" || u.role === "clinician") ? "Doctor" : "Patient"}
                       </span>
                     </td>
                     <td>

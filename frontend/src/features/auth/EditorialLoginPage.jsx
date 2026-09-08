@@ -779,10 +779,16 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                 </label>
                 <input type="password" value={registerPassword} onChange={(e) => setRegisterPassword(e.target.value)} required style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }} />
               </div>
-              <select value={registerRole} onChange={(e) => setRegisterRole(e.target.value)} style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }}>
-                <option value="patient">Patient</option>
-                <option value="admin">Administrator</option>
-              </select>
+              <div>
+                <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", display: "block", marginBottom: "4px" }}>
+                  Account Role
+                </label>
+                <select value={registerRole} onChange={(e) => setRegisterRole(e.target.value)} style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }}>
+                  <option value="patient">Patient (Health Checkups & 3D Twin)</option>
+                  <option value="doctor">Doctor / Clinician (Diagnostics & Consultations)</option>
+                  <option value="admin">Administrator (Compliance & Security)</option>
+                </select>
+              </div>
               <button type="submit" disabled={loading} className="btn-primary" style={{ marginTop: "8px", padding: "12px", fontSize: "0.82rem", width: "100%", minHeight: "44px" }}>
                 {loading ? "Creating Account..." : "Create Account & Sign In"}
               </button>
