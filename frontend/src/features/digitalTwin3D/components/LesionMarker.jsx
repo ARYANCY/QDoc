@@ -6,6 +6,8 @@ import { useTwinStore } from '../store/twinStore';
 export default function LesionMarker() {
   const meshRef = useRef();
   const selectedDisease = useTwinStore((state) => state.selectedDisease);
+  const selectedAnatomy = useTwinStore((state) => state.selectedAnatomy);
+  const hoveredAnatomy = useTwinStore((state) => state.hoveredAnatomy);
   const diseaseParams = useTwinStore((state) => state.diseaseParams);
   const layers = useTwinStore((state) => state.layers);
 
@@ -54,12 +56,12 @@ export default function LesionMarker() {
         />
       </mesh>
 
-      {/* Floating 3D annotation */}
-      {layers.labels && (
+      {/* Floating 3D annotation on hover / selection */}
+      {layers.labels && (selectedAnatomy === 'BREAST_LEFT' || hoveredAnatomy === 'BREAST_LEFT') && (
         <Html distanceFactor={4.5} position={[0, lesionRadius + 0.05, 0]}>
-          <div className="bg-rose-950/80 border border-rose-500/50 backdrop-blur-md px-2 py-0.5 rounded text-[10px] text-rose-200 whitespace-nowrap shadow-lg flex items-center gap-1">
+          <div className="bg-rose-950/90 border border-rose-500 backdrop-blur-md px-2 py-0.5 rounded text-[10px] text-rose-200 whitespace-nowrap shadow-lg flex items-center gap-1 font-mono font-bold">
             <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
-            Lesion: {leftPercentage}%
+            Biopsy Lesion Focal Point: {leftPercentage}%
           </div>
         </Html>
       )}

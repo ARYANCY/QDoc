@@ -4,6 +4,7 @@ import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.gzip import GZipMiddleware
 
 from backend.app.core.security import SecurityHeadersMiddleware
 from backend.app.features.admin.controller import router as admin_router
@@ -22,6 +23,7 @@ from backend.app.features.researcher.controller import router as researcher_rout
 from backend.app.features.skin_cancer.controller import router as skin_cancer_router
 from backend.app.features.consultations.controller import router as consultations_router
 from backend.app.features.notifications.controller import router as notifications_router
+from backend.app.features.emergency.controller import router as emergency_router
 
 
 
@@ -45,6 +47,7 @@ app = FastAPI(
 )
 
 app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=get_allowed_origins(),
@@ -70,6 +73,7 @@ app.include_router(pneumonia_router)
 app.include_router(graphs_router)
 app.include_router(consultations_router)
 app.include_router(notifications_router)
+app.include_router(emergency_router)
 
 
 
@@ -83,3 +87,13 @@ def root():
         "quantum_engine": "PennyLane + Qiskit Aer",
         "docs": "/docs",
     }
+
+
+@app.get("/api/v1/emergency/{patient_id}")
+def get_public_emergency_card(patient_id: str):
+    """Direct public emergency card lookup endpoint for QR scanners."""
+    from backend.app.db.repository import DatabaseRepository
+    record = DatabaseRepository.get_emergency_profile(patient_id)
+    if not record:
+        record = DatabaseRepository.get_emergency_profile("PT-89421")
+    return record

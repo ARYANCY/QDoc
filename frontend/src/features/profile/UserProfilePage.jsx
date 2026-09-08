@@ -7,40 +7,46 @@ import {
   CheckCircle2,
   Trash2,
   AlertTriangle,
-  Building,
   Heart,
   Stethoscope,
   Activity,
-  Cpu,
-  Lock,
-  Database,
-  ArrowUpRight,
-  RefreshCw,
-  Clock,
-  KeyRound,
-  X,
-  Sliders,
   CreditCard,
   QrCode,
   Printer,
   Copy,
+  RefreshCw,
+  X,
+  FileText,
+  Clock,
+  Sparkles,
+  ExternalLink,
 } from "lucide-react";
 import { profileApi } from "../../api/profile";
 import { authApi } from "../../api/auth";
 import { animateEntrance } from "../../utils/motion";
+import QRCodeSVG from "../../components/common/QRCodeSVG.jsx";
 
 export default function UserProfilePage({ currentUser, onProfileUpdated, onProfileDeleted }) {
   const containerRef = useRef(null);
+  const activeUserId = currentUser?.user_id || currentUser?.id || currentUser?.username || "PT-ALEX";
+
   const [profile, setProfile] = useState({
-    user_id: currentUser?.user_id || currentUser?.id || "PT-ALEX",
+    user_id: activeUserId,
     username: currentUser?.username || "alex.patient",
     name: currentUser?.name || "Alexander Reed",
     role: currentUser?.role || "patient",
     primary_email: currentUser?.email || "alexander.reed@email.com",
     extra_email: "alex.emergency@gmail.com",
     emergency_phone: "+91 98333 44556",
+    emergency_contact_name: "Liam Reed",
+    emergency_contact_relation: "Brother",
     phone: "+91 98333 44556",
     blood_group: "O+",
+    allergies: "Penicillin (Anaphylaxis), Peanuts",
+    active_medications: "Atorvastatin 20mg (OD), Aspirin 75mg (OD)",
+    medical_history: "Hypertension (Stage 1), Mild Hyperlipidemia",
+    abha_id: "91-4829-1092-8821",
+    organ_donor: true,
     department: "Patient Self-Analysis & Care",
     hospital: "AIIMS Cardiology & Oncology OPD",
     license_id: "PT-REC-89421",
@@ -48,22 +54,22 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
     compute_cluster: "PennyLane-QPU-Rigetti-Sim",
     clearance_level: "Level 4 (Audit & Governance)",
     compliance_standard: "HIPAA / FDA 21 CFR Part 11 / DPDP Act",
-    attending_physician: "Self-Managed AI Diagnostics",
+    attending_physician: "Dr. Sarah Lin (Cardiologist)",
     notifications_sms: true,
     notifications_email: true,
     notifications_critical_qpu: true,
   });
 
   const [loading, setLoading] = useState(false);
-  const [syncStatus, setSyncStatus] = useState("synced"); // "synced" | "saving" | "error"
+  const [syncStatus, setSyncStatus] = useState("synced");
   const [error, setError] = useState(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deleting, setDeleting] = useState(false);
   const [viewCardOpen, setViewCardOpen] = useState(false);
   const [copiedPass, setCopiedPass] = useState(false);
+  const [cardTheme, setCardTheme] = useState("light");
 
-  const activeUserId = currentUser?.user_id || currentUser?.id || currentUser?.username || "PT-ALEX";
   const isDeleteAuthorized = deleteConfirmText.trim().toLowerCase() === "confirm deletion account";
 
   useEffect(() => {
@@ -85,17 +91,14 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
           user_id: res.profile.user_id || activeUserId,
           username: currentUser?.username || prev.username,
         }));
-        // Auto-save on login/load to ensure DB synchronization
-        autoSaveToDb({ ...profile, ...res.profile });
       }
     } catch (err) {
-      // Fallback retains stored user metadata
+      // Retain fallback metadata
     } finally {
       setLoading(false);
     }
   }
 
-  // Automatic Background DB Synchronization
   async function autoSaveToDb(updatedProfile) {
     const payload = updatedProfile || profile;
     setSyncStatus("saving");
@@ -143,22 +146,12 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
   }
 
   const effectiveRole = currentUser?.role || profile.role || "patient";
-  const isTestAccount = !currentUser?.is_custom && (
-    currentUser?.username === "alex.patient" ||
-    currentUser?.username === "admin.audit" ||
-    currentUser?.id === "PT-ALEX" ||
-    currentUser?.id === "ADM-SYSTEM" ||
-    currentUser?.user_id === "PT-ALEX" ||
-    currentUser?.user_id === "ADM-SYSTEM" ||
-    activeUserId === "PT-ALEX" ||
-    activeUserId === "ADM-SYSTEM" ||
-    activeUserId === "alex.patient" ||
-    activeUserId === "admin.audit"
-  );
+  const emergencyPortalUrl = typeof window !== "undefined"
+    ? `http://localhost:5174/#emergency/${profile.user_id || "PT-ALEX"}`
+    : `https://qmedsense.health/#emergency/${profile.user_id || "PT-ALEX"}`;
 
   return (
     <div ref={containerRef} style={{ height: "100%", overflowY: "auto", padding: "14px 18px", background: "var(--bg-canvas)" }}>
-      {/* ── Zara Magazine Editorial Header ───────────────────────────────────── */}
       <div
         style={{
           background: "var(--bg-surface)",
@@ -188,7 +181,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                 padding: "2px 8px",
               }}
             >
-              EDITION 2026 // VOL. IV • USER DOSSIER
+              EDITION 2026 // MEDICAL DOSSIER & IDENTITY CARD
             </span>
             <span
               style={{
@@ -212,7 +205,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                 textTransform: "uppercase",
               }}
             >
-              {profile.name || "User Profile & Security"}
+              {profile.name || "Patient Profile & Emergency Dossier"}
             </h1>
             <span
               style={{
@@ -230,11 +223,10 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
           </div>
 
           <p style={{ fontSize: "0.74rem", color: "var(--text-secondary)", marginTop: "3px" }}>
-            Institutional identity, clinical emergency routing, quantum resource access, and account lifecycle.
+            Personal clinical data, 24/7 next-of-kin escalation, triage QR pass, and digital health card configuration.
           </p>
         </div>
 
-        {/* Dynamic Auto-Sync Indicator & Sync Trigger */}
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <div
             style={{
@@ -260,7 +252,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                 display: "inline-block",
               }}
             />
-            {syncStatus === "saving" ? "Syncing to SQLite..." : "Auto-Saved to SQLite DB"}
+            {syncStatus === "saving" ? "Saving to SQLite..." : "Auto-Saved to DB"}
           </div>
 
           <button
@@ -304,75 +296,41 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
             title="Open Digital Health Identity Card"
           >
             <CreditCard size={13} />
-            View ID Card
+            View & Print Card
           </button>
         </div>
       </div>
 
-      {/* ── Protected Test Account Read-Only Banner / Full Authority Notice ───── */}
-      {isTestAccount ? (
-        <div
-          style={{
-            background: "var(--bg-surface-alt)",
-            border: "1px solid var(--border-light-blue)",
-            borderLeft: "4px solid var(--primary)",
-            padding: "14px 18px",
-            marginBottom: "16px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: "12px",
-            boxShadow: "var(--shadow-sm)",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <Lock size={20} color="var(--primary)" style={{ flexShrink: 0 }} />
-            <div>
-              <strong style={{ fontSize: "0.82rem", color: "var(--primary)", textTransform: "uppercase", letterSpacing: "0.06em", display: "block" }}>
-                🔒 Protected Test Baseline Persona // Read-Only Mode
-              </strong>
-              <p style={{ fontSize: "0.72rem", color: "var(--text-secondary)", margin: "2px 0 0 0" }}>
-                This is a verified test account baseline. Profile credentials are preserved to prevent benchmark drift. To customize and edit all attributes with full authority, create a new custom account via the top portal.
-              </p>
-            </div>
+      <div
+        style={{
+          background: "var(--risk-low-bg)",
+          border: "1px solid var(--risk-low-border)",
+          borderLeft: "4px solid var(--risk-low)",
+          padding: "12px 18px",
+          marginBottom: "16px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "12px",
+          boxShadow: "var(--shadow-sm)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <CheckCircle2 size={18} color="var(--risk-low)" style={{ flexShrink: 0 }} />
+          <div>
+            <strong style={{ fontSize: "0.78rem", color: "var(--risk-low)", textTransform: "uppercase", letterSpacing: "0.06em", display: "block" }}>
+              ✓ Full Profile Editing Authority Active
+            </strong>
+            <p style={{ fontSize: "0.70rem", color: "var(--text-secondary)", margin: "2px 0 0 0" }}>
+              All fields are completely customizable. Edits auto-sync directly to SQLite and reflect instantly on the printable emergency card and QR triage portal.
+            </p>
           </div>
-          <span style={{ fontSize: "0.64rem", fontWeight: 900, background: "var(--primary)", color: "#FFFFFF", padding: "4px 10px", textTransform: "uppercase", letterSpacing: "0.08em", whiteSpace: "nowrap" }}>
-            PROTECTED BASELINE
-          </span>
         </div>
-      ) : (
-        <div
-          style={{
-            background: "var(--risk-low-bg)",
-            border: "1px solid var(--risk-low-border)",
-            borderLeft: "4px solid var(--risk-low)",
-            padding: "14px 18px",
-            marginBottom: "16px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: "12px",
-            boxShadow: "var(--shadow-sm)",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <CheckCircle2 size={20} color="var(--risk-low)" style={{ flexShrink: 0 }} />
-            <div>
-              <strong style={{ fontSize: "0.82rem", color: "var(--risk-low)", textTransform: "uppercase", letterSpacing: "0.06em", display: "block" }}>
-                ✓ Custom User Account // Full Editing Authority Active
-              </strong>
-              <p style={{ fontSize: "0.72rem", color: "var(--text-secondary)", margin: "2px 0 0 0" }}>
-                You have full authority to modify personal credentials, hotlines, and clinical routing. Changes synchronize automatically to SQLite.
-              </p>
-            </div>
-          </div>
-          <span style={{ fontSize: "0.64rem", fontWeight: 900, background: "var(--risk-low)", color: "#FFFFFF", padding: "4px 10px", textTransform: "uppercase", letterSpacing: "0.08em", whiteSpace: "nowrap" }}>
-            FULL AUTHORITY ACTIVE
-          </span>
-        </div>
-      )}
+        <span style={{ fontSize: "0.62rem", fontWeight: 900, background: "var(--risk-low)", color: "#FFFFFF", padding: "3px 8px", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+          LIVE SYNC ENABLED
+        </span>
+      </div>
 
       {error && (
         <div
@@ -393,75 +351,72 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
         </div>
       )}
 
-      {/* ── Editorial Bento Metric Grid ──────────────────────────────────────── */}
       <div className="bento-grid-4" style={{ marginBottom: "16px" }}>
         <div className="bento-stat-card" style={{ borderTop: "3px solid var(--primary)" }}>
           <div className="bento-stat-header">
-            <span className="bento-stat-label">01 // AUTHORITY TIER</span>
+            <span className="bento-stat-label">01 // BLOOD GROUP</span>
             <span className="bento-stat-arrow">↗</span>
           </div>
-          <div className="bento-stat-value" style={{ fontSize: "1.15rem", textTransform: "uppercase", fontWeight: 900 }}>
-            {effectiveRole}
+          <div className="bento-stat-value" style={{ fontSize: "1.25rem", color: "var(--risk-high)", fontWeight: 900 }}>
+            {profile.blood_group || "O+"}
           </div>
           <div className="bento-stat-footer">
-            <span className="bento-stat-tag">{isTestAccount ? "TEST BASELINE" : "CUSTOM TIER"}</span>
-            <span className="bento-stat-sub">DPDP & HIPAA Verified</span>
+            <span className="bento-stat-tag">CRITICAL</span>
+            <span className="bento-stat-sub">{profile.organ_donor ? "Organ Donor: Consented" : "Non-Donor"}</span>
           </div>
         </div>
 
         <div className="bento-stat-card" style={{ borderTop: "3px solid #0369A1" }}>
           <div className="bento-stat-header">
-            <span className="bento-stat-label">02 // INSTITUTIONAL DOMAIN</span>
+            <span className="bento-stat-label">02 // ABHA HEALTH ID</span>
             <span className="bento-stat-arrow">↗</span>
           </div>
-          <div className="bento-stat-value" style={{ fontSize: "0.80rem", wordBreak: "break-all", fontWeight: 800 }}>
-            {profile.primary_email || "N/A"}
+          <div className="bento-stat-value" style={{ fontSize: "0.82rem", wordBreak: "break-all", fontWeight: 800, fontFamily: "var(--font-mono)" }}>
+            {profile.abha_id || "91-4829-1092-8821"}
           </div>
           <div className="bento-stat-footer">
-            <span className="bento-stat-tag">ROUTING</span>
-            <span className="bento-stat-sub">Verified Gateway</span>
+            <span className="bento-stat-tag">ABDM GATEWAY</span>
+            <span className="bento-stat-sub">Verified Identity</span>
           </div>
         </div>
 
         <div className="bento-stat-card" style={{ borderTop: "3px solid var(--primary)" }}>
           <div className="bento-stat-header">
-            <span className="bento-stat-label">03 // 24/7 EMERGENCY HOTLINE</span>
+            <span className="bento-stat-label">03 // 24/7 NEXT OF KIN</span>
             <span className="bento-stat-arrow">↗</span>
           </div>
           <div className="bento-stat-value" style={{ fontSize: "1.05rem", color: "var(--primary)", fontWeight: 900 }}>
             {profile.emergency_phone || "+91 98333 44556"}
           </div>
           <div className="bento-stat-footer">
-            <span className="bento-stat-tag">ESCALATION</span>
-            <span className="bento-stat-sub">SMS & Voice Enabled</span>
+            <span className="bento-stat-tag">{profile.emergency_contact_name || "Liam Reed"}</span>
+            <span className="bento-stat-sub">({profile.emergency_contact_relation || "Next of Kin"})</span>
           </div>
         </div>
 
         <div className="bento-stat-card" style={{ borderTop: "3px solid var(--accent-teal)" }}>
           <div className="bento-stat-header">
-            <span className="bento-stat-label">04 // DATABASE INTEGRITY</span>
+            <span className="bento-stat-label">04 // SEVERE ALLERGIES</span>
             <span className="bento-stat-arrow">↗</span>
           </div>
-          <div className="bento-stat-value" style={{ fontSize: "0.95rem", fontFamily: "var(--font-mono)", fontWeight: 800 }}>
-            SQLITE WORM
+          <div className="bento-stat-value" style={{ fontSize: "0.78rem", fontWeight: 800, color: "var(--text-primary)" }}>
+            {profile.allergies ? (profile.allergies.length > 25 ? profile.allergies.slice(0, 25) + "..." : profile.allergies) : "None Reported"}
           </div>
           <div className="bento-stat-footer">
-            <span className="bento-stat-tag">AUDIT LOG</span>
-            <span className="bento-stat-sub">Tamper-Evident SHA-256</span>
+            <span className="bento-stat-tag">TRIAGE ALERT</span>
+            <span className="bento-stat-sub">Printed on QR card</span>
           </div>
         </div>
       </div>
 
-      {/* ── Main Profile Form Grid (Auto-Syncing) ────────────────────────────── */}
       <form onSubmit={(e) => e.preventDefault()}>
-        <div style={{ display: "grid", gridTemplateColumns: "1.25fr 1fr", gap: "16px", marginBottom: "16px" }}>
-          {/* Card 1: Identity & Credentials */}
+        <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "16px", marginBottom: "16px" }}>
           <div className="panel" style={{ padding: "18px", background: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
             <div className="panel-header" style={{ marginBottom: "14px", borderBottom: "1px solid var(--border-default)", paddingBottom: "8px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                 <User size={14} color="var(--primary)" />
                 <h3 style={{ fontSize: "0.82rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                  Section 01 // Institutional Profile & Credentials
+                  Section 01 // Demographics & Identifiers
                 </h3>
               </div>
               <span className="step-badge">SEC. 01</span>
@@ -470,22 +425,20 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
               <div>
                 <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
-                  Full Legal / Professional Name {isTestAccount && "(Protected)"}
+                  Full Legal Name
                 </label>
                 <input
                   type="text"
                   value={profile.name || ""}
-                  onChange={(e) => !isTestAccount && handleFieldChange("name", e.target.value)}
+                  onChange={(e) => handleFieldChange("name", e.target.value)}
                   onBlur={handleFieldBlur}
-                  readOnly={isTestAccount}
                   style={{
                     width: "100%",
                     padding: "8px 10px",
                     border: "1px solid var(--border-default)",
                     fontSize: "0.78rem",
-                    background: isTestAccount ? "var(--bg-surface-alt)" : "var(--bg-surface)",
+                    background: "var(--bg-surface)",
                     color: "var(--text-primary)",
-                    cursor: isTestAccount ? "not-allowed" : "text",
                   }}
                   required
                 />
@@ -493,7 +446,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
 
               <div>
                 <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
-                  Username / Auth Handle (Read-only)
+                  Username / Handle
                 </label>
                 <input
                   type="text"
@@ -507,22 +460,20 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
               <div>
                 <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
-                  Primary Institutional Email {isTestAccount && "(Protected)"}
+                  Primary Email
                 </label>
                 <input
                   type="email"
                   value={profile.primary_email || ""}
-                  onChange={(e) => !isTestAccount && handleFieldChange("primary_email", e.target.value)}
+                  onChange={(e) => handleFieldChange("primary_email", e.target.value)}
                   onBlur={handleFieldBlur}
-                  readOnly={isTestAccount}
                   style={{
                     width: "100%",
                     padding: "8px 10px",
                     border: "1px solid var(--border-default)",
                     fontSize: "0.78rem",
-                    background: isTestAccount ? "var(--bg-surface-alt)" : "var(--bg-surface)",
+                    background: "var(--bg-surface)",
                     color: "var(--text-primary)",
-                    cursor: isTestAccount ? "not-allowed" : "text",
                   }}
                   required
                 />
@@ -530,23 +481,21 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
 
               <div>
                 <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
-                  Secondary / Recovery Email
+                  Secondary / Family Email
                 </label>
                 <input
                   type="email"
                   value={profile.extra_email || ""}
-                  onChange={(e) => !isTestAccount && handleFieldChange("extra_email", e.target.value)}
+                  onChange={(e) => handleFieldChange("extra_email", e.target.value)}
                   onBlur={handleFieldBlur}
-                  readOnly={isTestAccount}
                   style={{
                     width: "100%",
                     padding: "8px 10px",
                     border: "1px solid var(--border-default)",
                     fontSize: "0.78rem",
-                    background: isTestAccount ? "var(--bg-surface-alt)" : "var(--bg-surface)",
-                    cursor: isTestAccount ? "not-allowed" : "text",
+                    background: "var(--bg-surface)",
                   }}
-                  placeholder="alternate.email@organization.org"
+                  placeholder="family.contact@gmail.com"
                 />
               </div>
             </div>
@@ -554,139 +503,114 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
               <div>
                 <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
-                  Hospital / Research Organization
+                  Hospital / OPD Center
                 </label>
                 <input
                   type="text"
                   value={profile.hospital || ""}
-                  onChange={(e) => !isTestAccount && handleFieldChange("hospital", e.target.value)}
+                  onChange={(e) => handleFieldChange("hospital", e.target.value)}
                   onBlur={handleFieldBlur}
-                  readOnly={isTestAccount}
                   style={{
                     width: "100%",
                     padding: "8px 10px",
                     border: "1px solid var(--border-default)",
                     fontSize: "0.78rem",
-                    background: isTestAccount ? "var(--bg-surface-alt)" : "var(--bg-surface)",
-                    cursor: isTestAccount ? "not-allowed" : "text",
+                    background: "var(--bg-surface)",
                   }}
                 />
               </div>
 
               <div>
                 <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
-                  Department / Specialized Unit
+                  Department / Ward
                 </label>
                 <input
                   type="text"
                   value={profile.department || ""}
-                  onChange={(e) => !isTestAccount && handleFieldChange("department", e.target.value)}
+                  onChange={(e) => handleFieldChange("department", e.target.value)}
                   onBlur={handleFieldBlur}
-                  readOnly={isTestAccount}
                   style={{
                     width: "100%",
                     padding: "8px 10px",
                     border: "1px solid var(--border-default)",
                     fontSize: "0.78rem",
-                    background: isTestAccount ? "var(--bg-surface-alt)" : "var(--bg-surface)",
-                    cursor: isTestAccount ? "not-allowed" : "text",
+                    background: "var(--bg-surface)",
                   }}
                 />
               </div>
             </div>
 
-            {/* Dynamic Role-Specific Fields */}
-            {effectiveRole === "patient" && (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
-                    Patient Health Record ID / MRN
-                  </label>
-                  <input
-                    type="text"
-                    value={profile.license_id || "PT-REC-89421"}
-                    onChange={(e) => !isTestAccount && handleFieldChange("license_id", e.target.value)}
-                    onBlur={handleFieldBlur}
-                    readOnly={isTestAccount}
-                    style={{
-                      width: "100%",
-                      padding: "8px 10px",
-                      border: "1px solid var(--border-default)",
-                      fontSize: "0.78rem",
-                      fontFamily: "var(--font-mono)",
-                      background: isTestAccount ? "var(--bg-surface-alt)" : "var(--bg-surface)",
-                      cursor: isTestAccount ? "not-allowed" : "text",
-                    }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
-                    Self-Analysis & Data Portability
-                  </label>
-                  <input
-                    type="text"
-                    value="ABDM & DPDP Consent Granted (Autonomous)"
-                    readOnly
-                    style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--border-default)", fontSize: "0.78rem", background: "var(--bg-canvas)", color: "var(--text-muted)" }}
-                  />
-                </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
+              <div>
+                <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
+                  Medical Record Number (MRN / ID)
+                </label>
+                <input
+                  type="text"
+                  value={profile.license_id || "PT-REC-89421"}
+                  onChange={(e) => handleFieldChange("license_id", e.target.value)}
+                  onBlur={handleFieldBlur}
+                  style={{
+                    width: "100%",
+                    padding: "8px 10px",
+                    border: "1px solid var(--border-default)",
+                    fontSize: "0.78rem",
+                    fontFamily: "var(--font-mono)",
+                    background: "var(--bg-surface)",
+                  }}
+                />
               </div>
-            )}
 
-            {effectiveRole === "admin" && (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
-                    Security Clearance Level
-                  </label>
-                  <input
-                    type="text"
-                    value={profile.clearance_level || ""}
-                    onChange={(e) => !isTestAccount && handleFieldChange("clearance_level", e.target.value)}
-                    onBlur={handleFieldBlur}
-                    readOnly={isTestAccount}
-                    style={{
-                      width: "100%",
-                      padding: "8px 10px",
-                      border: "1px solid var(--border-default)",
-                      fontSize: "0.78rem",
-                      background: isTestAccount ? "var(--bg-surface-alt)" : "var(--bg-surface)",
-                      cursor: isTestAccount ? "not-allowed" : "text",
-                    }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
-                    Audit Governance Compliance
-                  </label>
-                  <input
-                    type="text"
-                    value={profile.compliance_standard || ""}
-                    onChange={(e) => !isTestAccount && handleFieldChange("compliance_standard", e.target.value)}
-                    onBlur={handleFieldBlur}
-                    readOnly={isTestAccount}
-                    style={{
-                      width: "100%",
-                      padding: "8px 10px",
-                      border: "1px solid var(--border-default)",
-                      fontSize: "0.78rem",
-                      background: isTestAccount ? "var(--bg-surface-alt)" : "var(--bg-surface)",
-                      cursor: isTestAccount ? "not-allowed" : "text",
-                    }}
-                  />
-                </div>
+              <div>
+                <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
+                  ABHA / Ayushman Bharat Health ID
+                </label>
+                <input
+                  type="text"
+                  value={profile.abha_id || ""}
+                  onChange={(e) => handleFieldChange("abha_id", e.target.value)}
+                  onBlur={handleFieldBlur}
+                  placeholder="91-XXXX-XXXX-XXXX"
+                  style={{
+                    width: "100%",
+                    padding: "8px 10px",
+                    border: "1px solid var(--border-default)",
+                    fontSize: "0.78rem",
+                    fontFamily: "var(--font-mono)",
+                    background: "var(--bg-surface)",
+                  }}
+                />
               </div>
-            )}
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
+                Attending Physician / Care Specialist
+              </label>
+              <input
+                type="text"
+                value={profile.attending_physician || ""}
+                onChange={(e) => handleFieldChange("attending_physician", e.target.value)}
+                onBlur={handleFieldBlur}
+                placeholder="Dr. Name (Specialization)"
+                style={{
+                  width: "100%",
+                  padding: "8px 10px",
+                  border: "1px solid var(--border-default)",
+                  fontSize: "0.78rem",
+                  background: "var(--bg-surface)",
+                }}
+              />
+            </div>
           </div>
 
-          {/* Card 2: Emergency Hotlines & Notification Triggers */}
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             <div className="panel" style={{ padding: "18px", background: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
               <div className="panel-header" style={{ marginBottom: "14px", borderBottom: "1px solid var(--border-default)", paddingBottom: "8px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                   <Phone size={14} color="var(--primary)" />
                   <h3 style={{ fontSize: "0.82rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                    Section 02 // 24/7 Emergency Escalation
+                    Section 02 // 24/7 Escalation & Next of Kin
                   </h3>
                 </div>
                 <span className="step-badge">SEC. 02</span>
@@ -694,14 +618,13 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
 
               <div style={{ marginBottom: "12px" }}>
                 <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--primary)", marginBottom: "4px" }}>
-                  ⚡ 24/7 Emergency Escalation Hotline (Direct dispatch) {isTestAccount && "(Protected)"}
+                  ⚡ Primary Emergency Phone (Shake-to-Call Target)
                 </label>
                 <input
                   type="text"
                   value={profile.emergency_phone || ""}
-                  onChange={(e) => !isTestAccount && handleFieldChange("emergency_phone", e.target.value)}
+                  onChange={(e) => handleFieldChange("emergency_phone", e.target.value)}
                   onBlur={handleFieldBlur}
-                  readOnly={isTestAccount}
                   style={{
                     width: "100%",
                     padding: "8px 10px",
@@ -709,31 +632,69 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                     fontSize: "0.84rem",
                     fontWeight: 800,
                     color: "var(--primary)",
-                    background: isTestAccount ? "var(--bg-surface-alt)" : "var(--bg-surface)",
-                    cursor: isTestAccount ? "not-allowed" : "text",
+                    background: "var(--bg-surface)",
                   }}
                   required
                 />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "10px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "10px", marginBottom: "12px" }}>
                 <div>
                   <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
-                    Direct Work Phone
+                    Contact Name
                   </label>
                   <input
                     type="text"
-                    value={profile.phone || ""}
-                    onChange={(e) => !isTestAccount && handleFieldChange("phone", e.target.value)}
+                    value={profile.emergency_contact_name || ""}
+                    onChange={(e) => handleFieldChange("emergency_contact_name", e.target.value)}
                     onBlur={handleFieldBlur}
-                    readOnly={isTestAccount}
+                    placeholder="e.g. Liam Reed"
                     style={{
                       width: "100%",
                       padding: "8px 10px",
                       border: "1px solid var(--border-default)",
                       fontSize: "0.78rem",
-                      background: isTestAccount ? "var(--bg-surface-alt)" : "var(--bg-surface)",
-                      cursor: isTestAccount ? "not-allowed" : "text",
+                      background: "var(--bg-surface)",
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
+                    Relationship
+                  </label>
+                  <input
+                    type="text"
+                    value={profile.emergency_contact_relation || ""}
+                    onChange={(e) => handleFieldChange("emergency_contact_relation", e.target.value)}
+                    onBlur={handleFieldBlur}
+                    placeholder="e.g. Brother / Spouse"
+                    style={{
+                      width: "100%",
+                      padding: "8px 10px",
+                      border: "1px solid var(--border-default)",
+                      fontSize: "0.78rem",
+                      background: "var(--bg-surface)",
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "10px", marginBottom: "12px" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
+                    Patient Direct Phone
+                  </label>
+                  <input
+                    type="text"
+                    value={profile.phone || ""}
+                    onChange={(e) => handleFieldChange("phone", e.target.value)}
+                    onBlur={handleFieldBlur}
+                    style={{
+                      width: "100%",
+                      padding: "8px 10px",
+                      border: "1px solid var(--border-default)",
+                      fontSize: "0.78rem",
+                      background: "var(--bg-surface)",
                     }}
                   />
                 </div>
@@ -741,74 +702,123 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                   <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
                     Blood Group
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={profile.blood_group || "O+"}
-                    onChange={(e) => !isTestAccount && handleFieldChange("blood_group", e.target.value)}
-                    onBlur={handleFieldBlur}
-                    readOnly={isTestAccount}
+                    onChange={(e) => {
+                      handleFieldChange("blood_group", e.target.value);
+                      autoSaveToDb({ ...profile, blood_group: e.target.value });
+                    }}
                     style={{
                       width: "100%",
                       padding: "8px 10px",
                       border: "1px solid var(--border-default)",
                       fontSize: "0.78rem",
-                      background: isTestAccount ? "var(--bg-surface-alt)" : "var(--bg-surface)",
-                      cursor: isTestAccount ? "not-allowed" : "text",
+                      fontWeight: 800,
+                      background: "var(--bg-surface)",
+                      color: "var(--risk-high)",
                     }}
-                  />
+                  >
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                  </select>
                 </div>
+              </div>
+
+              <div>
+                <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.74rem", cursor: "pointer", marginTop: "6px" }}>
+                  <input
+                    type="checkbox"
+                    checked={!!profile.organ_donor}
+                    onChange={(e) => handleFieldChange("organ_donor", e.target.checked)}
+                  />
+                  <span style={{ fontWeight: 700, color: "var(--text-primary)" }}>
+                    Consented Organ Donor (Prints ✓ YES on Emergency ID Card)
+                  </span>
+                </label>
               </div>
             </div>
 
-            {/* Notification & Telemetry Preferences */}
             <div className="panel" style={{ padding: "18px", background: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
               <div className="panel-header" style={{ marginBottom: "14px", borderBottom: "1px solid var(--border-default)", paddingBottom: "8px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                  <Shield size={14} color="var(--primary)" />
+                  <Activity size={14} color="var(--primary)" />
                   <h3 style={{ fontSize: "0.82rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                    Section 03 // Telemetry & Alert Triggers
+                    Section 03 // Clinical History & Triage Alerts
                   </h3>
                 </div>
                 <span className="step-badge">SEC. 03</span>
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.74rem", cursor: isTestAccount ? "not-allowed" : "pointer" }}>
-                  <input
-                    type="checkbox"
-                    checked={!!profile.notifications_sms}
-                    disabled={isTestAccount}
-                    onChange={(e) => !isTestAccount && handleFieldChange("notifications_sms", e.target.checked)}
-                  />
-                  <span>Dispatch immediate SMS alerts for critical diagnostic verdicts</span>
+              <div style={{ marginBottom: "10px" }}>
+                <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--risk-high)", marginBottom: "4px" }}>
+                  Severe Allergies (Printed prominently on QR card)
                 </label>
+                <input
+                  type="text"
+                  value={profile.allergies || ""}
+                  onChange={(e) => handleFieldChange("allergies", e.target.value)}
+                  onBlur={handleFieldBlur}
+                  placeholder="e.g. Penicillin, Sulfa, Peanuts"
+                  style={{
+                    width: "100%",
+                    padding: "8px 10px",
+                    border: "1px solid var(--border-default)",
+                    fontSize: "0.78rem",
+                    background: "var(--bg-surface)",
+                  }}
+                />
+              </div>
 
-                <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.74rem", cursor: isTestAccount ? "not-allowed" : "pointer" }}>
-                  <input
-                    type="checkbox"
-                    checked={!!profile.notifications_email}
-                    disabled={isTestAccount}
-                    onChange={(e) => !isTestAccount && handleFieldChange("notifications_email", e.target.checked)}
-                  />
-                  <span>Send PDF clinical summary reports to institutional email</span>
+              <div style={{ marginBottom: "10px" }}>
+                <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
+                  Active Prescriptions / Regular Medications
                 </label>
+                <input
+                  type="text"
+                  value={profile.active_medications || ""}
+                  onChange={(e) => handleFieldChange("active_medications", e.target.value)}
+                  onBlur={handleFieldBlur}
+                  placeholder="e.g. Atorvastatin 20mg, Aspirin 75mg"
+                  style={{
+                    width: "100%",
+                    padding: "8px 10px",
+                    border: "1px solid var(--border-default)",
+                    fontSize: "0.78rem",
+                    background: "var(--bg-surface)",
+                  }}
+                />
+              </div>
 
-                <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.74rem", cursor: isTestAccount ? "not-allowed" : "pointer" }}>
-                  <input
-                    type="checkbox"
-                    checked={!!profile.notifications_critical_qpu}
-                    disabled={isTestAccount}
-                    onChange={(e) => !isTestAccount && handleFieldChange("notifications_critical_qpu", e.target.checked)}
-                  />
-                  <span>Notify upon QPU quantum kernel drift or calibration warning</span>
+              <div>
+                <label style={{ display: "block", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)", marginBottom: "4px" }}>
+                  Chronic Medical History
                 </label>
+                <input
+                  type="text"
+                  value={profile.medical_history || ""}
+                  onChange={(e) => handleFieldChange("medical_history", e.target.value)}
+                  onBlur={handleFieldBlur}
+                  placeholder="e.g. Hypertension, Type 2 Diabetes"
+                  style={{
+                    width: "100%",
+                    padding: "8px 10px",
+                    border: "1px solid var(--border-default)",
+                    fontSize: "0.78rem",
+                    background: "var(--bg-surface)",
+                  }}
+                />
               </div>
             </div>
           </div>
         </div>
       </form>
 
-      {/* ── DANGER ZONE: Complete Database Profile Deletion ─────────────────── */}
       <div
         style={{
           background: "#FFF8F8",
@@ -868,7 +878,6 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
         </div>
       </div>
 
-      {/* ── POPUP MODAL: Confirm Permanent Deletion with Required Confirmation Text ─── */}
       {deleteConfirmOpen && (
         <div className="modal-overlay" style={{ backdropFilter: "blur(6px)", zIndex: 1000 }}>
           <div
@@ -881,7 +890,6 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
               boxShadow: "0 20px 40px rgba(0, 0, 0, 0.2)",
             }}
           >
-            {/* Modal Header */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "14px", borderBottom: "1px solid var(--border-default)", paddingBottom: "12px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <div
@@ -915,7 +923,6 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
               </button>
             </div>
 
-            {/* Modal Body */}
             <p style={{ fontSize: "0.76rem", color: "var(--text-primary)", marginBottom: "12px", lineHeight: "1.45" }}>
               This will <strong>permanently and completely purge this profile and user credentials</strong> from the SQLite database (<code>qmedsense.db</code>). This action cannot be undone. All active sessions will terminate immediately.
             </p>
@@ -953,7 +960,6 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
               </div>
             </div>
 
-            {/* Modal Actions */}
             <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
               <button
                 type="button"
@@ -991,165 +997,201 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
         </div>
       )}
 
-      {/* ── Haute-Tech Digital Health Identity & Credentials Card Modal ─────── */}
       {viewCardOpen && (
         <div className="modal-overlay" onClick={() => setViewCardOpen(false)}>
           <div
             className="modal-content"
             onClick={(e) => e.stopPropagation()}
             style={{
-              maxWidth: "580px",
+              maxWidth: "680px",
               padding: "24px",
-              background: "var(--bg-surface)",
-              border: "1px solid var(--border-default)",
-              boxShadow: "var(--shadow-md)",
+              background: "#0B0F19",
+              border: "1px solid #1E293B",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.8)",
+              color: "#F8FAFC",
             }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", borderBottom: "1px solid var(--border-default)", paddingBottom: "10px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <CreditCard size={18} color="var(--primary)" />
-                <h3 style={{ fontSize: "0.92rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-primary)" }}>
-                  Verified Health Identity Pass
-                </h3>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", borderBottom: "1px solid #1E293B", paddingBottom: "10px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <CreditCard size={20} color="#38BDF8" />
+                <div>
+                  <h3 style={{ fontSize: "0.94rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.06em", color: "#F8FAFC", margin: 0 }}>
+                    Physical & Virtual Emergency Health Card
+                  </h3>
+                  <span style={{ fontSize: "0.62rem", color: "#94A3B8", fontFamily: "var(--font-mono)" }}>
+                    ISO/IEC 7810 ID-1 (85.6mm × 53.98mm) Standard Layout
+                  </span>
+                </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setViewCardOpen(false)}
-                style={{ background: "transparent", border: 0, cursor: "pointer", color: "var(--text-muted)", padding: "4px" }}
-              >
-                <X size={18} />
-              </button>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <button
+                  type="button"
+                  onClick={() => setCardTheme(cardTheme === "light" ? "dark" : "light")}
+                  style={{
+                    padding: "4px 10px",
+                    fontSize: "0.65rem",
+                    fontWeight: 800,
+                    textTransform: "uppercase",
+                    background: cardTheme === "light" ? "#38BDF8" : "#1E293B",
+                    color: cardTheme === "light" ? "#000000" : "#F8FAFC",
+                    border: "1px solid #38BDF8",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                  }}
+                >
+                  {cardTheme === "light" ? "☀️ White Print Edition" : "🌙 Midnight Navy Edition"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewCardOpen(false)}
+                  style={{ background: "transparent", border: 0, cursor: "pointer", color: "#94A3B8", padding: "4px" }}
+                >
+                  <X size={18} />
+                </button>
+              </div>
             </div>
 
-            {/* The Luxury Hologram Digital ID Card */}
-            <div className="digital-id-card-wrapper">
-              <div className="digital-id-card">
-                {/* Card Top Banner */}
-                <div className="id-card-top">
+            <div className="digital-id-card-wrapper" id="printable-emergency-card">
+              <div
+                className="digital-id-card"
+                style={{
+                  background: cardTheme === "light" ? "#FFFFFF" : "linear-gradient(135deg, #090D16 0%, #131D2E 50%, #080C14 100%)",
+                  border: "2px solid #0284C7",
+                  borderRadius: "14px",
+                  padding: "18px 20px",
+                  color: cardTheme === "light" ? "#0F172A" : "#FFFFFF",
+                  boxShadow: cardTheme === "light" ? "0 4px 20px rgba(0,0,0,0.15)" : "0 10px 30px rgba(0,0,0,0.6)",
+                  position: "relative",
+                  fontFamily: "var(--font-sans)",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px", borderBottom: cardTheme === "light" ? "1px solid #E2E8F0" : "1px solid rgba(255,255,255,0.12)", paddingBottom: "8px" }}>
                   <div>
-                    <div style={{ fontSize: "0.60rem", fontWeight: 800, letterSpacing: "0.14em", color: "var(--primary)", textTransform: "uppercase" }}>
-                      Q-MEDSENSE • QUANTUM HEALTH INTELLIGENCE NETWORK
+                    <div style={{ fontSize: "0.58rem", fontWeight: 900, letterSpacing: "0.14em", color: "#0284C7", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>
+                      Q-MEDSENSE • CRITICAL EMERGENCY PASSPORT
                     </div>
-                    <div style={{ fontSize: "1.2rem", fontWeight: 900, letterSpacing: "-0.02em", color: "var(--text-primary)", marginTop: "2px", textTransform: "uppercase" }}>
+                    <div style={{ fontSize: "1.25rem", fontWeight: 900, letterSpacing: "-0.02em", color: cardTheme === "light" ? "#0F172A" : "#FFFFFF", marginTop: "2px", textTransform: "uppercase" }}>
                       {profile.name || "Alexander Reed"}
                     </div>
-                  </div>
-                  <div className="id-card-chip" title="Cryptographic QPU Smart Chip" />
-                </div>
-
-                {/* Card Data Grid */}
-                <div className="id-card-grid">
-                  <div>
-                    <div className="id-field-label">Authority Role</div>
-                    <div className="id-field-val" style={{ color: "var(--primary)", textTransform: "uppercase" }}>
-                      {effectiveRole === "admin" ? "Administrator" : "Patient (Autonomous Care)"}
+                    <div style={{ fontSize: "0.68rem", color: cardTheme === "light" ? "#64748B" : "#94A3B8", fontFamily: "var(--font-mono)", marginTop: "1px" }}>
+                      MRN: <strong style={{ color: cardTheme === "light" ? "#0F172A" : "#F8FAFC" }}>{profile.license_id || "PT-REC-89421"}</strong> · ABHA: <strong style={{ color: cardTheme === "light" ? "#0284C7" : "#38BDF8" }}>{profile.abha_id || "91-4829-1092-8821"}</strong>
                     </div>
                   </div>
 
-                  <div>
-                    <div className="id-field-label">Health Record / MRN</div>
-                    <div className="id-field-val" style={{ fontFamily: "var(--font-mono)", fontSize: "0.82rem", color: "var(--text-primary)" }}>
-                      {profile.license_id || "PT-REC-89421"}
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="id-field-label">Primary Email</div>
-                    <div className="id-field-val" style={{ fontSize: "0.74rem", wordBreak: "break-all", color: "var(--text-secondary)" }}>
-                      {profile.primary_email || "alexander.reed@healthnet.org"}
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="id-field-label">Emergency Hotline</div>
-                    <div className="id-field-val" style={{ color: "var(--risk-high)", fontSize: "0.80rem" }}>
-                      {profile.emergency_phone || "+91 98333 44556"}
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="id-field-label">Affiliated Facility</div>
-                    <div className="id-field-val" style={{ fontSize: "0.74rem", color: "var(--text-secondary)" }}>
-                      {profile.hospital || "AIIMS Clinical AI Research Unit"}
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="id-field-label">DPDP 2023 Consent</div>
-                    <div className="id-field-val" style={{ color: "var(--risk-low)", fontSize: "0.74rem", fontWeight: 800 }}>
-                      ✓ Verified & Active
-                    </div>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "50px", height: "50px", borderRadius: "10px", background: "#DC2626", border: "2px solid #FCA5A5", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(220,38,38,0.4)" }}>
+                    <span style={{ fontSize: "0.50rem", fontWeight: 900, letterSpacing: "0.1em", textTransform: "uppercase", opacity: 0.95 }}>BLOOD</span>
+                    <span style={{ fontSize: "1.25rem", fontWeight: 900, lineHeight: 1 }}>{profile.blood_group || "O+"}</span>
                   </div>
                 </div>
 
-                {/* Card Bottom Barcode & Security Lineage */}
-                <div className="id-card-barcode-wrap">
-                  <div>
-                    <div style={{ fontSize: "0.54rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
-                      SHA-256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 130px", gap: "14px", alignItems: "center" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", fontSize: "0.72rem" }}>
+                    <div>
+                      <div style={{ fontSize: "0.54rem", fontWeight: 800, color: cardTheme === "light" ? "#64748B" : "#94A3B8", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>Next of Kin Hotline</div>
+                      <div style={{ fontWeight: 900, color: "#DC2626", marginTop: "1px", fontSize: "0.78rem", fontFamily: "var(--font-mono)" }}>
+                        {profile.emergency_phone || "+91 98333 44556"}
+                      </div>
+                      <div style={{ fontSize: "0.58rem", color: cardTheme === "light" ? "#0284C7" : "#38BDF8", fontWeight: 700 }}>
+                        {profile.emergency_contact_name || "Liam Reed"} ({profile.emergency_contact_relation || "Brother"})
+                      </div>
                     </div>
-                    <div style={{ fontSize: "0.58rem", color: "var(--text-secondary)", marginTop: "2px", fontWeight: 800 }}>
-                      WORM AUDIT SECURED • 2026 DIGITAL HEALTH PASS
+
+                    <div>
+                      <div style={{ fontSize: "0.54rem", fontWeight: 800, color: cardTheme === "light" ? "#64748B" : "#94A3B8", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>Severe Allergies</div>
+                      <div style={{ fontWeight: 800, color: "#DC2626", marginTop: "1px", fontSize: "0.70rem" }}>
+                        {profile.allergies || "Penicillin (Anaphylaxis)"}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div style={{ fontSize: "0.54rem", fontWeight: 800, color: cardTheme === "light" ? "#64748B" : "#94A3B8", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>Organ Donor</div>
+                      <div style={{ fontWeight: 900, color: "#16A34A", marginTop: "1px", fontSize: "0.70rem" }}>
+                        {profile.organ_donor ? "✓ YES (CONSENTED)" : "NO CONSENT"}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div style={{ fontSize: "0.54rem", fontWeight: 800, color: cardTheme === "light" ? "#64748B" : "#94A3B8", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>Attending Doctor</div>
+                      <div style={{ fontWeight: 800, color: cardTheme === "light" ? "#0F172A" : "#F8FAFC", marginTop: "1px", fontSize: "0.68rem" }}>
+                        {profile.attending_physician || "AIIMS Cardiology"}
+                      </div>
+                    </div>
+
+                    <div style={{ gridColumn: "span 2" }}>
+                      <div style={{ fontSize: "0.54rem", fontWeight: 800, color: cardTheme === "light" ? "#64748B" : "#94A3B8", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>Active Prescriptions</div>
+                      <div style={{ fontSize: "0.66rem", color: cardTheme === "light" ? "#334155" : "#CBD5E1", marginTop: "1px", fontWeight: 600 }}>
+                        {profile.active_medications || "Atorvastatin 20mg (OD) · Aspirin 75mg (OD)"}
+                      </div>
                     </div>
                   </div>
 
-                  {/* Simulated Haute-Tech Barcode Graphic */}
-                  <div className="id-barcode-lines">
-                    <span className="id-barcode-bar" style={{ width: "2px" }} />
-                    <span className="id-barcode-bar" style={{ width: "3px" }} />
-                    <span className="id-barcode-bar" style={{ width: "1px" }} />
-                    <span className="id-barcode-bar" style={{ width: "4px" }} />
-                    <span className="id-barcode-bar" style={{ width: "2px" }} />
-                    <span className="id-barcode-bar" style={{ width: "1px" }} />
-                    <span className="id-barcode-bar" style={{ width: "3px" }} />
-                    <span className="id-barcode-bar" style={{ width: "5px" }} />
-                    <span className="id-barcode-bar" style={{ width: "2px" }} />
-                    <span className="id-barcode-bar" style={{ width: "1px" }} />
-                    <span className="id-barcode-bar" style={{ width: "4px" }} />
-                    <span className="id-barcode-bar" style={{ width: "2px" }} />
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#FFFFFF", padding: "8px", borderRadius: "10px", border: "1px solid #CBD5E1", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
+                    <QRCodeSVG
+                      value={emergencyPortalUrl}
+                      size={105}
+                      fgColor="#000000"
+                      bgColor="#FFFFFF"
+                    />
+                    <span style={{ fontSize: "0.48rem", fontWeight: 900, color: "#000000", fontFamily: "var(--font-mono)", marginTop: "4px", textTransform: "uppercase", letterSpacing: "0.04em", textAlign: "center" }}>
+                      Scan Triage Portal
+                    </span>
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "12px", borderTop: cardTheme === "light" ? "1px solid #E2E8F0" : "1px solid rgba(255,255,255,0.1)", paddingTop: "6px" }}>
+                  <div style={{ fontSize: "0.50rem", color: cardTheme === "light" ? "#64748B" : "#94A3B8", fontFamily: "var(--font-mono)" }}>
+                    PORTAL: localhost:5174/#emergency/{profile.user_id || "PT-ALEX"}
+                  </div>
+                  <div style={{ fontSize: "0.52rem", color: "#0284C7", fontWeight: 800, fontFamily: "var(--font-mono)", textTransform: "uppercase" }}>
+                    SECURE LIVE TELEMETRY PASS
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Modal Actions */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "18px", borderTop: "1px solid var(--border-default)", paddingTop: "14px" }}>
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={() => {
-                  navigator.clipboard?.writeText(JSON.stringify({
-                    name: profile.name,
-                    role: effectiveRole,
-                    record_id: profile.license_id || "PT-REC-89421",
-                    email: profile.primary_email,
-                    emergency: profile.emergency_phone,
-                    dpdp_verified: true,
-                  }, null, 2));
-                  setCopiedPass(true);
-                  setTimeout(() => setCopiedPass(false), 2000);
-                }}
-                style={{ padding: "8px 14px", fontSize: "0.72rem", display: "flex", alignItems: "center", gap: "6px" }}
-              >
-                <Copy size={12} />
-                {copiedPass ? "Pass Data Copied!" : "Copy Digital Token"}
-              </button>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "18px", borderTop: "1px solid #1E293B", paddingTop: "14px", flexWrap: "wrap", gap: "10px" }}>
+              <div style={{ display: "flex", gap: "8px" }}>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => {
+                    navigator.clipboard?.writeText(emergencyPortalUrl);
+                    setCopiedPass(true);
+                    setTimeout(() => setCopiedPass(false), 2000);
+                  }}
+                  style={{ padding: "8px 12px", fontSize: "0.72rem", display: "flex", alignItems: "center", gap: "6px", background: "#141C2E", border: "1px solid #334155", color: "#E2E8F0" }}
+                >
+                  <Copy size={12} />
+                  {copiedPass ? "URL Copied!" : "Copy Triage URL"}
+                </button>
+
+                <a
+                  href={emergencyPortalUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ padding: "8px 12px", fontSize: "0.72rem", display: "flex", alignItems: "center", gap: "6px", background: "#141C2E", border: "1px solid #0284C7", color: "#38BDF8", textDecoration: "none", borderRadius: "4px", fontWeight: 700 }}
+                >
+                  <ExternalLink size={12} />
+                  Open Triage App
+                </a>
+              </div>
 
               <div style={{ display: "flex", gap: "8px" }}>
                 <button
                   type="button"
                   className="btn-secondary"
                   onClick={() => window.print()}
-                  style={{ padding: "8px 14px", fontSize: "0.72rem", display: "flex", alignItems: "center", gap: "6px" }}
+                  style={{ padding: "8px 16px", fontSize: "0.74rem", display: "flex", alignItems: "center", gap: "6px", background: "#0284C7", border: "1px solid #38BDF8", color: "#FFFFFF", fontWeight: 800 }}
                 >
-                  <Printer size={12} />
-                  Print Pass
+                  <Printer size={13} />
+                  Print ISO Physical Card
                 </button>
                 <button
                   type="button"
                   className="btn-primary"
                   onClick={() => setViewCardOpen(false)}
-                  style={{ padding: "8px 20px", fontSize: "0.72rem", width: "auto" }}
+                  style={{ padding: "8px 18px", fontSize: "0.74rem", width: "auto", background: "#334155", color: "#FFFFFF", fontWeight: 800 }}
                 >
                   Done
                 </button>

@@ -14,7 +14,9 @@ except Exception as exc:  # pragma: no cover - defensive import guard
 else:
     _MODEL_IMPORT_ERROR = None
 
-MAX_BYTES = 8 * 1024 * 1024
+# Mitigate decompression bomb attacks (CWE-400 / DoS)
+Image.MAX_IMAGE_PIXELS = 10_000_000
+MAX_BYTES = 10 * 1024 * 1024  # 10 MB limit
 
 
 def is_valid_dermatoscopy(image: Image.Image) -> bool:

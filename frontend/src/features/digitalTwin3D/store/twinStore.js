@@ -1,215 +1,405 @@
 import { create } from 'zustand';
 import { DISEASE_REGISTRY } from '../data/diseaseRegistry';
-import { computeVisualizationState } from '../visualization/visualizationEngine';
 import { StorageService } from '../utils/storage';
+import {
+  fetchPatientTwinState,
+  mapRisksToInvolvement,
+  detectPrimaryDisease
+} from '../api/twinApi';
 
-export const DISEASE_TO_ORGAN = {
-  breast_cancer: 'BREAST_LEFT',
-  wdbc: 'BREAST_LEFT',
-  heart: 'HEART',
-  cleveland: 'HEART',
-  cardio: 'HEART',
-  diabetes: 'PANCREAS',
-  pima: 'PANCREAS',
-  parkinsons: 'BRAIN',
-  pneumonia: 'LUNG_RIGHT',
-  chest_xray: 'LUNG_RIGHT',
-  skin: 'SKIN',
-  skin_cancer: 'SKIN',
-  liver: 'LIVER',
+// ─── Default blank patient profile ───────────────────────────────────────────
+const DEFAULT_PATIENT = {
+  // Identity
+  id: '',
+  firstName: '',
+  lastName: '',
+  dateOfBirth: '',
+  sex: 'female',
+  bloodType: '',
+  heightCm: '',
+  weightKg: '',
+  ageGroup: '40-60',
+
+  // Contact / Administrative
+  patientId: '',
+  phone: '',
+  email: '',
+  emergencyContact: '',
+
+  // Clinical Notes
+  notes: '',
+
+  // Current Symptoms (array of strings)
+  symptoms: [],
+
+  // Medical History (array of { condition, diagnosedYear, status })
+  medicalHistory: [],
+
+  // Surgical History (array of { procedure, year, notes })
+  surgicalHistory: [],
+
+  // Allergies (array of { allergen, reaction, severity })
+  allergies: [],
+
+  // Current Medications (array of { name, dose, frequency, startDate, prescribedBy })
+  medications: [],
+
+  // Family History (object of condition → affected relatives)
+  familyHistory: {
+    heartDisease: false,
+    diabetes: false,
+    cancer: false,
+    hypertension: false,
+    stroke: false,
+    mentalHealth: false,
+    other: ''
+  },
+
+  // Lifestyle
+  lifestyle: {
+    smokingStatus: 'never',     // 'never' | 'former' | 'current'
+    alcoholUse: 'none',         // 'none' | 'social' | 'moderate' | 'heavy'
+    exerciseFrequency: 'none',  // 'none' | 'light' | 'moderate' | 'active'
+    diet: '',
+    occupation: ''
+  },
+
+  // Vital Signs (latest)
+  vitals: {
+    bloodPressureSystolic: '',
+    bloodPressureDiastolic: '',
+    heartRate: '',
+    temperature: '',
+    spo2: '',
+    respiratoryRate: '',
+    glucose: '',
+    cholesterol: ''
+  }
 };
 
+// ─── Default disease params ───────────────────────────────────────────────────
+const DEFAULT_DISEASE_PARAMS = {
+  BREAST_CANCER: {
+    leftPercentage: 0,
+    rightPercentage: 0,
+    lesionEnabled: false,
+    lesionX: 0.09,
+    lesionY: 0.40,
+    lesionZ: 0.10,
+    lesionRadius: 0.035,
+    selectedQuadrant: 'Upper Outer Quadrant'
+  },
+  HEART_DISEASE: {
+    percentage: 0,
+    selectedSubregion: 'Left Ventricle',
+    pulseIntensity: true
+  },
+  DIABETES: {
+    pancreas: 0,
+    kidneyLeft: 0,
+    kidneyRight: 0,
+    heart: 0,
+    vascular: 0,
+    selectedSystemicOrgan: 'Pancreas'
+  },
+  PNEUMONIA: {
+    leftPercentage: 0,
+    rightPercentage: 0,
+    selectedZone: 'Right Inferior Lobe'
+  },
+  LIVER_DISEASE: {
+    percentage: 0,
+    selectedLobe: 'Right Lobe'
+  }
+};
+
+// ─── Store ────────────────────────────────────────────────────────────────────
 export const useTwinStore = create((set, get) => ({
-  // Active real patient analysis synced from clinical checkup or DB
-  patientAnalysis: null,
 
-  // Patient configuration
-  patient: {
-    sex: 'female',
-    notes: 'Standard patient digital twin profile'
-  },
+  // ── Patient Profile ─────────────────────────────────────────────────────────
+  patient: { ...DEFAULT_PATIENT },
 
-  // Disease selection
-  selectedDisease: 'HEART_DISEASE',
+  // ── DB / Patient Mode ───────────────────────────────────────────────────────
+  // 'idle'    → Clean anatomical model, no disease overlays
+  // 'loading' → Fetching from DB
+  // 'active'  → Patient data loaded, disease overlays visible
+  // 'error'   → DB fetch failed
+  patientMode: 'idle',
+  patientError: null,
+  dbData: null, // raw API response from /digital-twin/state/:id
+  patientAnalysis: null, // compatibility with direct diagnostic analysis results
 
-  // Involvement map: { [anatomyId]: percentage }
-  involvementMap: {
-    HEART: 65,
-  },
+  // ── Disease Selection ───────────────────────────────────────────────────────
+  selectedDisease: 'PNEUMONIA',
 
-  // Disease-specific parameters
-  diseaseParams: {
-    BREAST_CANCER: {
-      leftPercentage: 75,
-      rightPercentage: 0,
-      lesionEnabled: true,
-      lesionX: 0.09,
-      lesionY: 0.40,
-      lesionZ: 0.10,
-      lesionRadius: 0.035,
-      selectedQuadrant: 'Upper Outer Quadrant'
-    },
-    HEART_DISEASE: {
-      percentage: 70,
-      selectedSubregion: 'Left Ventricle',
-      pulseIntensity: true
-    },
-    DIABETES: {
-      pancreas: 80,
-      kidneyLeft: 45,
-      kidneyRight: 45,
-      heart: 30,
-      vascular: 60,
-      selectedSystemicOrgan: 'Pancreas'
-    },
-    PNEUMONIA: {
-      leftPercentage: 20,
-      rightPercentage: 65,
-      selectedZone: 'Right Inferior Lobe'
-    },
-    LIVER_DISEASE: {
-      percentage: 60,
-      selectedLobe: 'Right Lobe'
-    }
-  },
+  // ── Involvement Map ─────────────────────────────────────────────────────────
+  // Starts completely empty in 'idle' mode (clean model)
+  involvementMap: {},
 
-  // Layer Visibility
+  // ── Disease Parameters ──────────────────────────────────────────────────────
+  diseaseParams: { ...DEFAULT_DISEASE_PARAMS },
+
+  // ── Layer Visibility ────────────────────────────────────────────────────────
   layers: {
     skin: true,
     skeleton: true,
     organs: true,
     vessels: true,
-    diseaseOverlay: true
+    airway: true,
+    digestive: true,
+    urinary: true,
+    diseaseOverlay: true,
+    labels: true
   },
 
-  // X-Ray / Transparency mode
+  // ── X-Ray Mode ──────────────────────────────────────────────────────────────
   xrayMode: false,
   xrayIntensity: 0.5,
 
-  // Selected anatomy & Hovered anatomy for inspection
-  selectedAnatomy: 'LUNG_RIGHT',
+  // ── Selection State ─────────────────────────────────────────────────────────
+  selectedAnatomy: null,
   hoveredAnatomy: null,
 
-  // Camera Action Preset: 'front', 'back', 'left', 'right', 'top', 'reset', 'focus'
+  // ── Camera ──────────────────────────────────────────────────────────────────
   cameraAction: { preset: 'front', trigger: Date.now() },
 
-  // Modals
+  // ── Modals ──────────────────────────────────────────────────────────────────
   isReportOpen: false,
   isComparisonOpen: false,
   isTimelineOpen: false,
+  isPatientPanelOpen: false,
 
-  // Actions
-  setPatientAnalysis: (analysis, patientId = 'PT-89421') => {
-    if (!analysis) {
-      set({ patientAnalysis: null });
-      return;
-    }
+  // ──────────────────────────────────────────────────────────────────────────
+  // ACTIONS
+  // ──────────────────────────────────────────────────────────────────────────
 
-    const diseaseKey = (analysis.disease_key || analysis.disease || '').toLowerCase();
-    let targetOrgan = 'HEART';
-    for (const [k, organ] of Object.entries(DISEASE_TO_ORGAN)) {
-      if (diseaseKey.includes(k)) {
-        targetOrgan = organ;
-        break;
-      }
-    }
-
-    const confidence = analysis.prediction?.confidence || 0.88;
-    const severity = analysis.prediction?.severity || 'normal';
-    const predClass = (analysis.prediction?.class || '').toLowerCase();
-    const isRisk =
-      severity === 'danger' ||
-      severity === 'warning' ||
-      predClass.includes('malignant') ||
-      predClass.includes('disease') ||
-      predClass.includes('diabetic') ||
-      predClass.includes('pneumonia');
-
-    const involvementPct = isRisk
-      ? Math.max(60, Math.round(confidence * 100))
-      : Math.min(25, Math.round((1 - confidence) * 35));
-
-    const activeAnalysis = {
-      patientId: analysis.patient_id || patientId,
-      disease: analysis.disease || 'Clinical Assessment',
-      predictedClass: analysis.prediction?.class || 'Normal Physiological Baseline',
-      confidence: confidence,
-      severity: isRisk ? 'danger' : 'normal',
-      topFeatures: analysis.explainability?.top_features || [],
-      clinicalNarrative: analysis.explainability?.clinical_narrative || '',
-      targetOrgan: targetOrgan,
-      telemetry: analysis.quantum_telemetry || null,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
-
-    set((state) => ({
-      patientAnalysis: activeAnalysis,
-      selectedAnatomy: targetOrgan,
-      involvementMap: {
-        ...state.involvementMap,
-        [targetOrgan]: involvementPct,
-      },
-      cameraAction: { preset: 'focus', trigger: Date.now() },
-    }));
-  },
-
-  clearPatientAnalysis: () => set({ patientAnalysis: null }),
-
-  setPatient: (patientUpdates) =>
+  setPatient: (updates) =>
     set((state) => {
-      const updated = { ...state.patient, ...patientUpdates };
+      const updated = { ...state.patient, ...updates };
       StorageService.saveTwin({ patient: updated, disease: state.selectedDisease, involvement: state.involvementMap });
       return { patient: updated };
     }),
 
+  setPatientField: (field, value) =>
+    set((state) => {
+      const updated = { ...state.patient, [field]: value };
+      return { patient: updated };
+    }),
+
+  setPatientNested: (field, key, value) =>
+    set((state) => {
+      const updated = {
+        ...state.patient,
+        [field]: { ...state.patient[field], [key]: value }
+      };
+      return { patient: updated };
+    }),
+
+  addMedication: (med) =>
+    set((state) => ({
+      patient: {
+        ...state.patient,
+        medications: [...state.patient.medications, {
+          id: Date.now(),
+          name: '',
+          dose: '',
+          frequency: '',
+          startDate: '',
+          prescribedBy: '',
+          ...med
+        }]
+      }
+    })),
+
+  updateMedication: (id, updates) =>
+    set((state) => ({
+      patient: {
+        ...state.patient,
+        medications: state.patient.medications.map(m =>
+          m.id === id ? { ...m, ...updates } : m
+        )
+      }
+    })),
+
+  removeMedication: (id) =>
+    set((state) => ({
+      patient: {
+        ...state.patient,
+        medications: state.patient.medications.filter(m => m.id !== id)
+      }
+    })),
+
+  addMedicalHistory: (entry) =>
+    set((state) => ({
+      patient: {
+        ...state.patient,
+        medicalHistory: [...state.patient.medicalHistory, {
+          id: Date.now(), condition: '', diagnosedYear: '', status: 'active', ...entry
+        }]
+      }
+    })),
+
+  removeMedicalHistory: (id) =>
+    set((state) => ({
+      patient: {
+        ...state.patient,
+        medicalHistory: state.patient.medicalHistory.filter(h => h.id !== id)
+      }
+    })),
+
+  updateMedicalHistory: (id, updates) =>
+    set((state) => ({
+      patient: {
+        ...state.patient,
+        medicalHistory: state.patient.medicalHistory.map(h =>
+          h.id === id ? { ...h, ...updates } : h
+        )
+      }
+    })),
+
+  addAllergy: (allergy) =>
+    set((state) => ({
+      patient: {
+        ...state.patient,
+        allergies: [...state.patient.allergies, {
+          id: Date.now(), allergen: '', reaction: '', severity: 'mild', ...allergy
+        }]
+      }
+    })),
+
+  removeAllergy: (id) =>
+    set((state) => ({
+      patient: {
+        ...state.patient,
+        allergies: state.patient.allergies.filter(a => a.id !== id)
+      }
+    })),
+
+  toggleSymptom: (symptom) =>
+    set((state) => {
+      const existing = state.patient.symptoms;
+      const next = existing.includes(symptom)
+        ? existing.filter(s => s !== symptom)
+        : [...existing, symptom];
+      return { patient: { ...state.patient, symptoms: next } };
+    }),
+
+  // ── DB Patient Load ─────────────────────────────────────────────────────────
+  loadPatientFromDB: async (patientId) => {
+    if (!patientId?.trim()) return;
+    set({ patientMode: 'loading', patientError: null });
+    try {
+      const data = await fetchPatientTwinState(patientId.trim());
+      const moduleRisks = data?.selected_visit?.module_risks || data?.module_risks || {};
+      const involvementMap = mapRisksToInvolvement(moduleRisks);
+      const detectedDisease = detectPrimaryDisease(moduleRisks);
+      const visitDate = data?.selected_visit?.date || '';
+      const visitNotes = data?.selected_visit?.notes || '';
+
+      // Build updated disease params from DB data
+      const newDiseaseParams = { ...DEFAULT_DISEASE_PARAMS };
+      if (involvementMap.HEART)        newDiseaseParams.HEART_DISEASE.percentage = involvementMap.HEART;
+      if (involvementMap.LUNG_LEFT)    newDiseaseParams.PNEUMONIA.leftPercentage = involvementMap.LUNG_LEFT;
+      if (involvementMap.LUNG_RIGHT)   newDiseaseParams.PNEUMONIA.rightPercentage = involvementMap.LUNG_RIGHT;
+      if (involvementMap.BREAST_LEFT)  newDiseaseParams.BREAST_CANCER.leftPercentage = involvementMap.BREAST_LEFT;
+      if (involvementMap.BREAST_RIGHT) newDiseaseParams.BREAST_CANCER.rightPercentage = involvementMap.BREAST_RIGHT;
+      if (involvementMap.PANCREAS)     newDiseaseParams.DIABETES.pancreas = involvementMap.PANCREAS;
+
+      set({
+        patientMode: 'active',
+        dbData: data,
+        involvementMap,
+        selectedDisease: detectedDisease || get().selectedDisease,
+        diseaseParams: newDiseaseParams,
+        selectedAnatomy: null,
+        patient: {
+          ...get().patient,
+          patientId,
+          notes: visitNotes,
+        },
+        layers: { ...get().layers, diseaseOverlay: true }
+      });
+    } catch (err) {
+      set({ patientMode: 'error', patientError: err.message });
+    }
+  },
+
+  clearPatient: () =>
+    set({
+      patientMode: 'idle',
+      patientError: null,
+      dbData: null,
+      patientAnalysis: null,
+      involvementMap: {},
+      diseaseParams: { ...DEFAULT_DISEASE_PARAMS },
+      selectedAnatomy: null,
+      patient: { ...DEFAULT_PATIENT }
+    }),
+
+  setPatientAnalysis: (analysis, patientId) => {
+    if (!analysis) return;
+    const diseaseName = (analysis.disease || '').toUpperCase();
+    let diseaseKey = 'HEART_DISEASE';
+    let involvement = { HEART: Math.round((analysis.prediction?.confidence || 0.85) * 100) };
+
+    if (diseaseName.includes('BREAST') || diseaseName.includes('ONCOLOGY')) {
+      diseaseKey = 'BREAST_CANCER';
+      involvement = { BREAST_LEFT: Math.round((analysis.prediction?.confidence || 0.85) * 100) };
+    } else if (diseaseName.includes('PNEUM') || diseaseName.includes('LUNG') || diseaseName.includes('CHEST')) {
+      diseaseKey = 'PNEUMONIA';
+      involvement = { LUNG_RIGHT: Math.round((analysis.prediction?.confidence || 0.85) * 100), LUNG_LEFT: 25 };
+    } else if (diseaseName.includes('DIABET') || diseaseName.includes('METABOLIC')) {
+      diseaseKey = 'DIABETES';
+      involvement = { PANCREAS: Math.round((analysis.prediction?.confidence || 0.85) * 100), KIDNEY_LEFT: 35, KIDNEY_RIGHT: 35 };
+    } else if (diseaseName.includes('LIVER') || diseaseName.includes('HEPATIC')) {
+      diseaseKey = 'LIVER_DISEASE';
+      involvement = { LIVER: Math.round((analysis.prediction?.confidence || 0.85) * 100) };
+    } else if (diseaseName.includes('DERMA') || diseaseName.includes('SKIN')) {
+      involvement = { SKIN: Math.round((analysis.prediction?.confidence || 0.85) * 100) };
+    }
+
+    set({
+      patientMode: 'active',
+      patientAnalysis: analysis,
+      selectedDisease: diseaseKey,
+      involvementMap: involvement,
+      patient: {
+        ...get().patient,
+        patientId: patientId || get().patient.patientId,
+        notes: analysis.explainability?.clinical_narrative || get().patient.notes
+      },
+      layers: { ...get().layers, diseaseOverlay: true }
+    });
+  },
+
+  // ── Disease ─────────────────────────────────────────────────────────────────
   setDisease: (diseaseId) => {
     const disease = DISEASE_REGISTRY[diseaseId];
     if (!disease) return;
 
     let newInvolvement = {};
+    const dp = get().diseaseParams;
     if (diseaseId === 'BREAST_CANCER') {
-      newInvolvement = {
-        BREAST_LEFT: get().diseaseParams.BREAST_CANCER.leftPercentage,
-        BREAST_RIGHT: get().diseaseParams.BREAST_CANCER.rightPercentage
-      };
+      newInvolvement = { BREAST_LEFT: dp.BREAST_CANCER.leftPercentage, BREAST_RIGHT: dp.BREAST_CANCER.rightPercentage };
     } else if (diseaseId === 'HEART_DISEASE') {
-      newInvolvement = { HEART: get().diseaseParams.HEART_DISEASE.percentage };
+      newInvolvement = { HEART: dp.HEART_DISEASE.percentage };
     } else if (diseaseId === 'DIABETES') {
-      const d = get().diseaseParams.DIABETES;
-      newInvolvement = {
-        PANCREAS: d.pancreas,
-        KIDNEY_LEFT: d.kidneyLeft,
-        KIDNEY_RIGHT: d.kidneyRight,
-        HEART: d.heart,
-        VASCULAR_SYSTEM: d.vascular
-      };
+      const d = dp.DIABETES;
+      newInvolvement = { PANCREAS: d.pancreas, KIDNEY_LEFT: d.kidneyLeft, KIDNEY_RIGHT: d.kidneyRight, HEART: d.heart, VASCULAR_SYSTEM: d.vascular };
     } else if (diseaseId === 'PNEUMONIA') {
-      newInvolvement = {
-        LUNG_LEFT: get().diseaseParams.PNEUMONIA.leftPercentage,
-        LUNG_RIGHT: get().diseaseParams.PNEUMONIA.rightPercentage
-      };
+      newInvolvement = { LUNG_LEFT: dp.PNEUMONIA.leftPercentage, LUNG_RIGHT: dp.PNEUMONIA.rightPercentage };
     } else if (diseaseId === 'LIVER_DISEASE') {
-      newInvolvement = { LIVER: get().diseaseParams.LIVER_DISEASE.percentage };
+      newInvolvement = { LIVER: dp.LIVER_DISEASE.percentage };
     }
-
     const firstTarget = disease.targetOrgans[0] || null;
-
-    set({
-      selectedDisease: diseaseId,
-      involvementMap: newInvolvement,
-      selectedAnatomy: firstTarget
-    });
-
+    set({ selectedDisease: diseaseId, involvementMap: newInvolvement, selectedAnatomy: firstTarget });
     StorageService.saveTwin({ patient: get().patient, disease: diseaseId, involvement: newInvolvement });
   },
 
   updateInvolvement: (anatomyId, percentage) => {
     const pct = Math.max(0, Math.min(100, Number(percentage) || 0));
     set((state) => {
-      const updated = {
-        ...state.involvementMap,
-        [anatomyId]: pct
-      };
+      const updated = { ...state.involvementMap, [anatomyId]: pct };
       StorageService.saveTwin({ patient: state.patient, disease: state.selectedDisease, involvement: updated });
       return { involvementMap: updated };
     });
@@ -217,63 +407,43 @@ export const useTwinStore = create((set, get) => ({
 
   updateDiseaseParam: (diseaseId, paramKey, value) => {
     set((state) => {
-      const updatedDisease = {
-        ...state.diseaseParams[diseaseId],
-        [paramKey]: value
-      };
-      
-      // Synchronize involvementMap
+      const updatedDisease = { ...state.diseaseParams[diseaseId], [paramKey]: value };
       let updatedInvolvement = { ...state.involvementMap };
       if (diseaseId === 'BREAST_CANCER') {
-        if (paramKey === 'leftPercentage') updatedInvolvement.BREAST_LEFT = value;
+        if (paramKey === 'leftPercentage')  updatedInvolvement.BREAST_LEFT  = value;
         if (paramKey === 'rightPercentage') updatedInvolvement.BREAST_RIGHT = value;
       } else if (diseaseId === 'HEART_DISEASE') {
         if (paramKey === 'percentage') updatedInvolvement.HEART = value;
       } else if (diseaseId === 'DIABETES') {
-        if (paramKey === 'pancreas') updatedInvolvement.PANCREAS = value;
-        if (paramKey === 'kidneyLeft') updatedInvolvement.KIDNEY_LEFT = value;
-        if (paramKey === 'kidneyRight') updatedInvolvement.KIDNEY_RIGHT = value;
-        if (paramKey === 'heart') updatedInvolvement.HEART = value;
-        if (paramKey === 'vascular') updatedInvolvement.VASCULAR_SYSTEM = value;
+        if (paramKey === 'pancreas')    updatedInvolvement.PANCREAS      = value;
+        if (paramKey === 'kidneyLeft')  updatedInvolvement.KIDNEY_LEFT   = value;
+        if (paramKey === 'kidneyRight') updatedInvolvement.KIDNEY_RIGHT  = value;
+        if (paramKey === 'heart')       updatedInvolvement.HEART         = value;
+        if (paramKey === 'vascular')    updatedInvolvement.VASCULAR_SYSTEM = value;
       } else if (diseaseId === 'PNEUMONIA') {
-        if (paramKey === 'leftPercentage') updatedInvolvement.LUNG_LEFT = value;
+        if (paramKey === 'leftPercentage')  updatedInvolvement.LUNG_LEFT  = value;
         if (paramKey === 'rightPercentage') updatedInvolvement.LUNG_RIGHT = value;
       } else if (diseaseId === 'LIVER_DISEASE') {
         if (paramKey === 'percentage') updatedInvolvement.LIVER = value;
       }
-
       StorageService.saveTwin({ patient: state.patient, disease: state.selectedDisease, involvement: updatedInvolvement });
-
       return {
-        diseaseParams: {
-          ...state.diseaseParams,
-          [diseaseId]: updatedDisease
-        },
+        diseaseParams: { ...state.diseaseParams, [diseaseId]: updatedDisease },
         involvementMap: updatedInvolvement
       };
     });
   },
 
-  setSelectedAnatomy: (anatomyId) => set({ selectedAnatomy: anatomyId }),
-  setHoveredAnatomy: (anatomyId) => set({ hoveredAnatomy: anatomyId }),
-
-  toggleLayer: (layerKey) =>
-    set((state) => ({
-      layers: {
-        ...state.layers,
-        [layerKey]: !state.layers[layerKey]
-      }
-    })),
-
+  // ── UI State ─────────────────────────────────────────────────────────────────
+  setSelectedAnatomy: (id) => set({ selectedAnatomy: id }),
+  setHoveredAnatomy: (id) => set({ hoveredAnatomy: id }),
+  toggleLayer: (key) => set((state) => ({ layers: { ...state.layers, [key]: !state.layers[key] } })),
   setXrayMode: (enabled) => set({ xrayMode: enabled }),
   setXrayIntensity: (intensity) => set({ xrayIntensity: intensity }),
+  setCameraAction: (preset) => set({ cameraAction: { preset, trigger: Date.now() } }),
 
-  setCameraAction: (preset) =>
-    set({
-      cameraAction: { preset, trigger: Date.now() }
-    }),
-
-  setReportOpen: (isOpen) => set({ isReportOpen: isOpen }),
-  setComparisonOpen: (isOpen) => set({ isComparisonOpen: isOpen }),
-  setTimelineOpen: (isOpen) => set({ isTimelineOpen: isOpen })
+  setReportOpen: (v) => set({ isReportOpen: v }),
+  setComparisonOpen: (v) => set({ isComparisonOpen: v }),
+  setTimelineOpen: (v) => set({ isTimelineOpen: v }),
+  setPatientPanelOpen: (v) => set({ isPatientPanelOpen: v })
 }));

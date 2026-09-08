@@ -80,3 +80,46 @@ def test_skin_cancer_prediction_sqlite_persistence():
     assert len(items) > 0
     found = any(i["filename"] == "test_dermoscopy.jpg" for i in items)
     assert found is True
+
+
+def test_pbkdf2_unique_salts_for_identical_passwords():
+    pwd = "MySecretPassword2026!"
+    h1 = hash_password(pwd)
+    h2 = hash_password(pwd)
+    assert h1 != h2, "Two hashes of the same password must produce distinct random salts"
+    assert verify_password(pwd, h1) is True
+    assert verify_password(pwd, h2) is True
+    assert verify_password("WrongPassword!", h1) is False
+
+
+def test_report_html_xss_escaping():
+    res = client.post(
+        "/api/v1/reports/generate",
+        json={
+            "patient_id": "<script>alert('xss')</script>",
+            "disease": "<img src=x onerror=alert(1)>",
+            "prediction_class": "<b>Malignant</b>",
+            "confidence": 0.95,
+            "classical_confidence": 0.90,
+            "top_biomarkers": ["<script>evil()</script> (30%)"],
+        },
+    )
+    assert res.status_code == 200
+    html_content = res.json()["report_html"]
+    assert "<script>" not in html_content
+    assert "&lt;script&gt;" in html_content
+    assert "<img src=x onerror=alert(1)>" not in html_content
+    assert "&lt;img src=x onerror=alert(1)&gt;" in html_content
+
+
+def test_rate_limiter():
+    from backend.app.core.security import InMemoryRateLimiter
+    limiter = InMemoryRateLimiter(max_requests=3, window_seconds=2)
+    assert limiter.check("test_ip") is True
+    assert limiter.check("test_ip") is True
+    assert limiter.check("test_ip") is True
+    # 4th request in window exceeds max_requests
+    assert limiter.check("test_ip") is False
+    # different IP is unaffected
+    assert limiter.check("other_ip") is True
+

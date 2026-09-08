@@ -22,6 +22,8 @@ node_modules/
 dist/
 frontend/dist/
 frontend/node_modules/
+card-frontend/dist/
+card-frontend/node_modules/
 .eslintcache
 
 # Environment & Secrets

@@ -5,9 +5,15 @@ import uuid
 from typing import Any
 
 import numpy as np
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel
 
+from backend.app.core.qr_service import (
+    generate_qr_base64_data_uri,
+    generate_qr_png_bytes,
+    generate_qr_svg_string,
+)
+from backend.app.core.security import check_inference_rate_limit
 from backend.app.db.repository import DatabaseRepository
 from ml.data.dataset_registry import load_disease_benchmark
 from ml.data.preprocessing import QuantumPreprocessor, deidentify_dataframe
@@ -63,7 +69,7 @@ def get_trained_module(disease: str):
                 vqc.load_checkpoint(ckpt_path)
             except Exception:
                 try:
-                    state = torch.load(ckpt_path, map_location="cpu", weights_only=False)
+                    state = torch.load(ckpt_path, map_location="cpu", weights_only=True)
                     vqc.load_state_dict(state.get("state_dict", state.get("model", state)))
                 except Exception:
                     vqc.fit_dataset(X_q[:64], target.values[:64], epochs=4, lr=0.03, batch_size=16)
@@ -94,7 +100,7 @@ def get_trained_module(disease: str):
 
 
 
-@router.post("/diagnose")
+@router.post("/diagnose", dependencies=[Depends(check_inference_rate_limit)])
 async def run_clinical_diagnosis(req: DiagnosticRequest):
     """Executes hybrid quantum-classical clinical diagnostic pipeline with explainability and fallback."""
     start_time = time.perf_counter()
@@ -234,6 +240,48 @@ async def get_patient_clinical_record(patient_id: str):
             "blood_group": "O+",
         })
     return {"status": "success", "patient": patient}
+
+
+@router.put("/patient/{patient_id}")
+@router.post("/patient")
+async def update_patient_clinical_record(patient_id: str = "PT-89421", patient_data: dict[str, Any] = None):
+    """Updates patient profile, emergency contacts, vitals, and medical history in SQLite database."""
+    payload = patient_data or {}
+    payload["id"] = patient_id
+    updated = DatabaseRepository.create_or_update_patient(payload)
+    return {"status": "success", "message": "Patient profile successfully updated in database.", "patient": updated}
+
+
+@router.get("/emergency/{patient_id}")
+@router.get("/emergency/{patient_id}/card-data")
+async def get_emergency_patient_card(patient_id: str):
+    """Public emergency triage endpoint with Python-generated QR code data for QR-code first responders."""
+    record = DatabaseRepository.get_emergency_profile(patient_id)
+    if not record:
+        record = DatabaseRepository.get_emergency_profile("PT-89421")
+    
+    # Target standalone card-frontend URL
+    emergency_url = f"http://localhost:5174/#emergency/{patient_id}"
+    record["qr_code_data_uri"] = generate_qr_base64_data_uri(emergency_url)
+    record["emergency_url"] = emergency_url
+    return record
+
+
+@router.get("/emergency/{patient_id}/qr.png")
+@router.get("/emergency/{patient_id}/qr")
+async def get_emergency_qr_png(patient_id: str):
+    """Streams high-contrast PNG QR code image bytes directly from Python."""
+    emergency_url = f"http://localhost:5174/#emergency/{patient_id}"
+    png_bytes = generate_qr_png_bytes(emergency_url, box_size=10, border=2)
+    return Response(content=png_bytes, media_type="image/png")
+
+
+@router.get("/emergency/{patient_id}/qr.svg")
+async def get_emergency_qr_svg(patient_id: str):
+    """Streams vector SVG QR code string directly from Python."""
+    emergency_url = f"http://localhost:5174/#emergency/{patient_id}"
+    svg_str = generate_qr_svg_string(emergency_url)
+    return Response(content=svg_str, media_type="image/svg+xml")
 
 
 @router.get("/patient/{patient_id}/features/{disease}")

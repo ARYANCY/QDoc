@@ -10,7 +10,8 @@ import {
   ShieldAlert,
   ChevronRight,
   Sparkles,
-  Layers
+  Layers,
+  Dna
 } from 'lucide-react';
 
 export default function RightSidebar() {
@@ -21,6 +22,8 @@ export default function RightSidebar() {
   const updateInvolvement = useTwinStore((state) => state.updateInvolvement);
   const setCameraAction = useTwinStore((state) => state.setCameraAction);
   const patient = useTwinStore((state) => state.patient);
+  const patientMode = useTwinStore((state) => state.patientMode);
+  const dbData = useTwinStore((state) => state.dbData);
 
   const anatomy = selectedAnatomy ? ANATOMY_REGISTRY[selectedAnatomy] : null;
   const disease = DISEASE_REGISTRY[selectedDisease];
@@ -38,46 +41,53 @@ export default function RightSidebar() {
     }));
 
   return (
-    <aside className="w-80 h-full bg-surface border-l border-slate-800 flex flex-col overflow-hidden select-none z-20">
+    <aside className="w-80 h-full bg-[#090A0D] border-l border-[#20232B] flex flex-col overflow-hidden select-none z-20">
       {/* Header */}
-      <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+      <div className="p-3.5 border-b border-[#20232B] flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Info className="w-4 h-4 text-sky-400" />
-          <h2 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
+          <Info className="w-4 h-4 text-[#D4AF37]" />
+          <h2 className="text-xs font-bold text-slate-100 uppercase tracking-widest font-mono">
             Anatomy Inspector
           </h2>
         </div>
+        <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#14161F] text-[#D4AF37] border border-[#2B303C]">
+          {selectedAnatomy || 'NONE'}
+        </span>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-5">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#252933]">
         {/* 1. Selected Organ Details */}
         {anatomy ? (
-          <div className="space-y-4">
-            <div className="p-4 rounded-xl bg-surface-secondary border border-slate-700/80 shadow-md space-y-3">
+          <div className="space-y-3">
+            <div className="p-3.5 rounded-xl bg-[#12141C] border border-[#262A38] shadow-md space-y-3">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="text-sm font-bold text-slate-100">
+                  <h3 className="text-sm font-bold text-slate-100 font-mono">
                     {anatomy.label}
                   </h3>
-                  <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">
-                    {anatomy.category} • Layer: {anatomy.layer}
+                  <span className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">
+                    Category: {anatomy.category}
                   </span>
                 </div>
-                <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-mono font-bold ${tier.badgeClass}`}>
-                  {percentage}%
-                </span>
+                <button
+                  onClick={() => setCameraAction('focus')}
+                  title="Focus Camera on Organ"
+                  className="p-1.5 rounded-lg bg-[#181B26] border border-[#2A2E3D] text-slate-300 hover:text-[#D4AF37] hover:border-[#D4AF37]/50 transition"
+                >
+                  <Crosshair className="w-3.5 h-3.5" />
+                </button>
               </div>
 
-              <p className="text-xs text-slate-300/90 leading-relaxed">
+              <p className="text-[11px] text-slate-400 leading-relaxed font-mono">
                 {anatomy.description}
               </p>
 
-              {/* Involvement Slider for this organ */}
-              <div className="pt-2 border-t border-slate-750 space-y-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Involvement Level:</span>
-                  <span className="font-semibold text-slate-200 font-mono">
-                    {tier.label} ({percentage}%)
+              {/* Intensity Slider */}
+              <div className="space-y-1.5 pt-2 border-t border-[#1F232D]">
+                <div className="flex justify-between text-xs font-mono">
+                  <span className="text-slate-400 font-bold">Severity Involvement:</span>
+                  <span className="font-bold" style={{ color: tier.hexColor }}>
+                    {percentage}% ({tier.label})
                   </span>
                 </div>
                 <input
@@ -85,84 +95,113 @@ export default function RightSidebar() {
                   min="0"
                   max="100"
                   value={percentage}
-                  onChange={(e) => updateInvolvement(anatomy.id, Number(e.target.value))}
-                  className="w-full accent-sky-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer"
+                  onChange={(e) => updateInvolvement(anatomy.id, parseInt(e.target.value))}
+                  className="w-full h-1.5 bg-[#1B1E28] rounded-lg appearance-none cursor-pointer accent-[#D4AF37]"
                 />
               </div>
-
-              {/* Action: Focus Camera */}
-              <button
-                onClick={() => setCameraAction('focus')}
-                className="w-full py-2 px-3 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 text-xs font-semibold border border-sky-400/40 transition flex items-center justify-center gap-1.5"
-              >
-                <Crosshair className="w-3.5 h-3.5" />
-                <span>Focus Camera on {anatomy.label}</span>
-              </button>
             </div>
           </div>
         ) : (
-          <div className="p-6 rounded-xl bg-surface-secondary/40 border border-dashed border-slate-800 text-center space-y-2">
-            <Layers className="w-8 h-8 text-slate-600 mx-auto" />
-            <p className="text-xs text-slate-400">
-              Click any organ in the 3D viewer to inspect anatomical parameters.
+          <div className="p-6 text-center rounded-xl bg-[#101218] border border-dashed border-[#222530] space-y-2">
+            <Layers className="w-6 h-6 text-slate-600 mx-auto" />
+            <p className="text-xs text-slate-400 font-mono">
+              Click any 3D organ mesh to inspect tissue telemetry
             </p>
           </div>
         )}
 
-        {/* 2. All Affected Structures in Current Simulation */}
-        <div className="space-y-2 pt-2 border-t border-slate-800">
+        {/* 2. Active Involvement Summary */}
+        <div className="p-3.5 rounded-xl bg-[#12141C] border border-[#262A38] space-y-2.5">
           <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
-              Affected Structures ({affectedList.length})
-            </h4>
+            <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider font-mono">
+              Affected Organs ({affectedList.length})
+            </span>
+            <ShieldAlert className="w-3.5 h-3.5 text-[#D4AF37]" />
           </div>
 
-          {affectedList.length > 0 ? (
+          {affectedList.length === 0 ? (
+            <p className="text-[11px] text-slate-500 font-mono text-center py-2">
+              All organs operating at healthy baseline
+            </p>
+          ) : (
             <div className="space-y-1.5">
               {affectedList.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => setSelectedAnatomy(item.id)}
-                  className={`w-full p-2.5 rounded-lg text-left transition border flex items-center justify-between ${
+                  className={`w-full flex items-center justify-between p-2 rounded-lg text-xs font-mono transition border ${
                     selectedAnatomy === item.id
-                      ? 'bg-sky-950/60 border-sky-500/50 text-sky-200 ring-1 ring-sky-500/30'
-                      : 'bg-surface-secondary/60 border-slate-800 text-slate-300 hover:bg-surface-secondary hover:border-slate-700'
+                      ? 'bg-[#1A1E2B] border-[#D4AF37] text-slate-100'
+                      : 'bg-[#0E1015] border-[#1E212A] text-slate-400 hover:bg-[#151720] hover:text-slate-200'
                   }`}
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.tier.hexColor }}></span>
-                    <span className="text-xs font-medium">{item.label}</span>
+                  <span className="font-medium truncate">{item.label}</span>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span
+                      className="text-[10px] font-bold px-1.5 py-0.2 rounded"
+                      style={{ color: item.tier.hexColor, backgroundColor: `${item.tier.hexColor}15` }}
+                    >
+                      {item.percentage}%
+                    </span>
+                    <ChevronRight className="w-3 h-3 text-slate-600" />
                   </div>
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono font-bold ${item.tier.badgeClass}`}>
-                    {item.percentage}%
-                  </span>
                 </button>
               ))}
-            </div>
-          ) : (
-            <div className="p-3 rounded-lg bg-surface-secondary/30 text-center text-xs text-slate-500">
-              No active disease involvement configured.
             </div>
           )}
         </div>
 
-        {/* 3. Clinical Profile Summary */}
-        <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2 text-xs">
-          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-            Twin Simulation Profile
+        {/* 3. DB Risk Profile (when patient active) */}
+        {patientMode === 'active' && dbData?.selected_visit?.module_risks && (
+          <div className="p-3.5 rounded-xl bg-[#0F1D1B] border border-[#115E59]/40 space-y-2 text-xs font-mono">
+            <div className="text-[10px] font-bold text-[#2DD4BF] uppercase tracking-wider flex justify-between">
+              <span>DB Biomarker Risk Profile</span>
+              <span className="text-slate-400">{dbData.selected_visit.date}</span>
+            </div>
+            <div className="space-y-2 pt-1">
+              {Object.entries(dbData.selected_visit.module_risks).map(([sys, risk]) => {
+                const pct = Math.round(risk * 100);
+                const label = sys.replace('oncology_', '').replace('_', ' ');
+                const color = pct > 60 ? '#EF4444' : pct > 30 ? '#F59E0B' : '#10B981';
+                return (
+                  <div key={sys} className="space-y-0.5">
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-slate-300 capitalize">{label}</span>
+                      <span className="font-mono font-bold" style={{ color }}>{pct}%</span>
+                    </div>
+                    <div className="h-1 rounded-full bg-[#182826] overflow-hidden">
+                      <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: color }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          <div className="space-y-1 text-slate-300">
+        )}
+
+        {/* 4. Clinical Profile Summary */}
+        <div className="p-3.5 rounded-xl bg-[#12141C] border border-[#262A38] space-y-2 text-xs font-mono">
+          <div className="text-[10px] font-bold text-slate-300 uppercase tracking-wider">
+            Twin Simulation Status
+          </div>
+          <div className="space-y-1.5 text-slate-400 text-[11px]">
             <div className="flex justify-between">
-              <span className="text-slate-400">Sex Config:</span>
-              <span className="font-medium capitalize">{patient.sex}</span>
+              <span>Anatomical Sex:</span>
+              <span className="font-bold text-slate-200 capitalize">{patient.sex}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-400">Age Group:</span>
-              <span className="font-medium">{patient.ageGroup}</span>
+              <span>Age Cohort:</span>
+              <span className="font-bold text-slate-200">{patient.ageGroup}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-400">Condition:</span>
-              <span className="font-medium text-sky-300">{disease?.name}</span>
+              <span>Condition:</span>
+              <span className="font-bold text-[#D4AF37]">{disease?.name}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Sync Mode:</span>
+              <span className={`font-bold ${patientMode === 'active' ? 'text-[#2DD4BF]' : 'text-slate-500'}`}>
+                {patientMode === 'active' ? '● Live DB Connected' : '○ Standalone Preview'}
+              </span>
             </div>
           </div>
         </div>

@@ -118,3 +118,16 @@ export const DISEASE_REGISTRY = {
     clinicalDisclaimer: "Simulated hepatic parenchymal visualization; does not correlate with liver function tests (LFTs) or METAVIR fibrosis staging."
   }
 };
+
+export const DISEASE_TO_ORGAN = {
+  breast_cancer: "BREAST_LEFT",
+  heart: "HEART",
+  diabetes: "PANCREAS",
+  pneumonia: "LUNG_RIGHT",
+  skin: "SKIN",
+  BREAST_CANCER: "BREAST_LEFT",
+  HEART_DISEASE: "HEART",
+  DIABETES: "PANCREAS",
+  PNEUMONIA: "LUNG_RIGHT",
+  LIVER_DISEASE: "LIVER",
+};

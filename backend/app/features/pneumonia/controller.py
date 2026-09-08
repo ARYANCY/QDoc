@@ -52,14 +52,24 @@ def is_valid_xray(image: Image.Image) -> bool:
     return True
 
 
+# Mitigate decompression bomb attacks (CWE-400 / DoS)
+Image.MAX_IMAGE_PIXELS = 10_000_000
+MAX_FILE_BYTES = 10 * 1024 * 1024  # 10 MB limit
+
+
 @router.post("/predict")
 async def predict(image: UploadFile = File(...)):
     if not image.content_type or not image.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Unsupported image type")
     if get_predictor is None:
         raise HTTPException(status_code=503, detail=f"Pneumonia model pipeline is unavailable: {_MODEL_IMPORT_ERROR}")
+    
+    data = await image.read()
+    if len(data) > MAX_FILE_BYTES:
+        raise HTTPException(status_code=413, detail="File too large. Maximum allowed size is 10 MB.")
+
     try:
-        img = Image.open(BytesIO(await image.read()))
+        img = Image.open(BytesIO(data))
         if not is_valid_xray(img):
             raise HTTPException(status_code=400, detail="Image is not related to the disease study")
         result = get_predictor().predict(img)

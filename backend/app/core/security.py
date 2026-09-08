@@ -20,23 +20,26 @@ try:
 except Exception:  # pragma: no cover
     SECRET_KEY = os.environ.get("SECRET_KEY", "q-medsense-quantum-clinical-secret-key-2026-production")
 
-# ── Password Hashing — PBKDF2-HMAC-SHA256 (100k iterations) ───────────────────
+# ── Password Hashing — PBKDF2-HMAC-SHA256 (100k iterations with per-user salt) ──
 _PBKDF2_ITERATIONS = 100_000
 _PBKDF2_HASH = "sha256"
-_PBKDF2_SALT = "qmed_pbkdf2_salt_v2"
+_PBKDF2_LEGACY_SALT = "qmed_pbkdf2_salt_v2"
 
 
-def hash_password(password: str) -> str:
-    """Hashes password with PBKDF2-HMAC-SHA256 (100k iterations).
-    Backward-compatible: verify_password also accepts the legacy SHA-256 format.
+def hash_password(password: str, salt: str | None = None) -> str:
+    """Hashes password with PBKDF2-HMAC-SHA256 (100k iterations) using a cryptographic random per-user salt.
+    Format: pbkdf2$100000$<salt_hex>$<hash_hex>
+    Backward-compatible: verify_password accepts new per-user salt hashes, legacy static-salt PBKDF2, and legacy SHA-256.
     """
+    if salt is None:
+        salt = os.urandom(16).hex()
     dk = hashlib.pbkdf2_hmac(
         _PBKDF2_HASH,
         password.encode("utf-8"),
-        _PBKDF2_SALT.encode("utf-8"),
+        salt.encode("utf-8"),
         _PBKDF2_ITERATIONS,
     )
-    return "pbkdf2$" + dk.hex()
+    return f"pbkdf2${_PBKDF2_ITERATIONS}${salt}${dk.hex()}"
 
 
 def _legacy_hash(password: str) -> str:
@@ -47,18 +50,79 @@ def _legacy_hash(password: str) -> str:
 
 def verify_password(plain: str, stored_hash: str) -> bool:
     """Constant-time password verification.
-    Accepts PBKDF2 hashes (prefix 'pbkdf2$'), legacy SHA-256 hashes,
-    and handles automatic migration of pre-existing plaintext seed accounts.
+    Accepts:
+    1. Modern per-user salt PBKDF2: pbkdf2$100000$<salt>$<hash>
+    2. Legacy static salt PBKDF2: pbkdf2$<hash>
+    3. Legacy SHA-256 hashes
+    4. Pre-existing plaintext seed accounts during migration
     """
     if stored_hash.startswith("pbkdf2$"):
-        expected = hash_password(plain)
-        return hmac.compare_digest(expected.encode(), stored_hash.encode())
+        parts = stored_hash.split("$")
+        if len(parts) == 4:
+            # Modern per-user salt format: pbkdf2$<iterations>$<salt>$<hash>
+            _, iter_str, salt, expected_hash = parts
+            try:
+                iterations = int(iter_str)
+            except ValueError:
+                iterations = _PBKDF2_ITERATIONS
+            dk = hashlib.pbkdf2_hmac(_PBKDF2_HASH, plain.encode("utf-8"), salt.encode("utf-8"), iterations)
+            return hmac.compare_digest(dk.hex(), expected_hash)
+        elif len(parts) == 2:
+            # Legacy static salt format: pbkdf2$<hash>
+            _, expected_hash = parts
+            dk = hashlib.pbkdf2_hmac(_PBKDF2_HASH, plain.encode("utf-8"), _PBKDF2_LEGACY_SALT.encode("utf-8"), _PBKDF2_ITERATIONS)
+            return hmac.compare_digest(dk.hex(), expected_hash)
+        else:
+            return False
+
     # Tolerates legacy unhashed entries in existing database during migration
     if hmac.compare_digest(plain.encode(), stored_hash.encode()):
         return True
     # Legacy SHA-256 path
     expected_legacy = _legacy_hash(plain)
     return hmac.compare_digest(expected_legacy.encode(), stored_hash.encode())
+
+
+# ── In-Memory Sliding-Window Rate Limiter ────────────────────────────────────
+import threading
+from collections import defaultdict
+
+
+class InMemoryRateLimiter:
+    """Thread-safe sliding-window rate limiter per client IP or key."""
+
+    def __init__(self, max_requests: int = 60, window_seconds: int = 60):
+        self.max_requests = max_requests
+        self.window_seconds = window_seconds
+        self._records: dict[str, list[float]] = defaultdict(list)
+        self._lock = threading.Lock()
+
+    def check(self, key: str) -> bool:
+        now = time.time()
+        cutoff = now - self.window_seconds
+        with self._lock:
+            timestamps = self._records[key]
+            valid = [ts for ts in timestamps if ts > cutoff]
+            if len(valid) >= self.max_requests:
+                self._records[key] = valid
+                return False
+            valid.append(now)
+            self._records[key] = valid
+            return True
+
+
+_qml_rate_limiter = InMemoryRateLimiter(max_requests=60, window_seconds=60)
+
+
+async def check_inference_rate_limit(request: Request) -> None:
+    """Dependency helper to guard resource-heavy AI/QML inference endpoints."""
+    client_ip = request.client.host if request.client else "127.0.0.1"
+    if not _qml_rate_limiter.check(client_ip):
+        raise HTTPException(
+            status_code=429,
+            detail="Rate limit exceeded (max 60 inference requests/minute). Please wait before submitting more diagnostic requests.",
+        )
+
 
 
 

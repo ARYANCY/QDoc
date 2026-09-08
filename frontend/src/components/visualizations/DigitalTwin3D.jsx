@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { Activity, Sparkles, Shield, RefreshCw } from "lucide-react";
+import { Activity, Sparkles, Shield, Maximize2, Layers, CheckCircle2, AlertTriangle, Crosshair } from "lucide-react";
 import { clinicalApi } from "../../api/clinical";
 import { animateEntrance } from "../../utils/motion";
 import { DigitalTwinViewer, useTwinStore, DISEASE_TO_ORGAN } from "../../features/digitalTwin3D";
 
-export default function DigitalTwin3D({ patientId = "PT-89421", analysisResult = null }) {
+export default function DigitalTwin3D({ patientId = "PT-89421", analysisResult = null, onOpenTwinTab = null }) {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
   const [patientRecord, setPatientRecord] = useState(null);
@@ -12,8 +12,9 @@ export default function DigitalTwin3D({ patientId = "PT-89421", analysisResult =
 
   const setPatientAnalysis = useTwinStore((state) => state.setPatientAnalysis);
   const patientAnalysis = useTwinStore((state) => state.patientAnalysis);
+  const selectedAnatomy = useTwinStore((state) => state.selectedAnatomy);
   const setSelectedAnatomy = useTwinStore((state) => state.setSelectedAnatomy);
-  const updateInvolvement = useTwinStore((state) => state.updateInvolvement);
+  const involvementMap = useTwinStore((state) => state.involvementMap);
 
   // Synchronize incoming analysisResult prop to twinStore
   useEffect(() => {
@@ -100,6 +101,15 @@ export default function DigitalTwin3D({ patientId = "PT-89421", analysisResult =
     }
   }, []);
 
+  const organList = [
+    { id: "HEART", label: "Heart", defaultRisk: 12 },
+    { id: "LUNG_LEFT", label: "Lungs", defaultRisk: 8 },
+    { id: "BRAIN", label: "Brain", defaultRisk: 5 },
+    { id: "PANCREAS", label: "Pancreas", defaultRisk: 15 },
+    { id: "LIVER", label: "Liver", defaultRisk: 6 },
+    { id: "BREAST_LEFT", label: "Breast", defaultRisk: analysisResult ? 68 : 10 },
+  ];
+
   return (
     <div
       ref={containerRef}
@@ -113,6 +123,8 @@ export default function DigitalTwin3D({ patientId = "PT-89421", analysisResult =
         border: "1px solid var(--border-default)",
         position: "relative",
         boxShadow: "0 4px 20px rgba(0, 0, 0, 0.03)",
+        borderRadius: "var(--radius-xs)",
+        overflow: "hidden",
       }}
     >
       {/* Sleek Minimalist Studio Header */}
@@ -121,8 +133,8 @@ export default function DigitalTwin3D({ patientId = "PT-89421", analysisResult =
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          padding: "8px 14px",
-          background: "var(--bg-canvas)",
+          padding: "8px 12px",
+          background: "var(--bg-surface-alt)",
           borderBottom: "1px solid var(--border-default)",
           fontSize: "0.74rem",
         }}
@@ -138,23 +150,12 @@ export default function DigitalTwin3D({ patientId = "PT-89421", analysisResult =
               boxShadow: patientAnalysis?.severity === "danger" ? "0 0 8px rgba(225, 29, 72, 0.5)" : "0 0 8px rgba(15, 118, 110, 0.4)",
             }}
           />
-          <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700, letterSpacing: "0.06em", color: "var(--ink-primary)" }}>
+          <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700, letterSpacing: "0.04em", color: "var(--ink-primary)" }}>
             PATIENT TWIN // {patientId}
           </span>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <span
-            style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: "0.66rem",
-              color: "var(--text-muted)",
-              letterSpacing: "0.04em",
-              textTransform: "uppercase",
-            }}
-          >
-            {patientAnalysis ? patientAnalysis.disease : "3D Light Studio Active"}
-          </span>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <span
             className="step-badge"
             style={{
@@ -168,6 +169,31 @@ export default function DigitalTwin3D({ patientId = "PT-89421", analysisResult =
           >
             WebGL 3D
           </span>
+          {onOpenTwinTab && (
+            <button
+              type="button"
+              onClick={onOpenTwinTab}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
+                background: "var(--ink-primary)",
+                color: "#FFFFFF",
+                border: 0,
+                padding: "3px 8px",
+                borderRadius: "3px",
+                fontSize: "0.62rem",
+                fontWeight: 700,
+                cursor: "pointer",
+                fontFamily: "var(--font-mono)",
+                textTransform: "uppercase",
+              }}
+              title="Open full 3D Explorer with Layer controls"
+            >
+              <Maximize2 size={10} />
+              <span>Full Studio</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -176,12 +202,76 @@ export default function DigitalTwin3D({ patientId = "PT-89421", analysisResult =
         className="twin-3d-pure-viewport"
         style={{
           width: "100%",
-          height: "520px",
+          height: "380px",
           position: "relative",
-          background: "#F9F8F5",
+          background: "#07080A",
         }}
       >
         <DigitalTwinViewer canvasRef={canvasRef} />
+      </div>
+
+      {/* Interactive Quick Organ Chips & Telemetry */}
+      <div
+        style={{
+          padding: "8px 10px",
+          background: "var(--bg-surface)",
+          borderTop: "1px solid var(--border-default)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "6px",
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.65rem" }}>
+          <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
+            Anatomical Telemetry
+          </span>
+          <span style={{ fontSize: "0.62rem", color: "var(--emerald-couture)", fontWeight: 700 }}>
+            {patientAnalysis ? patientAnalysis.disease : "Baseline Synchronized"}
+          </span>
+        </div>
+
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+          {organList.map((org) => {
+            const riskVal = involvementMap[org.id] ?? org.defaultRisk;
+            const isSelected = selectedAnatomy === org.id;
+            const isElevated = riskVal > 40;
+            return (
+              <button
+                key={org.id}
+                type="button"
+                onClick={() => setSelectedAnatomy(isSelected ? null : org.id)}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  padding: "3px 6px",
+                  borderRadius: "3px",
+                  fontSize: "0.62rem",
+                  fontFamily: "var(--font-mono)",
+                  fontWeight: isSelected ? 800 : 600,
+                  background: isSelected ? "var(--ink-primary)" : "var(--bg-surface-alt)",
+                  color: isSelected ? "#FFFFFF" : isElevated ? "var(--rose-couture)" : "var(--text-primary)",
+                  border: isSelected ? "1px solid var(--ink-primary)" : "1px solid var(--border-default)",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                <span>{org.label}</span>
+                <span
+                  style={{
+                    fontSize: "0.58rem",
+                    padding: "1px 3px",
+                    borderRadius: "2px",
+                    background: isSelected ? "rgba(255,255,255,0.2)" : isElevated ? "rgba(225,29,72,0.1)" : "rgba(15,118,110,0.1)",
+                    color: isSelected ? "#FFFFFF" : isElevated ? "var(--rose-couture)" : "var(--emerald-couture)",
+                  }}
+                >
+                  {riskVal}%
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
