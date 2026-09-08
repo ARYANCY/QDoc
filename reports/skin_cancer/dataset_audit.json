@@ -1,0 +1,84 @@
+{
+  "csv": "C:\\Users\\aryan\\OneDrive\\Desktop\\doc\\datasets\\SKIN_CANCER\\archive\\hmnist_28_28_RGB.csv",
+  "total_images": 10015,
+  "classes": [
+    "akiec",
+    "bcc",
+    "bkl",
+    "df",
+    "nv",
+    "vasc",
+    "mel"
+  ],
+  "num_classes": 7,
+  "images_per_class": [
+    {
+      "class_id": 0,
+      "code": "akiec",
+      "name": "Actinic keratoses / intraepithelial carcinoma",
+      "count": 327,
+      "fraction": 0.032651023464802795
+    },
+    {
+      "class_id": 1,
+      "code": "bcc",
+      "name": "Basal cell carcinoma",
+      "count": 514,
+      "fraction": 0.05132301547678482
+    },
+    {
+      "class_id": 2,
+      "code": "bkl",
+      "name": "Benign keratosis-like lesions",
+      "count": 1099,
+      "fraction": 0.10973539690464304
+    },
+    {
+      "class_id": 3,
+      "code": "df",
+      "name": "Dermatofibroma",
+      "count": 115,
+      "fraction": 0.011482775836245632
+    },
+    {
+      "class_id": 4,
+      "code": "nv",
+      "name": "Melanocytic nevi",
+      "count": 6705,
+      "fraction": 0.6694957563654518
+    },
+    {
+      "class_id": 5,
+      "code": "vasc",
+      "name": "Vascular lesions",
+      "count": 142,
+      "fraction": 0.014178731902146779
+    },
+    {
+      "class_id": 6,
+      "code": "mel",
+      "name": "Melanoma",
+      "count": 1113,
+      "fraction": 0.11113330004992511
+    }
+  ],
+  "image_dimensions": {
+    "height": 28,
+    "width": 28,
+    "channels": 3,
+    "dtype": "uint8",
+    "n_samples": 10015
+  },
+  "file_formats": [
+    "csv-hmnist"
+  ],
+  "corrupted_images": 0,
+  "duplicate_hashes": null,
+  "class_imbalance_ratio": 58.30434782608695,
+  "brightness_mean": 159.8337915320896,
+  "brightness_std": 19.177299436405445,
+  "missing_metadata": true,
+  "patient_ids_available": false,
+  "note": "HAM10000 MNIST CSV has no patient/lesion IDs; split is stratified by class.",
+  "medical_limitation": "Research/decision-support only. Not a diagnosis."
+}

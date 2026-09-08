@@ -1,6 +1,13 @@
+# ==============================================================================
+# Q-MedSense Git Ignore Configuration
+# ==============================================================================
+
+# Python Environments & Caches
 .venv/
 venv/
 ENV/
+env/
+.env.local
 __pycache__/
 *.py[cod]
 *$py.class
@@ -14,10 +21,13 @@ htmlcov/
 *.db
 *.sqlite
 *.sqlite3
+backend/*.db
 backend/qmedsense.db
+backend/qmedsense_demo.db
 qmedsense.db
+qmedsense_demo.db
 
-# Frontend Dependencies & Builds
+# Frontend Dependencies & Build Outputs
 node_modules/
 dist/
 frontend/dist/
@@ -26,7 +36,7 @@ card-frontend/dist/
 card-frontend/node_modules/
 .eslintcache
 
-# Environment & Secrets
+# Environment Variables & Secrets
 .env
 *.env
 !*.env.example
@@ -34,7 +44,7 @@ card-frontend/node_modules/
 *.pem
 *.key
 
-# Machine Learning Binaries & Large Weights
+# Machine Learning Binary Weights (>100MB files that break git push)
 *.pt
 *.pth
 *.pkl
@@ -43,14 +53,26 @@ card-frontend/node_modules/
 *.npz
 *.h5
 
-# Reports & Output Caches
+# Whitelist ML Model Architecture & Metadata JSONs
+!models/**/config.json
+!models/**/metrics.json
+!models/**/labels.json
+!models/**/calibration.json
+!models/**/training_history.json
+!models/**/pca_meta.json
+!models/**/experiment.json
+!models/**/final_metrics.json
+!models/registry.json
+!models/**/*.gitkeep
+
+# Reports, Generated Visualizations & Large Datasets
 reports/skin_cancer/cache/
-reports/
-!reports/README.md
+reports/generated_graphs/
 backend/graphs/generated/
 datasets/
 logs/
 *.log
+!reports/README.md
 
 # OS & Editor Files
 .DS_Store
@@ -58,4 +80,15 @@ Thumbs.db
 .vscode/
 .idea/
 scratch/
+*.swp
+*.swo
 
+# Whitelist Essential Configuration & Entry Files
+!main.py
+!requirements.txt
+!backend/requirements.txt
+!pyproject.toml
+!pytest.ini
+!README.md
+!.dockerignore
+!docker-compose.yml

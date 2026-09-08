@@ -1,0 +1,5 @@
+{
+  "model": "DermisNova",
+  "image_size": 224,
+  "checkpoint_mtime_ns": 1787670467947393600
+}

@@ -1,4 +1,4 @@
-# Q-MedSense: Complete Step-by-Step Execution & Deployment Guide (`docs/guides/run.md`)
+# Q-MedSense: Complete Step-by-Step Execution & Deployment Guide (`run.md`)
 
 [![Execution Guide](https://img.shields.io/badge/Runbook-Complete%20%26%20Verified-brightgreen.svg)]()
 [![SIH Problem ID](https://img.shields.io/badge/SIH%20ID-26139-0052CC.svg)]()

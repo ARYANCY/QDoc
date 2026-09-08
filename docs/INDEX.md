@@ -1,40 +1,52 @@
 # Q-MedSense: Master Documentation Index (`docs/INDEX.md`)
 
-Welcome to the technical and architectural documentation index for **Q-MedSense: Hybrid Quantum Machine Learning Clinical Decision Support Platform** (Smart India Hackathon Problem Statement ID 26139).
+[![Master Index](https://img.shields.io/badge/Documentation-Master%20Index%20v2.0-blue.svg)]()
+[![SIH PS ID](https://img.shields.io/badge/SIH%20ID-26139-0052CC.svg)]()
+[![License](https://img.shields.io/badge/License-MIT-green.svg)]()
+
+> **Smart India Hackathon (SIH) Problem Statement ID 26139**  
+> *Platform:* Q-MedSense Quantum Clinical Operating System  
+> *Core Focus:* Hybrid Quantum Machine Learning Clinical Decision Support System (CDSS)  
 
 ---
 
-## Documentation Directory
+## 📚 Complete Documentation Catalog
 
-| Document | Description | Key Topics |
-| :--- | :--- | :--- |
-| [run.md](file:///c:/Users/aryan/OneDrive/Desktop/doc/run.md) | **Step-by-Step Run Guide** | Prerequisites, one-click scripts, manual launch, test commands, personas |
-| [docs/ARCHITECTURE.md](file:///c:/Users/aryan/OneDrive/Desktop/doc/docs/architecture.md) | **System Architecture** | Hybrid quantum-classical pipeline, zero-border UI layout, submodules |
-| [docs/DATABASE_SCHEMA.md](file:///c:/Users/aryan/OneDrive/Desktop/doc/docs/DATABASE_SCHEMA.md) | **SQLite Database Design** | Relational tables (`users`, `patients`, `diagnostic_records`, `audit_logs`, `consents`), CRUD repository |
-| [docs/QUANTUM_ALGORITHMS.md](file:///c:/Users/aryan/OneDrive/Desktop/doc/docs/QUANTUM_ALGORITHMS.md) | **Quantum Algorithms & Mathematics** | VQC ansatz, QSVM kernels, QNN expectations, Quantum Advantage Score (QAS) |
-| [docs/API_SPEC.md](file:///c:/Users/aryan/OneDrive/Desktop/doc/docs/API_SPEC.md) | **REST API Specification** | Endpoints for clinical diagnosis, benchmarks, early detection, auth, compliance |
-| [docs/COMPLIANCE_DPDP_HIPAA.md](file:///c:/Users/aryan/OneDrive/Desktop/doc/docs/COMPLIANCE_DPDP_HIPAA.md) | **Regulatory & Security** | DPDP Act 2023, HIPAA Safe Harbor, WORM audit trail, SaMD disclaimers |
-| [docs/CLINICAL_WORKFLOWS.md](file:///c:/Users/aryan/OneDrive/Desktop/doc/docs/CLINICAL_WORKFLOWS.md) | **Clinical & Operational Workflows** | Triage protocols, multi-organ trajectories, researcher studio, patient portal |
-| [docs/FORMULA_SHEET.md](file:///c:/Users/aryan/OneDrive/Desktop/doc/docs/FORMULA_SHEET.md) | **Mathematical Formula Sheet** | Mathematical definitions of MCC, QAS, Fidelity Kernels, SHAP perturbations |
-| [docs/ISSUES_RESOLVED.md](file:///c:/Users/aryan/OneDrive/Desktop/doc/docs/ISSUES_RESOLVED.md) | **Issue & Defect Resolution Log** | Complete catalog of algorithmic, ingestion, and accessibility fixes |
-| [docs/SRS.md](file:///c:/Users/aryan/OneDrive/Desktop/doc/docs/SRS.md) | **IEEE 830 Software Requirements Spec** | Full requirement specifications and functional scope |
+| Document | Category | Direct Link | Key Technical Highlights Covered |
+| :--- | :--- | :--- | :--- |
+| **README.md** | Getting Started | [**README.md**](../README.md) | Universal `main.py` entrypoint, PowerShell one-click scripts, Docker setup, and architecture summary |
+| **System Architecture (SRS)** | System Design | [**docs/architecture/srs.md**](architecture/srs.md) | IEEE 830-1998 / ISO/IEC/IEEE 29148 Software Requirements Specification |
+| **REST API Specification** | API Reference | [**docs/API_SPEC.md**](API_SPEC.md) | Full OpenAPI 3.1.0 specification with JSON request/response schemas, RBAC guards, and status codes |
+| **Database Schema** | Data Architecture | [**docs/DATABASE_SCHEMA.md**](DATABASE_SCHEMA.md) | Complete SQLite relational DDL, entity-relationship diagrams, indexes, and repository CRUD rules |
+| **Quantum Algorithms** | Quantum Theory | [**docs/QUANTUM_ALGORITHMS.md**](QUANTUM_ALGORITHMS.md) | Hilbert spaces, Parameter-Shift rule, Strongly Entangling Ansatz, QSVM kernels, and QAS score |
+| **Clinical & Operational Workflows** | Clinical SOPs | [**docs/CLINICAL_WORKFLOWS.md**](CLINICAL_WORKFLOWS.md) | Clinician diagnostic pipelines, Emergency QR card triage, WebRTC teleconsultations, and e-Prescriptions |
+| **Compliance & Data Privacy** | Regulatory & Legal | [**docs/COMPLIANCE_DPDP_HIPAA.md**](COMPLIANCE_DPDP_HIPAA.md) | DPDP Act 2023 consent architecture, HIPAA 18 de-identification protocol, and WORM SHA-256 logs |
+| **Mathematical Formula Sheet** | Mathematics & Physics | [**docs/FORMULA_SHEET.md**](FORMULA_SHEET.md) | Complete mathematical reference for angle embeddings, analytic gradients, MCC, ECE, and QAS |
+| **Model Specification & Governance** | Machine Learning | [**docs/model.md**](model.md) | Named model families (`OncoPulse`, `CardioWave`, `NeuroSynapse`), fairness audits, and registry rules |
+| **Skin Cancer QML Plan** | Vision QML | [**docs/plans/SKIN_CANCER_QML_COMPLETE_IMPLEMENTATION.md**](plans/SKIN_CANCER_QML_COMPLETE_IMPLEMENTATION.md) | 7-class HAM10000 dermoscopy, `QuantumDerma` family, ablation protocols, and Grad-CAM |
+| **Pneumonia QML Plan** | Vision QML | [**docs/plans/PNEUMONIA_QML_IMPLEMENTATION_PLAN.md**](plans/PNEUMONIA_QML_IMPLEMENTATION_PLAN.md) | Binary chest X-ray classification, `QuantumPneu` hybrid VQC, and decision threshold calibration |
+| **Skin Cancer Module Guide** | Module Guide | [**docs/skin_cancer.md**](skin_cancer.md) | Dataset audit, pipeline scripts, training commands, and evaluation metrics for HAM10000 |
+| **Pneumonia Module Guide** | Module Guide | [**docs/pneumonia.md**](pneumonia.md) | Dataset audit, PneuVision backbone training, QuantumPneu VQC training, and evaluation |
+| **Model Training Handbook** | Operational ML | [**docs/model_training.md**](model_training.md) | End-to-end PowerShell-safe training guide for both vision tasks with ablation sweeps |
+| **QML Training Guide** | Developer Guide | [**docs/qml_training_guide.md**](qml_training_guide.md) | Practical step-by-step developer guide for quantum circuit tuning and benchmarking |
+| **Quick Experiments Leaderboard** | Research Leaderboard | [**docs/quick_experiments_leaderboard.md**](quick_experiments_leaderboard.md) | Live experiment metrics table comparing Macro F1, Balanced Accuracy, and ROC-AUC |
+| **Issue Audit & Resolution Log** | Quality Assurance | [**docs/ISSUES_RESOLVED.md**](ISSUES_RESOLVED.md) | Engineering resolution log for all algorithmic, database, security, and git configurations |
+| **Step-by-Step Run Guide** | Operations | [**docs/guides/run.md**](guides/run.md) | Detailed launch runbook, troubleshooting, port conflicts, and persona walkthroughs |
 
 ---
 
-## Technical Stack Overview
+## 🏗️ Architectural Topology
 
 ```mermaid
 graph TD
-    Client["Frontend (React 18 + Vite + 0px Border-Radius)"]
-    API["FastAPI 0.115 Backend Layer (Python 3.10-3.14)"]
-    DB[("SQLite 3 Relational Database (qmedsense.db)")]
-    QML["PennyLane Quantum Engine (default.qubit)"]
-    ML["Classical Baselines Suite (scikit-learn)"]
-    Explain["SHAP Explainability & Perturbation Engine"]
-
-    Client -->|REST & JWT Bearer| API
-    API -->|CRUD Repository| DB
-    API -->|Statevector Encoding| QML
-    API -->|Benchmark Comparison| ML
-    API -->|Feature Perturbation| Explain
+    UI["React 18 Frontend UI (Vite, 0px Borders)"] -->|REST / JWT Bearer| API["FastAPI 0.110 Backend (main.py)"]
+    API --> DB[("SQLite Relational DB (qmedsense.db)")]
+    API --> WORM["WORM Cryptographic Audit Logger"]
+    API --> QML["PennyLane Quantum Simulator (default.qubit)"]
+    API --> ML["Classical Baseline Models (PyTorch / scikit-learn)"]
+    API --> Explain["Perturbation Explainability Engine (SHAP / Grad-CAM)"]
 ```
+
+---
+
+**© 2026 Q-MedSense Core Architecture Group. SIH Problem Statement ID 26139.**

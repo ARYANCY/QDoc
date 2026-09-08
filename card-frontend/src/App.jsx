@@ -44,7 +44,15 @@ export default function App() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/emergency/${patientId}/card-data`);
+      let res;
+      try {
+        res = await fetch(`/api/v1/emergency/${patientId}/card-data`);
+      } catch {
+        res = await fetch(`http://127.0.0.1:8000/api/v1/emergency/${patientId}/card-data`);
+      }
+      if (!res.ok) {
+        res = await fetch(`http://127.0.0.1:8000/api/v1/emergency/${patientId}/card-data`);
+      }
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const json = await res.json();
       setData(json.card_data);

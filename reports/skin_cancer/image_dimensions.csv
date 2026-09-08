@@ -1,0 +1,2 @@
+height,width,channels,dtype,n_samples
+28,28,3,uint8,10015

@@ -29,7 +29,7 @@ class DiagnosticRequest(BaseModel):
     disease: str = "breast_cancer"  # breast_cancer | heart | diabetes | pneumonia | skin
     model_type: str = "VQC"  # VQC | QSVM | QNN | Classical
     patient_id: str = "PT-89421"
-    features: dict[str, float] | None = None
+    features: Any | None = None
 
 
 from backend.app.core.config import settings
@@ -121,7 +121,18 @@ async def run_clinical_diagnosis(req: DiagnosticRequest):
 
     # Sample input
     if req.features:
-        sample_vec = np.array([req.features.get(f, float(df[f].mean())) for f in feat_names], dtype=np.float32)
+        if isinstance(req.features, (list, tuple)):
+            sample_arr = np.array(req.features, dtype=np.float32)
+            if len(sample_arr) < len(feat_names):
+                padded = np.array([float(df[f].mean()) for f in feat_names], dtype=np.float32)
+                padded[:len(sample_arr)] = sample_arr
+                sample_vec = padded
+            else:
+                sample_vec = sample_arr[:len(feat_names)]
+        elif isinstance(req.features, dict):
+            sample_vec = np.array([float(req.features.get(f, df[f].mean())) for f in feat_names], dtype=np.float32)
+        else:
+            sample_vec = df.iloc[np.random.randint(0, len(df))].values.astype(np.float32)
     else:
         sample_vec = df.iloc[np.random.randint(0, len(df))].values.astype(np.float32)
 

@@ -1,7 +1,6 @@
 # ==============================================================================
-# Q-MedSense: Quantum Machine Learning Clinical Decision Support Platform
-# SIH Problem Statement ID: 26139
-# Python 3.10 - 3.14 Dependencies
+# Q-MedSense Backend Requirements
+# (Mirroring root requirements.txt for backend-scoped installs)
 # ==============================================================================
 
 # Core API & Asynchronous Web Framework
@@ -36,9 +35,3 @@ tqdm>=4.66.0
 
 # Automated Testing
 pytest>=8.0.0
-
-# ------------------------------------------------------------------------------
-# GPU Acceleration Instructions (Optional - CUDA 12.x):
-# pip uninstall torch torchvision torchaudio -y
-# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu126
-# ------------------------------------------------------------------------------
