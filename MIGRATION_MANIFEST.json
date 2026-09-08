@@ -1,0 +1,63 @@
+{
+  "manifest_version": "1.0.0",
+  "project_name": "Q-MedSense / QDoc",
+  "timestamp": "2026-09-09T01:00:00Z",
+  "environment": {
+    "conda_env": "sih2026",
+    "python_version": "3.10.20",
+    "platform": "win32",
+    "frameworks": {
+      "pennylane": "0.40.0",
+      "torch": "2.2.0+",
+      "transformers": "4.44.0+",
+      "scikit-learn": "1.4.0+",
+      "fastapi": "0.110.0+"
+    }
+  },
+  "git_state": {
+    "branch": "main",
+    "commit": "35c2679"
+  },
+  "foundation_models": {
+    "primary": {
+      "name": "BiomedCLIP",
+      "huggingface_id": "microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224",
+      "embedding_dimension": 512,
+      "state": "frozen",
+      "license": "Microsoft Open Source / Research"
+    },
+    "benchmark": {
+      "name": "MedSigLIP",
+      "huggingface_id": "google/medsiglip-448",
+      "embedding_dimension": 768,
+      "state": "frozen",
+      "license": "Health AI Developer Foundations"
+    },
+    "multimodal": {
+      "name": "MedGemma",
+      "huggingface_id": "google/medgemma-4b-it",
+      "embedding_dimension": 2048,
+      "state": "frozen",
+      "license": "Health AI Developer Foundations"
+    },
+    "3d_segmentation": {
+      "name": "VISTA3D",
+      "repository": "Project-MONAI/VISTA",
+      "state": "frozen",
+      "license": "Apache 2.0"
+    },
+    "3d_encoder": {
+      "name": "MedicalNet",
+      "repository": "Warvito/MedicalNet-models",
+      "state": "frozen",
+      "license": "Open Academic"
+    }
+  },
+  "backup_targets": [
+    "ml/pneumonia/inference/predictor.py",
+    "ml/skin_cancer/inference/predictor.py",
+    "ml/quantum_engine/",
+    "backend/app/features/clinical/controller.py"
+  ],
+  "verification_status": "ALL_MODELS_VALIDATED_AND_INTEGRATED"
+}

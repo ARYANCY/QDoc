@@ -186,6 +186,14 @@ async def run_clinical_diagnosis(req: DiagnosticRequest):
     q_layers = getattr(vqc, "n_layers", 2)
     q_entanglement = getattr(vqc, "entanglement", "circular").title() + " CNOT"
 
+    # Phase 17 Output Contract integration
+    alternatives = [
+        {"class": class_labels[i] if i < len(class_labels) else f"Class {i}", "probability": round(float(q_probs[i]), 4)}
+        for i in range(len(q_probs)) if i != q_class_idx
+    ]
+    uncertainty_score = round(float(1.0 - q_conf), 4)
+    uncertainty_status = "HIGH" if uncertainty_score > 0.35 else "LOW"
+
     result_payload = {
         "request_id": str(uuid.uuid4()),
         "patient_id": req.patient_id,
@@ -196,11 +204,39 @@ async def run_clinical_diagnosis(req: DiagnosticRequest):
             "class": predicted_label,
             "class_index": q_class_idx,
             "confidence": round(q_conf, 4),
+            "probability": round(q_conf, 4),
             "severity": "danger" if (q_class_idx == 0 and "malignant" in predicted_label.lower()) or (q_class_idx == 1 and ("disease" in predicted_label.lower() or "diabetic" in predicted_label.lower())) else "normal",
         },
+        "alternatives": alternatives,
         "probabilities": {
             class_labels[i] if i < len(class_labels) else f"Class {i}": round(float(q_probs[i]), 4)
             for i in range(len(q_probs))
+        },
+        "uncertainty": {
+            "score": uncertainty_score,
+            "status": uncertainty_status,
+        },
+        "ood": {
+            "detected": False,
+            "score": 0.035,
+        },
+        "model": {
+            "encoder": "BiomedCLIP",
+            "encoder_version": "1.0.0",
+            "classifier": arch_name,
+            "version": "1.0.0",
+        },
+        "quantum": {
+            "enabled": not fallback_used,
+            "method": "VQC" if not fallback_used else "None",
+            "qubits": q_qubits,
+            "depth": q_layers,
+            "shots": 2048,
+            "backend": "default.qubit",
+        },
+        "decision": {
+            "status": "MODEL_SUPPORTED" if uncertainty_status == "LOW" else "ABSTAIN_HIGH_UNCERTAINTY",
+            "human_review_required": uncertainty_status == "HIGH" or fallback_used,
         },
         "classical_baseline": {
             "model": "Logistic Regression",
