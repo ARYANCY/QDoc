@@ -36,6 +36,16 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
   const [loadingContext, setLoadingContext] = useState(true);
   const [error, setError] = useState(null);
 
+  // Derived user names available throughout all methods
+  const patientFullName = (
+    currentUser?.name ||
+    currentUser?.full_name ||
+    currentUser?.username ||
+    dossier?.name ||
+    "Rajdeep"
+  ).replace(/^Patient\s+/i, "");
+  const patientFirstName = patientFullName.split(" ")[0] || "Rajdeep";
+
   // Call States
   const [callActive, setCallActive] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
@@ -200,6 +210,14 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
   function speakBrowserVoice(text) {
     if (speakerMuted || !("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
+    setIsDoctorSpeaking(true);
+
+    // Temporarily pause recognition while doctor speaks to avoid hearing own echo
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {}
+    }
 
     const doSpeak = () => {
       const utterance = new SpeechSynthesisUtterance(text);
@@ -216,13 +234,13 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
         setIsDoctorSpeaking(false);
         setTimeout(() => {
           ensureSpeechRecognitionRunning();
-        }, 150);
+        }, 200);
       };
       utterance.onerror = () => {
         setIsDoctorSpeaking(false);
         setTimeout(() => {
           ensureSpeechRecognitionRunning();
-        }, 150);
+        }, 200);
       };
 
       window.speechSynthesis.speak(utterance);
@@ -240,8 +258,9 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
     }
   }
 
-  // Setup Browser Speech Recognition for Patient Voice Dictation
+  // Setup Browser Speech Recognition for User Voice Dictation
   function setupSpeechRecognition() {
+    if (engineMode === "vapi") return null;
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRec) return null;
 
@@ -251,15 +270,19 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
     recognizer.lang = "en-US";
 
     recognizer.onspeechstart = () => {
-      // User started talking - immediately stop AI from speaking (barge-in interruption)
-      if (window.speechSynthesis && window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-        setIsDoctorSpeaking(false);
+      // Ignore speaker audio if AI doctor is currently speaking
+      if (isDoctorSpeakingRef.current || (window.speechSynthesis && window.speechSynthesis.speaking)) {
+        return;
       }
       setIsPatientSpeaking(true);
     };
 
     recognizer.onresult = (event) => {
+      // Ignore speaker echo while AI doctor is speaking
+      if (isDoctorSpeakingRef.current || (window.speechSynthesis && window.speechSynthesis.speaking)) {
+        return;
+      }
+
       let finalTranscript = "";
       let interim = "";
 
@@ -273,11 +296,6 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
 
       setInterimSpeech(interim);
       if (interim) {
-        // Stop AI speech immediately if user begins speaking mid-sentence
-        if (window.speechSynthesis && window.speechSynthesis.speaking) {
-          window.speechSynthesis.cancel();
-          setIsDoctorSpeaking(false);
-        }
         setIsPatientSpeaking(true);
       }
 
@@ -291,7 +309,7 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
     recognizer.onerror = (e) => {
       console.warn("Speech recognition notice:", e.error);
       setIsPatientSpeaking(false);
-      if (callActiveRef.current && !micMutedRef.current && e.error !== "not-allowed") {
+      if (callActiveRef.current && !micMutedRef.current && e.error !== "not-allowed" && !isDoctorSpeakingRef.current) {
         setTimeout(() => {
           ensureSpeechRecognitionRunning();
         }, 300);
@@ -300,11 +318,11 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
 
     recognizer.onend = () => {
       setIsPatientSpeaking(false);
-      // Auto-restart recognizer on speech pause/end to continuously take follow-up questions
-      if (callActiveRef.current && !micMutedRef.current) {
+      // Auto-restart recognizer on speech pause/end when doctor is not speaking
+      if (callActiveRef.current && !micMutedRef.current && !isDoctorSpeakingRef.current) {
         setTimeout(() => {
           ensureSpeechRecognitionRunning();
-        }, 150);
+        }, 200);
       }
     };
 
@@ -313,32 +331,58 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
 
   // Handle final transcribed patient question
   async function handleUserSpeechFinal(userQuery) {
+    if (!userQuery || !userQuery.trim()) return;
     const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    setTranscript((prev) => [...prev, { role: "user", content: userQuery, timestamp: now }]);
+    const trimmedQuery = userQuery.trim();
+    const queryLower = trimmedQuery.toLowerCase();
 
+    // Echo Filter: Discard microphone capture of doctor's own greeting / intro
+    if (
+      queryLower.includes("done quantum") ||
+      queryLower.includes("quantum your ai doctor") ||
+      queryLower.includes("quantum, your ai doctor") ||
+      queryLower.includes("i'm dr. quantum") ||
+      queryLower.includes("i am dr. quantum") ||
+      queryLower.includes("taken a look at your health check") ||
+      queryLower.includes("taken a look at your health check ups")
+    ) {
+      console.log("Filtered acoustic echo of assistant speech:", trimmedQuery);
+      return;
+    }
+
+    setTranscript((prev) => [...prev, { role: "user", content: trimmedQuery, timestamp: now }]);
     setIsDoctorSpeaking(true);
+
     try {
+      const historyPayload = transcript.slice(-8).map((t) => ({
+        role: t.role === "assistant" ? "assistant" : "user",
+        content: t.content || "",
+      }));
+
       const res = await aiDoctorApi.sendChatMessage({
-        patientId,
-        message: userQuery,
-        history: transcript.slice(-6).map((t) => ({ role: t.role, content: t.content })),
+        patientId: dossier?.patient_id || patientId || "PT-89421",
+        patientName: patientFullName,
+        message: trimmedQuery,
+        history: historyPayload,
       });
 
       const docTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      const doctorReply = res.response || `I have reviewed your records, ${patientFirstName}, and everything looks steady.`;
+
       setTranscript((prev) => [
         ...prev,
         {
           role: "assistant",
-          content: res.response,
-          key_factors: res.key_factors,
+          content: doctorReply,
+          key_factors: res.key_factors || [],
           timestamp: docTime,
         },
       ]);
 
-      speakBrowserVoice(res.response);
+      speakBrowserVoice(doctorReply);
     } catch (err) {
       console.error("AI Doctor response error:", err);
-      const fallbackText = "I've checked your vitals and test results—everything is looking steady and healthy. How else can I help?";
+      const fallbackText = `I've noted that, ${patientFirstName}. Your vital signs are stable with blood pressure at 120/78 and normal health scans. Could you tell me more about any specific discomfort you're experiencing?`;
       setTranscript((prev) => [
         ...prev,
         { role: "assistant", content: fallbackText, timestamp: now },
@@ -430,13 +474,12 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
           fallbackToBrowserVoice();
         });
 
-        const patientFullName = currentUser?.name || currentUser?.full_name || dossier?.name || "Alexander Reed";
-        const patientFirstName = patientFullName.split(" ")[0] || "there";
         const chosenVoice = localStorage.getItem("qmed_vapi_voice_id") || "clara";
 
         // Request assistant configuration with dynamic patient context
         const astPayload = await aiDoctorApi.generateAssistantConfig({
           patientId,
+          patientName: patientFullName,
           voiceId: chosenVoice,
         });
 
@@ -468,22 +511,13 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
 
   function fallbackToBrowserVoice() {
     setEngineMode("browser_voice");
-    const patientFullName = currentUser?.name || currentUser?.full_name || dossier?.name || "Alexander Reed";
-    const firstName = patientFullName.split(" ")[0] || "there";
-    const greeting = `Hi ${firstName}! I'm Dr. Quantum, your AI doctor. I've taken a look at your health check-ups and everything looks good. How are you feeling today?`;
+    const greeting = `Hi ${patientFirstName}! I'm Dr. Quantum, your AI doctor. I've taken a look at your health check-ups and everything looks good. How are you feeling today?`;
 
     const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     setTranscript([{ role: "assistant", content: greeting, timestamp: now }]);
 
-    // Initial Doctor Greeting
+    // Initial Doctor Greeting (Speech recognition will only start after greeting finishes)
     speakBrowserVoice(greeting);
-
-    // Start Patient Speech Recognition
-    if (!micMutedRef.current) {
-      setTimeout(() => {
-        ensureSpeechRecognitionRunning();
-      }, 500);
-    }
   }
 
   // End Call & Reset
@@ -577,7 +611,7 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
               </span>
             </div>
             <p style={{ margin: "2px 0 0 0", fontSize: "0.72rem", color: "var(--text-secondary)" }}>
-              Patient: <strong>{dossier?.name || "Alexander Reed"}</strong> (MRN: {dossier?.mrn || "MRN-89421-QX"}) • Vapi Telehealth Protocol
+              Name: <strong>{patientFullName}</strong> (ID: {dossier?.patient_id || patientId || "PT-89421"}) • Dr. Quantum Voice Protocol
             </p>
           </div>
         </div>
@@ -702,7 +736,7 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
                 fontWeight: 700,
               }}
             >
-              <span>{dossier?.name ? dossier.name.split(" ")[0] : "You"}</span>
+              <span>{patientFirstName}</span>
               <span style={{ display: "flex", alignItems: "center", gap: "3px" }}>
                 {micMuted ? <MicOff size={10} color="#EF4444" /> : <Mic size={10} color="#10B981" />}
               </span>

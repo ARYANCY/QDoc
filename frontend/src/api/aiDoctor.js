@@ -45,9 +45,10 @@ export const aiDoctorApi = {
    */
   async generateAssistantConfig({
     patientId = "PT-89421",
+    patientName,
     assistantName = "Dr. Quantum — AI Clinical Specialist",
     voiceProvider = "11labs",
-    voiceId = "sarah",
+    voiceId = "clara",
     modelName = "gpt-4o",
     temperature = 0.3,
   } = {}) {
@@ -56,6 +57,7 @@ export const aiDoctorApi = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         patient_id: patientId,
+        patient_name: patientName,
         assistant_name: assistantName,
         voice_provider: voiceProvider,
         voice_id: voiceId,
@@ -70,12 +72,13 @@ export const aiDoctorApi = {
   /**
    * Interactive text / fallback consultation chat query
    */
-  async sendChatMessage({ patientId = "PT-89421", message, history = [] }) {
+  async sendChatMessage({ patientId = "PT-89421", patientName, message, history = [] }) {
     const res = await fetch(`${API_BASE}/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         patient_id: patientId,
+        patient_name: patientName,
         message,
         history,
       }),
