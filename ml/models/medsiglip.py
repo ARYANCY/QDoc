@@ -6,7 +6,10 @@ from typing import Any, Union
 
 import numpy as np
 import torch
-import torchvision.transforms as T
+try:
+    import torchvision.transforms as T
+except ImportError:
+    T = None
 from PIL import Image
 
 from ml.models.base import MedicalEncoder

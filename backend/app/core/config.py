@@ -39,6 +39,13 @@ class Settings:
     QUANTUM_BACKEND: str = os.getenv("QUANTUM_BACKEND", "simulator")
     SIMULATOR_SHOTS: int = int(os.getenv("SIMULATOR_SHOTS", "1024"))
 
+    # Vapi Voice AI Doctor Integration
+    VAPI_API_KEY: str = os.getenv("VAPI_API_KEY", "").strip()
+    VAPI_PUBLIC_KEY: str = os.getenv("VAPI_PUBLIC_KEY", "").strip()
+    VAPI_ASSISTANT_ID: str = os.getenv("VAPI_ASSISTANT_ID", "").strip()
+    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "").strip()
+    GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "").strip()
+
     # CORS
     @property
     def cors_origins(self) -> List[str]:

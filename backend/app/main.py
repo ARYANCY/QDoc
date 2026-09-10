@@ -24,6 +24,7 @@ from backend.app.features.skin_cancer.controller import router as skin_cancer_ro
 from backend.app.features.consultations.controller import router as consultations_router
 from backend.app.features.notifications.controller import router as notifications_router
 from backend.app.features.emergency.controller import router as emergency_router
+from backend.app.features.ai_doctor.controller import router as ai_doctor_router
 
 
 
@@ -74,6 +75,7 @@ app.include_router(graphs_router)
 app.include_router(consultations_router)
 app.include_router(notifications_router)
 app.include_router(emergency_router)
+app.include_router(ai_doctor_router)
 
 
 

@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 from typing import Sequence
-import pennylane as qml
+try:
+    import pennylane as qml
+except ImportError:
+    qml = None
 import torch
 
 

@@ -5,7 +5,12 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-import pennylane as qml
+try:
+    import pennylane as qml
+    HAS_PENNYLANE = True
+except ImportError:
+    qml = None
+    HAS_PENNYLANE = False
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.svm import SVC
 
@@ -21,7 +26,10 @@ class QuantumSupportVectorMachine:
         self.n_qubits = n_qubits
         self.c_param = c_param
         self.feature_map = feature_map
-        self.dev = qml.device("default.qubit", wires=n_qubits)
+        if HAS_PENNYLANE and qml is not None:
+            self.dev = qml.device("default.qubit", wires=n_qubits)
+        else:
+            self.dev = None
         self.clf = SVC(kernel="precomputed", C=c_param)
         self.X_train: np.ndarray | None = None
 

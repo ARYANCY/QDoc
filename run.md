@@ -18,26 +18,26 @@ This guide provides complete, production-grade instructions for launching, testi
 1. [System Prerequisites & Verified Runtimes](#1-system-prerequisites--verified-runtimes)
 2. [Service Architecture & Port Map](#2-service-architecture--port-map)
 3. [Environment Setup & Dependency Installation](#3-environment-setup--dependency-installation)
-   - [Option A: Using Conda (`sih2026`)](#option-a-using-conda-sih2026)
-   - [Option B: Using Python `venv`](#option-b-using-python-venv)
+    - [Option A: Using Conda (`sih2026`)](#option-a-using-conda-sih2026)
+    - [Option B: Using Python `venv`](#option-b-using-python-venv)
 4. [Database & Prisma PostgreSQL Setup](#4-database--prisma-postgresql-setup)
-   - [Step 1: Configure `DATABASE_URL` in `.env`](#step-1-configure-database_url-in-env)
-   - [Step 2: Synchronize Prisma Schema (`npx prisma db push`)](#step-2-synchronize-prisma-schema)
-   - [Step 3: Visual Database Manager (`npx prisma studio`)](#step-3-visual-database-manager-prisma-studio)
+    - [Step 1: Configure `DATABASE_URL` in `.env`](#step-1-configure-database_url-in-env)
+    - [Step 2: Synchronize Prisma Schema (`npx prisma db push`)](#step-2-synchronize-prisma-schema)
+    - [Step 3: Visual Database Manager (`npx prisma studio`)](#step-3-visual-database-manager-prisma-studio)
 5. [Backend Execution Guide (FastAPI + Quantum ML + Foundation Models)](#5-backend-execution-guide-fastapi--quantum-ml--foundation-models)
-   - [Method 1: Universal Root Launcher (`main.py`)](#method-1-universal-root-launcher-mainpy--recommended)
-   - [Method 2: One-Click PowerShell Script](#method-2-one-click-powershell-script-windows)
-   - [Method 3: Direct Uvicorn ASGI Server](#method-3-direct-uvicorn-asgi-server)
-   - [Verifying Backend Health & Interactive Docs](#verifying-backend-health--interactive-docs)
+    - [Method 1: Universal Root Launcher (`main.py`)](#method-1-universal-root-launcher-mainpy--recommended)
+    - [Method 2: One-Click PowerShell Script](#method-2-one-click-powershell-script-windows)
+    - [Method 3: Direct Uvicorn ASGI Server](#method-3-direct-uvicorn-asgi-server)
+    - [Verifying Backend Health & Interactive Docs](#verifying-backend-health--interactive-docs)
 6. [Frontend Execution Guide (React 18 + Vite)](#6-frontend-execution-guide-react-18--vite)
-   - [Step 1: Install Node Dependencies](#step-1-install-node-dependencies)
-   - [Step 2: Launch Vite Dev Server](#step-2-launch-vite-dev-server)
-   - [Step 3: Building for Production](#step-3-building-for-production)
+    - [Step 1: Install Node Dependencies](#step-1-install-node-dependencies)
+    - [Step 2: Launch Vite Dev Server](#step-2-launch-vite-dev-server)
+    - [Step 3: Building for Production](#step-3-building-for-production)
 7. [Full-Stack Three-Terminal Workflow](#7-full-stack-three-terminal-workflow)
 8. [Pretrained Medical Models & Model Lab Workspace](#8-pretrained-medical-models--model-lab-workspace)
-   - [Model Downloads & Weight Staging](#1-model-downloads--weight-staging)
-   - [Encoder Verification Smoke Tests](#2-encoder-verification-smoke-tests)
-   - [Encoder Latency & Throughput Benchmark](#3-encoder-latency--throughput-benchmark)
+    - [Model Downloads & Weight Staging](#1-model-downloads--weight-staging)
+    - [Encoder Verification Smoke Tests](#2-encoder-verification-smoke-tests)
+    - [Encoder Latency & Throughput Benchmark](#3-encoder-latency--throughput-benchmark)
 9. [Scientific Ablation Matrix & QAS Benchmarks](#9-scientific-ablation-matrix--qas-benchmarks)
 10. [Pre-Seeded Authority Personas & Credentials](#10-pre-seeded-authority-personas--credentials)
 11. [Automated Verification & Test Suite (65/65 Tests)](#11-automated-verification--test-suite-6565-tests)
@@ -47,28 +47,28 @@ This guide provides complete, production-grade instructions for launching, testi
 
 ## 1. System Prerequisites & Verified Runtimes
 
-| Runtime / Component | Minimum Version | Verified Active Version | Verification Command |
-| :--- | :---: | :---: | :--- |
-| **Python** | `3.10.x` | `3.10.20` (64-bit) | `python --version` |
-| **PyTorch** | `2.2.0` | `2.13.0+cu126` (CUDA 12.6 supported) | `python -c "import torch; print(torch.__version__, torch.cuda.is_available())"` |
-| **PennyLane** | `0.36.0` | `0.42.3` / `0.40.0` | `python -c "import pennylane as qml; print(qml.__version__)"` |
-| **Node.js** | `v18.0.0` | `v20.x` or higher | `node -v` |
-| **npm** | `v9.0.0` | `v10.x` or higher | `npm -v` |
-| **Prisma** | `5.x` | `5.22.0` | `npx -y prisma@5 --version` |
-| **Git** | `2.30+` | Latest | `git --version` |
+| Runtime / Component | Minimum Version |       Verified Active Version        | Verification Command                                                            |
+| :------------------ | :-------------: | :----------------------------------: | :------------------------------------------------------------------------------ |
+| **Python**          |    `3.10.x`     |          `3.10.20` (64-bit)          | `python --version`                                                              |
+| **PyTorch**         |     `2.2.0`     | `2.13.0+cu126` (CUDA 12.6 supported) | `python -c "import torch; print(torch.__version__, torch.cuda.is_available())"` |
+| **PennyLane**       |    `0.36.0`     |         `0.42.3` / `0.40.0`          | `python -c "import pennylane as qml; print(qml.__version__)"`                   |
+| **Node.js**         |    `v18.0.0`    |          `v20.x` or higher           | `node -v`                                                                       |
+| **npm**             |    `v9.0.0`     |          `v10.x` or higher           | `npm -v`                                                                        |
+| **Prisma**          |      `5.x`      |               `5.22.0`               | `npx -y prisma@5 --version`                                                     |
+| **Git**             |     `2.30+`     |                Latest                | `git --version`                                                                 |
 
 ---
 
 ## 2. Service Architecture & Port Map
 
-| Component | Port | URL | Description |
-| :--- | :---: | :--- | :--- |
-| **FastAPI Backend & QML Engine** | `8000` | [http://127.0.0.1:8000](http://127.0.0.1:8000) | Core REST API, Quantum Engine, Foundation Models & DB CRUD |
-| **Interactive Swagger Docs** | `8000` | [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) | Interactive OpenAPI 3.1 schema & request tester |
-| **ReDoc Schema Explorer** | `8000` | [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc) | Clean formatted API documentation |
-| **Primary Clinical Frontend** | `5173` | [http://localhost:5173](http://localhost:5173) | Main React 18 UI (Patient, Doctor, Researcher, Admin) |
-| **Prisma Studio GUI** | `5555` | [http://localhost:5555](http://localhost:5555) | Visual database manager & record editor |
-| **Emergency Medical Card Web App** | `5174` | [http://localhost:5174](http://localhost:5174) | Standalone Emergency QR Card Viewer HUD |
+| Component                          |  Port  | URL                                                        | Description                                                |
+| :--------------------------------- | :----: | :--------------------------------------------------------- | :--------------------------------------------------------- |
+| **FastAPI Backend & QML Engine**   | `8000` | [http://127.0.0.1:8000](http://127.0.0.1:8000)             | Core REST API, Quantum Engine, Foundation Models & DB CRUD |
+| **Interactive Swagger Docs**       | `8000` | [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)   | Interactive OpenAPI 3.1 schema & request tester            |
+| **ReDoc Schema Explorer**          | `8000` | [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc) | Clean formatted API documentation                          |
+| **Primary Clinical Frontend**      | `5173` | [http://localhost:5173](http://localhost:5173)             | Main React 18 UI (Patient, Doctor, Researcher, Admin)      |
+| **Prisma Studio GUI**              | `5555` | [http://localhost:5555](http://localhost:5555)             | Visual database manager & record editor                    |
+| **Emergency Medical Card Web App** | `5174` | [http://localhost:5174](http://localhost:5174)             | Standalone Emergency QR Card Viewer HUD                    |
 
 ---
 
@@ -87,6 +87,7 @@ pip install -r requirements.txt
 ### Option B: Using Python `venv`
 
 #### On Windows (PowerShell):
+
 ```powershell
 # Allow script execution if restricted:
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
@@ -101,6 +102,7 @@ pip install -r requirements.txt
 ```
 
 #### On Linux / macOS (Bash / Zsh):
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
@@ -115,22 +117,29 @@ pip install -r requirements.txt
 The project supports both cloud **Prisma Postgres** and local **SQLite** (with zero external dependencies).
 
 ### Step 1: Configure `DATABASE_URL` in `.env`
-Ensure your [.env](file:///f:/Hackathon/SIH(2026)/QDoc/.env) file contains your PostgreSQL connection string:
+
+Ensure your [.env](<file:///f:/Hackathon/SIH(2026)/QDoc/.env>) file contains your PostgreSQL connection string:
+
 ```ini
 DATABASE_URL="postgres://user:password@pooled.db.prisma.io:5432/postgres?sslmode=require"
 ```
 
 ### Step 2: Synchronize Prisma Schema
+
 To create/update all 12 database tables (`users`, `patients`, `diagnostic_records`, `audit_logs`, `doctors`, `bookings`, `prescriptions`, `notifications`, etc.):
+
 ```bash
 npx -y prisma@5 db push
 ```
 
 ### Step 3: Visual Database Manager (Prisma Studio)
+
 To inspect, search, and edit database records visually in your browser:
+
 ```bash
 npx -y prisma@5 studio
 ```
+
 - Open [http://localhost:5555](http://localhost:5555) in your web browser.
 
 ---
@@ -140,10 +149,13 @@ npx -y prisma@5 studio
 Choose any of the following methods to start the backend:
 
 ### Method 1: Universal Root Launcher (`main.py` — Recommended)
+
 ```bash
 python main.py
 ```
-*Optional CLI Flags:*
+
+_Optional CLI Flags:_
+
 ```bash
 # Custom host and port:
 python main.py --host 0.0.0.0 --port 8000
@@ -156,6 +168,7 @@ python main.py --no-reload --workers 2
 ```
 
 ### Method 2: One-Click PowerShell Script (Windows)
+
 ```powershell
 .\start_backend.ps1
 # Or run with demo database:
@@ -163,11 +176,13 @@ python main.py --no-reload --workers 2
 ```
 
 ### Method 3: Direct Uvicorn ASGI Server
+
 ```bash
 uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
 ### Verifying Backend Health & Interactive Docs
+
 - **Health Endpoint:** [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
 - **Swagger UI:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 - **ReDoc:** [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
@@ -177,20 +192,25 @@ uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload
 ## 6. Frontend Execution Guide (React 18 + Vite)
 
 ### Step 1: Install Node Dependencies
+
 Open a terminal in the `frontend/` directory:
+
 ```bash
 cd frontend
 npm install
 ```
 
 ### Step 2: Launch Vite Dev Server
+
 ```bash
 npm run dev
 ```
+
 - Open [http://localhost:5173](http://localhost:5173) in your browser.
 - The Vite dev server automatically proxies all `/api/*` requests to `http://127.0.0.1:8000`.
 
 ### Step 3: Building for Production
+
 ```bash
 cd frontend
 npm run build
@@ -241,7 +261,8 @@ To execute the 6-experiment scientific ablation matrix (A–F) comparing classic
 ```bash
 python -m ml.experiments.runner
 ```
-*Results and full provenance logs are automatically saved to `reports/experiment_registry.json`.*
+
+_Results and full provenance logs are automatically saved to `reports/experiment_registry.json`._
 
 ### Ablation Matrix Summary
 
@@ -264,12 +285,12 @@ F    Calibrated Ensemble Champion (B + E)        0.9125     0.900 [0.865-0.935] 
 
 The database initializes automatically with pre-configured personas across clinical and administrative roles:
 
-| Persona | Role | Username | Password | Accessible Views & Capabilities |
-| :--- | :--- | :--- | :--- | :--- |
-| **Alexander Reed** | `patient` | `alex.patient` | `patient123` | Self-Analysis Cockpit, 3D Digital Twin, Early Detection, Emergency QR Card |
-| **Dr. Kavita Rao, MD** | `doctor` | `dr.kavita` | `doctor123` | Diagnostic Cockpit, Patient Triage, Tele-Consultations, E-Prescriptions |
-| **Dr. Priya Nair** | `researcher` | `priya.qml` | `quantum123` | Live Retraining Studio, Hyperparameter Optimizer, Quantum Telemetry |
-| **Security Admin** | `admin` | `admin.audit` | `admin123` | Compliance Console, User Management, Immutable WORM Audit Logs |
+| Persona                | Role         | Username       | Password     | Accessible Views & Capabilities                                            |
+| :--------------------- | :----------- | :------------- | :----------- | :------------------------------------------------------------------------- |
+| **Alexander Reed**     | `patient`    | `alex.patient` | `patient123` | Self-Analysis Cockpit, 3D Digital Twin, Early Detection, Emergency QR Card |
+| **Dr. Kavita Rao, MD** | `doctor`     | `dr.kavita`    | `doctor123`  | Diagnostic Cockpit, Patient Triage, Tele-Consultations, E-Prescriptions    |
+| **Dr. Priya Nair**     | `researcher` | `priya.qml`    | `quantum123` | Live Retraining Studio, Hyperparameter Optimizer, Quantum Telemetry        |
+| **Security Admin**     | `admin`      | `admin.audit`  | `admin123`   | Compliance Console, User Management, Immutable WORM Audit Logs             |
 
 > **1-Click Switching:** You can switch between personas directly in the UI by clicking the **User Profile Badge** in the sidebar or top header.
 
@@ -285,6 +306,7 @@ python -m pytest tests/ -v
 ```
 
 ### Targeted Test Commands:
+
 ```bash
 # Dynamic doctor registration & live directory sync:
 python -m pytest tests/api/test_doctor_registration_flow.py -v
@@ -318,15 +340,15 @@ python -m pytest tests/unit/test_phase17_contract.py -v
 
 ## 12. Troubleshooting & FAQ Matrix
 
-| Issue Encountered | Root Cause | Exact Resolution |
-| :--- | :--- | :--- |
-| **`python main.py: command not found`** | Python not added to PATH or wrong working directory. | Open terminal in project root and run `conda activate sih2026` or activate `.venv`. |
-| **`UnauthorizedAccess / Script Execution Disabled`** | PowerShell security policy blocks `.ps1` execution. | Run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` in PowerShell. |
-| **`Port 8000 already in use`** | A lingering Python process is holding port 8000. | In PowerShell: `netstat -ano \| findstr :8000`<br>Then: `taskkill /PID <PID> /F` |
-| **`Port 5173 already in use`** | Another Vite dev server is running. | Vite will automatically switch to port 5174, or run `taskkill /IM node.exe /F`. |
-| **`Prisma db push command not found`** | Using newest Prisma 8 CLI release candidate. | Run with pinned version: `npx -y prisma@5 db push` or `npx -y prisma@5 studio`. |
-| **`502 Bad Gateway / Network Error in UI`** | Frontend cannot reach backend at `127.0.0.1:8000`. | Ensure `python main.py` is running in Terminal 1 before launching the frontend. |
-| **`Database Reset to Clean Seed State`** | Need to purge records and re-seed defaults. | For SQLite: delete `backend/qmedsense.db`. For PostgreSQL: run `npx -y prisma@5 db push --force-reset`. |
+| Issue Encountered                                    | Root Cause                                           | Exact Resolution                                                                                        |
+| :--------------------------------------------------- | :--------------------------------------------------- | :------------------------------------------------------------------------------------------------------ |
+| **`python main.py: command not found`**              | Python not added to PATH or wrong working directory. | Open terminal in project root and run `conda activate sih2026` or activate `.venv`.                     |
+| **`UnauthorizedAccess / Script Execution Disabled`** | PowerShell security policy blocks `.ps1` execution.  | Run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` in PowerShell.                         |
+| **`Port 8000 already in use`**                       | A lingering Python process is holding port 8000.     | In PowerShell: `netstat -ano \| findstr :8000`<br>Then: `taskkill /PID <PID> /F`                        |
+| **`Port 5173 already in use`**                       | Another Vite dev server is running.                  | Vite will automatically switch to port 5174, or run `taskkill /IM node.exe /F`.                         |
+| **`Prisma db push command not found`**               | Using newest Prisma 8 CLI release candidate.         | Run with pinned version: `npx -y prisma@5 db push` or `npx -y prisma@5 studio`.                         |
+| **`502 Bad Gateway / Network Error in UI`**          | Frontend cannot reach backend at `127.0.0.1:8000`.   | Ensure `python main.py` is running in Terminal 1 before launching the frontend.                         |
+| **`Database Reset to Clean Seed State`**             | Need to purge records and re-seed defaults.          | For SQLite: delete `backend/qmedsense.db`. For PostgreSQL: run `npx -y prisma@5 db push --force-reset`. |
 
 ---
 

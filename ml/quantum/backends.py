@@ -2,7 +2,12 @@ from __future__ import annotations
 
 import logging
 from typing import Any
-import pennylane as qml
+try:
+    import pennylane as qml
+    HAS_PENNYLANE = True
+except ImportError:
+    qml = None
+    HAS_PENNYLANE = False
 
 logger = logging.getLogger("ml.quantum.backends")
 
@@ -12,6 +17,8 @@ class QuantumBackendFactory:
 
     @classmethod
     def get_backend(cls, backend_name: str = "ideal_simulator", n_qubits: int = 8, shots: int | None = None) -> Any:
+        if not HAS_PENNYLANE or qml is None:
+            return None
         b_key = backend_name.lower()
         if b_key in ("ideal", "ideal_simulator", "default.qubit"):
             return qml.device("default.qubit", wires=n_qubits, shots=shots)

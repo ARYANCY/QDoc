@@ -45,6 +45,7 @@ import EditorialLoginPage from "../auth/EditorialLoginPage.jsx";
 import EditorialHeader from "../../components/common/EditorialHeader.jsx";
 import EditorialFooter from "../../components/common/EditorialFooter.jsx";
 import EditorialHomePage from "../home/EditorialHomePage.jsx";
+import { AIDoctorConsultationPage } from "../ai_doctor/index.js";
 
 import { clinicalApi } from "../../api/clinical";
 import { reportsApi } from "../../api/reports";
@@ -60,6 +61,16 @@ function NavHomeSvg() {
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
       <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
       <polyline points="9 22 9 12 15 12 15 22" />
+    </svg>
+  );
+}
+
+function NavAIDoctorSvg() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+      <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3" />
+      <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4" />
+      <circle cx="20" cy="10" r="2" />
     </svg>
   );
 }
@@ -254,7 +265,7 @@ const ROLE_PERMISSIONS = {
     label: "Patient (Autonomous Health Checkups & Twin)",
     badgeColor: "var(--primary)",
     defaultTab: "home",
-    allowedTabs: ["home", "diagnostic", "twin", "early_detection", "doctor_booking", "my_consultations", "portal", "profile"],
+    allowedTabs: ["home", "diagnostic", "twin", "early_detection", "ai_doctor", "doctor_booking", "my_consultations", "portal", "profile"],
     sections: [
       {
         title: "Editorial Overview",
@@ -271,8 +282,9 @@ const ROLE_PERMISSIONS = {
         ],
       },
       {
-        title: "Doctor Consultations",
+        title: "Doctor Consultations & AI",
         items: [
+          { id: "ai_doctor", label: "AI Doctor 1-on-1 (Voice)", icon: NavAIDoctorSvg },
           { id: "doctor_booking", label: "Find Doctors & Consult", icon: NavPortalSvg },
           { id: "my_consultations", label: "My Appointments & Rx", icon: NavDiagnosticSvg },
         ],
@@ -295,7 +307,7 @@ const ROLE_PERMISSIONS = {
     label: "Doctor / Clinician (Tele-Consultations & Triage)",
     badgeColor: "var(--accent-teal)",
     defaultTab: "clinician_dashboard",
-    allowedTabs: ["home", "clinician_dashboard", "portal", "profile"],
+    allowedTabs: ["home", "clinician_dashboard", "ai_doctor", "portal", "profile"],
     sections: [
       {
         title: "Editorial Overview",
@@ -307,6 +319,7 @@ const ROLE_PERMISSIONS = {
         title: "Clinical Practice",
         items: [
           { id: "clinician_dashboard", label: "Consultation Queue & Triage", icon: NavUsersSvg },
+          { id: "ai_doctor", label: "AI Doctor Simulation", icon: NavAIDoctorSvg },
         ],
       },
       {
@@ -327,7 +340,7 @@ const ROLE_PERMISSIONS = {
     label: "System & Compliance Administrator",
     badgeColor: "var(--accent-teal)",
     defaultTab: "home",
-    allowedTabs: ["home", "compliance", "users", "benchmarks", "telemetry", "portal", "profile"],
+    allowedTabs: ["home", "compliance", "users", "ai_doctor", "benchmarks", "telemetry", "portal", "profile"],
     sections: [
       {
         title: "Editorial Overview",
@@ -346,6 +359,7 @@ const ROLE_PERMISSIONS = {
       {
         title: "AI & Telemetry",
         items: [
+          { id: "ai_doctor", label: "AI Doctor 1-on-1 Studio", icon: NavAIDoctorSvg },
           { id: "benchmarks", label: "AI Health Benchmarks", icon: NavBenchmarkSvg },
           { id: "telemetry", label: "Quantum Telemetry", icon: NavTelemetrySvg },
         ],
@@ -1782,6 +1796,16 @@ export default function UnifiedAnalysisPage() {
             <div style={{ height: "100%", overflowY: "auto" }}>
               <ClinicianDashboard
                 doctorId={currentUser.doctor_id || (currentUser.id ? `DOC-${String(currentUser.id).replace('USR-', '')}` : "DOC-KAVITA")}
+                currentUser={currentUser}
+              />
+            </div>
+          )}
+
+          {/* ── VIEW 14: AI DOCTOR 1-ON-1 VOICE CONSULTATION (Vapi Powered) ──── */}
+          {activeTab === "ai_doctor" && (
+            <div style={{ height: "100%", overflow: "hidden" }}>
+              <AIDoctorConsultationPage
+                patientId={patientId || "PT-89421"}
                 currentUser={currentUser}
               />
             </div>

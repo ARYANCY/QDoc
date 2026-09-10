@@ -5,7 +5,10 @@ import time
 from typing import Literal
 
 import numpy as np
-import pennylane as qml
+try:
+    import pennylane as qml
+except ImportError:
+    qml = None
 from sklearn.svm import SVC
 
 from ml.quantum.feature_maps import angle_feature_map, zz_feature_map

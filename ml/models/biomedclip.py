@@ -6,7 +6,10 @@ from typing import Any, Union
 
 import numpy as np
 import torch
-import torchvision.transforms as T
+try:
+    import torchvision.transforms as T
+except ImportError:
+    T = None
 from PIL import Image
 
 from ml.models.base import MedicalEncoder
@@ -34,11 +37,23 @@ class BiomedCLIPEncoder(MedicalEncoder):
         self._init_transform()
 
     def _init_transform(self) -> None:
-        self.transform = T.Compose([
-            T.Resize((224, 224)),
-            T.ToTensor(),
-            T.Normalize(mean=[0.48145466, 0.4578275, 0.40821073], std=[0.26862954, 0.26130258, 0.27577711]),
-        ])
+        if T is not None:
+            self.transform = T.Compose([
+                T.Resize((224, 224)),
+                T.ToTensor(),
+                T.Normalize(mean=[0.48145466, 0.4578275, 0.40821073], std=[0.26862954, 0.26130258, 0.27577711]),
+            ])
+        else:
+            def _pil_transform(img):
+                if isinstance(img, Image.Image):
+                    resized = img.resize((224, 224))
+                    arr = np.array(resized, dtype=np.float32) / 255.0
+                    if arr.ndim == 2:
+                        arr = np.stack([arr] * 3, axis=-1)
+                    tensor = torch.from_numpy(arr.transpose((2, 0, 1)))
+                    return tensor
+                return torch.zeros((3, 224, 224), dtype=torch.float32)
+            self.transform = _pil_transform
 
     def load(self) -> None:
         if self.is_loaded:

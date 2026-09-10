@@ -6,7 +6,10 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-import pennylane as qml
+try:
+    import pennylane as qml
+except ImportError:
+    qml = None
 import torch
 import torch.nn as nn
 

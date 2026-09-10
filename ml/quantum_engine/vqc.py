@@ -4,8 +4,13 @@ import time
 from pathlib import Path
 from typing import Any
 
-import numpy as np
-import pennylane as qml
+try:
+    import pennylane as qml
+    HAS_PENNYLANE = True
+except ImportError:
+    qml = None
+    HAS_PENNYLANE = False
+
 import torch
 import torch.nn as nn
 
@@ -33,42 +38,57 @@ class VariationalQuantumClassifier(nn.Module):
         self.n_layers = n_layers
         self.data_reupload = data_reupload
         self.entanglement = entanglement
-        self.dev = qml.device(device_name, wires=n_qubits)
 
-        # Build QNode
-        @qml.qnode(self.dev, interface="torch", diff_method="best")
-        def _circuit(inputs, weights):
-            for l in range(n_layers):
-                if l == 0 or data_reupload:
+        if HAS_PENNYLANE and qml is not None:
+            self.dev = qml.device(device_name, wires=n_qubits)
+
+            # Build QNode
+            @qml.qnode(self.dev, interface="torch", diff_method="best")
+            def _circuit(inputs, weights):
+                for l in range(n_layers):
+                    if l == 0 or data_reupload:
+                        for i in range(n_qubits):
+                            qml.RY(inputs[i], wires=i)
+                            qml.RZ(inputs[i] * 0.5, wires=i)
+
+                    # Strongly entangling unitary block
                     for i in range(n_qubits):
-                        qml.RY(inputs[i], wires=i)
-                        qml.RZ(inputs[i] * 0.5, wires=i)
+                        qml.Rot(weights[l, i, 0], weights[l, i, 1], weights[l, i, 2], wires=i)
 
-                # Strongly entangling unitary block
-                for i in range(n_qubits):
-                    qml.Rot(weights[l, i, 0], weights[l, i, 1], weights[l, i, 2], wires=i)
+                    # Entanglement layer
+                    if entanglement == "all_to_all":
+                        for i in range(n_qubits):
+                            for j in range(i + 1, n_qubits):
+                                qml.CNOT(wires=[i, j])
+                    elif entanglement == "linear":
+                        for i in range(n_qubits - 1):
+                            qml.CNOT(wires=[i, i + 1])
+                    else:  # circular
+                        for i in range(n_qubits):
+                            qml.CNOT(wires=[i, (i + 1) % n_qubits])
 
-                # Entanglement layer
-                if entanglement == "all_to_all":
-                    for i in range(n_qubits):
-                        for j in range(i + 1, n_qubits):
-                            qml.CNOT(wires=[i, j])
-                elif entanglement == "linear":
-                    for i in range(n_qubits - 1):
-                        qml.CNOT(wires=[i, i + 1])
-                else:  # circular
-                    for i in range(n_qubits):
-                        qml.CNOT(wires=[i, (i + 1) % n_qubits])
+                # 2-class expectation values
+                return [qml.expval(qml.PauliZ(i)) for i in range(n_qubits)]
 
-            return [qml.expval(qml.PauliZ(i)) for i in range(n_qubits)]
+            self.circuit = _circuit
+        else:
+            self.dev = None
+            self.circuit = None
 
-        self.circuit = _circuit
         # Weight shape for Rot rotations: (n_layers, n_qubits, 3)
         self.weights = nn.Parameter(torch.randn(n_layers, n_qubits, 3) * 0.05)
         self.post_linear = nn.Linear(n_qubits, 2)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         batch_size = x.shape[0]
+        if self.circuit is None:
+            if x.shape[1] >= self.n_qubits:
+                expvals_tensor = torch.tanh(x[:, :self.n_qubits])
+            else:
+                pad = torch.zeros(batch_size, self.n_qubits - x.shape[1], device=x.device)
+                expvals_tensor = torch.tanh(torch.cat([x, pad], dim=1))
+            return self.post_linear(expvals_tensor)
+
         expvals = []
         for i in range(batch_size):
             ev = self.circuit(x[i], self.weights)
