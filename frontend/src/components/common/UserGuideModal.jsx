@@ -154,7 +154,7 @@ export default function UserGuideModal({ isOpen, onClose }) {
           padding: "28px",
           borderRadius: "var(--radius-sm)",
           border: "1px solid var(--border-default)",
-          borderTop: "3px solid var(--gold)",
+          borderTop: "3px solid var(--accent-blue)",
           boxShadow: "var(--shadow-modal)",
         }}
       >

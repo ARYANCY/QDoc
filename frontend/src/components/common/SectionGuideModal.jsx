@@ -26,7 +26,7 @@ export default function SectionGuideModal({ isOpen, onClose, guideData }) {
           padding: "24px",
           borderRadius: "var(--radius-sm)",
           border: "1px solid var(--border-default)",
-          borderTop: "3px solid var(--gold)",
+          borderTop: "3px solid var(--accent-blue)",
           background: "var(--bg-surface)",
           boxShadow: "var(--shadow-modal)",
         }}
@@ -249,7 +249,7 @@ export default function SectionGuideModal({ isOpen, onClose, guideData }) {
             type="button"
             className="btn-primary"
             onClick={onClose}
-            style={{ padding: "8px 20px", fontSize: "0.78rem", fontWeight: 800, borderRadius: 0 }}
+            style={{ padding: "8px 20px", fontSize: "0.78rem", fontWeight: 800, borderRadius: "var(--radius-sm)" }}
           >
             Got It, Close Guide
           </button>

@@ -164,7 +164,8 @@ export const useTwinStore = create((set, get) => ({
   // ── Camera ──────────────────────────────────────────────────────────────────
   cameraAction: { preset: 'front', trigger: Date.now() },
 
-  // ── Modals ──────────────────────────────────────────────────────────────────
+  // ── Tab & UI State ──────────────────────────────────────────────────────────
+  activeTab: 'overview',
   isReportOpen: false,
   isComparisonOpen: false,
   isTimelineOpen: false,
@@ -222,29 +223,72 @@ export const useTwinStore = create((set, get) => ({
       }
     })),
 
-  removeMedication: (id) =>
+  addMedication: (med) =>
+    set((state) => {
+      const entry = typeof med === 'string'
+        ? { id: Date.now(), name: med, dose: 'Standard', frequency: 'OD' }
+        : { id: Date.now(), name: '', dose: '', frequency: '', ...med };
+      return {
+        patient: {
+          ...state.patient,
+          medications: [...(state.patient.medications || []), entry]
+        }
+      };
+    }),
+
+  removeMedication: (idOrIdx) =>
     set((state) => ({
       patient: {
         ...state.patient,
-        medications: state.patient.medications.filter(m => m.id !== id)
+        medications: (state.patient.medications || []).filter((m, idx) =>
+          typeof m === 'object' ? (m.id !== idOrIdx && idx !== idOrIdx && m.name !== idOrIdx) : (m !== idOrIdx && idx !== idOrIdx)
+        )
       }
     })),
 
   addMedicalHistory: (entry) =>
+    set((state) => {
+      const hist = typeof entry === 'string'
+        ? { id: Date.now(), condition: entry, diagnosedYear: '2024', status: 'active' }
+        : { id: Date.now(), condition: '', diagnosedYear: '2024', status: 'active', ...entry };
+      return {
+        patient: {
+          ...state.patient,
+          medicalHistory: [...(state.patient.medicalHistory || []), hist]
+        }
+      };
+    }),
+
+  removeMedicalHistory: (idOrVal) =>
     set((state) => ({
       patient: {
         ...state.patient,
-        medicalHistory: [...state.patient.medicalHistory, {
-          id: Date.now(), condition: '', diagnosedYear: '', status: 'active', ...entry
-        }]
+        medicalHistory: (state.patient.medicalHistory || []).filter((h, idx) =>
+          typeof h === 'object' ? (h.id !== idOrVal && h.condition !== idOrVal && idx !== idOrVal) : (h !== idOrVal && idx !== idOrVal)
+        )
       }
     })),
 
-  removeMedicalHistory: (id) =>
+  addCondition: (cond) =>
+    set((state) => {
+      const hist = typeof cond === 'string'
+        ? { id: Date.now(), condition: cond, diagnosedYear: '2024', status: 'active' }
+        : { id: Date.now(), condition: '', diagnosedYear: '2024', status: 'active', ...cond };
+      return {
+        patient: {
+          ...state.patient,
+          medicalHistory: [...(state.patient.medicalHistory || []), hist]
+        }
+      };
+    }),
+
+  removeCondition: (idOrVal) =>
     set((state) => ({
       patient: {
         ...state.patient,
-        medicalHistory: state.patient.medicalHistory.filter(h => h.id !== id)
+        medicalHistory: (state.patient.medicalHistory || []).filter((h, idx) =>
+          typeof h === 'object' ? (h.id !== idOrVal && h.condition !== idOrVal && idx !== idOrVal) : (h !== idOrVal && idx !== idOrVal)
+        )
       }
     })),
 
@@ -252,27 +296,32 @@ export const useTwinStore = create((set, get) => ({
     set((state) => ({
       patient: {
         ...state.patient,
-        medicalHistory: state.patient.medicalHistory.map(h =>
+        medicalHistory: (state.patient.medicalHistory || []).map(h =>
           h.id === id ? { ...h, ...updates } : h
         )
       }
     })),
 
   addAllergy: (allergy) =>
-    set((state) => ({
-      patient: {
-        ...state.patient,
-        allergies: [...state.patient.allergies, {
-          id: Date.now(), allergen: '', reaction: '', severity: 'mild', ...allergy
-        }]
-      }
-    })),
+    set((state) => {
+      const entry = typeof allergy === 'string'
+        ? { id: Date.now(), allergen: allergy, reaction: 'Sensitivity', severity: 'mild' }
+        : { id: Date.now(), allergen: '', reaction: '', severity: 'mild', ...allergy };
+      return {
+        patient: {
+          ...state.patient,
+          allergies: [...(state.patient.allergies || []), entry]
+        }
+      };
+    }),
 
-  removeAllergy: (id) =>
+  removeAllergy: (idOrVal) =>
     set((state) => ({
       patient: {
         ...state.patient,
-        allergies: state.patient.allergies.filter(a => a.id !== id)
+        allergies: (state.patient.allergies || []).filter((a, idx) =>
+          typeof a === 'object' ? (a.id !== idOrVal && a.allergen !== idOrVal && idx !== idOrVal) : (a !== idOrVal && idx !== idOrVal)
+        )
       }
     })),
 
@@ -549,6 +598,9 @@ export const useTwinStore = create((set, get) => ({
   },
 
   // ── UI State ─────────────────────────────────────────────────────────────────
+  activeTab: 'overview',
+  setActiveTab: (tab) => set({ activeTab: tab }),
+  fetchPatientFromDb: (id) => get().loadPatientFromDB(id),
   setSelectedAnatomy: (id) => set({ selectedAnatomy: id }),
   setHoveredAnatomy: (id) => set({ hoveredAnatomy: id }),
   toggleLayer: (key) => set((state) => ({ layers: { ...state.layers, [key]: !state.layers[key] } })),

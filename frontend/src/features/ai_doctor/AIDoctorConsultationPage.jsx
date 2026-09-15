@@ -671,10 +671,11 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
             position: "relative",
             display: "flex",
             flexDirection: "column",
-            background: "#08090B",
+            background: "#FFFFFF",
             border: "1px solid var(--border-default)",
+            borderRadius: "var(--radius-sm)",
             overflow: "hidden",
-            boxShadow: "inset 0 0 20px rgba(0,0,0,0.8)",
+            boxShadow: "var(--shadow-card)",
           }}
         >
           {/* Main Hero Tile: AI Doctor Hologram */}
@@ -695,9 +696,10 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
               right: "16px",
               width: "180px",
               height: "135px",
-              background: "#121418",
-              border: "2px solid var(--border-default)",
-              boxShadow: "0 10px 25px rgba(0,0,0,0.6)",
+              background: "#F8FAFC",
+              border: "1.5px solid var(--border-default)",
+              borderRadius: "8px",
+              boxShadow: "0 6px 16px rgba(15, 23, 42, 0.12)",
               overflow: "hidden",
               zIndex: 20,
               display: "flex",
@@ -713,9 +715,9 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
                 style={{ width: "100%", height: "100%", objectFit: "cover", transform: "scaleX(-1)" }}
               />
             ) : (
-              <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "var(--text-muted)", fontSize: "0.68rem", background: "#17191C" }}>
-                <User size={28} style={{ marginBottom: "4px" }} />
-                <span>{cameraActive ? "Camera Standby" : "Camera Off"}</span>
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "var(--text-muted)", fontSize: "0.68rem", background: "#F1F5F9" }}>
+                <User size={28} style={{ marginBottom: "4px", color: "var(--text-secondary)" }} />
+                <span style={{ fontWeight: 600, color: "var(--text-secondary)" }}>{cameraActive ? "Camera Standby" : "Camera Off"}</span>
               </div>
             )}
 
@@ -726,8 +728,8 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
                 bottom: 0,
                 left: 0,
                 right: 0,
-                background: "rgba(0,0,0,0.75)",
-                padding: "3px 6px",
+                background: "rgba(15, 23, 42, 0.85)",
+                padding: "3px 8px",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
@@ -743,12 +745,12 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
             </div>
           </div>
 
-          {/* ── Zoom Meeting Bottom Control Bar ────────────────────────────── */}
+          {/* ── Meeting Bottom Control Bar (Clean Light Theme) ────────────────────────────── */}
           <div
             style={{
               height: "64px",
-              background: "rgba(15, 16, 18, 0.95)",
-              borderTop: "1px solid rgba(255,255,255,0.1)",
+              background: "var(--bg-surface)",
+              borderTop: "1px solid var(--border-default)",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
@@ -758,7 +760,7 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
           >
             {/* Left Info */}
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <span style={{ fontSize: "0.68rem", color: "var(--text-light)", fontFamily: "var(--font-mono)" }}>
+              <span style={{ fontSize: "0.68rem", color: "var(--text-secondary)", fontWeight: 700, fontFamily: "var(--font-mono)" }}>
                 {callActive ? `DURATION: ${formatTime(callDuration)}` : "NOT IN CALL"}
               </span>
             </div>
@@ -771,13 +773,13 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
                 onClick={toggleMic}
                 disabled={!callActive}
                 style={{
-                  width: "42px",
-                  height: "42px",
+                  width: "40px",
+                  height: "40px",
                   borderRadius: "50%",
-                  background: micMuted ? "#EF4444" : "rgba(255,255,255,0.12)",
-                  border: 0,
+                  background: micMuted ? "#FEE2E2" : "var(--bg-surface-alt)",
+                  border: `1px solid ${micMuted ? "#FCA5A5" : "var(--border-default)"}`,
                   cursor: callActive ? "pointer" : "not-allowed",
-                  color: "#FFFFFF",
+                  color: micMuted ? "#DC2626" : "var(--ink-primary)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -794,13 +796,13 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
                 onClick={() => setCameraActive(!cameraActive)}
                 disabled={!callActive}
                 style={{
-                  width: "42px",
-                  height: "42px",
+                  width: "40px",
+                  height: "40px",
                   borderRadius: "50%",
-                  background: !cameraActive ? "#EF4444" : "rgba(255,255,255,0.12)",
-                  border: 0,
+                  background: !cameraActive ? "#FEE2E2" : "var(--bg-surface-alt)",
+                  border: `1px solid ${!cameraActive ? "#FCA5A5" : "var(--border-default)"}`,
                   cursor: callActive ? "pointer" : "not-allowed",
-                  color: "#FFFFFF",
+                  color: !cameraActive ? "#DC2626" : "var(--ink-primary)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -811,48 +813,44 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
                 {!cameraActive ? <VideoOff size={18} /> : <Video size={18} />}
               </button>
 
-              {/* Start Call / End Call Action Button */}
+              {/* Master Call / End Call Button */}
               {!callActive ? (
                 <button
                   type="button"
                   onClick={handleStartCall}
+                  className="btn-primary"
                   style={{
-                    background: "var(--gold-gradient)",
-                    color: "#000000",
-                    border: 0,
-                    padding: "10px 24px",
-                    fontWeight: 900,
-                    fontSize: "0.82rem",
-                    letterSpacing: "0.05em",
-                    textTransform: "uppercase",
-                    cursor: "pointer",
-                    display: "inline-flex",
+                    padding: "0 22px",
+                    height: "40px",
+                    borderRadius: "20px",
+                    fontWeight: 800,
+                    fontSize: "0.80rem",
+                    display: "flex",
                     alignItems: "center",
                     gap: "8px",
-                    boxShadow: "0 0 20px rgba(212, 175, 55, 0.4)",
                   }}
                 >
                   <PhoneCall size={16} />
-                  <span>Start 1-on-1 Consultation</span>
+                  <span>Start Consultation</span>
                 </button>
               ) : (
                 <button
                   type="button"
                   onClick={handleEndCall}
                   style={{
+                    padding: "0 22px",
+                    height: "40px",
+                    borderRadius: "20px",
                     background: "#DC2626",
-                    color: "#FFFFFF",
                     border: 0,
-                    padding: "10px 22px",
-                    fontWeight: 900,
-                    fontSize: "0.82rem",
-                    letterSpacing: "0.05em",
-                    textTransform: "uppercase",
                     cursor: "pointer",
-                    display: "inline-flex",
+                    color: "#FFFFFF",
+                    fontWeight: 800,
+                    fontSize: "0.80rem",
+                    display: "flex",
                     alignItems: "center",
                     gap: "8px",
-                    boxShadow: "0 0 20px rgba(220, 38, 38, 0.5)",
+                    boxShadow: "0 2px 8px rgba(220, 38, 38, 0.3)",
                   }}
                 >
                   <PhoneOff size={16} />
@@ -860,21 +858,23 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
                 </button>
               )}
 
-              {/* Speaker Toggle */}
+              {/* Speaker Mute Toggle */}
               <button
                 type="button"
                 onClick={() => setSpeakerMuted(!speakerMuted)}
+                disabled={!callActive}
                 style={{
-                  width: "42px",
-                  height: "42px",
+                  width: "40px",
+                  height: "40px",
                   borderRadius: "50%",
-                  background: speakerMuted ? "#EF4444" : "rgba(255,255,255,0.12)",
-                  border: 0,
-                  cursor: "pointer",
-                  color: "#FFFFFF",
+                  background: speakerMuted ? "#FEE2E2" : "var(--bg-surface-alt)",
+                  border: `1px solid ${speakerMuted ? "#FCA5A5" : "var(--border-default)"}`,
+                  cursor: callActive ? "pointer" : "not-allowed",
+                  color: speakerMuted ? "#DC2626" : "var(--ink-primary)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  transition: "all 0.15s ease",
                 }}
                 title={speakerMuted ? "Unmute Speaker" : "Mute Speaker"}
               >
@@ -882,22 +882,22 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
               </button>
             </div>
 
-            {/* Right Drawers Toggles */}
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            {/* Right Quick Toggles */}
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
               <button
                 type="button"
+                className="btn-secondary"
                 onClick={() => setShowTranscript(!showTranscript)}
                 style={{
                   padding: "6px 12px",
                   fontSize: "0.72rem",
-                  fontWeight: 700,
-                  background: showTranscript ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  color: "#FFFFFF",
-                  cursor: "pointer",
+                  fontWeight: 600,
                   display: "flex",
                   alignItems: "center",
                   gap: "5px",
+                  background: showTranscript ? "var(--accent-blue-soft)" : "var(--bg-surface)",
+                  borderColor: showTranscript ? "var(--accent-blue)" : "var(--border-default)",
+                  color: showTranscript ? "var(--accent-blue)" : "var(--text-secondary)",
                 }}
               >
                 <MessageSquare size={13} />
@@ -906,18 +906,18 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
 
               <button
                 type="button"
+                className="btn-secondary"
                 onClick={() => setShowDossier(!showDossier)}
                 style={{
                   padding: "6px 12px",
                   fontSize: "0.72rem",
-                  fontWeight: 700,
-                  background: showDossier ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  color: "#FFFFFF",
-                  cursor: "pointer",
+                  fontWeight: 600,
                   display: "flex",
                   alignItems: "center",
                   gap: "5px",
+                  background: showDossier ? "var(--accent-blue-soft)" : "var(--bg-surface)",
+                  borderColor: showDossier ? "var(--accent-blue)" : "var(--border-default)",
+                  color: showDossier ? "var(--accent-blue)" : "var(--text-secondary)",
                 }}
               >
                 <FileText size={13} />

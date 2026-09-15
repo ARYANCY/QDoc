@@ -91,7 +91,7 @@ export default function ClinicianDashboard({ doctorId = "DOC-KAVITA", currentUse
         style={{
           background: "var(--bg-surface)",
           border: "1px solid var(--border-default)",
-          borderLeft: "3px solid var(--gold)",
+          borderLeft: "3px solid var(--accent-blue)",
           padding: "24px",
         }}
       >
@@ -99,7 +99,7 @@ export default function ClinicianDashboard({ doctorId = "DOC-KAVITA", currentUse
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
               <span className="step-badge gold">CLINICIAN COCKPIT // TRIAGE</span>
-              <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "1.45rem", color: "var(--ink-primary)", fontWeight: 900, margin: 0 }}>
+              <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.45rem", color: "var(--ink-primary)", fontWeight: 900, margin: 0 }}>
                 Clinical Care Team
               </h2>
             </div>

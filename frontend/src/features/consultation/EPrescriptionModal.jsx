@@ -154,7 +154,7 @@ export default function EPrescriptionModal({ booking, onClose, onSuccess }) {
           padding: 0,
           background: "var(--bg-surface)",
           border: "1px solid var(--border-default)",
-          borderTop: "3px solid var(--gold)",
+          borderTop: "3px solid var(--accent-blue)",
           boxShadow: "var(--shadow-modal)",
         }}
       >

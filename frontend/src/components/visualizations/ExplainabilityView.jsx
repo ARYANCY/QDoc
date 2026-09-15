@@ -16,7 +16,7 @@ export default function ExplainabilityView({ explainability, diseaseName = "Heal
   return (
     <div ref={containerRef} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
       {/* Patient Natural Language Summary Card */}
-      <div className="narrative-card" style={{ borderRadius: "var(--radius-xs)", border: "1px solid var(--border-default)", borderLeft: "3px solid var(--gold)" }}>
+      <div className="narrative-card" style={{ borderRadius: "var(--radius-xs)", border: "1px solid var(--border-default)", borderLeft: "3px solid var(--accent-blue)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
           <Sparkles size={16} color="var(--primary)" />
           <strong style={{ fontSize: "0.85rem", color: "var(--primary)" }}>AI Health Summary & Guidance:</strong>
@@ -25,7 +25,7 @@ export default function ExplainabilityView({ explainability, diseaseName = "Heal
       </div>
 
       {/* Feature Attribution Bar Charts */}
-      <div className="card-panel" style={{ borderRadius: 0, border: "1px solid var(--border-default)" }}>
+      <div className="card-panel" style={{ borderRadius: "var(--radius-sm)", border: "1px solid var(--border-default)" }}>
         <div className="card-header">
           <span className="card-title">
             <Atom size={16} color="var(--primary)" /> Key Biological Factors Influencing Your Result
@@ -45,13 +45,13 @@ export default function ExplainabilityView({ explainability, diseaseName = "Heal
                 <span style={{ fontSize: "0.80rem", fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--primary)" }}>
                   {feat.percentage || 0}% weight
                 </span>
-                <div style={{ gridColumn: "1 / -1", height: "6px", background: "var(--bg-canvas)", border: "1px solid var(--border-subtle)", borderRadius: 0, overflow: "hidden" }}>
+                <div style={{ gridColumn: "1 / -1", height: "6px", background: "var(--bg-canvas)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)", overflow: "hidden" }}>
                   <div
                     style={{
                       height: "100%",
                       width: `${feat.percentage || 0}%`,
                       background: idx < 2 ? "var(--primary)" : (idx < 4 ? "var(--accent-teal)" : "var(--accent-violet)"),
-                      borderRadius: 0,
+                      borderRadius: "var(--radius-sm)",
                       transition: "width 0.4s ease",
                     }}
                   />

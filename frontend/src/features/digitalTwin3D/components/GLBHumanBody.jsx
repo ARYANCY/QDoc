@@ -8,7 +8,7 @@ import { computeVisualizationState } from '../visualization/visualizationEngine'
  * GLBHumanBody
  * Renders the sex-specific full-body skin mesh (skin_male.glb / skin_female.glb).
  * Also renders sex-specific vasculature overlay.
- * Uses translucent glass-skin material so internal organs show through.
+ * Uses high-clarity translucent glass-skin material so internal organs show through clearly.
  */
 
 // Preload all body + vasculature GLBs at module init
@@ -34,8 +34,8 @@ function SkinMesh({ isFemale }) {
   const isHovered  = hoveredAnatomy  === 'SKIN';
 
   const skinOpacity = xrayMode
-    ? Math.max(0.02, 0.10 * (1 - xrayIntensity * 0.8))
-    : 0.13;
+    ? Math.max(0.02, 0.08 * (1 - xrayIntensity * 0.8))
+    : 0.16;
 
   const { clonedScene } = useMemo(() => {
     const cloned = scene.clone(true);
@@ -45,12 +45,13 @@ function SkinMesh({ isFemale }) {
       ),
       transparent: true,
       opacity: skinOpacity,
-      roughness: 0.10,
-      metalness: 0.05,
-      transmission: 0.3,
-      thickness: 0.5,
+      roughness: 0.12,
+      metalness: 0.04,
+      transmission: 0.75,
+      thickness: 0.4,
+      ior: 1.33,
       depthWrite: false,
-      side: THREE.DoubleSide,
+      side: THREE.FrontSide,
       emissive: new THREE.Color(isHovered ? '#38bdf8' : isSelected ? '#0ea5e9' : '#000000'),
       emissiveIntensity: isHovered ? 0.20 : isSelected ? 0.12 : 0
     });
@@ -98,69 +99,71 @@ function VasculatureMesh({ isFemale }) {
   const modelPath = isFemale ? '/models/vasculature_female.glb' : '/models/vasculature_male.glb';
   const { scene } = useGLTF(modelPath);
 
-  const layers          = useTwinStore((s) => s.layers);
-  const xrayMode        = useTwinStore((s) => s.xrayMode);
-  const xrayIntensity   = useTwinStore((s) => s.xrayIntensity);
-  const involvementMap  = useTwinStore((s) => s.involvementMap);
-  const patientMode     = useTwinStore((s) => s.patientMode);
   const selectedAnatomy = useTwinStore((s) => s.selectedAnatomy);
   const hoveredAnatomy  = useTwinStore((s) => s.hoveredAnatomy);
+  const xrayMode        = useTwinStore((s) => s.xrayMode);
+  const layers          = useTwinStore((s) => s.layers);
   const setSelectedAnatomy = useTwinStore((s) => s.setSelectedAnatomy);
   const setHoveredAnatomy  = useTwinStore((s) => s.setHoveredAnatomy);
 
-  const percentage = involvementMap['VASCULAR_SYSTEM'] || 0;
-  const diseaseOverlayActive = layers.diseaseOverlay && percentage > 0 && patientMode !== 'idle';
-  const vizState = useMemo(() => computeVisualizationState('VASCULAR_SYSTEM', percentage), [percentage]);
-
-  const vasOpacity = xrayMode
-    ? Math.max(0.15, 0.50 * (1 - xrayIntensity * 0.4))
-    : diseaseOverlayActive ? 0.72 : 0.40;
+  const isSelected = selectedAnatomy === 'VASCULAR_SYSTEM';
+  const isHovered  = hoveredAnatomy  === 'VASCULAR_SYSTEM';
 
   const { clonedScene } = useMemo(() => {
     const cloned = scene.clone(true);
+    const mat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color(isHovered ? '#38bdf8' : isSelected ? '#0ea5e9' : '#e11d48'),
+      roughness: 0.35,
+      metalness: 0.15,
+      transparent: true,
+      opacity: xrayMode ? 0.35 : 0.70,
+      side: THREE.DoubleSide,
+      emissive: new THREE.Color(isHovered ? '#38bdf8' : isSelected ? '#0ea5e9' : '#450a0a'),
+      emissiveIntensity: isHovered ? 0.40 : isSelected ? 0.25 : 0.1
+    });
+
+    // Auto-center to match body
     const box = new THREE.Box3().setFromObject(cloned);
     const center = box.getCenter(new THREE.Vector3());
     cloned.position.set(-center.x, 0, -center.z);
 
-    const arterialMat = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(diseaseOverlayActive ? vizState.hexColor : '#ef4444'),
-      roughness: 0.20,
-      metalness: 0.05,
-      transparent: true,
-      opacity: vasOpacity,
-      depthWrite: false,
-      emissive: new THREE.Color(diseaseOverlayActive ? vizState.emissiveColor : '#000000'),
-      emissiveIntensity: diseaseOverlayActive ? vizState.emissiveIntensity * 0.6 : 0
-    });
-
     cloned.traverse((child) => {
       if (child.isMesh) {
-        child.material = arterialMat;
-        child.renderOrder = 5;
+        child.material = mat;
+        child.castShadow = false;
+        child.receiveShadow = false;
       }
     });
     return { clonedScene: cloned };
-  }, [scene, vasOpacity, diseaseOverlayActive, vizState]);
+  }, [scene, xrayMode, isHovered, isSelected]);
 
   if (layers.vessels === false) return null;
 
   return (
     <group
       onClick={(e) => { e.stopPropagation(); setSelectedAnatomy('VASCULAR_SYSTEM'); }}
-      onPointerOver={(e) => { e.stopPropagation(); setHoveredAnatomy('VASCULAR_SYSTEM'); document.body.style.cursor = 'pointer'; }}
-      onPointerOut={(e) => { e.stopPropagation(); if (hoveredAnatomy === 'VASCULAR_SYSTEM') setHoveredAnatomy(null); document.body.style.cursor = 'default'; }}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        setHoveredAnatomy('VASCULAR_SYSTEM');
+        document.body.style.cursor = 'pointer';
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        if (hoveredAnatomy === 'VASCULAR_SYSTEM') setHoveredAnatomy(null);
+        document.body.style.cursor = 'default';
+      }}
     >
       <primitive object={clonedScene} />
     </group>
   );
 }
 
-// ─── Export ────────────────────────────────────────────────────────────────
-export function GLBHumanBody({ isFemale = true }) {
+// ─── Main Export ───────────────────────────────────────────────────────────
+export function GLBHumanBody({ isFemale = false }) {
   return (
-    <>
+    <group>
       <SkinMesh isFemale={isFemale} />
       <VasculatureMesh isFemale={isFemale} />
-    </>
+    </group>
   );
 }

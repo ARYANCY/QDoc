@@ -1,125 +1,120 @@
-import { useEffect, useRef } from "react";
+import React from "react";
 import {
   ArrowRight,
   ShieldCheck,
   Cpu,
   Activity,
-  UserCheck,
-  Video,
-  Database,
-  CheckCircle2,
-  Sparkles,
   BarChart3,
   Stethoscope,
   HeartPulse,
 } from "lucide-react";
-import {
-  animateCounter,
-  animateEditorialHero,
-  animateCardStagger,
-} from "../../utils/motion";
 
 export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs = [] }) {
-  const containerRef = useRef(null);
-  const kpiSensitivityRef = useRef(null);
-  const kpiLatencyRef = useRef(null);
-  const kpiFidelityRef = useRef(null);
-  const kpiStudiesRef = useRef(null);
-
-  useEffect(() => {
-    if (containerRef.current) {
-      animateEditorialHero(containerRef.current);
-      animateCardStagger(containerRef.current, ".editorial-card");
-    }
-
-    animateCounter(kpiSensitivityRef.current, 0, 98.4, 1, "%");
-    animateCounter(kpiLatencyRef.current, 0, 14.8, 1, " ms");
-    animateCounter(kpiFidelityRef.current, 0, 99.8, 1, "%");
-    animateCounter(kpiStudiesRef.current, 0, 5, 0, " Modalities");
-  }, []);
-
   const portals = [
     {
       id: "diagnostic",
-      title: "01 / AI Medical Diagnosis",
-      subtitle: "Multi-Disease AI Risk Analysis",
-      desc: "Upload clinical tests, lab indicators, or medical images (chest X-rays, skin scans) for instant multi-disease risk assessment with explainable AI confidence.",
-      badge: "AI DIAGNOSTICS",
-      color: "var(--ink-primary)",
+      title: "AI Medical Diagnosis",
+      subtitle: "Multi-Disease Risk Analysis",
+      desc: "Upload clinical indicators, lab tests, and imaging scans (X-rays, dermoscopy) for multi-disease risk evaluation with explainable confidence intervals.",
+      badge: "AI Diagnostics",
       icon: Activity,
     },
     {
       id: "twin",
-      title: "02 / 3D Health Twin",
-      subtitle: "Interactive Organ & Body Model",
-      desc: "Explore an interactive 3D anatomy model with real-time organ health indicators, vital signs, and personalized risk hotspots.",
-      badge: "3D MODEL",
-      color: "var(--emerald-couture)",
+      title: "3D Health Twin",
+      subtitle: "Interactive Anatomical Model",
+      desc: "Explore an interactive 3D digital twin with real-time organ indicators, vital projections, and personalized clinical hotspots.",
+      badge: "3D Twin",
       icon: HeartPulse,
     },
     {
       id: "early_detection",
-      title: "03 / Early Health Risks",
-      subtitle: "Long-Term Risk Projections",
-      desc: "View personalized multi-year health risk forecasts, organ vulnerability rankings, and actionable preventative guidance.",
-      badge: "RISK FORECAST",
-      color: "var(--text-gold)",
+      title: "Early Health Risks",
+      subtitle: "Longitudinal Risk Trajectories",
+      desc: "Examine multi-year risk projections across cardiovascular, oncology, and pulmonary pathways with proactive clinical recommendations.",
+      badge: "Risk Pathway",
       icon: BarChart3,
     },
     {
       id: "doctor_booking",
-      title: "04 / Doctor Consultations",
-      subtitle: "Book & Join Virtual Appointments",
-      desc: "Connect with verified specialist doctors, join secure video consultations, and receive digital e-prescriptions.",
-      badge: "TELE-HEALTH",
-      color: "var(--ink-primary)",
+      title: "Doctor Consultations",
+      subtitle: "Tele-Health & Video Rooms",
+      desc: "Schedule and join encrypted WebRTC video consultations with certified specialists and receive signed digital prescriptions.",
+      badge: "Tele-Health",
       icon: Stethoscope,
     },
     {
       id: "benchmarks",
-      title: "05 / AI Performance Matrix",
-      subtitle: "Model Accuracy & Benchmarks",
-      desc: "Compare AI and Quantum diagnostic models directly against classical baselines across accuracy, sensitivity, and response speed.",
-      badge: "98.4% ACCURACY",
-      color: "var(--cobalt-couture)",
+      title: "Benchmark Matrix",
+      subtitle: "Model Validation & Performance",
+      desc: "Compare Quantum and AI classifier metrics against classical baselines across sensitivity, specificity, calibration, and latency.",
+      badge: "Validation",
       icon: Cpu,
     },
     {
       id: "compliance",
-      title: "06 / Privacy & Audit Logs",
-      subtitle: "Security & Patient Consent",
-      desc: "Inspect secure audit logs, patient data privacy settings, and healthcare compliance records.",
-      badge: "HIPAA / DPDP",
-      color: "var(--ink-primary)",
+      title: "Compliance & Security",
+      subtitle: "Audit Trails & Access Control",
+      desc: "Verify cryptographic audit ledgers, ABAC permission policies, patient consent logs, and clinical governance records.",
+      badge: "Governance",
       icon: ShieldCheck,
+    },
+  ];
+
+  const kpis = [
+    {
+      label: "Diagnostic Sensitivity",
+      value: "98.4%",
+      subtext: "+3.2% vs. Classical Baselines",
+      subtextColor: "var(--risk-low)",
+    },
+    {
+      label: "Inference Latency",
+      value: "14.8 ms",
+      subtext: "Optimized Processing Pipeline",
+      subtextColor: "var(--text-muted)",
+    },
+    {
+      label: "Circuit Fidelity",
+      value: "99.8%",
+      subtext: "Error Mitigation Active",
+      subtextColor: "var(--risk-low)",
+    },
+    {
+      label: "Supported Modalities",
+      value: "5 Modalities",
+      subtext: "Oncology, Cardiology, Pulmonary, Dermatology, Metabolism",
+      subtextColor: "var(--text-muted)",
     },
   ];
 
   return (
     <div
-      ref={containerRef}
       style={{
         display: "flex",
         flexDirection: "column",
-        gap: "40px",
-        padding: "8px 0 40px 0",
-        maxWidth: "1400px",
+        gap: "24px",
+        padding: "8px 0 32px 0",
+        maxWidth: "1320px",
         margin: "0 auto",
         width: "100%",
+        fontFamily: "var(--font-sans)",
       }}
     >
-      {/* ── Editorial Hero Masthead ── */}
+      {/* ── Top Header Section ── */}
       <section
         style={{
-          borderBottom: "1px solid var(--border-default)",
-          paddingBottom: "36px",
+          background: "var(--bg-surface)",
+          border: "1px solid var(--border-default)",
+          borderRadius: "var(--radius-sm)",
+          padding: "24px 28px",
+          boxShadow: "var(--shadow-card)",
           display: "flex",
           flexDirection: "column",
-          gap: "20px",
+          gap: "14px",
         }}
       >
         <div
-          className="editorial-reveal"
           style={{
             display: "flex",
             justifyContent: "space-between",
@@ -133,44 +128,37 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
               style={{
                 fontFamily: "var(--font-mono)",
                 fontSize: "0.68rem",
-                letterSpacing: "0.24em",
-                color: "var(--text-gold)",
+                letterSpacing: "0.08em",
+                color: "var(--accent-blue)",
                 textTransform: "uppercase",
-                fontWeight: 800,
+                fontWeight: 700,
                 display: "block",
-                marginBottom: "6px",
+                marginBottom: "4px",
               }}
             >
-              PROJECT MANIFESTO // VOL. IV • CLINICAL INTELLIGENCE
+              Clinical Intelligence Platform
             </span>
             <h1
               style={{
-                fontFamily: "var(--font-serif)",
-                fontSize: "clamp(2.4rem, 4.5vw, 3.8rem)",
-                fontWeight: 900,
-                lineHeight: 1.05,
-                letterSpacing: "-0.03em",
+                fontSize: "1.85rem",
+                fontWeight: 800,
+                lineHeight: 1.2,
+                letterSpacing: "-0.02em",
                 color: "var(--ink-primary)",
                 margin: 0,
               }}
             >
-              The Architecture of <br />
-              <span style={{ fontStyle: "italic", fontWeight: 400, color: "#785E0E" }}>
-                Autonomous Clinical
-              </span>{" "}
-              Decision Support.
+              Intelligent Clinical Decision Support
             </h1>
           </div>
 
-          {/* Quick Welcome Tag */}
           <div
             style={{
-              background: "var(--bg-surface)",
+              background: "var(--bg-surface-alt)",
               border: "1px solid var(--border-default)",
-              padding: "12px 18px",
-              borderRadius: "var(--radius-xs)",
+              padding: "10px 16px",
+              borderRadius: "var(--radius-sm)",
               textAlign: "right",
-              alignSelf: "flex-end",
             }}
           >
             <span
@@ -178,19 +166,19 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
                 fontFamily: "var(--font-mono)",
                 fontSize: "0.58rem",
                 color: "var(--text-muted)",
-                letterSpacing: "0.14em",
+                letterSpacing: "0.08em",
                 textTransform: "uppercase",
                 display: "block",
               }}
             >
-              ACTIVE OPERATOR
+              Active Operator
             </span>
             <strong
               style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "0.95rem",
+                fontSize: "0.90rem",
                 color: "var(--ink-primary)",
                 display: "block",
+                fontWeight: 700,
               }}
             >
               {currentUser?.name || "Dr. Practitioner"}
@@ -198,202 +186,119 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
             <span
               style={{
                 fontFamily: "var(--font-mono)",
-                fontSize: "0.60rem",
-                color: "var(--gold)",
-                fontWeight: 800,
+                fontSize: "0.62rem",
+                color: "var(--accent-blue)",
+                fontWeight: 700,
                 textTransform: "uppercase",
               }}
             >
-              ROLE // {currentUser?.role || "GUEST"}
+              Role: {currentUser?.role || "GUEST"}
             </span>
           </div>
         </div>
 
         <p
-          className="editorial-reveal"
           style={{
-            fontSize: "1.05rem",
-            lineHeight: 1.65,
+            fontSize: "0.92rem",
+            lineHeight: 1.6,
             color: "var(--text-secondary)",
-            maxWidth: "880px",
+            maxWidth: "920px",
             margin: 0,
           }}
         >
-          Q-MedSense is an haute-tier, end-to-end quantum clinical platform designed to bridge state-of-the-art Variational Quantum Classifiers (VQC), longitudinal 3D Digital Health Twin projections, encrypted tele-consultation networks, and rigorous FDA Class II SaMD compliance.
+          Q-MedSense is an intelligent clinical platform bridging AI and Quantum diagnostic models, interactive 3D Digital Health Twin projections, encrypted tele-consultations, and privacy-compliant patient record management.
         </p>
-
-        {/* ── Key Clinical KPI Counters (Animated via GSAP) ── */}
-        <div
-          className="editorial-reveal"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: "14px",
-            marginTop: "12px",
-          }}
-        >
-          <div
-            style={{
-              background: "var(--bg-surface)",
-              border: "1px solid var(--border-default)",
-              borderRadius: "var(--radius-xs)",
-              padding: "16px 20px",
-              borderLeft: "3px solid var(--gold)",
-            }}
-          >
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.58rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.12em" }}>
-              DIAGNOSTIC SENSITIVITY
-            </span>
-            <div
-              ref={kpiSensitivityRef}
-              style={{
-                fontFamily: "var(--font-serif)",
-                fontSize: "1.85rem",
-                fontWeight: 900,
-                color: "var(--ink-primary)",
-                margin: "4px 0 0 0",
-              }}
-            >
-              98.4%
-            </div>
-            <span style={{ fontSize: "0.68rem", color: "var(--emerald-couture)", fontWeight: 600 }}>
-              +3.2% vs. Classical XGBoost
-            </span>
-          </div>
-
-          <div
-            style={{
-              background: "var(--bg-surface)",
-              border: "1px solid var(--border-default)",
-              borderRadius: "var(--radius-xs)",
-              padding: "16px 20px",
-              borderLeft: "3px solid var(--ink-primary)",
-            }}
-          >
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.58rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.12em" }}>
-              QUANTUM INFERENCE TIME
-            </span>
-            <div
-              ref={kpiLatencyRef}
-              style={{
-                fontFamily: "var(--font-serif)",
-                fontSize: "1.85rem",
-                fontWeight: 900,
-                color: "var(--ink-primary)",
-                margin: "4px 0 0 0",
-              }}
-            >
-              14.8 ms
-            </div>
-            <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>
-              Optimized QPU Pipeline
-            </span>
-          </div>
-
-          <div
-            style={{
-              background: "var(--bg-surface)",
-              border: "1px solid var(--border-default)",
-              borderRadius: "var(--radius-xs)",
-              padding: "16px 20px",
-              borderLeft: "3px solid var(--emerald-couture)",
-            }}
-          >
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.58rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.12em" }}>
-              CIRCUIT FIDELITY
-            </span>
-            <div
-              ref={kpiFidelityRef}
-              style={{
-                fontFamily: "var(--font-serif)",
-                fontSize: "1.85rem",
-                fontWeight: 900,
-                color: "var(--ink-primary)",
-                margin: "4px 0 0 0",
-              }}
-            >
-              99.8%
-            </div>
-            <span style={{ fontSize: "0.68rem", color: "var(--emerald-couture)", fontWeight: 600 }}>
-              Error Mitigation Active
-            </span>
-          </div>
-
-          <div
-            style={{
-              background: "var(--bg-surface)",
-              border: "1px solid var(--border-default)",
-              borderRadius: "var(--radius-xs)",
-              padding: "16px 20px",
-              borderLeft: "3px solid #785E0E",
-            }}
-          >
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.58rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.12em" }}>
-              ACTIVE MODALITIES
-            </span>
-            <div
-              ref={kpiStudiesRef}
-              style={{
-                fontFamily: "var(--font-serif)",
-                fontSize: "1.85rem",
-                fontWeight: 900,
-                color: "var(--ink-primary)",
-                margin: "4px 0 0 0",
-              }}
-            >
-              5 Modalities
-            </div>
-            <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>
-              Onco, Cardio, Pneu, Derma, Meta
-            </span>
-          </div>
-        </div>
       </section>
 
-      {/* ── Curated Action Portals (Magazine Grid) ── */}
-      <section style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-          <div>
+      {/* ── Key Clinical Metrics ── */}
+      <section
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+          gap: "14px",
+        }}
+      >
+        {kpis.map((kpi, idx) => (
+          <div
+            key={idx}
+            style={{
+              background: "var(--bg-surface)",
+              border: "1px solid var(--border-default)",
+              borderRadius: "var(--radius-sm)",
+              padding: "18px 20px",
+              boxShadow: "var(--shadow-card)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "4px",
+            }}
+          >
             <span
               style={{
                 fontFamily: "var(--font-mono)",
-                fontSize: "0.62rem",
-                letterSpacing: "0.18em",
-                color: "var(--text-gold)",
+                fontSize: "0.64rem",
+                color: "var(--text-muted)",
                 textTransform: "uppercase",
-                fontWeight: 800,
+                letterSpacing: "0.06em",
+                fontWeight: 700,
               }}
             >
-              CURATED SUITES
+              {kpi.label}
             </span>
-            <h2
+            <div
               style={{
-                fontFamily: "var(--font-serif)",
+                fontFamily: "var(--font-sans)",
                 fontSize: "1.65rem",
                 fontWeight: 800,
                 color: "var(--ink-primary)",
-                margin: "2px 0 0 0",
+                lineHeight: 1.2,
+                margin: "4px 0 2px 0",
               }}
             >
-              Explore Clinical Intelligence Modules
-            </h2>
+              {kpi.value}
+            </div>
+            <span
+              style={{
+                fontSize: "0.74rem",
+                color: kpi.subtextColor,
+                fontWeight: 600,
+              }}
+            >
+              {kpi.subtext}
+            </span>
           </div>
+        ))}
+      </section>
+
+      {/* ── Clinical Workspaces Grid ── */}
+      <section style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h2
+            style={{
+              fontSize: "1.25rem",
+              fontWeight: 800,
+              color: "var(--ink-primary)",
+              margin: 0,
+            }}
+          >
+            Clinical Workspaces
+          </h2>
           <span
             style={{
               fontFamily: "var(--font-mono)",
-              fontSize: "0.62rem",
+              fontSize: "0.68rem",
               color: "var(--text-muted)",
+              fontWeight: 600,
             }}
           >
-            6 OPERATIONAL WORKSPACES
+            6 Operational Modules
           </span>
         </div>
 
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))",
-            gap: "18px",
+            gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
+            gap: "16px",
           }}
         >
           {portals.map((p) => {
@@ -402,7 +307,6 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
             return (
               <div
                 key={p.id}
-                className="editorial-card"
                 role="button"
                 tabIndex={canOpen ? 0 : -1}
                 aria-disabled={!canOpen}
@@ -417,26 +321,14 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
                   background: "var(--bg-surface)",
                   border: "1px solid var(--border-default)",
                   borderRadius: "var(--radius-sm)",
-                  padding: "24px 22px",
-                  cursor: "pointer",
+                  padding: "20px",
+                  cursor: canOpen ? "pointer" : "default",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
-                  gap: "16px",
-                  transition: "all 0.22s ease",
-                  position: "relative",
+                  gap: "14px",
                   boxShadow: "var(--shadow-card)",
-                  opacity: canOpen ? 1 : 0.58,
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "var(--gold)";
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                  e.currentTarget.style.boxShadow = "var(--shadow-md)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "var(--border-default)";
-                  e.currentTarget.style.transform = "translateY(0px)";
-                  e.currentTarget.style.boxShadow = "var(--shadow-card)";
+                  opacity: canOpen ? 1 : 0.65,
                 }}
               >
                 <div>
@@ -445,52 +337,86 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      marginBottom: "12px",
+                      marginBottom: "10px",
                     }}
                   >
-                    <span
+                    <div
                       style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "0.60rem",
-                        fontWeight: 800,
-                        letterSpacing: "0.12em",
-                        color: "var(--text-gold)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
                       }}
                     >
-                      {p.title}
-                    </span>
+                      <div
+                        style={{
+                          width: "32px",
+                          height: "32px",
+                          borderRadius: "var(--radius-xs)",
+                          background: "var(--accent-blue-soft)",
+                          color: "var(--accent-blue)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Icon size={18} />
+                      </div>
+                      <span
+                        style={{
+                          fontFamily: "var(--font-mono)",
+                          fontSize: "0.64rem",
+                          fontWeight: 700,
+                          color: "var(--text-muted)",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {p.badge}
+                      </span>
+                    </div>
+
                     <span
                       style={{
                         fontFamily: "var(--font-mono)",
-                        fontSize: "0.56rem",
-                        padding: "2px 6px",
+                        fontSize: "0.62rem",
+                        padding: "2px 8px",
                         background: "var(--bg-surface-alt)",
                         border: "1px solid var(--border-default)",
+                        borderRadius: "var(--radius-xs)",
                         color: "var(--text-secondary)",
-                        fontWeight: 700,
+                        fontWeight: 600,
                       }}
                     >
-                      {p.badge}
+                      {canOpen ? "Active" : "Restricted"}
                     </span>
                   </div>
 
                   <h3
                     style={{
-                      fontFamily: "var(--font-display)",
-                      fontSize: "1.1rem",
-                      fontWeight: 800,
+                      fontSize: "1.05rem",
+                      fontWeight: 700,
                       color: "var(--ink-primary)",
-                      margin: "0 0 6px 0",
+                      margin: "0 0 4px 0",
+                    }}
+                  >
+                    {p.title}
+                  </h3>
+
+                  <div
+                    style={{
+                      fontSize: "0.78rem",
+                      fontWeight: 600,
+                      color: "var(--accent-blue)",
+                      marginBottom: "6px",
                     }}
                   >
                     {p.subtitle}
-                  </h3>
+                  </div>
 
                   <p
                     style={{
-                      fontSize: "0.78rem",
+                      fontSize: "0.80rem",
                       color: "var(--text-secondary)",
-                      lineHeight: 1.55,
+                      lineHeight: 1.5,
                       margin: 0,
                     }}
                   >
@@ -503,7 +429,7 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    borderTop: "1px solid var(--border-subtle)",
+                    borderTop: "1px solid var(--border-default)",
                     paddingTop: "12px",
                   }}
                 >
@@ -512,18 +438,14 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
                       display: "inline-flex",
                       alignItems: "center",
                       gap: "6px",
-                      fontFamily: "var(--font-mono)",
-                      fontSize: "0.68rem",
+                      fontSize: "0.74rem",
                       fontWeight: 700,
-                      color: "var(--ink-primary)",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.06em",
+                      color: canOpen ? "var(--accent-blue)" : "var(--text-muted)",
                     }}
                   >
-                    <span>{canOpen ? "Launch Workspace" : "Restricted Workspace"}</span>
-                    <ArrowRight size={13} color="var(--gold)" />
+                    <span>{canOpen ? "Open Workspace" : "Restricted Access"}</span>
+                    <ArrowRight size={14} />
                   </span>
-                  <Icon size={18} color="var(--text-muted)" />
                 </div>
               </div>
             );
@@ -531,15 +453,15 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
         </div>
       </section>
 
-      {/* ── Deep Technical Architecture & SaMD Integrity ── */}
+      {/* ── Technical Architecture & Specifications ── */}
       <section
         style={{
-          background: "var(--bg-surface-dark)",
-          color: "#FFFFFF",
+          background: "var(--bg-surface)",
+          color: "var(--text-primary)",
           borderRadius: "var(--radius-sm)",
-          padding: "32px 36px",
-          border: "1px solid rgba(212, 175, 55, 0.35)",
-          boxShadow: "0 20px 40px rgba(0, 0, 0, 0.25)",
+          padding: "24px 26px",
+          border: "1px solid var(--border-default)",
+          boxShadow: "var(--shadow-card)",
         }}
       >
         <div style={{ maxWidth: "900px" }}>
@@ -547,37 +469,36 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
             style={{
               fontFamily: "var(--font-mono)",
               fontSize: "0.62rem",
-              letterSpacing: "0.22em",
-              color: "var(--gold)",
+              letterSpacing: "0.08em",
+              color: "var(--accent-blue)",
               textTransform: "uppercase",
-              fontWeight: 800,
+              fontWeight: 700,
               display: "block",
-              marginBottom: "6px",
+              marginBottom: "4px",
             }}
           >
-            TECHNICAL ARCHITECTURE & SPECIFICATIONS
+            Technical Architecture & Specifications
           </span>
           <h2
             style={{
-              fontFamily: "var(--font-serif)",
-              fontSize: "1.8rem",
+              fontSize: "1.35rem",
               fontWeight: 800,
-              letterSpacing: "-0.02em",
-              margin: "0 0 12px 0",
-              color: "#FFFFFF",
+              letterSpacing: "-0.01em",
+              margin: "0 0 8px 0",
+              color: "var(--ink-primary)",
             }}
           >
-            Hybrid Quantum-Classical Pipeline
+            Hybrid Quantum-Classical Diagnostic Pipeline
           </h2>
           <p
             style={{
-              fontSize: "0.86rem",
-              color: "#C9C4B7",
+              fontSize: "0.85rem",
+              color: "var(--text-secondary)",
               lineHeight: 1.6,
               margin: 0,
             }}
           >
-            Clinical features are normalized and angle-encoded into parameterized rotational quantum gates \((R_x, R_y, R_z)\). An 8-qubit entangled Bell-state circuit evaluates Hilbert space interactions before state-vector measurement. The output is calibrated against classical benchmarks (PneuVision CNN, XGBoost) with SHAP/LIME clinical explainability.
+            Clinical features are normalized and angle-encoded into parameterized rotational quantum gates (Rx, Ry, Rz). An 8-qubit entangled Bell-state circuit evaluates Hilbert space interactions before state-vector measurement, calibrated against classical benchmarks (PneuVision CNN, XGBoost) with SHAP and LIME explainability.
           </p>
         </div>
 
@@ -585,56 +506,56 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-            gap: "20px",
-            borderTop: "1px solid rgba(255, 255, 255, 0.12)",
-            paddingTop: "24px",
-            marginTop: "24px",
+            gap: "12px",
+            borderTop: "1px solid var(--border-default)",
+            paddingTop: "16px",
+            marginTop: "16px",
           }}
         >
-          <div>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.58rem", color: "var(--gold)", display: "block" }}>
+          <div style={{ background: "var(--bg-surface-alt)", padding: "12px 14px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-subtle)" }}>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", color: "var(--accent-blue)", fontWeight: 700, display: "block" }}>
               STEP 01
             </span>
-            <strong style={{ fontSize: "0.85rem", display: "block", marginTop: "2px" }}>
+            <strong style={{ fontSize: "0.84rem", color: "var(--ink-primary)", display: "block", marginTop: "2px" }}>
               Angle Embedding
             </strong>
-            <span style={{ fontSize: "0.70rem", color: "#A1A5B0" }}>
+            <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
               Normalized feature vector map
             </span>
           </div>
 
-          <div>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.58rem", color: "var(--gold)", display: "block" }}>
+          <div style={{ background: "var(--bg-surface-alt)", padding: "12px 14px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-subtle)" }}>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", color: "var(--accent-blue)", fontWeight: 700, display: "block" }}>
               STEP 02
             </span>
-            <strong style={{ fontSize: "0.85rem", display: "block", marginTop: "2px" }}>
+            <strong style={{ fontSize: "0.84rem", color: "var(--ink-primary)", display: "block", marginTop: "2px" }}>
               Entangled VQC Ansatz
             </strong>
-            <span style={{ fontSize: "0.70rem", color: "#A1A5B0" }}>
+            <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
               CZ & CNOT multi-qubit gates
             </span>
           </div>
 
-          <div>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.58rem", color: "var(--gold)", display: "block" }}>
+          <div style={{ background: "var(--bg-surface-alt)", padding: "12px 14px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-subtle)" }}>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", color: "var(--accent-blue)", fontWeight: 700, display: "block" }}>
               STEP 03
             </span>
-            <strong style={{ fontSize: "0.85rem", display: "block", marginTop: "2px" }}>
+            <strong style={{ fontSize: "0.84rem", color: "var(--ink-primary)", display: "block", marginTop: "2px" }}>
               Pauli-Z Expectation
             </strong>
-            <span style={{ fontSize: "0.70rem", color: "#A1A5B0" }}>
+            <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
               Log-likelihood projection
             </span>
           </div>
 
-          <div>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.58rem", color: "var(--gold)", display: "block" }}>
+          <div style={{ background: "var(--bg-surface-alt)", padding: "12px 14px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-subtle)" }}>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", color: "var(--accent-blue)", fontWeight: 700, display: "block" }}>
               STEP 04
             </span>
-            <strong style={{ fontSize: "0.85rem", display: "block", marginTop: "2px" }}>
+            <strong style={{ fontSize: "0.84rem", color: "var(--ink-primary)", display: "block", marginTop: "2px" }}>
               Explainability & Triage
             </strong>
-            <span style={{ fontSize: "0.70rem", color: "#A1A5B0" }}>
+            <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
               Feature attribution & clinician notes
             </span>
           </div>

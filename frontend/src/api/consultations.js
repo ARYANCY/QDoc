@@ -1,20 +1,17 @@
 import apiClient from "./client";
+import { ENDPOINTS } from "./config";
 
 export const consultationsApi = {
   async listDoctors(specialty = null, status = "verified") {
-    let url = "/api/v1/consultations/doctors?status=" + encodeURIComponent(status);
-    if (specialty && specialty !== "all") {
-      url += "&specialty=" + encodeURIComponent(specialty);
-    }
-    return apiClient.get(url);
+    return apiClient.get(ENDPOINTS.CONSULTATIONS_DOCTORS(specialty, status));
   },
 
   async getDoctorProfile(doctorId) {
-    return apiClient.get(`/api/v1/consultations/doctors/${doctorId}`);
+    return apiClient.get(ENDPOINTS.CONSULTATIONS_DOCTOR_PROFILE(doctorId));
   },
 
   async holdSlot(doctorId, slotTime, patientId = "PT-89421") {
-    return apiClient.post("/api/v1/consultations/slots/hold", {
+    return apiClient.post(ENDPOINTS.CONSULTATIONS_SLOTS_HOLD, {
       doctor_id: doctorId,
       slot_time: slotTime,
       patient_id: patientId,
@@ -22,53 +19,48 @@ export const consultationsApi = {
   },
 
   async checkTriage(symptoms, vitals = {}) {
-    return apiClient.post("/api/v1/consultations/triage-check", {
+    return apiClient.post(ENDPOINTS.CONSULTATIONS_TRIAGE, {
       symptoms,
       ...vitals,
     });
   },
 
   async bookConsultation(bookingPayload) {
-    return apiClient.post("/api/v1/consultations/book", bookingPayload);
+    return apiClient.post(ENDPOINTS.CONSULTATIONS_BOOK, bookingPayload);
   },
 
   async listBookings(patientId = null, doctorId = null) {
-    let url = "/api/v1/consultations/bookings";
-    const params = [];
-    if (patientId) params.push(`patient_id=${encodeURIComponent(patientId)}`);
-    if (doctorId) params.push(`doctor_id=${encodeURIComponent(doctorId)}`);
-    if (params.length > 0) url += "?" + params.join("&");
-    return apiClient.get(url);
+    return apiClient.get(ENDPOINTS.CONSULTATIONS_BOOKINGS(patientId, doctorId));
   },
 
   async getBooking(bookingId) {
-    return apiClient.get(`/api/v1/consultations/bookings/${bookingId}`);
+    return apiClient.get(ENDPOINTS.CONSULTATIONS_BOOKING_DETAILS(bookingId));
   },
 
   async transitionBooking(bookingId, status, reason = "") {
-    return apiClient.post(`/api/v1/consultations/bookings/${bookingId}/transition`, {
+    return apiClient.post(ENDPOINTS.CONSULTATIONS_BOOKING_TRANSITION(bookingId), {
       status,
       reason,
     });
   },
 
   async getRoom(bookingId) {
-    return apiClient.get(`/api/v1/consultations/rooms/${bookingId}`);
+    return apiClient.get(ENDPOINTS.CONSULTATIONS_ROOM(bookingId));
   },
 
   async admitPatient(bookingId) {
-    return apiClient.post(`/api/v1/consultations/rooms/${bookingId}/admit`, {});
+    return apiClient.post(ENDPOINTS.CONSULTATIONS_ROOM_ADMIT(bookingId), {});
   },
 
   async sendChatMessage(bookingId, sender, text) {
-    return apiClient.post(`/api/v1/consultations/rooms/${bookingId}/chat`, {
+    return apiClient.post(ENDPOINTS.CONSULTATIONS_ROOM_CHAT(bookingId), {
       sender,
       text,
     });
   },
 
   async publishSignal(bookingId, signalType, payload, senderRole = null, senderId = null) {
-    return apiClient.post(`/api/v1/consultations/rooms/${bookingId}/signals`, {
+    return apiClient.post(ENDPOINTS.CONSULTATIONS_ROOM_PUBLISH_SIGNAL(bookingId), {
       signal_type: signalType,
       payload,
       sender_role: senderRole,
@@ -77,32 +69,58 @@ export const consultationsApi = {
   },
 
   async listSignals(bookingId, afterId = 0, role = null) {
-    let url = `/api/v1/consultations/rooms/${bookingId}/signals?after_id=${afterId}`;
-    if (role) url += `&role=${encodeURIComponent(role)}`;
-    return apiClient.get(url);
+    return apiClient.get(ENDPOINTS.CONSULTATIONS_ROOM_SIGNALS(bookingId, afterId, role));
   },
 
   async checkDrugInteractions(candidateDrugs, currentMedications = []) {
-    return apiClient.post("/api/v1/consultations/prescriptions/check-interactions", {
+    return apiClient.post(ENDPOINTS.CONSULTATIONS_DRUG_INTERACTIONS, {
       candidate_drugs: candidateDrugs,
       current_medications: currentMedications,
     });
   },
 
   async createPrescription(prescriptionPayload) {
-    return apiClient.post("/api/v1/consultations/prescriptions", prescriptionPayload);
+    return apiClient.post(ENDPOINTS.CONSULTATIONS_PRESCRIPTION_CREATE, prescriptionPayload);
   },
 
   async listPrescriptions(patientId = null, doctorId = null) {
-    let url = "/api/v1/consultations/prescriptions";
-    const params = [];
-    if (patientId) params.push(`patient_id=${encodeURIComponent(patientId)}`);
-    if (doctorId) params.push(`doctor_id=${encodeURIComponent(doctorId)}`);
-    if (params.length > 0) url += "?" + params.join("&");
-    return apiClient.get(url);
+    return apiClient.get(ENDPOINTS.CONSULTATIONS_PRESCRIPTIONS(patientId, doctorId));
   },
 
   async getPrescription(prescriptionId) {
-    return apiClient.get(`/api/v1/consultations/prescriptions/${prescriptionId}`);
+    return apiClient.get(ENDPOINTS.CONSULTATIONS_PRESCRIPTION_DETAILS(prescriptionId));
+  },
+
+  /**
+   * Establishes real-time bi-directional WebSocket connection for WebRTC signaling and chat
+   */
+  connectWebSocket(bookingId, { onSignal, onChat, onRoomState, onOpen, onClose, onError } = {}) {
+    const wsUrl = ENDPOINTS.CONSULTATIONS_WS_ROOM(bookingId);
+    let socket = null;
+    try {
+      socket = new WebSocket(wsUrl);
+      socket.onopen = (evt) => {
+        if (onOpen) onOpen(evt);
+      };
+      socket.onmessage = (evt) => {
+        try {
+          const data = JSON.parse(evt.data);
+          if (data.type === "signal" && onSignal) onSignal(data);
+          else if (data.type === "chat" && onChat) onChat(data);
+          else if (data.type === "room_state" && onRoomState) onRoomState(data);
+        } catch (e) {
+          console.warn("[WebSocket Parse Error]", e);
+        }
+      };
+      socket.onerror = (err) => {
+        if (onError) onError(err);
+      };
+      socket.onclose = (evt) => {
+        if (onClose) onClose(evt);
+      };
+    } catch (e) {
+      if (onError) onError(e);
+    }
+    return socket;
   },
 };

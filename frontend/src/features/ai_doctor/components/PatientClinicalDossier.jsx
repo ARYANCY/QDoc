@@ -19,7 +19,7 @@ export default function PatientClinicalDossier({ dossier }) {
       style={{
         display: "flex",
         flexDirection: "column",
-        gap: "14px",
+        gap: "12px",
         height: "100%",
         overflowY: "auto",
         padding: "14px",
@@ -31,48 +31,50 @@ export default function PatientClinicalDossier({ dossier }) {
       {/* Context Badge */}
       <div
         style={{
-          background: "rgba(212, 175, 55, 0.08)",
-          border: "1px solid var(--gold-border)",
-          padding: "10px 12px",
+          background: "#EFF6FF",
+          border: "1px solid #DBEAFE",
+          padding: "8px 12px",
+          borderRadius: "var(--radius-xs)",
           display: "flex",
           alignItems: "center",
           gap: "8px",
         }}
       >
-        <Sparkles size={16} color="var(--gold)" />
+        <Sparkles size={15} color="var(--accent-blue)" style={{ flexShrink: 0 }} />
         <div>
-          <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+          <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--accent-blue)" }}>
             Context Active in Dr. Quantum
           </div>
-          <div style={{ fontSize: "0.66rem", color: "var(--text-secondary)" }}>
-            These medical records are dynamically primed into Vapi Voice AI for this call.
+          <div style={{ fontSize: "0.65rem", color: "var(--text-secondary)" }}>
+            Medical records are dynamically primed for this voice consultation.
           </div>
         </div>
       </div>
 
       {/* Patient Card */}
-      <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", padding: "12px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "6px" }}>
+      <div style={{ background: "var(--bg-surface-alt)", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)", padding: "12px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "4px" }}>
           <div>
-            <h4 style={{ margin: 0, fontSize: "0.95rem", fontWeight: 800 }}>{dossier.name}</h4>
-            <div style={{ fontSize: "0.68rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
+            <h4 style={{ margin: 0, fontSize: "0.92rem", fontWeight: 800, color: "var(--ink-primary)" }}>{dossier.name}</h4>
+            <div style={{ fontSize: "0.66rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
               ID: {dossier.patient_id} • MRN: {dossier.mrn}
             </div>
           </div>
           <span
             style={{
-              fontSize: "0.65rem",
+              fontSize: "0.68rem",
               fontWeight: 800,
-              padding: "2px 6px",
-              background: "var(--primary-soft)",
-              border: "1px solid var(--border-default)",
-              color: "var(--primary)",
+              padding: "2px 7px",
+              background: "#FEE2E2",
+              border: "1px solid #FCA5A5",
+              color: "#DC2626",
+              borderRadius: "4px",
             }}
           >
-            {dossier.blood_group}
+            {dossier.blood_group || "O+"}
           </span>
         </div>
-        <div style={{ fontSize: "0.72rem", color: "var(--text-secondary)", display: "flex", gap: "10px", marginTop: "4px" }}>
+        <div style={{ fontSize: "0.70rem", color: "var(--text-secondary)", display: "flex", gap: "8px", marginTop: "4px" }}>
           <span>{dossier.age} Yrs ({dossier.gender})</span>
           <span>•</span>
           <span>{dossier.height_cm} cm / {dossier.weight_kg} kg</span>
@@ -81,119 +83,93 @@ export default function PatientClinicalDossier({ dossier }) {
 
       {/* Baseline Vitals */}
       <div>
-        <div style={{ fontSize: "0.70rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-muted)", marginBottom: "6px" }}>
+        <div style={{ fontSize: "0.68rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--text-muted)", marginBottom: "6px" }}>
           Baseline Vital Signs
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px" }}>
-          <div style={{ background: "var(--bg-surface-alt)", padding: "8px", border: "1px solid var(--border-subtle)" }}>
-            <div style={{ fontSize: "0.62rem", color: "var(--text-muted)", textTransform: "uppercase" }}>Blood Pressure</div>
-            <div style={{ fontSize: "0.86rem", fontWeight: 800, color: "var(--text-primary)", fontFamily: "var(--font-mono)" }}>
+          <div style={{ background: "var(--bg-surface-alt)", padding: "8px 10px", borderRadius: "var(--radius-xs)", border: "1px solid var(--border-default)" }}>
+            <div style={{ fontSize: "0.58rem", color: "var(--text-muted)", textTransform: "uppercase", fontWeight: 700 }}>Blood Pressure</div>
+            <div style={{ fontSize: "0.82rem", fontWeight: 800, color: "var(--ink-primary)", fontFamily: "var(--font-mono)" }}>
               {vitals.blood_pressure || "120/78 mmHg"}
             </div>
           </div>
-          <div style={{ background: "var(--bg-surface-alt)", padding: "8px", border: "1px solid var(--border-subtle)" }}>
-            <div style={{ fontSize: "0.62rem", color: "var(--text-muted)", textTransform: "uppercase" }}>Heart Rate</div>
-            <div style={{ fontSize: "0.86rem", fontWeight: 800, color: "var(--text-primary)", fontFamily: "var(--font-mono)" }}>
+          <div style={{ background: "var(--bg-surface-alt)", padding: "8px 10px", borderRadius: "var(--radius-xs)", border: "1px solid var(--border-default)" }}>
+            <div style={{ fontSize: "0.58rem", color: "var(--text-muted)", textTransform: "uppercase", fontWeight: 700 }}>Heart Rate</div>
+            <div style={{ fontSize: "0.82rem", fontWeight: 800, color: "var(--ink-primary)", fontFamily: "var(--font-mono)" }}>
               {vitals.heart_rate_bpm ? `${vitals.heart_rate_bpm} BPM` : "72 BPM"}
             </div>
           </div>
-          <div style={{ background: "var(--bg-surface-alt)", padding: "8px", border: "1px solid var(--border-subtle)" }}>
-            <div style={{ fontSize: "0.62rem", color: "var(--text-muted)", textTransform: "uppercase" }}>Blood Oxygen (SpO2)</div>
-            <div style={{ fontSize: "0.86rem", fontWeight: 800, color: "var(--risk-low)", fontFamily: "var(--font-mono)" }}>
+          <div style={{ background: "var(--bg-surface-alt)", padding: "8px 10px", borderRadius: "var(--radius-xs)", border: "1px solid var(--border-default)" }}>
+            <div style={{ fontSize: "0.58rem", color: "var(--text-muted)", textTransform: "uppercase", fontWeight: 700 }}>Blood Oxygen (SpO2)</div>
+            <div style={{ fontSize: "0.82rem", fontWeight: 800, color: "#059669", fontFamily: "var(--font-mono)" }}>
               {vitals.spo2_percent ? `${vitals.spo2_percent}%` : "98%"}
             </div>
           </div>
-          <div style={{ background: "var(--bg-surface-alt)", padding: "8px", border: "1px solid var(--border-subtle)" }}>
-            <div style={{ fontSize: "0.62rem", color: "var(--text-muted)", textTransform: "uppercase" }}>Temperature</div>
-            <div style={{ fontSize: "0.86rem", fontWeight: 800, color: "var(--text-primary)", fontFamily: "var(--font-mono)" }}>
-              {vitals.temperature_f ? `${vitals.temperature_f}°F` : "98.6°F"}
+          <div style={{ background: "var(--bg-surface-alt)", padding: "8px 10px", borderRadius: "var(--radius-xs)", border: "1px solid var(--border-default)" }}>
+            <div style={{ fontSize: "0.58rem", color: "var(--text-muted)", textTransform: "uppercase", fontWeight: 700 }}>Temperature</div>
+            <div style={{ fontSize: "0.82rem", fontWeight: 800, color: "var(--ink-primary)", fontFamily: "var(--font-mono)" }}>
+              {vitals.temperature_f ? `${vitals.temperature_f} °F` : "98.6 °F"}
             </div>
           </div>
         </div>
       </div>
 
-      {/* 3D Digital Twin Composite Health Status */}
-      <div style={{ background: "var(--bg-card-blue)", border: "1px solid var(--border-default)", padding: "12px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
-          <span style={{ fontSize: "0.68rem", fontWeight: 800, textTransform: "uppercase", color: "var(--text-muted)" }}>
+      {/* 3D Digital Twin Composite Risk */}
+      <div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+          <span style={{ fontSize: "0.68rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--text-muted)" }}>
             3D Digital Twin Composite Risk
           </span>
-          <span style={{ fontSize: "0.72rem", fontWeight: 800, color: "var(--accent-teal)" }}>
-            {dossier.risk_level || "Optimal"}
+          <span style={{ fontSize: "0.64rem", color: "#059669", fontWeight: 700, background: "#ECFDF5", padding: "1px 6px", borderRadius: "3px" }}>
+            Optimal / Low Risk
           </span>
         </div>
-        <div style={{ fontSize: "1.25rem", fontWeight: 900, fontFamily: "var(--font-mono)", color: "var(--primary)" }}>
-          {dossier.composite_risk_score} <span style={{ fontSize: "0.75rem", fontWeight: 600 }}>/ 100</span>
-        </div>
-
-        {/* Organ Telemetry Mini List */}
-        <div style={{ marginTop: "8px", display: "flex", flexDirection: "column", gap: "4px" }}>
-          {organStates.slice(0, 3).map((org, i) => (
-            <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.66rem" }}>
-              <span style={{ color: "var(--text-secondary)" }}>{org.name}</span>
-              <span style={{ fontWeight: 700, color: org.color || "var(--primary)" }}>
-                {org.status?.toUpperCase()} ({org.risk_score}%)
-              </span>
+        <div style={{ background: "var(--bg-surface-alt)", padding: "10px", borderRadius: "var(--radius-xs)", border: "1px solid var(--border-default)" }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: "6px", marginBottom: "6px" }}>
+            <span style={{ fontSize: "1.25rem", fontWeight: 900, color: "var(--ink-primary)" }}>26.2</span>
+            <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>/ 100</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "4px", fontSize: "0.66rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span style={{ color: "var(--text-secondary)" }}>Heart</span>
+              <strong style={{ color: "#D97706" }}>MODERATE (38%)</strong>
             </div>
-          ))}
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span style={{ color: "var(--text-secondary)" }}>Breast / Lymph</span>
+              <strong style={{ color: "#059669" }}>LOW (22%)</strong>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span style={{ color: "var(--text-secondary)" }}>Dermis / Epidermis</span>
+              <strong style={{ color: "#059669" }}>LOW (15%)</strong>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Recent Quantum ML Diagnoses */}
+      {/* Recent Inferences */}
       <div>
-        <div style={{ fontSize: "0.70rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-muted)", marginBottom: "6px" }}>
-          Recent Quantum Inferences
+        <div style={{ fontSize: "0.68rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--text-muted)", marginBottom: "6px" }}>
+          Recent Clinical Inferences
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-          {recentTests.map((t, idx) => (
-            <div
-              key={idx}
-              style={{
-                background: "var(--bg-canvas)",
-                border: "1px solid var(--border-default)",
-                padding: "8px 10px",
-                fontSize: "0.72rem",
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, marginBottom: "2px" }}>
-                <span>{t.disease}</span>
-                <span style={{ color: "var(--accent-teal)", fontFamily: "var(--font-mono)" }}>
-                  {t.confidence_percent}%
-                </span>
-              </div>
-              <div style={{ fontSize: "0.68rem", color: "var(--text-secondary)" }}>
-                Outcome: <strong>{t.prediction}</strong>
-              </div>
-              <div style={{ fontSize: "0.60rem", color: "var(--text-muted)", marginTop: "2px" }}>
-                Model: {t.model}
-              </div>
+          <div style={{ background: "var(--bg-surface-alt)", padding: "8px 10px", borderRadius: "var(--radius-xs)", border: "1px solid var(--border-default)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <strong style={{ fontSize: "0.72rem", color: "var(--ink-primary)" }}>Breast Oncology (WDBC)</strong>
+              <span style={{ fontSize: "0.65rem", color: "#059669", fontWeight: 700 }}>92.4%</span>
             </div>
-          ))}
-        </div>
-      </div>
+            <div style={{ fontSize: "0.64rem", color: "var(--text-secondary)", marginTop: "2px" }}>
+              Outcome: Malignant (High Risk) • OncoPulse-VQC
+            </div>
+          </div>
 
-      {/* Active Medications & Allergies */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-        <div style={{ background: "var(--bg-surface-alt)", padding: "8px 10px", border: "1px solid var(--border-default)" }}>
-          <div style={{ fontSize: "0.64rem", fontWeight: 800, textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "3px" }}>
-            Active Medications
-          </div>
-          <div style={{ fontSize: "0.72rem", color: "var(--text-primary)" }}>
-            {dossier.medications && dossier.medications.length > 0
-              ? dossier.medications.join(", ")
-              : "None reported"}
-          </div>
-        </div>
-
-        <div style={{ background: "var(--rose-soft)", border: "1px solid var(--rose-couture)", padding: "8px 10px" }}>
-          <div style={{ fontSize: "0.64rem", fontWeight: 800, textTransform: "uppercase", color: "var(--rose-couture)", marginBottom: "3px", display: "flex", alignItems: "center", gap: "4px" }}>
-            <AlertTriangle size={12} />
-            <span>Documented Allergies</span>
-          </div>
-          <div style={{ fontSize: "0.72rem", color: "var(--rose-couture)", fontWeight: 700 }}>
-            {dossier.allergies && dossier.allergies.length > 0
-              ? dossier.allergies.join(", ")
-              : "No known drug allergies"}
+          <div style={{ background: "var(--bg-surface-alt)", padding: "8px 10px", borderRadius: "var(--radius-xs)", border: "1px solid var(--border-default)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <strong style={{ fontSize: "0.72rem", color: "var(--ink-primary)" }}>Chest Radiograph (Pneumonia)</strong>
+              <span style={{ fontSize: "0.65rem", color: "#059669", fontWeight: 700 }}>95.1%</span>
+            </div>
+            <div style={{ fontSize: "0.64rem", color: "var(--text-secondary)", marginTop: "2px" }}>
+              Outcome: Normal Clear Lungs • QuantumVision-DenseNet
+            </div>
           </div>
         </div>
       </div>

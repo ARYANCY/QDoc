@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { EMERGENCY_PORTAL_BASE } from '../../api/config';
 
 /**
  * Lightweight Standalone QR Code SVG Renderer
@@ -96,7 +97,7 @@ export default function QRCodeSVG({
   bgColor = '#FFFFFF',
   className = '',
 }) {
-  const matrix = useMemo(() => generateQRMatrix(value || 'https://qmedsense.health'), [value]);
+  const matrix = useMemo(() => generateQRMatrix(value || EMERGENCY_PORTAL_BASE), [value]);
   const matrixSize = matrix.length;
   const cellSize = size / matrixSize;
 

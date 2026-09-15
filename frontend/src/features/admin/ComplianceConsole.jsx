@@ -40,7 +40,7 @@ export default function ComplianceConsole({ patientId = "PT-89421" }) {
   return (
     <div ref={containerRef} style={{ display: "flex", flexDirection: "column", gap: "16px", height: "100%", overflowY: "auto", padding: "6px" }}>
       {/* DPDP Act 2023 Consent Management Card (SRS Section 9.1) */}
-      <div className="card-panel" style={{ borderLeft: "3px solid var(--gold)" }}>
+      <div className="card-panel" style={{ borderLeft: "3px solid var(--accent-blue)" }}>
         <div className="card-header">
           <span className="card-title">
             <Lock size={15} color="var(--primary)" /> DPDP Act, 2023 — Granular Patient Consent Controls

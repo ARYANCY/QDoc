@@ -1,74 +1,43 @@
 /**
  * Digital Twin API Client
- * Connects to Q-MedSense FastAPI backend at VITE_API_URL
+ * Connects to Q-MedSense FastAPI backend via centralized apiClient and config
  */
 
-const BASE = import.meta.env.VITE_API_URL || '/api/v1';
-
-function getToken() {
-  // Read JWT shared from main frontend app via localStorage
-  return localStorage.getItem('qmed_token') || localStorage.getItem('qmedsense_token') || null;
-}
-
-function authHeaders() {
-  const token = getToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
+import apiClient from "../../../api/client";
+import { ENDPOINTS, API_BASE_URL } from "../../../api/config";
 
 /**
  * Fetch the 3D digital twin state for a specific patient from the DB.
  * Returns module_risks, organ_heatmap, timeline_visits, top_biomarkers.
  */
-export async function fetchPatientTwinState(patientId) {
-  const res = await fetch(`${BASE}/digital-twin/state/${encodeURIComponent(patientId)}`, {
-    headers: { ...authHeaders(), 'Content-Type': 'application/json' }
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(err.detail || `HTTP ${res.status}`);
-  }
-  return res.json();
+export async function fetchPatientTwinState(patientId = "PT-89421") {
+  return apiClient.get(ENDPOINTS.TWIN_STATE(patientId));
+}
+
+/**
+ * Fetch clinical records for a patient.
+ */
+export async function fetchClinicalPatient(patientId = "PT-89421") {
+  return apiClient.get(ENDPOINTS.CLINICAL_PATIENT(patientId));
 }
 
 /**
  * Fetch all clinical reports for a patient.
  */
-export async function fetchClinicalPatient(patientId) {
-  const res = await fetch(`${BASE}/clinical/patient/${encodeURIComponent(patientId)}`, {
-    headers: { ...authHeaders(), 'Content-Type': 'application/json' }
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(err.detail || `HTTP ${res.status}`);
+export async function fetchPatientReports(patientId = "PT-89421") {
+  try {
+    return await apiClient.get(ENDPOINTS.REPORTS_LIST(patientId));
+  } catch (err) {
+    console.warn("Could not fetch reports for patient:", err);
+    return [];
   }
-  return res.json();
-}
-
-/**
- * Fetch all clinical reports for a patient.
- */
-export async function fetchPatientReports(patientId) {
-  const res = await fetch(`${BASE}/reports?patient_id=${encodeURIComponent(patientId)}`, {
-    headers: { ...authHeaders() }
-  });
-  if (!res.ok) return [];
-  return res.json().catch(() => []);
 }
 
 /**
  * Generate a clinical report via backend and get HTML + metadata back.
  */
 export async function generateClinicalReport(payload) {
-  const res = await fetch(`${BASE}/reports/generate`, {
-    method: 'POST',
-    headers: { ...authHeaders(), 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(err.detail || `HTTP ${res.status}`);
-  }
-  return res.json();
+  return apiClient.post(ENDPOINTS.REPORTS_GENERATE, payload);
 }
 
 /**

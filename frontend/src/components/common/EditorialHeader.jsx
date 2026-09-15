@@ -97,30 +97,14 @@ export default function EditorialHeader({
         >
           <span
             style={{
-              fontFamily: "var(--font-serif)",
-              fontSize: "1.18rem",
-              fontWeight: 900,
-              letterSpacing: "0.04em",
+              fontFamily: "var(--font-sans)",
+              fontSize: "1.15rem",
+              fontWeight: 800,
+              letterSpacing: "-0.02em",
               color: "var(--ink-primary)",
-              textTransform: "uppercase",
             }}
           >
             Q-MEDSENSE
-          </span>
-          <span
-            className="edition-badge"
-            style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: "0.56rem",
-              background: "var(--gold-light)",
-              color: "var(--text-gold)",
-              border: "1px solid var(--gold-border)",
-              padding: "1px 6px",
-              fontWeight: 800,
-              letterSpacing: "0.10em",
-            }}
-          >
-            ISSUE 09 // CLINIQUE
           </span>
         </button>
 
@@ -154,75 +138,9 @@ export default function EditorialHeader({
               background: "var(--emerald-couture)",
             }}
           />
-          <span>QPU ONLINE: {timeString}</span>
+          <span>{timeString}</span>
         </div>
       </div>
-
-      {/* ── Center / Actions: Quick Nav Links ── */}
-      <nav className="header-nav-center" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        <button
-          type="button"
-          onClick={() => setActiveTab("home")}
-          style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            fontFamily: "var(--font-mono)",
-            fontSize: "0.68rem",
-            fontWeight: activeTab === "home" ? 800 : 600,
-            color: activeTab === "home" ? "var(--ink-primary)" : "var(--text-muted)",
-            borderBottom: activeTab === "home" ? "2px solid var(--gold)" : "2px solid transparent",
-            padding: "4px 8px",
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            transition: "all 0.15s ease",
-          }}
-        >
-          Project Story
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("diagnostic")}
-          style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            fontFamily: "var(--font-mono)",
-            fontSize: "0.68rem",
-            fontWeight: activeTab === "diagnostic" ? 800 : 600,
-            color: activeTab === "diagnostic" ? "var(--ink-primary)" : "var(--text-muted)",
-            borderBottom: activeTab === "diagnostic" ? "2px solid var(--gold)" : "2px solid transparent",
-            padding: "4px 8px",
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            transition: "all 0.15s ease",
-          }}
-        >
-          Diagnostic Lab
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("twin")}
-          style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            fontFamily: "var(--font-mono)",
-            fontSize: "0.68rem",
-            fontWeight: activeTab === "twin" ? 800 : 600,
-            color: activeTab === "twin" ? "var(--ink-primary)" : "var(--text-muted)",
-            borderBottom: activeTab === "twin" ? "2px solid var(--gold)" : "2px solid transparent",
-            padding: "4px 8px",
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            transition: "all 0.15s ease",
-          }}
-        >
-          Digital Twin
-        </button>
-      </nav>
 
       {/* ── Right: Notifications, A11y & Profile (Role switch removed; available strictly via login) ── */}
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -237,7 +155,7 @@ export default function EditorialHeader({
           title="Toggle High Contrast Mode"
           style={{
             background: highContrast ? "var(--ink-primary)" : "var(--bg-surface-alt)",
-            color: highContrast ? "var(--gold)" : "var(--text-muted)",
+            color: highContrast ? "var(--accent-blue)" : "var(--text-muted)",
             border: "1px solid var(--border-default)",
             borderRadius: "var(--radius-xs)",
             padding: "6px 8px",
@@ -262,34 +180,16 @@ export default function EditorialHeader({
               padding: "4px 10px",
               background: "var(--bg-surface-alt)",
               border: "1px solid var(--border-default)",
-              borderRadius: "var(--radius-xs)",
+              borderRadius: "var(--radius-sm)",
               cursor: "pointer",
               transition: "all 0.15s ease",
             }}
           >
-            <div
-              style={{
-                width: "24px",
-                height: "24px",
-                borderRadius: "50%",
-                background: "var(--ink-primary)",
-                color: "#FFFFFF",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "0.64rem",
-                fontWeight: 800,
-                fontFamily: "var(--font-mono)",
-                border: "1px solid var(--gold)",
-              }}
-            >
-              {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : "U"}
-            </div>
             <div style={{ textAlign: "left" }}>
               <div
                 style={{
-                  fontFamily: "var(--font-display)",
-                  fontSize: "0.74rem",
+                  fontFamily: "var(--font-sans)",
+                  fontSize: "0.76rem",
                   fontWeight: 700,
                   color: "var(--ink-primary)",
                   lineHeight: 1.1,
@@ -300,11 +200,11 @@ export default function EditorialHeader({
               <div
                 style={{
                   fontFamily: "var(--font-mono)",
-                  fontSize: "0.56rem",
-                  color: "var(--text-gold)",
+                  fontSize: "0.58rem",
+                  color: "var(--accent-blue)",
                   textTransform: "uppercase",
                   letterSpacing: "0.06em",
-                  fontWeight: 800,
+                  fontWeight: 700,
                 }}
               >
                 {currentUser?.role || "GUEST"}

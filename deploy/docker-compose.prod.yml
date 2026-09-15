@@ -1,0 +1,68 @@
+version: "3.8"
+
+services:
+  # Tier 1: Frontend SPA (Nginx)
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: qmed-frontend
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - qmed-network
+
+  # Tier 2: Backend Core REST API (FastAPI)
+  backend:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.backend
+    container_name: qmed-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - ENVIRONMENT=production
+      - MODEL_SERVICE_URL=http://model:8001
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,https://qmedsense.health
+      - JWT_SECRET=qmed-sih2026-super-secret-key-change-in-prod
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/clinical/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      - model
+    networks:
+      - qmed-network
+
+  # Tier 3: Model Inference Microservice (FastAPI + PyTorch + QML)
+  model:
+    build:
+      context: ../model
+      dockerfile: Dockerfile
+    container_name: qmed-model
+    ports:
+      - "8001:8001"
+    environment:
+      - MODEL_SERVICE_PORT=8001
+      - DEVICE=cpu
+      - QUANTUM_BACKEND=default.qubit
+      - MODEL_SERVICE_API_KEY=qmed-internal-model-key-secure-prod-2026
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - qmed-network
+
+networks:
+  qmed-network:
+    driver: bridge

@@ -1,20 +1,21 @@
 import apiClient from "./client";
+import { ENDPOINTS } from "./config";
 
 export const usersApi = {
   async listUsers() {
-    return apiClient.get("/api/v1/admin/users");
+    return apiClient.get(ENDPOINTS.ADMIN_USERS);
   },
 
   async createUser(userData) {
-    return apiClient.post("/api/v1/admin/users", userData);
+    return apiClient.post(ENDPOINTS.ADMIN_USERS, userData);
   },
 
   async updateUser(userId, updates) {
-    return apiClient.put(`/api/v1/admin/users/${userId}`, updates);
+    return apiClient.put(ENDPOINTS.ADMIN_USER_DETAIL(userId), updates);
   },
 
   async deleteUser(userId) {
-    return apiClient.delete(`/api/v1/admin/users/${userId}`);
+    return apiClient.delete(ENDPOINTS.ADMIN_USER_DETAIL(userId));
   },
 };
 

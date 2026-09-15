@@ -20,6 +20,7 @@ export default defineConfig({
         target: "http://127.0.0.1:8000",
         changeOrigin: true,
         secure: false,
+        ws: true,
         configure: (proxy, _options) => {
           proxy.on("error", (err, _req, res) => {
             console.warn("[Vite Proxy Notice] Backend connection on 127.0.0.1:8000:", err.message);

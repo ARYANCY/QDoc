@@ -394,7 +394,7 @@ export default function VirtualConsultationRoom({ booking, isDoctor = false, onL
           >
             {isWaiting ? "VIRTUAL WAITING ENCLAVE" : "LIVE WEBRTC SESSION"}
           </span>
-          <span style={{ fontFamily: "var(--font-serif)", fontSize: "0.95rem", fontWeight: 800, color: "var(--ink-primary)" }}>
+          <span style={{ fontFamily: "var(--font-display)", fontSize: "0.95rem", fontWeight: 800, color: "var(--ink-primary)" }}>
             {booking.doctor_name || "Unknown clinician"} ↔ {booking.patient_name || "Unknown patient"}
           </span>
           <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem", color: "var(--text-muted)" }}>
@@ -454,7 +454,7 @@ export default function VirtualConsultationRoom({ booking, isDoctor = false, onL
               /* Patient in Waiting Room with Local Preview */
               <div style={{ textAlign: "center", padding: "28px", maxWidth: "460px", zIndex: 10 }}>
                 <Clock size={44} color="var(--gold)" style={{ margin: "0 auto 14px auto" }} />
-                <h3 style={{ fontFamily: "var(--font-serif)", color: "var(--ink-primary)", margin: "0 0 8px 0", fontSize: "1.35rem", fontWeight: 800 }}>
+                <h3 style={{ fontFamily: "var(--font-display)", color: "var(--ink-primary)", margin: "0 0 8px 0", fontSize: "1.35rem", fontWeight: 800 }}>
                   Secured Waiting Salon
                 </h3>
                 <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", margin: "0 0 16px 0", lineHeight: 1.5 }}>
@@ -468,7 +468,7 @@ export default function VirtualConsultationRoom({ booking, isDoctor = false, onL
               /* Doctor sees Patient waiting with instant Admit button */
               <div style={{ textAlign: "center", padding: "28px", maxWidth: "460px", zIndex: 10 }}>
                 <User size={44} color="var(--gold)" style={{ margin: "0 auto 14px auto" }} />
-                <h3 style={{ fontFamily: "var(--font-serif)", color: "var(--ink-primary)", margin: "0 0 8px 0", fontSize: "1.35rem", fontWeight: 800 }}>
+                <h3 style={{ fontFamily: "var(--font-display)", color: "var(--ink-primary)", margin: "0 0 8px 0", fontSize: "1.35rem", fontWeight: 800 }}>
                   Patient in Queue
                 </h3>
                 <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", margin: "0 0 20px 0", lineHeight: 1.5 }}>
@@ -520,7 +520,7 @@ export default function VirtualConsultationRoom({ booking, isDoctor = false, onL
                     marginBottom: "16px",
                   }}
                 />
-                <h4 style={{ fontFamily: "var(--font-serif)", color: "var(--gold)", margin: "0 0 6px 0", fontSize: "1.1rem" }}>
+                <h4 style={{ fontFamily: "var(--font-display)", color: "var(--gold)", margin: "0 0 6px 0", fontSize: "1.1rem" }}>
                   Synchronizing Peer Stream
                 </h4>
                 <p style={{ color: "var(--text-secondary)", fontSize: "0.78rem", margin: 0, fontFamily: "var(--font-mono)" }}>
@@ -977,7 +977,7 @@ export default function VirtualConsultationRoom({ booking, isDoctor = false, onL
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.62rem", color: "var(--text-gold)", fontWeight: 800 }}>
                   CLINICAL SUMMARY
                 </span>
-                <h4 style={{ fontFamily: "var(--font-serif)", fontSize: "1.05rem", margin: "4px 0" }}>
+                <h4 style={{ fontFamily: "var(--font-display)", fontSize: "1.05rem", margin: "4px 0" }}>
                   {booking.patient_name || "Unknown patient"}
                 </h4>
                 <p style={{ color: "var(--text-secondary)", fontSize: "0.78rem", margin: 0 }}>

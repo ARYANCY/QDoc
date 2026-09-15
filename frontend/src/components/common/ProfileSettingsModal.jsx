@@ -63,8 +63,8 @@ export default function ProfileSettingsModal({ isOpen, onClose, userId = "PT-ALE
   const effectiveRole = userRole || profile.role || "clinician";
 
   return (
-    <div ref={overlayRef} className="modal-overlay" style={{ borderRadius: 0 }}>
-      <div ref={modalRef} className="modal-content" style={{ maxWidth: "640px", padding: "24px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-default)", borderTop: "3px solid var(--gold)" }}>
+    <div ref={overlayRef} className="modal-overlay" style={{ borderRadius: "var(--radius-sm)" }}>
+      <div ref={modalRef} className="modal-content" style={{ maxWidth: "640px", padding: "24px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-default)", borderTop: "3px solid var(--accent-blue)" }}>
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px", borderBottom: "1px solid var(--border-default)", paddingBottom: "10px" }}>
           <div>
@@ -90,13 +90,13 @@ export default function ProfileSettingsModal({ isOpen, onClose, userId = "PT-ALE
         </div>
 
         {saved && (
-          <div style={{ background: "var(--risk-low-bg)", color: "var(--risk-low)", padding: "6px 10px", fontSize: "0.72rem", border: "1px solid rgba(22, 163, 74, 0.4)", marginBottom: "10px", display: "flex", alignItems: "center", gap: "6px", fontWeight: 700, borderRadius: 0 }}>
+          <div style={{ background: "var(--risk-low-bg)", color: "var(--risk-low)", padding: "6px 10px", fontSize: "0.72rem", border: "1px solid rgba(22, 163, 74, 0.4)", marginBottom: "10px", display: "flex", alignItems: "center", gap: "6px", fontWeight: 700, borderRadius: "var(--radius-sm)" }}>
             <CheckCircle2 size={14} /> Profile & authority parameters saved successfully.
           </div>
         )}
 
         {error && (
-          <div style={{ background: "var(--risk-high-bg)", color: "var(--risk-high)", padding: "6px 10px", fontSize: "0.72rem", border: "1px solid rgba(220, 38, 38, 0.3)", marginBottom: "10px", borderRadius: 0 }}>
+          <div style={{ background: "var(--risk-high-bg)", color: "var(--risk-high)", padding: "6px 10px", fontSize: "0.72rem", border: "1px solid rgba(220, 38, 38, 0.3)", marginBottom: "10px", borderRadius: "var(--radius-sm)" }}>
             {error}
           </div>
         )}
@@ -112,7 +112,7 @@ export default function ProfileSettingsModal({ isOpen, onClose, userId = "PT-ALE
                 type="text"
                 value={profile.name || ""}
                 onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                style={{ width: "100%", padding: "5px 8px", border: "1px solid var(--border-default)", fontSize: "0.74rem", borderRadius: 0 }}
+                style={{ width: "100%", padding: "5px 8px", border: "1px solid var(--border-default)", fontSize: "0.74rem", borderRadius: "var(--radius-sm)" }}
                 required
               />
             </div>
@@ -125,7 +125,7 @@ export default function ProfileSettingsModal({ isOpen, onClose, userId = "PT-ALE
                 type="text"
                 value={profile.title || profile.role || ""}
                 onChange={(e) => setProfile({ ...profile, title: e.target.value })}
-                style={{ width: "100%", padding: "5px 8px", border: "1px solid var(--border-default)", fontSize: "0.74rem", borderRadius: 0 }}
+                style={{ width: "100%", padding: "5px 8px", border: "1px solid var(--border-default)", fontSize: "0.74rem", borderRadius: "var(--radius-sm)" }}
                 required
               />
             </div>
@@ -138,7 +138,7 @@ export default function ProfileSettingsModal({ isOpen, onClose, userId = "PT-ALE
                 type="email"
                 value={profile.primary_email || ""}
                 onChange={(e) => setProfile({ ...profile, primary_email: e.target.value })}
-                style={{ width: "100%", padding: "5px 8px", border: "1px solid var(--border-default)", fontSize: "0.74rem", borderRadius: 0 }}
+                style={{ width: "100%", padding: "5px 8px", border: "1px solid var(--border-default)", fontSize: "0.74rem", borderRadius: "var(--radius-sm)" }}
                 required
               />
             </div>
@@ -152,7 +152,7 @@ export default function ProfileSettingsModal({ isOpen, onClose, userId = "PT-ALE
                 value={profile.extra_email || ""}
                 onChange={(e) => setProfile({ ...profile, extra_email: e.target.value })}
                 placeholder="alternate@hospital.org"
-                style={{ width: "100%", padding: "5px 8px", border: "1px solid var(--border-default)", fontSize: "0.74rem", borderRadius: 0 }}
+                style={{ width: "100%", padding: "5px 8px", border: "1px solid var(--border-default)", fontSize: "0.74rem", borderRadius: "var(--radius-sm)" }}
               />
             </div>
 
@@ -164,7 +164,7 @@ export default function ProfileSettingsModal({ isOpen, onClose, userId = "PT-ALE
                 type="text"
                 value={profile.phone || ""}
                 onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                style={{ width: "100%", padding: "5px 8px", border: "1px solid var(--border-default)", fontSize: "0.74rem", borderRadius: 0 }}
+                style={{ width: "100%", padding: "5px 8px", border: "1px solid var(--border-default)", fontSize: "0.74rem", borderRadius: "var(--radius-sm)" }}
               />
             </div>
 
@@ -177,13 +177,13 @@ export default function ProfileSettingsModal({ isOpen, onClose, userId = "PT-ALE
                 value={profile.emergency_phone || ""}
                 onChange={(e) => setProfile({ ...profile, emergency_phone: e.target.value })}
                 placeholder="+91 98765 43210"
-                style={{ width: "100%", padding: "5px 8px", border: "1px solid var(--risk-high)", fontSize: "0.74rem", background: "var(--risk-high-bg)", borderRadius: 0 }}
+                style={{ width: "100%", padding: "5px 8px", border: "1px solid var(--risk-high)", fontSize: "0.74rem", background: "var(--risk-high-bg)", borderRadius: "var(--radius-sm)" }}
               />
             </div>
           </div>
 
           {/* Role-Adaptive Fieldset */}
-          <div style={{ background: "var(--bg-card)", border: "1px solid var(--border-default)", padding: "10px", marginBottom: "14px", borderRadius: 0 }}>
+          <div style={{ background: "var(--bg-card)", border: "1px solid var(--border-default)", padding: "10px", marginBottom: "14px", borderRadius: "var(--radius-sm)" }}>
             <p style={{ fontSize: "0.68rem", fontWeight: 800, color: "var(--primary)", textTransform: "uppercase", marginBottom: "8px", display: "flex", alignItems: "center", gap: "6px" }}>
               {effectiveRole === "admin" && <Shield size={13} />}
               {effectiveRole === "patient" && <Heart size={13} />}
@@ -202,7 +202,7 @@ export default function ProfileSettingsModal({ isOpen, onClose, userId = "PT-ALE
                       type="text"
                       value={profile.clearance_level || ""}
                       onChange={(e) => setProfile({ ...profile, clearance_level: e.target.value })}
-                      style={{ width: "100%", padding: "4px 8px", border: "1px solid var(--border-default)", fontSize: "0.72rem", borderRadius: 0 }}
+                      style={{ width: "100%", padding: "4px 8px", border: "1px solid var(--border-default)", fontSize: "0.72rem", borderRadius: "var(--radius-sm)" }}
                     />
                   </div>
                   <div>
@@ -213,7 +213,7 @@ export default function ProfileSettingsModal({ isOpen, onClose, userId = "PT-ALE
                       type="text"
                       value={profile.compliance_standard || ""}
                       onChange={(e) => setProfile({ ...profile, compliance_standard: e.target.value })}
-                      style={{ width: "100%", padding: "4px 8px", border: "1px solid var(--border-default)", fontSize: "0.72rem", borderRadius: 0 }}
+                      style={{ width: "100%", padding: "4px 8px", border: "1px solid var(--border-default)", fontSize: "0.72rem", borderRadius: "var(--radius-sm)" }}
                     />
                   </div>
                 </>
@@ -229,7 +229,7 @@ export default function ProfileSettingsModal({ isOpen, onClose, userId = "PT-ALE
                       type="text"
                       value={profile.attending_physician || ""}
                       onChange={(e) => setProfile({ ...profile, attending_physician: e.target.value })}
-                      style={{ width: "100%", padding: "4px 8px", border: "1px solid var(--border-default)", fontSize: "0.72rem", borderRadius: 0 }}
+                      style={{ width: "100%", padding: "4px 8px", border: "1px solid var(--border-default)", fontSize: "0.72rem", borderRadius: "var(--radius-sm)" }}
                     />
                   </div>
                   <div>
@@ -240,7 +240,7 @@ export default function ProfileSettingsModal({ isOpen, onClose, userId = "PT-ALE
                       type="text"
                       value={profile.blood_group || "O+"}
                       onChange={(e) => setProfile({ ...profile, blood_group: e.target.value })}
-                      style={{ width: "100%", padding: "4px 8px", border: "1px solid var(--border-default)", fontSize: "0.72rem", borderRadius: 0 }}
+                      style={{ width: "100%", padding: "4px 8px", border: "1px solid var(--border-default)", fontSize: "0.72rem", borderRadius: "var(--radius-sm)" }}
                     />
                   </div>
                 </>
@@ -254,7 +254,7 @@ export default function ProfileSettingsModal({ isOpen, onClose, userId = "PT-ALE
               type="button"
               className="btn-secondary"
               onClick={onClose}
-              style={{ borderRadius: 0 }}
+              style={{ borderRadius: "var(--radius-sm)" }}
             >
               Cancel
             </button>
@@ -262,7 +262,7 @@ export default function ProfileSettingsModal({ isOpen, onClose, userId = "PT-ALE
               type="submit"
               className="btn-primary"
               disabled={loading}
-              style={{ width: "auto", padding: "6px 16px", borderRadius: 0 }}
+              style={{ width: "auto", padding: "6px 16px", borderRadius: "var(--radius-sm)" }}
             >
               <Save size={13} />
               <span>{loading ? "Saving..." : "Save Profile Settings"}</span>

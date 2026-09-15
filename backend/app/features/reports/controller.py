@@ -23,41 +23,42 @@ class ReportGenerationRequest(BaseModel):
 
 @router.post("/generate")
 async def generate_clinical_report(req: ReportGenerationRequest):
-    """Generates an ultra-luxurious, efficient, printable health intelligence report with cryptographic verification."""
+    """Generates a neat, clean, properly structured clinical PDF/HTML report with prominent caution notices."""
     safe_patient_id = html.escape(req.patient_id)
     safe_disease = html.escape(req.disease)
     safe_prediction_class = html.escape(req.prediction_class)
-    
+
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S UTC")
+    date_str = time.strftime("%Y-%m-%d")
     report_id = f"REP-{hashlib.sha256(f'{req.patient_id}-{timestamp}'.encode()).hexdigest()[:10].upper()}"
     crypto_hash = hashlib.sha256(f"{req.patient_id}:{req.disease}:{req.prediction_class}:{timestamp}".encode()).hexdigest()
-    
-    is_high_risk = any(w in req.prediction_class.lower() for w in ["malignant", "disease", "elevated", "pneumonia", "high"])
-    status_theme_color = "#DC2626" if is_high_risk else "#059669"
-    status_bg_color = "#FEF2F2" if is_high_risk else "#ECFDF5"
-    status_badge_text = "ELEVATED RISK DETECTED" if is_high_risk else "OPTIMAL / LOW RISK"
+
+    is_high_risk = any(w in req.prediction_class.lower() for w in ["malignant", "disease", "elevated", "pneumonia", "high", "positive"])
+    finding_badge = "Elevated Risk Finding" if is_high_risk else "Normal / Baseline Finding"
 
     biomarker_rows_html = ""
     for bm in req.top_biomarkers:
-        # Extract name and percentage if available
-        raw_name = bm.split("(")[0].strip() if "(" in bm else bm
-        safe_bm_name = html.escape(raw_name)
-        pct_str = bm.split("(")[1].replace(")", "").replace("%", "").strip() if "(" in bm else "25"
+        safe_raw = html.escape(bm)
+        raw_name = safe_raw.split("(")[0].strip() if "(" in safe_raw else safe_raw
+        pct_str = safe_raw.split("(")[1].replace(")", "").replace("%", "").strip() if "(" in safe_raw else "25"
         try:
             pct_val = float(pct_str)
         except ValueError:
             pct_val = 25.0
-        
+
         biomarker_rows_html += f"""
-        <div style="margin-bottom: 12px;">
-          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 4px; color: #0F172A;">
-            <span>{safe_bm_name}</span>
-            <span style="color: #0284C7; font-family: monospace;">{pct_val:.1f}% Impact Weight</span>
-          </div>
-          <div style="width: 100%; height: 8px; background: #E2E8F0; border-radius: 0; overflow: hidden;">
-            <div style="width: {min(pct_val * 2.2, 100):.1f}%; height: 100%; background: linear-gradient(90deg, #0284C7, #38BDF8);"></div>
-          </div>
-        </div>
+        <tr>
+          <td style="padding: 9px 12px; border-bottom: 1px solid #E2E8F0; font-weight: 600; color: #0F172A;">{raw_name}</td>
+          <td style="padding: 9px 12px; border-bottom: 1px solid #E2E8F0; text-align: right; font-family: monospace; font-weight: 700; color: #0F172A;">{pct_val:.1f}%</td>
+          <td style="padding: 9px 12px; border-bottom: 1px solid #E2E8F0; color: #475569;">Key explanatory feature contributing to model classification</td>
+        </tr>
+        """
+
+    if not biomarker_rows_html:
+        biomarker_rows_html = """
+        <tr>
+          <td colspan="3" style="padding: 12px; text-align: center; color: #64748B;">No specific biomarker anomalies isolated for this evaluation.</td>
+        </tr>
         """
 
     report_html = f"""<!DOCTYPE html>
@@ -65,303 +66,323 @@ async def generate_clinical_report(req: ReportGenerationRequest):
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Q-MEDSENSE Health Intelligence Report // {safe_patient_id}</title>
+  <title>Clinical Assessment Report // {safe_patient_id} // {report_id}</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap');
-    
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
     
     body {{
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background-color: #F8FAFC;
       color: #0F172A;
       line-height: 1.5;
-      padding: 40px 20px;
+      padding: 30px 16px;
       -webkit-font-smoothing: antialiased;
     }}
     
-    .report-container {{
-      max-width: 860px;
+    .screen-actions {{
+      max-width: 800px;
+      margin: 0 auto 16px auto;
+      display: flex;
+      justifyContent: space-between;
+      align-items: center;
+      background: #FFFFFF;
+      padding: 10px 18px;
+      border: 1px solid #CBD5E1;
+      border-radius: 6px;
+    }}
+    
+    .print-btn {{
+      background: #2563EB;
+      color: #FFFFFF;
+      border: none;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 4px;
+      cursor: pointer;
+    }}
+    .print-btn:hover {{ background: #1D4ED8; }}
+    
+    .report-sheet {{
+      max-width: 800px;
       margin: 0 auto;
       background: #FFFFFF;
       border: 1px solid #CBD5E1;
-      border-top: 6px solid #0284C7;
-      box-shadow: 0 20px 40px -15px rgba(2, 132, 199, 0.12), 0 1px 3px rgba(0,0,0,0.05);
-      padding: 48px;
+      padding: 40px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
     }}
     
-    .header-bar {{
+    .report-header {{
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      border-bottom: 2px solid #E2E8F0;
-      padding-bottom: 24px;
-      margin-bottom: 32px;
+      border-bottom: 2px solid #0F172A;
+      padding-bottom: 16px;
+      margin-bottom: 20px;
     }}
     
-    .brand-title {{
-      font-size: 24px;
-      font-weight: 900;
-      letter-spacing: -0.04em;
-      color: #0284C7;
-      text-transform: uppercase;
-    }}
-    
-    .edition-tag {{
-      font-size: 10px;
+    .inst-title {{
+      font-size: 20px;
       font-weight: 800;
-      color: #64748B;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      margin-bottom: 4px;
-      display: block;
-    }}
-    
-    .meta-grid {{
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      background: #F0F7FF;
-      border: 1px solid #BAE6FD;
-      padding: 16px 20px;
-      margin-bottom: 32px;
-    }}
-    
-    .meta-item label {{
-      display: block;
-      font-size: 10px;
-      font-weight: 800;
-      color: #0284C7;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 3px;
-    }}
-    
-    .meta-item span {{
-      font-size: 13px;
-      font-weight: 700;
       color: #0F172A;
-      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: -0.02em;
     }}
     
-    .verdict-hero {{
-      background: {status_bg_color};
-      border: 1px solid {status_theme_color}40;
-      border-left: 6px solid {status_theme_color};
-      padding: 24px;
-      margin-bottom: 32px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }}
-    
-    .verdict-badge {{
-      display: inline-block;
+    .inst-sub {{
       font-size: 11px;
-      font-weight: 900;
-      letter-spacing: 0.08em;
+      color: #475569;
+      font-weight: 600;
       text-transform: uppercase;
-      color: {status_theme_color};
-      background: #FFFFFF;
-      padding: 4px 10px;
-      border: 1px solid {status_theme_color};
-      margin-bottom: 8px;
+      letter-spacing: 0.04em;
+      margin-top: 2px;
     }}
     
-    .verdict-title {{
-      font-size: 26px;
-      font-weight: 900;
-      color: #0F172A;
-      letter-spacing: -0.03em;
-    }}
-    
-    .score-badge {{
+    .report-meta-right {{
       text-align: right;
-      font-family: 'JetBrains Mono', monospace;
-    }}
-    
-    .score-num {{
-      font-size: 36px;
-      font-weight: 900;
-      color: {status_theme_color};
-      line-height: 1;
-    }}
-    
-    .score-sub {{
       font-size: 11px;
-      color: #64748B;
-      text-transform: uppercase;
-      font-weight: 700;
+      color: #475569;
     }}
     
-    .section-heading {{
-      font-size: 14px;
-      font-weight: 900;
+    /* Prominent Regulatory Caution Notice */
+    .caution-banner {{
+      background: #FFFBEB;
+      border: 1.5px solid #FCD34D;
+      border-left: 5px solid #D97706;
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin-bottom: 24px;
+      color: #78350F;
+    }}
+    
+    .caution-title {{
+      font-size: 11px;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.05em;
+      color: #92400E;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }}
+    
+    .caution-body {{
+      font-size: 11.5px;
+      line-height: 1.45;
+      color: #78350F;
+    }}
+    
+    /* Structured Demographic Grid */
+    .meta-table {{
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 24px;
+      font-size: 12px;
+      border: 1px solid #E2E8F0;
+    }}
+    
+    .meta-table td {{
+      padding: 8px 12px;
+      border: 1px solid #E2E8F0;
+      width: 25%;
+    }}
+    
+    .meta-table .label {{
+      background: #F8FAFC;
+      color: #64748B;
+      font-weight: 700;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }}
+    
+    .meta-table .val {{
+      color: #0F172A;
+      font-weight: 600;
+    }}
+    
+    /* Finding Assessment Block */
+    .finding-block {{
+      border: 1px solid #E2E8F0;
+      border-radius: 4px;
+      padding: 18px;
+      margin-bottom: 24px;
+      background: #FFFFFF;
+    }}
+    
+    .section-title {{
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
       color: #0F172A;
       border-bottom: 1px solid #E2E8F0;
-      padding-bottom: 8px;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      padding-bottom: 6px;
+      margin-bottom: 12px;
     }}
     
-    .dual-metric-box {{
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 32px;
-    }}
-    
-    .metric-card {{
-      background: #FFFFFF;
-      border: 1px solid #E2E8F0;
-      padding: 16px;
-    }}
-    
-    .metric-val {{
-      font-size: 22px;
-      font-weight: 900;
-      font-family: 'JetBrains Mono', monospace;
-      color: #0284C7;
-    }}
-    
-    .crypto-footer {{
-      background: #0F172A;
-      color: #94A3B8;
-      padding: 20px 24px;
-      margin-top: 40px;
+    .finding-row {{
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
+      margin-top: 8px;
     }}
     
-    .disclaimer-box {{
-      background: #FFFBEB;
-      border: 1px solid #FDE68A;
-      border-left: 4px solid #D97706;
-      padding: 14px 18px;
+    .finding-name {{
+      font-size: 18px;
+      font-weight: 800;
+      color: #0F172A;
+    }}
+    
+    .finding-stat {{
+      text-align: right;
+    }}
+    
+    .confidence-pct {{
+      font-size: 22px;
+      font-weight: 800;
+      color: #0F172A;
+      font-family: monospace;
+    }}
+    
+    /* Biomarker Table */
+    .data-table {{
+      width: 100%;
+      border-collapse: collapse;
       font-size: 12px;
-      color: #78350F;
+      margin-top: 8px;
+      margin-bottom: 24px;
+    }}
+    
+    .data-table th {{
+      background: #F8FAFC;
+      color: #475569;
+      font-weight: 700;
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 8px 12px;
+      border: 1px solid #E2E8F0;
+      text-align: left;
+    }}
+    
+    /* Footer & Verification */
+    .report-footer {{
+      border-top: 1px solid #E2E8F0;
+      padding-top: 16px;
       margin-top: 24px;
-      line-height: 1.5;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: #64748B;
+      font-family: monospace;
     }}
     
     @media print {{
       body {{ background: #FFFFFF; padding: 0; }}
-      .report-container {{ border: none; box-shadow: none; padding: 20px; }}
+      .screen-actions {{ display: none !important; }}
+      .report-sheet {{ border: none; box-shadow: none; padding: 0; margin: 0; max-width: 100%; }}
+      @page {{ size: A4 portrait; margin: 15mm; }}
     }}
   </style>
 </head>
 <body>
-  <div class="report-container">
-    <!-- Header -->
-    <div class="header-bar">
-      <div>
-        <span class="edition-tag">Q-MEDSENSE QUANTUM HEALTH OS // CLINICAL REPORT</span>
-        <h1 class="brand-title">Q-MEDSENSE HEALTH REPORT</h1>
-        <p style="font-size: 13px; color: #64748B; margin-top: 2px;">
-          Autonomous Preventative Quantum AI Analysis & Stratification
-        </p>
-      </div>
-      <div style="text-align: right;">
-        <span style="display: inline-block; padding: 4px 10px; background: #0284C7; color: #FFFFFF; font-weight: 800; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;">
-          DPDP 2023 VERIFIED
-        </span>
-        <p style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #64748B; margin-top: 4px;">
-          REF: {report_id}
-        </p>
-      </div>
-    </div>
-
-    <!-- Metadata Grid -->
-    <div class="meta-grid">
-      <div class="meta-item">
-        <label>Patient Record ID</label>
-        <span>{safe_patient_id}</span>
-      </div>
-      <div class="meta-item">
-        <label>Checkup Protocol</label>
-        <span style="font-family: inherit;">{safe_disease}</span>
-      </div>
-      <div class="meta-item">
-        <label>Analysis Date & UTC</label>
-        <span>{timestamp[:10]}</span>
-      </div>
-      <div class="meta-item">
-        <label>Security Lineage</label>
-        <span>WORM SHA-256</span>
-      </div>
-    </div>
-
-    <!-- Verdict Hero Banner -->
-    <div class="verdict-hero">
-      <div>
-        <div class="verdict-badge">{status_badge_text}</div>
-        <h2 class="verdict-title">{safe_prediction_class}</h2>
-        <p style="font-size: 13px; color: #475569; margin-top: 4px;">
-          Calculated via Quantum Variational Classifier with SOTA statevector expectation values.
-        </p>
-      </div>
-      <div class="score-badge">
-        <div class="score-num">{req.confidence * 100:.1f}%</div>
-        <div class="score-sub">AI Confidence Rating</div>
-      </div>
-    </div>
-
-    <!-- Dual Comparison Cards -->
-    <div class="dual-metric-box">
-      <div class="metric-card" style="border-top: 3px solid #0284C7;">
-        <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #64748B;">Quantum AI Engine Precision</span>
-        <div class="metric-val">{req.confidence * 100:.1f}%</div>
-        <span style="font-size: 12px; color: #059669; font-weight: 700;">+{(req.confidence - req.classical_confidence) * 100:.1f}% Statistical Accuracy Gain</span>
-      </div>
-      <div class="metric-card" style="border-top: 3px solid #94A3B8;">
-        <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #64748B;">Standard Classical Model Baseline</span>
-        <div class="metric-val" style="color: #64748B;">{req.classical_confidence * 100:.1f}%</div>
-        <span style="font-size: 12px; color: #64748B;">Random Forest / SVM Standard Benchmark</span>
-      </div>
-    </div>
-
-    <!-- Biomarkers Section -->
-    <div style="margin-bottom: 32px;">
-      <h3 class="section-heading">Key Biological Factors Influencing Your Result</h3>
-      <div style="background: #FFFFFF; border: 1px solid #E2E8F0; padding: 20px;">
-        {biomarker_rows_html}
-      </div>
-    </div>
-
-    <!-- Preventative Actions -->
+  <!-- Screen Navigation / Print Bar -->
+  <div class="screen-actions">
     <div>
-      <h3 class="section-heading">Recommended Preventative Health Guidance</h3>
-      <div style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 18px 20px;">
-        <ul style="padding-left: 20px; font-size: 13px; color: #334155; line-height: 1.6;">
-          <li><strong>Follow-Up Consultation:</strong> Share this cryptographic summary with your primary physician or certified specialist.</li>
-          <li><strong>Digital Twin Synchronization:</strong> Your 2D health avatar and temporal trajectory have been updated with these latest indicator values.</li>
-          <li><strong>Next Scheduled Checkup:</strong> Repeat biomarker screening recommended within 90 days for continuous baseline monitoring.</li>
-        </ul>
-      </div>
+      <strong style="font-size: 13px; color: #0F172A;">Clinical Assessment Document</strong>
+      <span style="font-size: 11px; color: #64748B; margin-left: 8px;">(Ref: {report_id})</span>
     </div>
+    <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+  </div>
 
-    <!-- Disclaimer -->
-    <div class="disclaimer-box">
-      <strong>SaMD Regulatory Notice (CDSCO / DPDP Act, 2023):</strong> This statistical health assessment report is generated for preventative decision support. Consult a certified medical practitioner for definitive clinical diagnoses.
-    </div>
-
-    <!-- Cryptographic Footer -->
-    <div class="crypto-footer">
+  <div class="report-sheet">
+    <!-- Header -->
+    <div class="report-header">
       <div>
-        <div style="font-weight: 800; color: #FFFFFF; margin-bottom: 2px;">CRYPTOGRAPHIC VERIFICATION SEAL</div>
-        <div style="font-size: 9px; opacity: 0.8;">SHA-256: {crypto_hash}</div>
+        <h1 class="inst-title">Q-MEDSENSE CLINICAL PLATFORM</h1>
+        <div class="inst-sub">AI Clinical Decision Support Summary &bull; Triage Reference</div>
       </div>
-      <div style="text-align: right;">
-        <div style="font-weight: 700; color: #38BDF8;">TAMPER-EVIDENT WORM LEDGER</div>
-        <div style="font-size: 9px; opacity: 0.8;">VERIFIED AT {timestamp}</div>
+      <div class="report-meta-right">
+        <div><strong>REPORT ID:</strong> {report_id}</div>
+        <div><strong>DATE:</strong> {date_str}</div>
+        <div><strong>STATUS:</strong> Confidential Medical Record</div>
       </div>
+    </div>
+
+    <!-- Mandatory Caution & Regulatory Notice -->
+    <div class="caution-banner">
+      <div class="caution-title">
+        &#9888; CAUTION: CLINICAL DECISION SUPPORT TOOL &mdash; NOT A FINAL MEDICAL DIAGNOSIS
+      </div>
+      <div class="caution-body">
+        This document is generated by an artificial intelligence decision-support tool and is provided strictly for investigational, triage, and physician reference. It does <strong>NOT</strong> constitute a definitive clinical diagnosis or autonomous prescription. Clinical correlation, comprehensive diagnostic imaging, and evaluation by a certified licensed physician are required before initiating or modifying any treatment.
+      </div>
+    </div>
+
+    <!-- Patient & Record Metadata Grid -->
+    <table class="meta-table">
+      <tr>
+        <td class="label">Patient ID</td>
+        <td class="val">{safe_patient_id}</td>
+        <td class="label">Clinical Protocol</td>
+        <td class="val">{safe_disease}</td>
+      </tr>
+      <tr>
+        <td class="label">Evaluation Date</td>
+        <td class="val">{date_str}</td>
+        <td class="label">Verification Hash</td>
+        <td class="val" style="font-family: monospace; font-size: 10px;">SHA-256 Verified</td>
+      </tr>
+    </table>
+
+    <!-- Primary Algorithmic Assessment Finding -->
+    <div class="finding-block">
+      <div class="section-title">Primary Algorithmic Assessment</div>
+      <div class="finding-row">
+        <div>
+          <span style="font-size: 11px; color: #64748B; font-weight: 600; text-transform: uppercase;">Class Finding</span>
+          <div class="finding-name">{safe_prediction_class}</div>
+          <span style="font-size: 11px; color: #475569;">Classification derived via multi-modal AI feature mapping</span>
+        </div>
+        <div class="finding-stat">
+          <span style="font-size: 11px; color: #64748B; font-weight: 600; text-transform: uppercase;">Model Confidence</span>
+          <div class="confidence-pct">{req.confidence * 100:.1f}%</div>
+          <span style="font-size: 10px; color: #64748B;">Baseline Concordance: {req.classical_confidence * 100:.1f}%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Biomarker Table -->
+    <div class="section-title">Biomarker & Physiological Factor Analysis</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 35%;">Biomarker / Feature</th>
+          <th style="width: 20%; text-align: right;">Relative Impact</th>
+          <th style="width: 45%;">Clinical Significance</th>
+        </tr>
+      </thead>
+      <tbody>
+        {biomarker_rows_html}
+      </tbody>
+    </table>
+
+    <!-- Recommended Next Steps -->
+    <div class="section-title">Recommended Clinical Next Steps</div>
+    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 14px 18px; border-radius: 4px; margin-bottom: 24px;">
+      <ul style="font-size: 12px; color: #334155; padding-left: 18px; line-height: 1.6;">
+        <li><strong>Physician Review:</strong> Correlate these computational findings with complete clinical history and physical examination.</li>
+        <li><strong>Confirmatory Diagnostics:</strong> Conduct standard pathology, tissue biopsy, or targeted radiography where clinically indicated.</li>
+        <li><strong>Follow-Up Interval:</strong> Re-evaluate baseline parameters according to primary physician protocol.</li>
+      </ul>
+    </div>
+
+    <!-- Footer Seal -->
+    <div class="report-footer">
+      <div>TAMPER-EVIDENT SHA-256: {crypto_hash[:32]}...</div>
+      <div>Q-MEDSENSE HEALTHCARE OS &bull; {timestamp}</div>
     </div>
   </div>
 </body>
@@ -383,7 +404,6 @@ async def list_reports(patient_id: Optional[str] = Query(None)):
     if patient_id:
         records = DatabaseRepository.get_patient_diagnostic_records(patient_id)
     else:
-        # If no patient_id specified, return recent diagnostic records for active cohort
         records = DatabaseRepository.get_patient_diagnostic_records("PT-89421")
 
     formatted = [
@@ -412,4 +432,3 @@ async def get_patient_reports(patient_id: str):
     """Retrieves all clinical reports and diagnostic history for a specific patient."""
     records = DatabaseRepository.get_patient_diagnostic_records(patient_id)
     return {"status": "success", "patient_id": patient_id, "total": len(records), "reports": records}
-

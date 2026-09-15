@@ -1,7 +1,8 @@
 import apiClient from "./client";
+import { ENDPOINTS } from "./config";
 
 export const quantumTelemetryApi = {
-  async getCircuit(modelName = "VQC-8Q") {
-    return apiClient.get(`/api/v1/quantum-telemetry/circuit/${modelName}`);
+  async getCircuit(modelName = "cardiovascular") {
+    return apiClient.get(ENDPOINTS.QUANTUM_CIRCUIT(modelName));
   },
 };

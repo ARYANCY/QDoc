@@ -1,16 +1,17 @@
 import apiClient from "./client";
+import { ENDPOINTS } from "./config";
 
 export const complianceApi = {
   async getAuditLogs() {
-    return apiClient.get("/api/v1/compliance/audit-logs");
+    return apiClient.get(ENDPOINTS.COMPLIANCE_AUDIT);
   },
 
   async getModelRegistry() {
-    return apiClient.get("/api/v1/compliance/model-registry");
+    return apiClient.get(ENDPOINTS.COMPLIANCE_REGISTRY);
   },
 
   async updateConsent(patientId, consentData) {
-    return apiClient.post("/api/v1/compliance/consent", {
+    return apiClient.post(ENDPOINTS.COMPLIANCE_CONSENT, {
       patient_id: patientId,
       ...consentData,
     });

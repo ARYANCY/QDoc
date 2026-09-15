@@ -73,12 +73,12 @@ export default function PatientPortal({ patientId = "PT-89421", currentUser = nu
     return (
       <div ref={containerRef} style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
         {/* Doctor Header Banner */}
-        <div className="card-panel" style={{ background: "var(--bg-surface)", border: "1px solid var(--border-default)", borderLeft: "3px solid var(--gold)", padding: "20px" }}>
+        <div className="card-panel" style={{ background: "var(--bg-surface)", border: "1px solid var(--border-default)", borderLeft: "3px solid var(--accent-blue)", padding: "20px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
                 <span className="step-badge gold">CLINICAL PRACTICE</span>
-                <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "1.35rem", color: "var(--ink-primary)", margin: 0, fontWeight: 900 }}>
+                <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.35rem", color: "var(--ink-primary)", margin: 0, fontWeight: 900 }}>
                   Patient Records & Consultation Queue
                 </h2>
               </div>
@@ -106,7 +106,7 @@ export default function PatientPortal({ patientId = "PT-89421", currentUser = nu
             <span className="step-badge" style={{ marginBottom: "8px", display: "inline-block" }}>
               0 APPOINTMENTS SCHEDULED
             </span>
-            <h3 style={{ fontFamily: "var(--font-serif)", fontSize: "1.25rem", color: "var(--ink-primary)", fontWeight: 800, margin: "6px 0" }}>
+            <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.25rem", color: "var(--ink-primary)", fontWeight: 800, margin: "6px 0" }}>
               No Appointments Booked
             </h3>
             <p style={{ maxWidth: "520px", margin: "0 auto 18px", fontSize: "0.82rem", color: "var(--text-secondary)", lineHeight: 1.5 }}>
@@ -161,7 +161,7 @@ export default function PatientPortal({ patientId = "PT-89421", currentUser = nu
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "10px" }}>
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-                      <h4 style={{ fontFamily: "var(--font-serif)", fontSize: "1.15rem", fontWeight: 800, color: "var(--ink-primary)", margin: 0 }}>
+                      <h4 style={{ fontFamily: "var(--font-display)", fontSize: "1.15rem", fontWeight: 800, color: "var(--ink-primary)", margin: 0 }}>
                         {b.patient_name || "Registered Patient"}
                       </h4>
                       <span className="step-badge" style={{ fontSize: "0.68rem" }}>
@@ -306,11 +306,11 @@ export default function PatientPortal({ patientId = "PT-89421", currentUser = nu
   if (isAdmin) {
     return (
       <div ref={containerRef} style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
-        <div className="card-panel" style={{ background: "var(--bg-surface)", border: "1px solid var(--border-default)", borderLeft: "3px solid var(--gold)", padding: "20px" }}>
+        <div className="card-panel" style={{ background: "var(--bg-surface)", border: "1px solid var(--border-default)", borderLeft: "3px solid var(--accent-blue)", padding: "20px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
             <div>
               <span className="step-badge gold">ADMINISTRATIVE CONSOLE</span>
-              <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "1.35rem", color: "var(--ink-primary)", margin: "4px 0", fontWeight: 900 }}>
+              <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.35rem", color: "var(--ink-primary)", margin: "4px 0", fontWeight: 900 }}>
                 System Patient Registry & Encounters
               </h2>
               <p style={{ color: "var(--text-secondary)", fontSize: "0.80rem", margin: 0 }}>
@@ -373,12 +373,12 @@ export default function PatientPortal({ patientId = "PT-89421", currentUser = nu
   return (
     <div ref={containerRef} style={{ display: "flex", flexDirection: "column", gap: "20px", maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
       {/* Patient Welcome Hero */}
-      <div className="card-panel" style={{ background: "var(--bg-surface)", border: "1px solid var(--border-default)", borderLeft: "3px solid var(--gold)", padding: "22px" }}>
+      <div className="card-panel" style={{ background: "var(--bg-surface)", border: "1px solid var(--border-default)", borderLeft: "3px solid var(--accent-blue)", padding: "22px" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "14px" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px" }}>
               <span className="step-badge gold">PATIENT ARCHIVE</span>
-              <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "1.45rem", color: "var(--ink-primary)", margin: 0, fontWeight: 900 }}>
+              <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.45rem", color: "var(--ink-primary)", margin: 0, fontWeight: 900 }}>
                 {patient?.name || "Alexander Reed"}
               </h2>
             </div>
@@ -408,7 +408,7 @@ export default function PatientPortal({ patientId = "PT-89421", currentUser = nu
             color: activeSubTab === "overview" ? "#FFFFFF" : "var(--text-secondary)",
             border: "1px solid var(--border-default)",
             borderBottom: "none",
-            borderRadius: 0,
+            borderRadius: "var(--radius-sm)",
             cursor: "pointer",
             fontWeight: 700,
             fontSize: "0.82rem",
@@ -425,7 +425,7 @@ export default function PatientPortal({ patientId = "PT-89421", currentUser = nu
             color: activeSubTab === "meds" ? "#FFFFFF" : "var(--text-secondary)",
             border: "1px solid var(--border-default)",
             borderBottom: "none",
-            borderRadius: 0,
+            borderRadius: "var(--radius-sm)",
             cursor: "pointer",
             fontWeight: 700,
             fontSize: "0.82rem",
@@ -442,7 +442,7 @@ export default function PatientPortal({ patientId = "PT-89421", currentUser = nu
             color: activeSubTab === "records" ? "#FFFFFF" : "var(--text-secondary)",
             border: "1px solid var(--border-default)",
             borderBottom: "none",
-            borderRadius: 0,
+            borderRadius: "var(--radius-sm)",
             cursor: "pointer",
             fontWeight: 700,
             fontSize: "0.82rem",

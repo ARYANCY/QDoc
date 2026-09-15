@@ -31,7 +31,7 @@ export default function QuantumCircuitViewer({ modelName = "VQC-8Q" }) {
   ];
 
   return (
-    <div ref={containerRef} style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", borderLeft: "3px solid var(--gold)", padding: "12px", marginTop: "auto" }}>
+    <div ref={containerRef} style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", borderLeft: "3px solid var(--accent-blue)", padding: "12px", marginTop: "auto" }}>
       {/* Header bar with toggle */}
       <div
         onClick={() => setExpanded(!expanded)}

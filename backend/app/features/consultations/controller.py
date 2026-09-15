@@ -6,7 +6,7 @@ import time
 import uuid
 from typing import Any, List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, Field
 
 from backend.app.core.security import get_current_user, get_optional_user
@@ -456,6 +456,117 @@ def list_webrtc_signals(
         exclude_role=role,
     )
     return {"status": "success", "signals": signals}
+
+
+# ── High-Performance WebSocket Real-Time Signaling Hub ────────────────────────
+
+class ConsultationRoomHub:
+    """Manages active WebRTC WebSocket peer connections and broadcasts in O(1) time."""
+
+    def __init__(self):
+        self.rooms: dict[str, set[WebSocket]] = {}
+
+    async def connect(self, booking_id: str, websocket: WebSocket):
+        await websocket.accept()
+        if booking_id not in self.rooms:
+            self.rooms[booking_id] = set()
+        self.rooms[booking_id].add(websocket)
+
+    def disconnect(self, booking_id: str, websocket: WebSocket):
+        if booking_id in self.rooms:
+            self.rooms[booking_id].discard(websocket)
+            if not self.rooms[booking_id]:
+                self.rooms.pop(booking_id, None)
+
+    async def broadcast(self, booking_id: str, message: dict, sender_ws: Optional[WebSocket] = None):
+        if booking_id not in self.rooms:
+            return
+        dead_sockets = set()
+        for ws in self.rooms[booking_id]:
+            if ws != sender_ws:
+                try:
+                    await ws.send_json(message)
+                except Exception:
+                    dead_sockets.add(ws)
+        for dead in dead_sockets:
+            self.disconnect(booking_id, dead)
+
+
+room_hub = ConsultationRoomHub()
+
+
+@router.websocket("/ws/{booking_id}")
+async def consultation_websocket_endpoint(websocket: WebSocket, booking_id: str):
+    """Bi-directional real-time WebSocket channel for WebRTC signaling (SDP/ICE) and consultation chat."""
+    await room_hub.connect(booking_id, websocket)
+    try:
+        # Send initial connected handshake
+        await websocket.send_json({
+            "type": "connection_established",
+            "booking_id": booking_id,
+            "timestamp": time.time(),
+        })
+
+        while True:
+            data = await websocket.receive_json()
+            msg_type = data.get("type", "signal")
+
+            if msg_type == "ping":
+                await websocket.send_json({"type": "pong", "timestamp": time.time()})
+            elif msg_type == "signal":
+                # Persist signal in background for reconnection replay
+                payload = data.get("payload", {})
+                signal_type = data.get("signal_type", "offer")
+                sender_id = data.get("sender_id", "peer")
+                sender_role = data.get("sender_role", "participant")
+                
+                try:
+                    DatabaseRepository.add_room_signal(
+                        booking_id,
+                        sender_id,
+                        sender_role,
+                        signal_type,
+                        payload,
+                    )
+                except Exception:
+                    pass
+
+                # Broadcast immediately to peers in room
+                await room_hub.broadcast(booking_id, {
+                    "type": "signal",
+                    "signal_type": signal_type,
+                    "payload": payload,
+                    "sender_id": sender_id,
+                    "sender_role": sender_role,
+                    "timestamp": time.time(),
+                }, sender_ws=websocket)
+
+            elif msg_type == "chat":
+                sender = data.get("sender", "Participant")
+                text = data.get("text", "")
+                try:
+                    DatabaseRepository.add_room_chat_message(booking_id, sender, text)
+                except Exception:
+                    pass
+
+                await room_hub.broadcast(booking_id, {
+                    "type": "chat",
+                    "sender": sender,
+                    "text": text,
+                    "timestamp": time.time(),
+                }, sender_ws=None)
+
+            elif msg_type == "admit":
+                await room_hub.broadcast(booking_id, {
+                    "type": "room_state",
+                    "status": "active",
+                    "message": "Patient admitted to active consultation room.",
+                }, sender_ws=None)
+
+    except WebSocketDisconnect:
+        room_hub.disconnect(booking_id, websocket)
+    except Exception:
+        room_hub.disconnect(booking_id, websocket)
 
 
 # ── E-Prescriptions & Drug Safety (Module H) ───────────────────────────────────

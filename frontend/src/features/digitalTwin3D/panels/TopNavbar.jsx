@@ -38,7 +38,7 @@ export default function TopNavbar({ onExportReport }) {
       {/* Brand & Studio Identity */}
       <div className="dt-topbar-left">
         <div className="dt-topbar-icon-box">
-          <Dna size={18} color="var(--dt-gold)" />
+          <Dna size={18} />
         </div>
         <div>
           <div className="dt-topbar-title-wrap">
@@ -66,7 +66,7 @@ export default function TopNavbar({ onExportReport }) {
             onClick={() => setLayersMenuOpen(!layersMenuOpen)}
             className="dt-action-btn"
           >
-            <Layers size={14} color="var(--dt-gold)" />
+            <Layers size={14} color="var(--dt-accent-blue)" />
             <span>Anatomy Layers</span>
             <ChevronDown size={13} color="var(--dt-text-muted)" />
           </button>
@@ -79,10 +79,10 @@ export default function TopNavbar({ onExportReport }) {
                 marginTop: '6px',
                 width: '260px',
                 borderRadius: '8px',
-                background: '#0E1118',
+                background: 'var(--dt-bg-surface)',
                 border: '1px solid var(--dt-border-default)',
                 padding: '8px',
-                boxShadow: '0 16px 36px rgba(0,0,0,0.6)',
+                boxShadow: '0 12px 28px rgba(15, 23, 42, 0.12)',
                 zIndex: 60,
               }}
             >
@@ -90,17 +90,17 @@ export default function TopNavbar({ onExportReport }) {
                 style={{
                   fontFamily: 'var(--dt-font-mono)',
                   fontSize: '0.62rem',
-                  fontWeight: 800,
+                  fontWeight: 700,
                   color: 'var(--dt-text-muted)',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
+                  letterSpacing: '0.06em',
                   padding: '4px 8px 6px',
-                  borderBottom: '1px solid var(--dt-border-subtle)',
+                  borderBottom: '1px solid var(--dt-border-default)',
                 }}
               >
                 Anatomical Layers ({layerItems.length})
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginTop: '6px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginTop: '6px' }}>
                 {layerItems.map((item) => (
                   <button
                     key={item.key}
@@ -111,16 +111,17 @@ export default function TopNavbar({ onExportReport }) {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      padding: '6px 8px',
+                      padding: '7px 10px',
                       borderRadius: '5px',
-                      background: layers[item.key] ? 'rgba(15, 118, 110, 0.12)' : 'transparent',
+                      background: layers[item.key] ? 'var(--dt-accent-blue-soft)' : 'transparent',
                       border: 'none',
-                      color: layers[item.key] ? '#FFFFFF' : 'var(--dt-text-secondary)',
-                      fontFamily: 'var(--dt-font-mono)',
-                      fontSize: '0.68rem',
+                      color: layers[item.key] ? 'var(--dt-accent-blue)' : 'var(--dt-text-secondary)',
+                      fontFamily: 'var(--dt-font-sans)',
+                      fontSize: '0.74rem',
+                      fontWeight: layers[item.key] ? 600 : 400,
                       cursor: 'pointer',
                       textAlign: 'left',
-                      transition: 'all 0.14s ease',
+                      transition: 'all 0.12s ease',
                     }}
                   >
                     <span>{item.label}</span>
@@ -130,7 +131,7 @@ export default function TopNavbar({ onExportReport }) {
                           width: '16px',
                           height: '16px',
                           borderRadius: '4px',
-                          background: 'var(--dt-teal)',
+                          background: 'var(--dt-accent-blue)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -155,23 +156,13 @@ export default function TopNavbar({ onExportReport }) {
           )}
         </div>
 
-        {/* Comparison Mode */}
-        <button
-          type="button"
-          onClick={() => setComparisonOpen(true)}
-          className="dt-action-btn"
-        >
-          <GitCompare size={14} color="#A78BFA" />
-          <span>Compare</span>
-        </button>
-
         {/* Timeline Progression Mode */}
         <button
           type="button"
           onClick={() => setTimelineOpen(true)}
           className="dt-action-btn"
         >
-          <Clock size={14} color="#FBBF24" />
+          <Clock size={14} color="#D97706" />
           <span>Timeline</span>
         </button>
 
@@ -179,7 +170,7 @@ export default function TopNavbar({ onExportReport }) {
         <button
           type="button"
           onClick={onExportReport}
-          className="dt-action-btn dt-action-btn-gold"
+          className="dt-action-btn-primary"
         >
           <Download size={14} strokeWidth={2.5} />
           <span>Export Clinical Report</span>
@@ -188,4 +179,3 @@ export default function TopNavbar({ onExportReport }) {
     </header>
   );
 }
-

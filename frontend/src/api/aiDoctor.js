@@ -2,7 +2,8 @@
  * AI Doctor & Vapi Voice Consultation API Service
  */
 
-const API_BASE = "/api/v1/ai-doctor";
+import apiClient from "./client";
+import { ENDPOINTS } from "./config";
 
 export const aiDoctorApi = {
   /**
@@ -10,9 +11,7 @@ export const aiDoctorApi = {
    */
   async getConfig() {
     try {
-      const res = await fetch(`${API_BASE}/config`);
-      if (!res.ok) throw new Error("Failed to fetch AI Doctor configuration");
-      return await res.json();
+      return await apiClient.get(ENDPOINTS.AI_DOCTOR_CONFIG);
     } catch (err) {
       console.warn("Using local fallback config for AI Doctor:", err);
       return {
@@ -35,9 +34,7 @@ export const aiDoctorApi = {
    * Fetch patient clinical dossier & system prompt tailored for AI Doctor
    */
   async getPatientContext(patientId = "PT-89421") {
-    const res = await fetch(`${API_BASE}/context/${encodeURIComponent(patientId)}`);
-    if (!res.ok) throw new Error(`Failed to load patient dossier for ${patientId}`);
-    return await res.json();
+    return apiClient.get(ENDPOINTS.AI_DOCTOR_CONTEXT(patientId));
   },
 
   /**
@@ -52,38 +49,28 @@ export const aiDoctorApi = {
     modelName = "gpt-4o",
     temperature = 0.3,
   } = {}) {
-    const res = await fetch(`${API_BASE}/assistant-config`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        patient_id: patientId,
-        patient_name: patientName,
-        assistant_name: assistantName,
-        voice_provider: voiceProvider,
-        voice_id: voiceId,
-        model_name: modelName,
-        temperature,
-      }),
+    return apiClient.post(ENDPOINTS.AI_DOCTOR_ASSISTANT_CONFIG, {
+      patient_id: patientId,
+      patient_name: patientName,
+      assistant_name: assistantName,
+      voice_provider: voiceProvider,
+      voice_id: voiceId,
+      model_name: modelName,
+      temperature,
     });
-    if (!res.ok) throw new Error("Failed to generate Vapi assistant payload");
-    return await res.json();
   },
 
   /**
    * Interactive text / fallback consultation chat query
    */
   async sendChatMessage({ patientId = "PT-89421", patientName, message, history = [] }) {
-    const res = await fetch(`${API_BASE}/chat`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        patient_id: patientId,
-        patient_name: patientName,
-        message,
-        history,
-      }),
+    return apiClient.post(ENDPOINTS.AI_DOCTOR_CHAT, {
+      patient_id: patientId,
+      patient_name: patientName,
+      message,
+      history,
     });
-    if (!res.ok) throw new Error("Failed to get response from AI Doctor");
-    return await res.json();
   },
 };
+
+export default aiDoctorApi;

@@ -16,6 +16,8 @@ import {
   FileCheck,
   Layers,
   HeartPulse,
+  Radio,
+  Zap,
 } from "lucide-react";
 import { animateEntrance, animateEditorialHero } from "../../utils/motion";
 import gsap from "gsap";
@@ -49,8 +51,8 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
     if (personaContainerRef.current) {
       gsap.fromTo(
         personaContainerRef.current.children,
-        { opacity: 0, y: 12 },
-        { opacity: 1, y: 0, duration: 0.4, stagger: 0.08, ease: "power2.out", delay: 0.15 }
+        { opacity: 0, y: 16, scale: 0.98 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.45, stagger: 0.08, ease: "power2.out", delay: 0.1 }
       );
     }
   }, [authMode]);
@@ -62,21 +64,27 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
       username: "alex.patient",
       pass: "patient123",
       label: "PATIENT",
-      badge: "PATIENT DEMO",
+      badge: "PATIENT PORTAL",
       icon: User,
-      desc: "Full Health Checkup, 3D Digital Twin, Vitals & Doctor Consultations",
-      palette: "var(--emerald-couture)",
+      desc: "3D Health Twin, Vitals Monitoring, AI Health Score & Telehealth",
+      accent: "var(--accent-blue)",
+      accentSoft: "var(--accent-blue-soft)",
+      accentBorder: "rgba(37, 99, 235, 0.25)",
+      accentGlow: "rgba(37, 99, 235, 0.15)",
     },
     {
       role: "doctor",
-      name: "Dr. Kavita Rao",
+      name: "Dr. Kavita Rao, MD",
       username: "dr.kavita",
       pass: "doctor123",
       label: "CLINICIAN",
-      badge: "DOCTOR DEMO",
+      badge: "PHYSICIAN CONSOLE",
       icon: Stethoscope,
-      desc: "Patient Triage, Tele-Consultations & Prescription Issuer",
-      palette: "var(--gold)",
+      desc: "Clinical Triage, WebRTC Consultations, E-Prescriptions & Override Hub",
+      accent: "var(--emerald-couture)",
+      accentSoft: "var(--emerald-soft)",
+      accentBorder: "rgba(5, 150, 105, 0.25)",
+      accentGlow: "rgba(5, 150, 105, 0.15)",
     },
     {
       role: "admin",
@@ -84,10 +92,13 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
       username: "admin.audit",
       pass: "admin123",
       label: "GOVERNANCE",
-      badge: "ADMIN / COMPLIANCE",
+      badge: "AUDIT & SECURITY",
       icon: ShieldCheck,
-      desc: "HIPAA/GDPR Audit Console, RBAC Management & Benchmarks",
-      palette: "var(--electric-rose)",
+      desc: "HIPAA/DPDP Audit Trail, RBAC Administration & Benchmark Matrix",
+      accent: "var(--accent-violet)",
+      accentSoft: "var(--accent-violet-soft)",
+      accentBorder: "rgba(124, 58, 237, 0.25)",
+      accentGlow: "rgba(124, 58, 237, 0.15)",
     },
   ];
 
@@ -147,7 +158,12 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
         position: "relative",
       }}
     >
-      {/* ── Top Folio Bar ── */}
+      {/* ── Background Ambient Light Gradient Orbs ── */}
+      <div className="login-ambient-orb orb-1" />
+      <div className="login-ambient-orb orb-2" />
+      <div className="login-ambient-orb orb-3" />
+
+      {/* ── Top Header Bar ── */}
       <header
         className="editorial-reveal login-folio-bar"
         style={{
@@ -155,19 +171,20 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
           justifyContent: "space-between",
           alignItems: "center",
           borderBottom: "1px solid var(--border-default)",
-          paddingBottom: "14px",
+          paddingBottom: "16px",
           gap: "12px",
           flexWrap: "wrap",
+          position: "relative",
+          zIndex: 10,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <span
             style={{
-              fontFamily: "var(--font-serif)",
-              fontSize: "1.30rem",
+              fontFamily: "var(--font-display)",
+              fontSize: "1.25rem",
               fontWeight: 900,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
+              letterSpacing: "-0.02em",
               color: "var(--ink-primary)",
             }}
           >
@@ -175,39 +192,13 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
           </span>
           <span
             style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: "0.62rem",
-              letterSpacing: "0.18em",
-              color: "var(--gold)",
-              border: "1px solid var(--gold-border)",
-              padding: "2px 8px",
-              background: "var(--gold-light)",
-              fontWeight: 800,
+              fontSize: "0.72rem",
+              color: "var(--text-muted)",
+              fontWeight: 500,
             }}
           >
-            CLINICAL INTELLIGENCE // 2026
+            Clinical Platform
           </span>
-        </div>
-
-        <div
-          style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: "0.64rem",
-            letterSpacing: "0.14em",
-            color: "var(--text-muted)",
-            textTransform: "uppercase",
-            display: "flex",
-            gap: "16px",
-            alignItems: "center",
-          }}
-        >
-          <span>AI DIAGNOSTICS</span>
-          <span>•</span>
-          <span>3D DIGITAL TWIN</span>
-          <span>•</span>
-          <span>DOCTOR PORTAL</span>
-          <span>•</span>
-          <span>COMPLIANCE</span>
         </div>
       </header>
 
@@ -216,62 +207,77 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
         className="login-main-grid"
         style={{
           display: "grid",
-          gridTemplateColumns: "1.15fr 0.85fr",
-          gap: "clamp(24px, 4vw, 56px)",
+          gridTemplateColumns: "1.1fr 0.9fr",
+          gap: "clamp(24px, 4.5vw, 64px)",
           alignItems: "center",
           margin: "32px 0",
-          maxWidth: "1440px",
+          maxWidth: "1400px",
           width: "100%",
           alignSelf: "center",
+          position: "relative",
+          zIndex: 10,
         }}
       >
-        {/* Left Column: Feature Highlights & Summary */}
+        {/* Left Column: Hero Title & Feature Highlights */}
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
           <div className="editorial-reveal">
-            <span
+            <div
               style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "0.68rem",
-                letterSpacing: "0.24em",
-                color: "var(--text-gold)",
-                textTransform: "uppercase",
-                fontWeight: 800,
-                display: "block",
-                marginBottom: "8px",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "4px 12px",
+                background: "var(--accent-blue-soft)",
+                border: "1px solid rgba(37, 99, 235, 0.2)",
+                borderRadius: "999px",
+                marginBottom: "16px",
               }}
             >
-              CLINICAL AI & BIOMECHANICAL PLATFORM
-            </span>
+              <Sparkles size={13} color="var(--accent-blue)" />
+              <span
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "0.64rem",
+                  letterSpacing: "0.10em",
+                  color: "var(--accent-blue)",
+                  textTransform: "uppercase",
+                  fontWeight: 700,
+                }}
+              >
+                NEXT-GEN QUANTUM CLINICAL INTELLIGENCE
+              </span>
+            </div>
+
             <h1
               style={{
-                fontFamily: "var(--font-serif)",
-                fontSize: "clamp(2.3rem, 4.2vw, 3.8rem)",
-                fontWeight: 900,
+                fontFamily: "var(--font-display)",
+                fontSize: "clamp(2.4rem, 4.2vw, 3.8rem)",
+                fontWeight: 800,
                 lineHeight: 1.08,
-                letterSpacing: "-0.03em",
+                letterSpacing: "-0.02em",
                 color: "var(--ink-primary)",
                 margin: 0,
               }}
             >
-              Intelligent Clinical <br />
-              <span style={{ fontStyle: "italic", fontWeight: 400, color: "#785E0E" }}>
-                Diagnosis & 3D Twin
+              Precision Medicine. <br />
+              <span style={{ fontStyle: "italic", fontWeight: 400, color: "var(--accent-blue)" }}>
+                3D Digital Twin
               </span>{" "}
-              Workspace.
+              & AI Diagnostics.
             </h1>
           </div>
 
           <p
             className="editorial-reveal"
             style={{
-              fontSize: "0.95rem",
+              fontSize: "0.98rem",
               lineHeight: 1.65,
               color: "var(--text-secondary)",
-              maxWidth: "560px",
+              maxWidth: "540px",
               margin: 0,
             }}
           >
-            An all-in-one medical AI workspace combining 3D Digital Health Twin organ simulation, multi-disease risk assessment, real-time doctor tele-consultations, and automated health record analytics.
+            An integrated clinical workspace pairing 3D Digital Health Twin organ simulation with multi-disease risk analytics, WebRTC telehealth consultations, and automated health records.
           </p>
 
           {/* Live Telemetry Ticker Pills */}
@@ -284,50 +290,60 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
             }}
           >
             <span
+              className="telemetry-pill-live"
               style={{
                 fontFamily: "var(--font-mono)",
-                fontSize: "0.64rem",
-                padding: "4px 10px",
+                fontSize: "0.66rem",
+                padding: "5px 12px",
                 background: "var(--bg-surface)",
                 border: "1px solid var(--border-default)",
+                borderRadius: "var(--radius-xs)",
                 color: "var(--emerald-couture)",
                 fontWeight: 700,
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "5px",
+                gap: "6px",
+                boxShadow: "var(--shadow-sm)",
               }}
             >
-              <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--emerald-couture)" }} />
-              SYSTEM STATUS: ONLINE
+              <span className="live-status-pulse" />
+              SYSTEM ACTIVE: ONLINE
             </span>
+
             <span
               style={{
                 fontFamily: "var(--font-mono)",
-                fontSize: "0.64rem",
-                padding: "4px 10px",
+                fontSize: "0.66rem",
+                padding: "5px 12px",
                 background: "var(--bg-surface)",
                 border: "1px solid var(--border-default)",
-                color: "var(--text-gold)",
+                borderRadius: "var(--radius-xs)",
+                color: "var(--text-secondary)",
                 fontWeight: 700,
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "5px",
+                gap: "6px",
+                boxShadow: "var(--shadow-sm)",
               }}
             >
-              <Sparkles size={11} /> 25 3D ORGAN GLB MODELS
+              <Zap size={12} color="var(--accent-blue)" />
+              PENNYLANE VQC + CLASSICAL
             </span>
+
             <span
               style={{
                 fontFamily: "var(--font-mono)",
-                fontSize: "0.64rem",
-                padding: "4px 10px",
+                fontSize: "0.66rem",
+                padding: "5px 12px",
                 background: "var(--bg-surface)",
                 border: "1px solid var(--border-default)",
+                borderRadius: "var(--radius-xs)",
                 color: "var(--text-muted)",
                 fontWeight: 700,
+                boxShadow: "var(--shadow-sm)",
               }}
             >
-              RESPONSE LATENCY: 12 MS
+              LATENCY: &lt; 15 MS
             </span>
           </div>
 
@@ -343,87 +359,81 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
               marginTop: "4px",
             }}
           >
-            <div>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", color: "var(--text-muted)", display: "block" }}>
+            <div className="feature-stat-box">
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.62rem", color: "var(--accent-blue)", fontWeight: 700 }}>
                 MODULE 01
               </span>
-              <strong style={{ fontFamily: "var(--font-display)", fontSize: "0.86rem", display: "block", marginTop: "2px" }}>
+              <strong style={{ fontFamily: "var(--font-display)", fontSize: "0.90rem", display: "block", marginTop: "2px", color: "var(--ink-primary)" }}>
                 AI Diagnostics
               </strong>
-              <span style={{ fontSize: "0.70rem", color: "var(--text-muted)" }}>
-                Multi-disease risk analysis
+              <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", lineHeight: 1.4, display: "block", marginTop: "2px" }}>
+                Multi-disease risk analysis & explainability
               </span>
             </div>
 
-            <div>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", color: "var(--text-muted)", display: "block" }}>
+            <div className="feature-stat-box">
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.62rem", color: "var(--emerald-couture)", fontWeight: 700 }}>
                 MODULE 02
               </span>
-              <strong style={{ fontFamily: "var(--font-display)", fontSize: "0.86rem", display: "block", marginTop: "2px" }}>
+              <strong style={{ fontFamily: "var(--font-display)", fontSize: "0.90rem", display: "block", marginTop: "2px", color: "var(--ink-primary)" }}>
                 3D Digital Twin
               </strong>
-              <span style={{ fontSize: "0.70rem", color: "var(--text-muted)" }}>
-                Interactive organ simulation
+              <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", lineHeight: 1.4, display: "block", marginTop: "2px" }}>
+                Interactive GLB anatomical simulation
               </span>
             </div>
 
-            <div>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", color: "var(--text-muted)", display: "block" }}>
+            <div className="feature-stat-box">
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.62rem", color: "var(--accent-violet)", fontWeight: 700 }}>
                 MODULE 03
               </span>
-              <strong style={{ fontFamily: "var(--font-display)", fontSize: "0.86rem", display: "block", marginTop: "2px" }}>
+              <strong style={{ fontFamily: "var(--font-display)", fontSize: "0.90rem", display: "block", marginTop: "2px", color: "var(--ink-primary)" }}>
                 Doctor Portal
               </strong>
-              <span style={{ fontSize: "0.70rem", color: "var(--text-muted)" }}>
-                Tele-consultations & Rx
+              <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", lineHeight: 1.4, display: "block", marginTop: "2px" }}>
+                Live WebRTC video, chat & Rx signer
               </span>
             </div>
           </div>
         </div>
 
-        {/* Right Column: Clean Authentication Card */}
+        {/* Right Column: High-Aesthetic Glassmorphic Login Card */}
         <div
           ref={cardRef}
-          className="login-auth-card"
+          className="login-auth-card login-auth-card-elevated"
           style={{
-            background: "#FFFFFF",
+            background: "rgba(255, 255, 255, 0.94)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
             border: "1px solid var(--border-default)",
-            borderRadius: "var(--radius-sm)",
+            borderRadius: "var(--radius-md)",
             padding: "clamp(24px, 3.5vw, 36px)",
-            boxShadow: "0 24px 48px -12px rgba(0, 0, 0, 0.08)",
+            boxShadow: "var(--shadow-modal), 0 0 0 1px rgba(255, 255, 255, 0.8) inset",
             position: "relative",
+            overflow: "hidden",
           }}
         >
-          {/* Top Gold Corner Accent */}
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: "3px",
-              background: "var(--gold-gradient)",
-            }}
-          />
+          {/* Animated Gradient Accent Bar */}
+          <div className="login-shimmer-bar" />
 
           <div style={{ marginBottom: "20px" }}>
             <span
               style={{
                 fontFamily: "var(--font-mono)",
-                fontSize: "0.60rem",
-                letterSpacing: "0.22em",
-                color: "var(--text-gold)",
+                fontSize: "0.62rem",
+                letterSpacing: "0.14em",
+                color: "var(--accent-blue)",
                 textTransform: "uppercase",
                 fontWeight: 800,
                 display: "block",
                 marginBottom: "4px",
               }}
             >
-              AUTHENTICATION & DEMO ACCESS
+              AUTHENTICATION & INSTANT DEMO ACCESS
             </span>
             <h2
               style={{
-                fontFamily: "var(--font-serif)",
+                fontFamily: "var(--font-display)",
                 fontSize: "1.65rem",
                 fontWeight: 800,
                 color: "var(--ink-primary)",
@@ -433,19 +443,21 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
             >
               Sign In to Q-MedSense
             </h2>
-            <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: "4px" }}>
-              Select a pre-configured demo account for instant testing, or sign in with your credentials.
+            <p style={{ fontSize: "0.80rem", color: "var(--text-muted)", marginTop: "4px" }}>
+              Select a 1-click test persona or sign in with registered credentials.
             </p>
           </div>
 
-          {/* Mode Switcher: Quick Test Accounts vs Manual Login */}
+          {/* Mode Switcher */}
           <div
             style={{
               display: "flex",
               background: "var(--bg-surface-alt)",
-              padding: "3px",
+              padding: "4px",
+              borderRadius: "var(--radius-sm)",
               border: "1px solid var(--border-default)",
-              marginBottom: "18px",
+              marginBottom: "20px",
+              gap: "4px",
             }}
           >
             <button
@@ -453,63 +465,60 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
               onClick={() => setAuthMode("vip")}
               style={{
                 flex: 1,
-                padding: "8px",
+                padding: "8px 10px",
                 fontSize: "0.72rem",
-                fontFamily: "var(--font-mono)",
-                fontWeight: authMode === "vip" ? 800 : 600,
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
+                fontFamily: "var(--font-sans)",
+                fontWeight: authMode === "vip" ? 700 : 600,
+                borderRadius: "var(--radius-xs)",
                 border: "none",
-                background: authMode === "vip" ? "#FFFFFF" : "transparent",
+                background: authMode === "vip" ? "var(--bg-surface)" : "transparent",
                 color: authMode === "vip" ? "var(--ink-primary)" : "var(--text-muted)",
-                boxShadow: authMode === "vip" ? "0 1px 3px rgba(0,0,0,0.06)" : "none",
+                boxShadow: authMode === "vip" ? "var(--shadow-sm)" : "none",
                 cursor: "pointer",
-                transition: "all 0.15s ease",
+                transition: "all 0.16s ease",
               }}
             >
-              ★ Quick Test Accounts
+              ★ 1-Click Personas
             </button>
             <button
               type="button"
               onClick={() => setAuthMode("credentials")}
               style={{
                 flex: 1,
-                padding: "8px",
+                padding: "8px 10px",
                 fontSize: "0.72rem",
-                fontFamily: "var(--font-mono)",
-                fontWeight: authMode === "credentials" ? 800 : 600,
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
+                fontFamily: "var(--font-sans)",
+                fontWeight: authMode === "credentials" ? 700 : 600,
+                borderRadius: "var(--radius-xs)",
                 border: "none",
-                background: authMode === "credentials" ? "#FFFFFF" : "transparent",
+                background: authMode === "credentials" ? "var(--bg-surface)" : "transparent",
                 color: authMode === "credentials" ? "var(--ink-primary)" : "var(--text-muted)",
-                boxShadow: authMode === "credentials" ? "0 1px 3px rgba(0,0,0,0.06)" : "none",
+                boxShadow: authMode === "credentials" ? "var(--shadow-sm)" : "none",
                 cursor: "pointer",
-                transition: "all 0.15s ease",
+                transition: "all 0.16s ease",
               }}
             >
-              Manual Login
+              Password Login
             </button>
             <button
               type="button"
               onClick={() => setAuthMode("register")}
               style={{
                 flex: 1,
-                padding: "8px",
+                padding: "8px 10px",
                 fontSize: "0.72rem",
-                fontFamily: "var(--font-mono)",
-                fontWeight: authMode === "register" ? 800 : 600,
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
+                fontFamily: "var(--font-sans)",
+                fontWeight: authMode === "register" ? 700 : 600,
+                borderRadius: "var(--radius-xs)",
                 border: "none",
-                background: authMode === "register" ? "#FFFFFF" : "transparent",
+                background: authMode === "register" ? "var(--bg-surface)" : "transparent",
                 color: authMode === "register" ? "var(--ink-primary)" : "var(--text-muted)",
-                boxShadow: authMode === "register" ? "0 1px 3px rgba(0,0,0,0.06)" : "none",
+                boxShadow: authMode === "register" ? "var(--shadow-sm)" : "none",
                 cursor: "pointer",
-                transition: "all 0.15s ease",
+                transition: "all 0.16s ease",
               }}
             >
-              Create Account
+              Register
             </button>
           </div>
 
@@ -525,51 +534,53 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                     type="button"
                     onClick={() => handleSelectPersona(p)}
                     disabled={loading}
-                    className="persona-test-card"
+                    className="persona-card-aesthetic"
                     style={{
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                      padding: "12px 14px",
-                      background: isSelected ? "var(--bg-surface-dark)" : "var(--bg-surface-alt)",
-                      color: isSelected ? "#FFFFFF" : "var(--text-primary)",
-                      border: isSelected ? "1px solid var(--gold)" : "1px solid var(--border-default)",
-                      borderRadius: "var(--radius-xs)",
+                      padding: "14px 16px",
+                      background: isSelected ? p.accentSoft : "var(--bg-surface)",
+                      color: "var(--text-primary)",
+                      border: isSelected ? `1.5px solid ${p.accent}` : "1px solid var(--border-default)",
+                      borderRadius: "var(--radius-sm)",
                       cursor: "pointer",
                       textAlign: "left",
                       transition: "all 0.18s cubic-bezier(0.16, 1, 0.3, 1)",
-                      minHeight: "48px",
+                      boxShadow: isSelected ? `0 4px 14px ${p.accentGlow}` : "var(--shadow-sm)",
                     }}
                   >
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
                       <div
                         style={{
-                          width: "32px",
-                          height: "32px",
-                          borderRadius: "50%",
-                          background: isSelected ? "var(--gold)" : "var(--border-default)",
-                          color: isSelected ? "#000000" : "var(--text-secondary)",
+                          width: "36px",
+                          height: "36px",
+                          borderRadius: "10px",
+                          background: isSelected ? p.accent : "var(--bg-surface-alt)",
+                          color: isSelected ? "#FFFFFF" : "var(--text-secondary)",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
+                          transition: "all 0.18s ease",
                         }}
                       >
-                        <IconComponent size={16} />
+                        <IconComponent size={18} />
                       </div>
                       <div>
                         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                          <strong style={{ fontFamily: "var(--font-display)", fontSize: "0.84rem" }}>
+                          <strong style={{ fontFamily: "var(--font-display)", fontSize: "0.88rem", color: "var(--ink-primary)" }}>
                             {p.name}
                           </strong>
                           <span
                             style={{
                               fontFamily: "var(--font-mono)",
-                              fontSize: "0.56rem",
-                              padding: "1px 5px",
-                              background: isSelected ? "var(--gold)" : "var(--border-default)",
-                              color: isSelected ? "#000" : "var(--text-secondary)",
-                              fontWeight: 800,
-                              letterSpacing: "0.08em",
+                              fontSize: "0.58rem",
+                              padding: "2px 6px",
+                              background: isSelected ? p.accent : "var(--bg-surface-alt)",
+                              color: isSelected ? "#FFFFFF" : "var(--text-secondary)",
+                              borderRadius: "var(--radius-xs)",
+                              fontWeight: 700,
+                              letterSpacing: "0.06em",
                             }}
                           >
                             {p.badge}
@@ -577,10 +588,11 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                         </div>
                         <span
                           style={{
-                            fontSize: "0.68rem",
-                            color: isSelected ? "#C9C4B7" : "var(--text-muted)",
+                            fontSize: "0.72rem",
+                            color: "var(--text-muted)",
                             display: "block",
                             marginTop: "2px",
+                            lineHeight: 1.35,
                           }}
                         >
                           {p.desc}
@@ -588,124 +600,98 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                       </div>
                     </div>
 
-                    <ArrowRight
-                      size={16}
-                      color={isSelected ? "var(--gold)" : "var(--text-muted)"}
-                    />
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        color: isSelected ? p.accent : "var(--text-muted)",
+                        fontSize: "0.70rem",
+                        fontWeight: 700,
+                        fontFamily: "var(--font-mono)",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <span className="launch-text">LAUNCH</span>
+                      <ArrowRight size={14} />
+                    </div>
                   </button>
                 );
               })}
             </div>
           ) : authMode === "credentials" ? (
             /* TAB 2: Direct Credentials Form */
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              {/* Role Selection Radio Buttons */}
+            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              {/* Role Selector Pills */}
               <div>
-                <label
-                  style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.60rem",
-                    fontWeight: 800,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.12em",
-                    color: "var(--text-muted)",
-                    display: "block",
-                    marginBottom: "6px",
-                  }}
-                >
-                  Select Account Role
+                <label className="metric-label" style={{ marginBottom: "6px" }}>
+                  ACCOUNT PERSONA
                 </label>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "6px" }}>
-                  {["patient", "doctor", "admin"].map((r) => (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px" }}>
+                  {[
+                    { id: "patient", label: "Patient" },
+                    { id: "doctor", label: "Doctor" },
+                    { id: "admin", label: "Admin" },
+                  ].map((r) => (
                     <button
-                      key={r}
+                      key={r.id}
                       type="button"
-                      onClick={() => handleRoleChange(r)}
+                      onClick={() => handleRoleChange(r.id)}
                       style={{
-                        padding: "8px 4px",
-                        fontSize: "0.72rem",
-                        fontFamily: "var(--font-mono)",
-                        fontWeight: selectedRole === r ? 800 : 600,
-                        textTransform: "uppercase",
-                        border: selectedRole === r ? "1px solid var(--gold)" : "1px solid var(--border-default)",
-                        background: selectedRole === r ? "var(--ink-primary)" : "var(--bg-surface-alt)",
-                        color: selectedRole === r ? "var(--gold)" : "var(--text-secondary)",
+                        padding: "8px",
+                        fontSize: "0.74rem",
+                        fontFamily: "var(--font-sans)",
+                        fontWeight: selectedRole === r.id ? 700 : 600,
+                        border: selectedRole === r.id ? "1.5px solid var(--accent-blue)" : "1px solid var(--border-default)",
+                        borderRadius: "var(--radius-xs)",
+                        background: selectedRole === r.id ? "var(--accent-blue-soft)" : "var(--bg-surface)",
+                        color: selectedRole === r.id ? "var(--accent-blue)" : "var(--text-secondary)",
                         cursor: "pointer",
                         transition: "all 0.15s ease",
                       }}
                     >
-                      {r}
+                      {r.label}
                     </button>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label
-                  style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.60rem",
-                    fontWeight: 800,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.12em",
-                    color: "var(--text-muted)",
-                    display: "block",
-                    marginBottom: "4px",
-                  }}
-                >
-                  Username or Registered Email
+                <label className="metric-label" style={{ marginBottom: "6px" }}>
+                  USERNAME OR EMAIL
                 </label>
-                <input
-                  type="text"
-                  placeholder="e.g. alex.patient or user@health.org"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  autoComplete="username"
-                  required
-                  style={{
-                    width: "100%",
-                    padding: "10px 12px",
-                    fontSize: "0.82rem",
-                    border: "1px solid var(--border-default)",
-                    borderRadius: "var(--radius-xs)",
-                    fontFamily: "var(--font-sans)",
-                    outline: "none",
-                  }}
-                />
+                <div style={{ position: "relative" }}>
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="e.g. alex.patient"
+                    required
+                    style={{ paddingLeft: "36px" }}
+                  />
+                  <User
+                    size={15}
+                    style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }}
+                  />
+                </div>
               </div>
 
               <div>
-                <label
-                  style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.60rem",
-                    fontWeight: 800,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.12em",
-                    color: "var(--text-muted)",
-                    display: "block",
-                    marginBottom: "4px",
-                  }}
-                >
-                  Password
+                <label className="metric-label" style={{ marginBottom: "6px" }}>
+                  PASSWORD
                 </label>
                 <div style={{ position: "relative" }}>
                   <input
                     type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="current-password"
+                    placeholder="Enter password"
                     required
-                    style={{
-                      width: "100%",
-                      padding: "10px 36px 10px 12px",
-                      fontSize: "0.82rem",
-                      border: "1px solid var(--border-default)",
-                      borderRadius: "var(--radius-xs)",
-                      fontFamily: "var(--font-sans)",
-                      outline: "none",
-                    }}
+                    style={{ paddingLeft: "36px", paddingRight: "36px" }}
+                  />
+                  <Lock
+                    size={15}
+                    style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }}
                   />
                   <button
                     type="button"
@@ -719,9 +705,7 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                       border: "none",
                       cursor: "pointer",
                       color: "var(--text-muted)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
+                      padding: "4px",
                     }}
                   >
                     {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -729,162 +713,165 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                 </div>
               </div>
 
+              {error && (
+                <div className="alert-banner danger" style={{ marginTop: "4px" }}>
+                  {error}
+                </div>
+              )}
+
               <button
                 type="submit"
                 disabled={loading}
                 className="btn-primary"
                 style={{
-                  marginTop: "8px",
+                  width: "100%",
+                  marginTop: "6px",
                   padding: "12px",
                   fontSize: "0.82rem",
-                  width: "100%",
-                  background: "var(--ink-primary)",
-                  border: "1px solid var(--ink-primary)",
-                  minHeight: "44px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "8px",
-                  cursor: "pointer",
-                  transition: "all 0.15s ease",
                 }}
               >
-                {loading ? (
-                  <span>Signing In...</span>
-                ) : (
-                  <>
-                    <span>Sign In to Portal</span>
-                    <ArrowRight size={15} color="var(--gold)" />
-                  </>
-                )}
+                {loading ? "Authenticating..." : "Sign In to Workspace"}
+                <ArrowRight size={15} />
               </button>
             </form>
           ) : (
-            <form onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            /* TAB 3: New Account Registration */
+            <form onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               <div>
-                <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", display: "block", marginBottom: "4px" }}>
-                  Full Name
+                <label className="metric-label" style={{ marginBottom: "6px" }}>
+                  REGISTERING AS
                 </label>
-                <input type="text" value={registerName} onChange={(e) => setRegisterName(e.target.value)} autoComplete="name" required style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }} />
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px" }}>
+                  {[
+                    { id: "patient", label: "Patient" },
+                    { id: "doctor", label: "Specialist Doctor" },
+                  ].map((r) => (
+                    <button
+                      key={r.id}
+                      type="button"
+                      onClick={() => setRegisterRole(r.id)}
+                      style={{
+                        padding: "8px",
+                        fontSize: "0.74rem",
+                        fontWeight: registerRole === r.id ? 700 : 600,
+                        border: registerRole === r.id ? "1.5px solid var(--accent-blue)" : "1px solid var(--border-default)",
+                        borderRadius: "var(--radius-xs)",
+                        background: registerRole === r.id ? "var(--accent-blue-soft)" : "var(--bg-surface)",
+                        color: registerRole === r.id ? "var(--accent-blue)" : "var(--text-secondary)",
+                        cursor: "pointer",
+                        transition: "all 0.15s ease",
+                      }}
+                    >
+                      {r.label}
+                    </button>
+                  ))}
+                </div>
               </div>
+
               <div>
-                <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", display: "block", marginBottom: "4px" }}>
-                  Username
+                <label className="metric-label" style={{ marginBottom: "4px" }}>
+                  FULL NAME
                 </label>
-                <input type="text" value={registerUsername} onChange={(e) => setRegisterUsername(e.target.value)} autoComplete="username" required style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }} />
+                <input
+                  type="text"
+                  value={registerName}
+                  onChange={(e) => setRegisterName(e.target.value)}
+                  placeholder="e.g. Dr. Priya Sharma"
+                  required
+                />
               </div>
-              <div>
-                <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", display: "block", marginBottom: "4px" }}>
-                  Email
-                </label>
-                <input type="email" value={registerEmail} onChange={(e) => setRegisterEmail(e.target.value)} autoComplete="email" required style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }} />
-              </div>
-              <div>
-                <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", display: "block", marginBottom: "4px" }}>
-                  Password
-                </label>
-                <input type="password" value={registerPassword} onChange={(e) => setRegisterPassword(e.target.value)} autoComplete="new-password" required style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }} />
-              </div>
-              <div>
-                <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", display: "block", marginBottom: "4px" }}>
-                  Account Role
-                </label>
-                <select value={registerRole} onChange={(e) => setRegisterRole(e.target.value)} style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }}>
-                  <option value="patient">Patient (Health Checkups & 3D Twin)</option>
-                  <option value="doctor">Doctor / Clinician (Diagnostics & Consultations)</option>
-                  <option value="admin">Administrator (Compliance & Security)</option>
-                </select>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                <div>
+                  <label className="metric-label" style={{ marginBottom: "4px" }}>
+                    USERNAME
+                  </label>
+                  <input
+                    type="text"
+                    value={registerUsername}
+                    onChange={(e) => setRegisterUsername(e.target.value)}
+                    placeholder="priya.md"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="metric-label" style={{ marginBottom: "4px" }}>
+                    EMAIL
+                  </label>
+                  <input
+                    type="email"
+                    value={registerEmail}
+                    onChange={(e) => setRegisterEmail(e.target.value)}
+                    placeholder="priya@hospital.org"
+                    required
+                  />
+                </div>
               </div>
 
               {registerRole === "doctor" && (
-                <>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                   <div>
-                    <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--gold)", display: "block", marginBottom: "4px" }}>
-                      ★ Clinical Specialty (Directory Display)
-                    </label>
-                    <select
-                      value={registerSpecialty}
-                      onChange={(e) => setRegisterSpecialty(e.target.value)}
-                      style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }}
-                    >
-                      <option value="General Medicine & Clinical AI">General Medicine & Clinical AI</option>
-                      <option value="Cardiology & Preventive Medicine">Cardiology & Preventive Medicine</option>
-                      <option value="Medical Oncology">Medical Oncology</option>
-                      <option value="Pulmonary & Respiratory Medicine">Pulmonary & Respiratory Medicine</option>
-                      <option value="Dermatology & Skin Lesions">Dermatology & Skin Lesions</option>
-                      <option value="Neurology & Neuro-imaging">Neurology & Neuro-imaging</option>
-                      <option value="Endocrinology & Diabetes">Endocrinology & Diabetes</option>
-                      <option value="Orthopedics & Joint Care">Orthopedics & Joint Care</option>
-                      <option value="Pediatrics & Child Health">Pediatrics & Child Health</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", display: "block", marginBottom: "4px" }}>
-                      Hospital / Clinic Affiliation
+                    <label className="metric-label" style={{ marginBottom: "4px" }}>
+                      SPECIALTY
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g. AIIMS Clinical AI OPD"
-                      value={registerAffiliation}
-                      onChange={(e) => setRegisterAffiliation(e.target.value)}
-                      style={{ width: "100%", padding: "10px 12px", fontSize: "0.82rem", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)" }}
+                      value={registerSpecialty}
+                      onChange={(e) => setRegisterSpecialty(e.target.value)}
+                      placeholder="Cardiology / Oncology"
                     />
                   </div>
-                </>
+                  <div>
+                    <label className="metric-label" style={{ marginBottom: "4px" }}>
+                      AFFILIATION
+                    </label>
+                    <input
+                      type="text"
+                      value={registerAffiliation}
+                      onChange={(e) => setRegisterAffiliation(e.target.value)}
+                      placeholder="Hospital or Clinic"
+                    />
+                  </div>
+                </div>
               )}
 
-              <button type="submit" disabled={loading} className="btn-primary" style={{ marginTop: "8px", padding: "12px", fontSize: "0.82rem", width: "100%", minHeight: "44px" }}>
-                {loading ? "Creating Account..." : "Create Account & Sign In"}
+              <div>
+                <label className="metric-label" style={{ marginBottom: "4px" }}>
+                  PASSWORD
+                </label>
+                <input
+                  type="password"
+                  value={registerPassword}
+                  onChange={(e) => setRegisterPassword(e.target.value)}
+                  placeholder="Create secure password"
+                  required
+                />
+              </div>
+
+              {error && (
+                <div className="alert-banner danger">
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-primary"
+                style={{
+                  width: "100%",
+                  marginTop: "4px",
+                  padding: "12px",
+                  fontSize: "0.82rem",
+                }}
+              >
+                {loading ? "Creating Account..." : "Complete Registration"}
+                <ArrowRight size={15} />
               </button>
             </form>
           )}
-
-          {error && (
-            <div
-              style={{
-                background: "var(--risk-high-bg)",
-                color: "var(--risk-high)",
-                border: "1px solid var(--risk-high-border)",
-                padding: "8px 12px",
-                fontSize: "0.72rem",
-                marginTop: "12px",
-                fontFamily: "var(--font-mono)",
-              }}
-            >
-              {error}
-            </div>
-          )}
         </div>
       </main>
-
-      {/* ── Bottom Ticker Footer ── */}
-      <footer
-        className="editorial-reveal login-footer-bar"
-        style={{
-          borderTop: "1px solid var(--border-default)",
-          paddingTop: "12px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          fontFamily: "var(--font-mono)",
-          fontSize: "0.62rem",
-          color: "var(--text-muted)",
-          letterSpacing: "0.08em",
-          flexWrap: "wrap",
-          gap: "10px",
-        }}
-      >
-        <div>
-          <span>Q-MEDSENSE CLINICAL INTELLIGENCE PLATFORM © 2026</span>
-          <span style={{ margin: "0 10px" }}>•</span>
-          <span>MULTI-ORGAN 3D SIMULATION ENGINE</span>
-        </div>
-        <div>
-          <span style={{ color: "var(--gold)" }}>● TELEMETRY ONLINE</span>
-          <span style={{ margin: "0 10px" }}>•</span>
-          <span>LATENCY: 12.4 MS</span>
-        </div>
-      </footer>
     </div>
   );
 }

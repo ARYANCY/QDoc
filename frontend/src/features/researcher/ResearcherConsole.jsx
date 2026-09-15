@@ -50,7 +50,7 @@ export default function ResearcherConsole() {
   return (
     <div ref={containerRef} style={{ display: "flex", flexDirection: "column", gap: "20px", maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
       {/* Retraining Form Controls */}
-      <div className="card-panel" style={{ borderRadius: 0, border: "1px solid var(--border-default)" }}>
+      <div className="card-panel" style={{ borderRadius: "var(--radius-sm)", border: "1px solid var(--border-default)" }}>
         <div className="card-header">
           <span className="card-title">
             <Sliders size={16} color="var(--primary)" /> QML Retraining Studio & Hyperparameter Optimizer
@@ -70,7 +70,7 @@ export default function ResearcherConsole() {
               <select
                 value={dataset}
                 onChange={(e) => setDataset(e.target.value)}
-                style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--border-default)", borderRadius: 0, fontSize: "0.82rem", background: "var(--bg-surface)" }}
+                style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--border-default)", borderRadius: "var(--radius-sm)", fontSize: "0.82rem", background: "var(--bg-surface)" }}
               >
                 <option value="wdbc">Wisconsin Breast Cancer (WDBC - 30 Features)</option>
                 <option value="cleveland">Cleveland Heart Disease (14 Features)</option>
@@ -86,7 +86,7 @@ export default function ResearcherConsole() {
               <select
                 value={modelArchitecture}
                 onChange={(e) => setModelArchitecture(e.target.value)}
-                style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--border-default)", borderRadius: 0, fontSize: "0.82rem", background: "var(--bg-surface)" }}
+                style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--border-default)", borderRadius: "var(--radius-sm)", fontSize: "0.82rem", background: "var(--bg-surface)" }}
               >
                 <option value="VQC">VQC (Strongly Entangling Layers)</option>
                 <option value="QSVM">QSVM (Quantum Fidelity Kernel)</option>
@@ -102,7 +102,7 @@ export default function ResearcherConsole() {
               <select
                 value={lossFunction}
                 onChange={(e) => setLossFunction(e.target.value)}
-                style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--border-default)", borderRadius: 0, fontSize: "0.82rem", background: "var(--bg-surface)" }}
+                style={{ width: "100%", padding: "7px 10px", border: "1px solid var(--border-default)", borderRadius: "var(--radius-sm)", fontSize: "0.82rem", background: "var(--bg-surface)" }}
               >
                 <option value="Focal Loss">Focal Loss (gamma=2.0)</option>
                 <option value="CrossEntropy">Categorical Cross-Entropy</option>
@@ -111,7 +111,7 @@ export default function ResearcherConsole() {
           </div>
 
           {/* Sliders for Hyperparameters */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px", background: "var(--bg-canvas)", padding: "12px", borderRadius: 0, border: "1px solid var(--border-subtle)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px", background: "var(--bg-canvas)", padding: "12px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-subtle)" }}>
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.72rem", fontWeight: 700, marginBottom: "4px" }}>
                 <span>Qubits</span>
@@ -123,7 +123,7 @@ export default function ResearcherConsole() {
                 max="12"
                 value={qubits}
                 onChange={(e) => setQubits(parseInt(e.target.value))}
-                style={{ width: "100%", accentColor: "var(--primary)", borderRadius: 0 }}
+                style={{ width: "100%", accentColor: "var(--primary)", borderRadius: "var(--radius-sm)" }}
               />
             </div>
 
@@ -138,7 +138,7 @@ export default function ResearcherConsole() {
                 max="6"
                 value={layers}
                 onChange={(e) => setLayers(parseInt(e.target.value))}
-                style={{ width: "100%", accentColor: "var(--primary)", borderRadius: 0 }}
+                style={{ width: "100%", accentColor: "var(--primary)", borderRadius: "var(--radius-sm)" }}
               />
             </div>
 
@@ -153,7 +153,7 @@ export default function ResearcherConsole() {
                 max="15"
                 value={epochs}
                 onChange={(e) => setEpochs(parseInt(e.target.value))}
-                style={{ width: "100%", accentColor: "var(--primary)", borderRadius: 0 }}
+                style={{ width: "100%", accentColor: "var(--primary)", borderRadius: "var(--radius-sm)" }}
               />
             </div>
 
@@ -169,13 +169,13 @@ export default function ResearcherConsole() {
                 step="0.005"
                 value={lr}
                 onChange={(e) => setLr(parseFloat(e.target.value))}
-                style={{ width: "100%", accentColor: "var(--primary)", borderRadius: 0 }}
+                style={{ width: "100%", accentColor: "var(--primary)", borderRadius: "var(--radius-sm)" }}
               />
             </div>
           </div>
 
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <button type="submit" className="btn-primary" disabled={loading} style={{ borderRadius: 0 }}>
+            <button type="submit" className="btn-primary" disabled={loading} style={{ borderRadius: "var(--radius-sm)" }}>
               {loading ? (
                 <>
                   <RefreshCw size={14} className="spin" /> Executing Quantum Training Pipeline...
@@ -190,7 +190,7 @@ export default function ResearcherConsole() {
         </form>
 
         {error && (
-          <div style={{ marginTop: "12px", padding: "8px 12px", background: "var(--risk-high-bg)", color: "var(--risk-high)", border: "1px solid var(--risk-high)", borderRadius: 0, fontSize: "0.80rem" }}>
+          <div style={{ marginTop: "12px", padding: "8px 12px", background: "var(--risk-high-bg)", color: "var(--risk-high)", border: "1px solid var(--risk-high)", borderRadius: "var(--radius-sm)", fontSize: "0.80rem" }}>
             {error}
           </div>
         )}
@@ -198,18 +198,18 @@ export default function ResearcherConsole() {
 
       {/* Training Convergence & Results */}
       {jobResult && (
-        <div className="card-panel" style={{ borderRadius: 0, border: "1px solid var(--border-default)" }}>
+        <div className="card-panel" style={{ borderRadius: "var(--radius-sm)", border: "1px solid var(--border-default)" }}>
           <div className="card-header">
             <span className="card-title">
               <CheckCircle2 size={16} color="var(--risk-low)" /> Retraining Job Completed: {jobResult.job_id}
             </span>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--risk-low)", background: "var(--risk-low-bg)", padding: "2px 8px", border: "1px solid var(--risk-low)", borderRadius: 0 }}>
+            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--risk-low)", background: "var(--risk-low-bg)", padding: "2px 8px", border: "1px solid var(--risk-low)", borderRadius: "var(--radius-sm)" }}>
               Registered: {jobResult.registered_model_tag}
             </span>
           </div>
 
           <div className="kpi-grid" style={{ marginTop: "12px", marginBottom: "16px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
-            <div className="kpi-tile" style={{ borderRadius: 0, border: "1px solid var(--border-default)" }}>
+            <div className="kpi-tile" style={{ borderRadius: "var(--radius-sm)", border: "1px solid var(--border-default)" }}>
               <div>
                 <p className="kpi-tile-label">Final Accuracy</p>
                 <p className="kpi-tile-value" style={{ color: "var(--risk-low)" }}>{(jobResult.final_accuracy * 100).toFixed(1)}%</p>
@@ -217,7 +217,7 @@ export default function ResearcherConsole() {
               </div>
               <CheckCircle2 size={22} color="var(--risk-low)" />
             </div>
-            <div className="kpi-tile" style={{ borderRadius: 0, border: "1px solid var(--border-default)" }}>
+            <div className="kpi-tile" style={{ borderRadius: "var(--radius-sm)", border: "1px solid var(--border-default)" }}>
               <div>
                 <p className="kpi-tile-label">Training Duration</p>
                 <p className="kpi-tile-value">{jobResult.training_time_seconds}s</p>
@@ -225,7 +225,7 @@ export default function ResearcherConsole() {
               </div>
               <Cpu size={22} color="var(--primary)" />
             </div>
-            <div className="kpi-tile" style={{ borderRadius: 0, border: "1px solid var(--border-default)" }}>
+            <div className="kpi-tile" style={{ borderRadius: "var(--radius-sm)", border: "1px solid var(--border-default)" }}>
               <div>
                 <p className="kpi-tile-label">Circuit Parameters</p>
                 <p className="kpi-tile-value">{qubits * layers * 3}</p>

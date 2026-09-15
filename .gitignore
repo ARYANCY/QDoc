@@ -1,94 +1,81 @@
 # ==============================================================================
-# Q-MedSense Git Ignore Configuration
+# Q-MedSense Root .gitignore (Production Multi-Tier Repository)
 # ==============================================================================
 
-# Python Environments & Caches
-.venv/
-venv/
-ENV/
-env/
-.env.local
+# OS & Editor Artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment Variables (Keep only .env.example tracked)
+.env
+.env*.local
+.env.production
+.env.staging
+frontend/.env
+frontend/.env.production
+backend/.env
+backend/.env.production
+model/.env
+model/.env.production
+!.env.example
+!frontend/.env.example
+!backend/.env.example
+!model/.env.example
+
+# Build Outputs & Dependencies
+node_modules/
+dist/
+build/
 __pycache__/
 *.py[cod]
 *$py.class
-*.egg-info/
-.pytest_cache/
-.mypy_cache/
-.coverage
-htmlcov/
+*.so
+.venv/
+venv/
+env/
 
 # Databases & Runtime State
 *.db
 *.sqlite
 *.sqlite3
-backend/*.db
+*.db-journal
+*.db-wal
+*.db-shm
 backend/qmedsense.db
 backend/qmedsense_demo.db
 qmedsense.db
 qmedsense_demo.db
 
-# Frontend Dependencies & Build Outputs
-node_modules/
-dist/
-frontend/dist/
-frontend/node_modules/
-card-frontend/dist/
-card-frontend/node_modules/
-.eslintcache
+# Storage, Uploads & Reports
+storage/uploads/*
+!storage/uploads/.gitkeep
+storage/reports/*
+!storage/reports/.gitkeep
+reports/*.pdf
+reports/*.json
 
-# Environment Variables & Secrets
-.env
-*.env
-!*.env.example
-*.secret
-*.pem
-*.key
-
-# Machine Learning Binary Weights (>100MB files that break git push)
-*.pt
-*.pth
-*.pkl
-*.onnx
-*.npy
-*.npz
-*.h5
-
-# Whitelist ML Model Architecture & Metadata JSONs
-!models/**/config.json
-!models/**/metrics.json
-!models/**/labels.json
-!models/**/calibration.json
-!models/**/training_history.json
-!models/**/pca_meta.json
-!models/**/experiment.json
-!models/**/final_metrics.json
-!models/registry.json
-!models/**/*.gitkeep
-
-# Reports, Generated Visualizations & Large Datasets
-reports/skin_cancer/cache/
-reports/generated_graphs/
-backend/graphs/generated/
+# Heavy Datasets & Model Weights (Managed via Cloud Storage / S3 / HuggingFace)
 datasets/
-logs/
+data/raw/
+data/processed/
+*.zip
+*.tar.gz
+*.tar
+*.7z
+*.vcf
+*.dcm
+*.npy
+reports/skin_cancer/cache/
+
+# Test Caches & Logs
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
 *.log
-!reports/README.md
-
-# OS & Editor Files
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
-scratch/
-*.swp
-*.swo
-
-# Whitelist Essential Configuration & Entry Files
-!main.py
-!requirements.txt
-!backend/requirements.txt
-!pyproject.toml
-!pytest.ini
-!README.md
-!.dockerignore
-!docker-compose.yml

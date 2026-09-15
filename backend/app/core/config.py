@@ -6,20 +6,25 @@ from typing import List
 
 from dotenv import load_dotenv
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
-load_dotenv(PROJECT_ROOT / ".env")
+BACKEND_ROOT = Path(__file__).resolve().parents[2]
+
+# Priority: backend/.env -> root .env
+if (BACKEND_ROOT / ".env").exists():
+    load_dotenv(BACKEND_ROOT / ".env")
+elif (PROJECT_ROOT / ".env").exists():
+    load_dotenv(PROJECT_ROOT / ".env")
 
 
 class Settings:
     PROJECT_NAME: str = "Q-MedSense — Quantum Clinical Decision Support API"
     VERSION: str = "2.0.0"
     SIH_PROBLEM_ID: str = "26139"
-    API_V1_PREFIX: str = "/api/v1"
+    API_V1_PREFIX: str = os.getenv("API_V1_PREFIX", "/api/v1")
 
     # Directory Paths & Database
-    BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent.parent
-    BACKEND_DIR: Path = Path(__file__).resolve().parent.parent.parent
+    BASE_DIR: Path = PROJECT_ROOT
+    BACKEND_DIR: Path = BACKEND_ROOT
     DATA_DIR: Path = BACKEND_DIR
     DB_MODE: str = os.getenv("QMED_DB_MODE", "production").strip().lower()
     REAL_DB_PATH: Path = Path(os.getenv("QMED_REAL_DB_PATH", str(BACKEND_DIR / "qmedsense.db")))
@@ -32,8 +37,13 @@ class Settings:
 
     # Security & Auth
     JWT_SECRET: str = os.getenv("JWT_SECRET", "qmed-sih2026-super-secret-key-change-in-prod")
-    JWT_ALGORITHM: str = "HS256"
+    JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "480"))
+    API_KEY: str = os.getenv("API_KEY", "qmed-master-api-key-2026")
+
+    # Model Microservice
+    MODEL_SERVICE_URL: str = os.getenv("MODEL_SERVICE_URL", "http://localhost:8001")
+    MODEL_SERVICE_API_KEY: str = os.getenv("MODEL_SERVICE_API_KEY", "qmed-internal-model-key-secure-prod-2026")
 
     # Quantum Backend & Execution
     QUANTUM_BACKEND: str = os.getenv("QUANTUM_BACKEND", "simulator")
@@ -54,10 +64,12 @@ class Settings:
             "http://127.0.0.1:5173",
             "http://localhost:3000",
             "http://127.0.0.1:3000",
+            "https://qmedsense.health",
+            "https://www.qmedsense.health",
         ]
         extra = os.getenv("CORS_ALLOWED_ORIGINS", "")
         if extra:
-            default_origins.extend(origin.strip() for origin in extra.split(",") if origin.strip())
+            default_origins.extend(origin.strip().rstrip("/") for origin in extra.split(",") if origin.strip())
         return list(dict.fromkeys(default_origins))
 
 

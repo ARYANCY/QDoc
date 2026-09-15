@@ -117,7 +117,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
           padding: "24px 28px",
           borderRadius: "var(--radius-sm)",
           border: "1px solid var(--border-default)",
-          borderTop: "3px solid var(--gold)",
+          borderTop: "3px solid var(--accent-blue)",
           boxShadow: "var(--shadow-modal), 0 20px 50px rgba(2, 132, 199, 0.16)",
           background: "var(--bg-surface)",
         }}
@@ -254,7 +254,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
                 style={{
                   background: "var(--bg-surface)",
                   border: "1px solid var(--border-default)",
-                  borderTop: "3px solid var(--gold)",
+                  borderTop: "3px solid var(--accent-blue)",
                   padding: "12px",
                   cursor: "pointer",
                   display: "flex",
@@ -491,7 +491,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
 
             {/* Doctor Profile Specific Fields */}
             {regRole === "doctor" && (
-              <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", borderLeft: "3px solid var(--gold)", padding: "10px 12px", display: "flex", flexDirection: "column", gap: "8px" }}>
+              <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", borderLeft: "3px solid var(--accent-blue)", padding: "10px 12px", display: "flex", flexDirection: "column", gap: "8px" }}>
                 <div style={{ fontSize: "0.68rem", fontWeight: 800, color: "var(--gold)", letterSpacing: "0.06em", textTransform: "uppercase" }}>
                   ★ Clinical Practice Details (Appears in Find Doctors & Consultations)
                 </div>

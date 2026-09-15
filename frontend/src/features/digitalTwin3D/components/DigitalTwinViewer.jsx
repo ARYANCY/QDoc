@@ -6,14 +6,17 @@ import ErrorBoundary from './ErrorBoundary';
 import { useTwinStore } from '../store/twinStore';
 import {
   RotateCcw, Eye, Maximize2, Minimize2,
-  Crosshair, Layers
+  Crosshair, Layers, Heart, Brain, Wind, Activity
 } from 'lucide-react';
 
 export default function DigitalTwinViewer({ canvasRef, compact = false }) {
   const setCameraAction    = useTwinStore((s) => s.setCameraAction);
   const selectedAnatomy    = useTwinStore((s) => s.selectedAnatomy);
+  const setSelectedAnatomy = useTwinStore((s) => s.setSelectedAnatomy);
   const xrayMode           = useTwinStore((s) => s.xrayMode);
   const setXrayMode        = useTwinStore((s) => s.setXrayMode);
+  const layers             = useTwinStore((s) => s.layers);
+  const toggleLayer        = useTwinStore((s) => s.toggleLayer);
 
   const containerRef = useRef();
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -30,31 +33,44 @@ export default function DigitalTwinViewer({ canvasRef, compact = false }) {
 
   const cameraPresets = compact ? ['Front', 'Top'] : ['Front', 'Back', 'Left', 'Right', 'Top'];
 
+  const quickOrgans = [
+    { id: 'BRAIN', label: 'Brain' },
+    { id: 'HEART', label: 'Heart' },
+    { id: 'LUNG_LEFT', label: 'Lungs' },
+    { id: 'LIVER', label: 'Liver' },
+    { id: 'KIDNEY_LEFT', label: 'Kidneys' },
+  ];
+
   return (
     <ErrorBoundary>
-      <div ref={containerRef} style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', userSelect: 'none' }}>
+      <div ref={containerRef} style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', userSelect: 'none', background: '#090D16' }}>
 
         {/* 3D WebGL Canvas */}
         <Canvas
           ref={canvasRef}
           gl={{ preserveDrawingBuffer: true, antialias: true, alpha: true, powerPreference: 'high-performance' }}
+          onCreated={({ gl }) => {
+            gl.domElement.addEventListener('webglcontextlost', (e) => {
+              e.preventDefault();
+            }, false);
+          }}
           camera={{ position: [0, 0.38, 2.35], fov: compact ? 48 : 44, near: 0.05, far: 60 }}
           shadows
           style={{ width: '100%', height: '100%', cursor: 'grab' }}
         >
-          <color attach="background" args={['#07080B']} />
+          <color attach="background" args={['#090D16']} />
 
-          {/* Cinematic Studio Lighting */}
-          <ambientLight intensity={0.95} />
-          <directionalLight position={[5, 8, 5]} intensity={1.5} castShadow shadow-mapSize={[2048, 2048]} />
-          <directionalLight position={[-5, 6, -4]} intensity={0.8} color="#D4AF37" />
-          <directionalLight position={[0, -2, 4]} intensity={0.4} color="#0F766E" />
-          <pointLight position={[0, 0.4, 2.2]} intensity={1.0} color="#ffffff" distance={7} />
-          <hemisphereLight skyColor="#1A1C24" groundColor="#060708" intensity={0.6} />
+          {/* Cinematic Anatomical Studio Lighting */}
+          <ambientLight intensity={1.1} />
+          <directionalLight position={[5, 8, 5]} intensity={1.6} castShadow shadow-mapSize={[2048, 2048]} />
+          <directionalLight position={[-5, 6, -4]} intensity={0.9} color="#38bdf8" />
+          <directionalLight position={[0, -2, 4]} intensity={0.5} color="#0D9488" />
+          <pointLight position={[0, 0.4, 2.2]} intensity={1.2} color="#ffffff" distance={8} />
+          <hemisphereLight skyColor="#1E293B" groundColor="#090D16" intensity={0.7} />
 
           {/* Holographic Floor Grid */}
           <gridHelper
-            args={[6, 24, '#D4AF37', '#202430']}
+            args={[6, 24, '#2563EB', '#1E293B']}
             position={[0, -0.90, 0]}
           />
 
@@ -79,7 +95,7 @@ export default function DigitalTwinViewer({ canvasRef, compact = false }) {
                 {label}
               </button>
             ))}
-            <div style={{ width: '1px', height: '14px', background: 'var(--dt-border-default)', margin: '0 2px' }} />
+            <div style={{ width: '1px', height: '14px', background: 'rgba(255,255,255,0.15)', margin: '0 2px' }} />
             <button
               type="button"
               onClick={() => setCameraAction('reset')}
@@ -97,16 +113,16 @@ export default function DigitalTwinViewer({ canvasRef, compact = false }) {
               type="button"
               onClick={() => setXrayMode(!xrayMode)}
               className={`dt-hud-btn ${xrayMode ? 'active' : ''}`}
-              title="Toggle Anatomical X-Ray Tissue Transparency"
+              title="Toggle Anatomical X-Ray Transparency"
               style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
             >
-              <Eye size={12} color={xrayMode ? 'var(--dt-teal-glow)' : 'var(--dt-text-muted)'} />
+              <Eye size={12} color={xrayMode ? '#93C5FD' : '#CBD5E1'} />
               <span>{compact ? (xrayMode ? 'X-Ray' : 'Solid') : `X-Ray ${xrayMode ? 'ON' : 'OFF'}`}</span>
             </button>
 
             {!compact && (
               <>
-                <div style={{ width: '1px', height: '14px', background: 'var(--dt-border-default)', margin: '0 2px' }} />
+                <div style={{ width: '1px', height: '14px', background: 'rgba(255,255,255,0.15)', margin: '0 2px' }} />
                 <button
                   type="button"
                   onClick={toggleFullscreen}
@@ -121,75 +137,63 @@ export default function DigitalTwinViewer({ canvasRef, compact = false }) {
           </div>
         </div>
 
-        {/* ── Floating Bottom-Left: Organ Selection HUD ── */}
-        <div style={{ position: 'absolute', bottom: '16px', left: '16px', zIndex: 15, pointerEvents: 'none' }}>
-          {selectedAnatomy ? (
-            <div className="dt-hud-organ-badge" style={{ pointerEvents: 'auto' }}>
-              <div
-                style={{
-                  width: '30px',
-                  height: '30px',
-                  borderRadius: '6px',
-                  background: 'rgba(212, 175, 55, 0.15)',
-                  border: '1px solid var(--dt-gold)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Crosshair size={16} color="var(--dt-gold)" />
-              </div>
-              <div>
-                <div style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.58rem', color: 'var(--dt-text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                  Selected Organ
-                </div>
-                <div style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.78rem', fontWeight: 800, color: '#FFFFFF' }}>
-                  {selectedAnatomy}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div
-              style={{
-                background: 'rgba(14, 16, 23, 0.8)',
-                backdropFilter: 'blur(8px)',
-                border: '1px solid var(--dt-border-default)',
-                borderRadius: '6px',
-                padding: '6px 10px',
-                fontFamily: 'var(--dt-font-mono)',
-                fontSize: '0.64rem',
-                color: 'var(--dt-text-muted)',
-              }}
-            >
-              Hover / click organ mesh to inspect telemetry
-            </div>
-          )}
-        </div>
-
-        {/* ── Floating Bottom-Right: Engine Tag ── */}
-        <div style={{ position: 'absolute', bottom: '16px', right: '16px', zIndex: 15, pointerEvents: 'none' }}>
+        {/* ── Floating Bottom Center: Quick Anatomical Layer Dock ── */}
+        {!compact && (
           <div
             style={{
-              background: 'rgba(14, 16, 23, 0.8)',
-              backdropFilter: 'blur(8px)',
-              border: '1px solid var(--dt-border-default)',
-              borderRadius: '6px',
-              padding: '6px 10px',
-              fontFamily: 'var(--dt-font-mono)',
-              fontSize: '0.60rem',
-              color: 'var(--dt-text-muted)',
+              position: 'absolute',
+              bottom: '16px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 15,
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: '4px',
+              padding: '4px 8px',
+              background: 'rgba(15, 23, 42, 0.85)',
+              backdropFilter: 'blur(12px)',
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              boxShadow: '0 6px 20px rgba(0, 0, 0, 0.35)',
             }}
           >
-            <span style={{ color: 'var(--dt-gold)', fontWeight: 800 }}>25 3D MESHES</span>
-            <span>|</span>
-            <span>WebGL 2.0 PBR</span>
+            {[
+              { id: 'organs', label: 'Organs' },
+              { id: 'skeleton', label: 'Skeleton' },
+              { id: 'vessels', label: 'Vessels' },
+              { id: 'airway', label: 'Airway' },
+              { id: 'urinary', label: 'Urinary' },
+              { id: 'skin', label: 'Skin' },
+            ].map((layer) => {
+              const active = layers[layer.id] !== false;
+              return (
+                <button
+                  key={layer.id}
+                  type="button"
+                  onClick={() => toggleLayer(layer.id)}
+                  style={{
+                    padding: '4px 9px',
+                    fontSize: '0.64rem',
+                    fontFamily: 'var(--dt-font-sans)',
+                    fontWeight: active ? 700 : 500,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.02em',
+                    border: 'none',
+                    borderRadius: '4px',
+                    background: active ? 'rgba(37, 99, 235, 0.45)' : 'transparent',
+                    color: active ? '#FFFFFF' : '#94A3B8',
+                    cursor: 'pointer',
+                    transition: 'all 0.12s ease',
+                  }}
+                >
+                  {layer.label}
+                </button>
+              );
+            })}
           </div>
-        </div>
+        )}
+
       </div>
     </ErrorBoundary>
   );
 }
-

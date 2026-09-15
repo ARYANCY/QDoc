@@ -139,7 +139,12 @@ def get_db_connection() -> Any:
     # SQLite connection for demo mode or local fallback
     conn = sqlite3.connect(str(settings.DB_PATH), check_same_thread=False, timeout=30.0)
     conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA busy_timeout = 30000;")
+    try:
+        conn.execute("PRAGMA journal_mode = WAL;")
+        conn.execute("PRAGMA synchronous = NORMAL;")
+        conn.execute("PRAGMA busy_timeout = 30000;")
+    except Exception:
+        pass
     return conn
 
 

@@ -26,7 +26,9 @@ export default function NotificationBell() {
 
   async function loadNotifications() {
     try {
-      const res = await notificationsApi.getNotifications(10);
+      const fetchFn = notificationsApi?.getNotifications || notificationsApi?.listNotifications;
+      if (!fetchFn) return;
+      const res = await fetchFn(10);
       if (res?.notifications) {
         setNotifications(res.notifications);
         setUnreadCount(res.unread_count || 0);
@@ -37,11 +39,12 @@ export default function NotificationBell() {
   }
 
   async function handleMarkRead(id, e) {
-    e.stopPropagation();
+    e?.stopPropagation?.();
     try {
-      await notificationsApi.markRead(id);
-      setNotifications(
-        notifications.map((n) => (n.id === id ? { ...n, is_read: 1 } : n))
+      const markFn = notificationsApi?.markRead || notificationsApi?.markAsRead;
+      if (markFn) await markFn(id);
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, is_read: 1 } : n))
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (err) {

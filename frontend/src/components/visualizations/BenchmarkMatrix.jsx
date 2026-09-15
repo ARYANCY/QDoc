@@ -61,7 +61,7 @@ export default function BenchmarkMatrix({ disease = "breast_cancer" }) {
       </div>
 
       {/* Comparative Matrix Table */}
-      <div className="card-panel" style={{ borderRadius: 0, border: "1px solid var(--border-default)" }}>
+      <div className="card-panel" style={{ borderRadius: "var(--radius-sm)", border: "1px solid var(--border-default)" }}>
         <div className="card-header">
           <span className="card-title">
             <BarChart3 size={15} color="var(--primary)" /> Standardized Comparative Evaluation Matrix
@@ -71,7 +71,7 @@ export default function BenchmarkMatrix({ disease = "breast_cancer" }) {
           </span>
         </div>
 
-        <div className="data-table-wrap" style={{ borderRadius: 0, border: "1px solid var(--border-default)" }}>
+        <div className="data-table-wrap" style={{ borderRadius: "var(--radius-sm)", border: "1px solid var(--border-default)" }}>
           <table className="clinical-data-table">
             <thead>
               <tr>
@@ -108,7 +108,7 @@ export default function BenchmarkMatrix({ disease = "breast_cancer" }) {
                         background: m.status === "Active SOTA" ? "var(--risk-low-bg)" : "var(--bg-surface-alt)",
                         color: m.status === "Active SOTA" ? "var(--risk-low)" : "var(--text-secondary)",
                         border: "1px solid var(--border-default)",
-                        borderRadius: 0,
+                        borderRadius: "var(--radius-sm)",
                       }}>
                         {m.status}
                       </span>

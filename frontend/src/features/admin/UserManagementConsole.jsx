@@ -141,7 +141,7 @@ export default function UserManagementConsole() {
   return (
     <div ref={containerRef} style={{ display: "flex", flexDirection: "column", height: "100%", gap: "16px" }}>
       {/* Header Bar */}
-      <div className="panel" style={{ padding: "18px 22px", background: "var(--bg-surface)", border: "1px solid var(--border-default)", borderLeft: "3px solid var(--gold)" }}>
+      <div className="panel" style={{ padding: "18px 22px", background: "var(--bg-surface)", border: "1px solid var(--border-default)", borderLeft: "3px solid var(--accent-blue)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <div style={{ padding: "10px", background: "var(--bg-surface-alt)", color: "var(--gold)" }}>
@@ -150,7 +150,7 @@ export default function UserManagementConsole() {
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
                 <span className="step-badge gold">ADMIN GOVERNANCE</span>
-                <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "1.35rem", fontWeight: 900, color: "var(--ink-primary)", margin: 0 }}>
+                <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.35rem", fontWeight: 900, color: "var(--ink-primary)", margin: 0 }}>
                   Enterprise User & Authority Management
                 </h2>
               </div>
@@ -163,7 +163,7 @@ export default function UserManagementConsole() {
             type="button"
             className="btn-primary"
             onClick={() => setCreateModalOpen(true)}
-            style={{ padding: "6px 14px", fontSize: "0.78rem", borderRadius: 0 }}
+            style={{ padding: "6px 14px", fontSize: "0.78rem", borderRadius: "var(--radius-sm)" }}
           >
             <UserPlus size={14} />
             <span>Add New User Account</span>
@@ -179,7 +179,7 @@ export default function UserManagementConsole() {
               placeholder="Search by name, username, or email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ width: "100%", padding: "6px 10px 6px 28px", border: "1px solid var(--border-default)", fontSize: "0.76rem", background: "var(--bg-canvas)", borderRadius: 0 }}
+              style={{ width: "100%", padding: "6px 10px 6px 28px", border: "1px solid var(--border-default)", fontSize: "0.76rem", background: "var(--bg-canvas)", borderRadius: "var(--radius-sm)" }}
             />
           </div>
 
@@ -189,7 +189,7 @@ export default function UserManagementConsole() {
                 key={r}
                 type="button"
                 className={`view-pill-btn ${filterRole === r ? "active" : ""}`}
-                style={{ borderRadius: 0, padding: "4px 10px", fontSize: "0.70rem", textTransform: "capitalize" }}
+                style={{ borderRadius: "var(--radius-sm)", padding: "4px 10px", fontSize: "0.70rem", textTransform: "capitalize" }}
                 onClick={() => setFilterRole(r)}
               >
                 {r === "all" ? "All Users" : (r === "patient" ? "Patients" : "Admins")}
@@ -201,7 +201,7 @@ export default function UserManagementConsole() {
             type="button"
             className="btn-secondary"
             onClick={loadUsers}
-            style={{ padding: "5px 10px", fontSize: "0.72rem", borderRadius: 0 }}
+            style={{ padding: "5px 10px", fontSize: "0.72rem", borderRadius: "var(--radius-sm)" }}
             title="Refresh user list"
           >
             <RefreshCw size={12} className={loading ? "spin" : ""} />
@@ -247,8 +247,8 @@ export default function UserManagementConsole() {
       </div>
 
       {/* Users Table */}
-      <div className="card-panel" style={{ borderRadius: 0, border: "1px solid var(--border-default)", padding: 0 }}>
-        <div className="data-table-wrap" style={{ borderRadius: 0, border: "none" }}>
+      <div className="card-panel" style={{ borderRadius: "var(--radius-sm)", border: "1px solid var(--border-default)", padding: 0 }}>
+        <div className="data-table-wrap" style={{ borderRadius: "var(--radius-sm)", border: "none" }}>
           <table className="clinical-data-table">
             <thead>
               <tr>
@@ -276,7 +276,7 @@ export default function UserManagementConsole() {
                         fontWeight: 700,
                         padding: "2px 6px",
                         border: "1px solid var(--border-default)",
-                        borderRadius: 0,
+                        borderRadius: "var(--radius-sm)",
                         background: u.role === "admin" ? "var(--accent-violet-soft)" : (u.role === "doctor" || u.role === "clinician") ? "rgba(217, 119, 6, 0.15)" : "var(--risk-low-bg)",
                         color: u.role === "admin" ? "var(--accent-violet)" : (u.role === "doctor" || u.role === "clinician") ? "var(--gold)" : "var(--risk-low)",
                         textTransform: "capitalize",
@@ -296,7 +296,7 @@ export default function UserManagementConsole() {
                           type="button"
                           className="btn-secondary"
                           onClick={() => setEditUser(u)}
-                          style={{ padding: "3px 8px", fontSize: "0.68rem", borderRadius: 0 }}
+                          style={{ padding: "3px 8px", fontSize: "0.68rem", borderRadius: "var(--radius-sm)" }}
                           title="Edit user profile & authority"
                         >
                           <Edit2 size={12} />
@@ -305,7 +305,7 @@ export default function UserManagementConsole() {
                           type="button"
                           className="btn-secondary"
                           onClick={() => setDeleteUserModal(u)}
-                          style={{ padding: "3px 8px", fontSize: "0.68rem", color: "var(--risk-high)", borderColor: "var(--risk-high)", borderRadius: 0 }}
+                          style={{ padding: "3px 8px", fontSize: "0.68rem", color: "var(--risk-high)", borderColor: "var(--risk-high)", borderRadius: "var(--radius-sm)" }}
                           title="Delete user account"
                         >
                           <Trash2 size={12} />
@@ -329,7 +329,7 @@ export default function UserManagementConsole() {
       {/* MODAL 1: Add New User */}
       {createModalOpen && (
         <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: "560px", padding: "20px", borderRadius: 0, border: "1px solid var(--border-default)" }}>
+          <div className="modal-content" style={{ maxWidth: "560px", padding: "20px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-default)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", borderBottom: "1px solid var(--border-default)", paddingBottom: "8px" }}>
               <strong style={{ fontSize: "1.05rem", color: "var(--primary)" }}>Register New Platform User</strong>
               <button type="button" onClick={() => setCreateModalOpen(false)} style={{ background: "transparent", border: 0, cursor: "pointer", color: "var(--text-muted)" }}>
@@ -448,7 +448,7 @@ export default function UserManagementConsole() {
       {/* MODAL 2: Edit User Authority & Profile */}
       {editUser && (
         <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: "560px", padding: "20px", borderRadius: 0, border: "1px solid var(--border-default)" }}>
+          <div className="modal-content" style={{ maxWidth: "560px", padding: "20px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-default)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", borderBottom: "1px solid var(--border-default)", paddingBottom: "8px" }}>
               <strong style={{ fontSize: "1.05rem", color: "var(--primary)" }}>Edit Authority: {editUser.name}</strong>
               <button type="button" onClick={() => setEditUser(null)} style={{ background: "transparent", border: 0, cursor: "pointer", color: "var(--text-muted)" }}>
@@ -534,7 +534,7 @@ export default function UserManagementConsole() {
       {/* MODAL 3: Delete Confirmation */}
       {deleteUserModal && (
         <div className="modal-overlay" style={{ backdropFilter: "blur(6px)" }}>
-          <div className="modal-content" style={{ maxWidth: "480px", padding: "22px", borderRadius: 0, border: "2px solid var(--risk-high)", background: "#FFFFFF" }}>
+          <div className="modal-content" style={{ maxWidth: "480px", padding: "22px", borderRadius: "var(--radius-sm)", border: "2px solid var(--risk-high)", background: "#FFFFFF" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "var(--risk-high)", marginBottom: "10px", borderBottom: "1px solid var(--border-default)", paddingBottom: "10px" }}>
               <AlertCircle size={20} />
               <div>
