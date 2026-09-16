@@ -1,5 +1,5 @@
-# Model Specification & Training Handbook (model.md)
-## Q-MedSense — Hybrid Quantum-Classical Model Family
+﻿# Model Specification & Training Handbook (model.md)
+## Q-RAKSHAK — Hybrid Quantum-Classical Model Family
 **SIH Problem Statement 26139 | Egreen Quanta**
 
 This document is the single source of truth for **what models to build, on what data, exactly how to train them, exactly how to evaluate them, and what rules govern them.** It complements `SRS.md` (architecture/formulas), `research.md` (competitive grounding), and `feature.md` (feature checklist).
@@ -25,7 +25,7 @@ This document is the single source of truth for **what models to build, on what 
 
 ## 1. Model Family Overview & Naming
 
-Rather than shipping one generic "the model," Q-MedSense ships a **named model family**, each with a clear identity, a clear disease scope, and a clear classical counterpart it must beat or justify itself against. Naming them distinctly also makes the Model Registry (Section 9) and the demo narrative much easier to follow for judges/clinicians.
+Rather than shipping one generic "the model," Q-RAKSHAK ships a **named model family**, each with a clear identity, a clear disease scope, and a clear classical counterpart it must beat or justify itself against. Naming them distinctly also makes the Model Registry (Section 9) and the demo narrative much easier to follow for judges/clinicians.
 
 | Codename | Type | Disease Module | Dataset(s) | Classical Rival It Must Benchmark Against |
 |---|---|---|---|---|
@@ -64,8 +64,8 @@ Rather than shipping one generic "the model," Q-MedSense ships a **named model f
 
 ### 3.1 Core Dependencies
 ```bash
-python -m venv qmedsense-env
-source qmedsense-env/bin/activate
+python -m venv q-rakshak-env
+source q-rakshak-env/bin/activate
 
 pip install qiskit qiskit-machine-learning qiskit-aer
 pip install pennylane pennylane-lightning
@@ -76,7 +76,7 @@ pip install pytest mypy black
 
 ### 3.2 Repository Layout (Model-Training Specific)
 ```
-q-medsense/
+Q-RAKSHAK/
 ├── data/
 │   ├── raw/                     # untouched downloaded datasets
 │   ├── processed/                # after cleaning/imputation/normalization
@@ -415,4 +415,4 @@ def quantum_advantage_score(acc_q, acc_c, t_c, t_q):
 
 ---
 
-*End of Document — Q-MedSense Model Specification & Training Handbook v1.0, companion to `SRS.md`, `research.md`, and `feature.md`, for SIH Problem Statement 26139.*
+*End of Document — Q-RAKSHAK Model Specification & Training Handbook v1.0, companion to `SRS.md`, `research.md`, and `feature.md`, for SIH Problem Statement 26139.*

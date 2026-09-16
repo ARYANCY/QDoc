@@ -1,23 +1,23 @@
-/* ── Q-MEDSENSE 3D DIGITAL HEALTH TWIN MODERN LIGHT CLINICAL STUDIO ─────────
+﻿/* ── Q-RAKSHAK 3D DIGITAL HEALTH TWIN MODERN LIGHT CLINICAL STUDIO ─────────
    Light Clinical Studio Palette • High Contrast Dark Text • Modern Ergonomic Cards
 ───────────────────────────────────────────────────────────────────────────── */
 
 :root {
-  --dt-bg-canvas: #090D16;
+  --dt-bg-canvas: #F8FAFC;
   --dt-bg-surface: #FFFFFF;
-  --dt-bg-card: #F8FAFC;
+  --dt-bg-card: #FFFFFF;
   --dt-bg-card-hover: #F1F5F9;
   --dt-bg-input: #FFFFFF;
-  --dt-border-subtle: #F1F5F9;
-  --dt-border-default: #E2E8F0;
-  --dt-border-hover: #CBD5E1;
-  --dt-accent-blue: #2563EB;
-  --dt-accent-blue-soft: #EFF6FF;
-  --dt-gold: #2563EB;
-  --dt-gold-light: #EFF6FF;
-  --dt-gold-glow: rgba(37, 99, 235, 0.2);
-  --dt-teal: #0D9488;
-  --dt-teal-glow: #0D9488;
+  --dt-border-subtle: #E2E8F0;
+  --dt-border-default: #CBD5E1;
+  --dt-border-hover: #94A3B8;
+  --dt-accent-blue: #025997;
+  --dt-accent-blue-soft: #E0F2FE;
+  --dt-gold: #9B713E;
+  --dt-gold-light: #F4E7D1;
+  --dt-gold-glow: rgba(155, 113, 62, 0.16);
+  --dt-teal: #765A43;
+  --dt-teal-glow: #765A43;
   --dt-text-primary: #0F172A;
   --dt-text-secondary: #334155;
   --dt-text-muted: #64748B;
@@ -432,7 +432,7 @@
   min-width: 0;
   height: 100%;
   position: relative;
-  background: #090D16;
+  background: #F1F5F9;
   overflow: hidden;
   display: flex;
   flex-direction: column;

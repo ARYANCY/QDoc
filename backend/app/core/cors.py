@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import logging
 import os
@@ -17,8 +17,8 @@ def get_allowed_origins() -> List[str]:
         "http://127.0.0.1:5173",
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "https://qmedsense.health",
-        "https://www.qmedsense.health",
+        "https://q-rakshak.health",
+        "https://www.q-rakshak.health",
     ]
     raw_env_origins = os.getenv("CORS_ALLOWED_ORIGINS", "")
     if raw_env_origins:

@@ -1,7 +1,7 @@
-# SLIDE 4: MATHEMATICAL & CLINICAL VALIDATION
+﻿# SLIDE 4: MATHEMATICAL & CLINICAL VALIDATION
 
 **Header:**
-- **Platform Brand:** `Q-MEDSENSE`
+- **Platform Brand:** `Q-RAKSHAK`
 - **Main Title:** `MATHEMATICAL FORMULATION & BENCHMARK VALIDATION`
 - **Hackathon Identifier:** `SMART INDIA HACKATHON 2026 | Problem Statement ID: 26139 | Theme: MedTech / BioTech / HealthTech`
 
@@ -58,7 +58,7 @@ $$\text{QAS} = \left( \frac{\text{Accuracy}_Q - \text{Accuracy}_C}{\text{Accurac
 The platform's benchmark data reflects a fundamental mathematical principle in near-term quantum machine learning:
 1. **Topological Feature Embedding Advantage in Imaging:** Complex visual representations (HAM10000, Kermany) map effectively onto parameterized $SU(2^n)$ Hilbert state spaces, capturing non-linear boundary correlations that dense classical CNN heads fail to represent (+2.1% to +3.2% gain).
 2. **Qubit Bottleneck on Tabular Biomarkers:** Tabular datasets (WDBC 30 features, Cleveland 13 features, Parkinson's 22 features) require extreme dimensionality reduction (PCA down to 4–8 qubits), discarding clinically critical non-linear interactions that classical tree ensembles (Random Forest, XGBoost) natively parse without information loss.
-3. **Autonomous Q-Triage Arbiter Formulation:** Rather than compromising clinical outcomes for marketing claims, Q-MedSense implements a dynamic clinical routing function:
+3. **Autonomous Q-Triage Arbiter Formulation:** Rather than compromising clinical outcomes for marketing claims, Q-RAKSHAK implements a dynamic clinical routing function:
 $$M^*(x) = \mathbb{I}\Big(\text{QAS} > 0 \;\land\; \text{Specificity}_Q \ge 0.80 \;\land\; \text{Accuracy}_Q \ge \text{Accuracy}_C\Big) \cdot M_Q(x) \;+\; \left[1 - \mathbb{I}\Big(\dots\Big)\right] \cdot M_C(x)$$
 Whenever quantum specificity or accuracy drops below clinical safety thresholds, the platform instantly routes primary diagnosis to the Classical Sentinel Baseline, while continuing to evaluate quantum telemetry in non-interfering shadow mode.
 

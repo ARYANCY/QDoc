@@ -6,5 +6,5 @@ if (-not (Test-Path "node_modules")) {
     npm install --legacy-peer-deps
 }
 
-Write-Host "Starting Q-MedSense Clinical Dashboard at http://localhost:5173 ..." -ForegroundColor Cyan
+Write-Host "Starting Q-RAKSHAK Hospital Portal at http://localhost:5173 ..." -ForegroundColor Cyan
 npm run dev

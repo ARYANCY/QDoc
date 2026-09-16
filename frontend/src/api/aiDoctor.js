@@ -1,4 +1,4 @@
-/**
+﻿/**
  * AI Doctor & Vapi Voice Consultation API Service
  */
 
@@ -19,7 +19,7 @@ export const aiDoctorApi = {
         has_vapi_key: false,
         vapi_public_key: "",
         vapi_assistant_id: "",
-        service_name: "Q-MedSense Vapi Voice AI Engine",
+        service_name: "Q-RAKSHAK Vapi Voice AI Engine",
         supported_voices: [
           { id: "sarah", name: "Dr. Sarah (Warm Clinical - Female)", provider: "11labs" },
           { id: "george", name: "Dr. George (Reassuring - Male)", provider: "11labs" },

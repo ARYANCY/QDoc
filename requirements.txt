@@ -1,5 +1,5 @@
-# ==============================================================================
-# Q-MedSense: Quantum Machine Learning Clinical Decision Support Platform
+﻿# ==============================================================================
+# Q-RAKSHAK: Quantum Machine Learning Clinical Decision Support Platform
 # SIH Problem Statement ID: 26139
 # Python 3.10 - 3.12 Dependencies
 # ==============================================================================

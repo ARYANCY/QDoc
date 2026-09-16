@@ -1,6 +1,6 @@
-/* ── Q-MedSense Modern Aesthetic Light Design System ────────────────────────
-   Edition: 2026 // Clinical Quantum & Diagnostic Intelligence
-   Visual Character: Modern Light Studio • Clean Aesthetic • High Contrast
+/* ── Q-RAKSHAK Modern Hospital Design System ────────────────────────
+   Edition: 2026 // Hospital Portal & Patient Care
+   Visual Character: Clean Medical Center • Trustworthy Blues • Accessible
    Crisp Typography • Ergonomic Radii • Soft Drop Shadows • Clean Borders
 ───────────────────────────────────────────────────────────────────────────── */
 
@@ -24,14 +24,14 @@
   --bg-card-emerald: #ECFDF5;       /* Emerald-50 soft accent */
   --bg-card-rose: #FFF1F2;          /* Rose-50 soft accent */
 
-  /* ── Brand & Accent Palette ── */
-  --primary: #0F172A;                /* Deep Slate Graphite */
-  --primary-hover: #1E293B;          /* Slate-800 */
-  --primary-dark: #020617;           /* Slate-950 */
-  --primary-soft: #F1F5F9;           /* Slate-100 */
-  --primary-light: #E2E8F0;          /* Slate-200 */
-  --primary-glow: rgba(37, 99, 235, 0.18);
-  --primary-gradient: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+  /* ── Brand & Accent Palette (Hospital Blues) ── */
+  --primary: #025997;                /* Hospital Blue */
+  --primary-hover: #014273;          /* Darker Hospital Blue */
+  --primary-dark: #012B4A;           /* Deep Navy Blue */
+  --primary-soft: #E6F3FF;           /* Very light blue */
+  --primary-light: #BFE0FF;          /* Light blue */
+  --primary-glow: rgba(2, 89, 151, 0.18);
+  --primary-gradient: linear-gradient(135deg, #025997 0%, #014273 100%);
   
   --accent-blue: #2563EB;            /* Royal Blue */
   --accent-blue-soft: #EFF6FF;
@@ -74,7 +74,7 @@
   --risk-high-border: #FECDD3;
 
   /* ── High-Contrast Typography Colors ── */
-  --text-primary: #0F172A;           /* High contrast dark text */
+  --text-primary: #012B4A;           /* High contrast dark navy for trust */
   --text-secondary: #334155;         /* Medium high contrast */
   --text-muted: #64748B;             /* Helper labels */
   --text-light: #94A3B8;             /* Subtle tertiary */
@@ -1582,7 +1582,7 @@ body.high-contrast {
 .editorial-login-page {
   min-height: 100vh;
   overflow-y: auto;
-  background: #070B14 !important;
+  background: #F0F7FF !important;
   position: relative;
 }
 
@@ -1601,7 +1601,7 @@ body.high-contrast {
   height: 550px;
   top: -120px;
   right: -80px;
-  background: radial-gradient(circle, rgba(37, 99, 235, 0.45) 0%, rgba(13, 148, 136, 0.25) 50%, transparent 75%);
+  background: radial-gradient(circle, rgba(2, 89, 151, 0.15) 0%, rgba(14, 165, 233, 0.08) 50%, transparent 75%);
   animation: orbFloat1 18s ease-in-out infinite alternate;
 }
 
@@ -1610,7 +1610,7 @@ body.high-contrast {
   height: 620px;
   bottom: -160px;
   left: -120px;
-  background: radial-gradient(circle, rgba(124, 58, 237, 0.38) 0%, rgba(37, 99, 235, 0.22) 50%, transparent 75%);
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.12) 0%, rgba(2, 89, 151, 0.06) 50%, transparent 75%);
   animation: orbFloat2 22s ease-in-out infinite alternate;
 }
 
@@ -1619,7 +1619,7 @@ body.high-contrast {
   height: 420px;
   top: 35%;
   left: 30%;
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(6, 182, 212, 0.15) 50%, transparent 75%);
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, rgba(14, 165, 233, 0.05) 50%, transparent 75%);
   animation: orbFloat3 16s ease-in-out infinite alternate;
 }
 
@@ -1628,8 +1628,8 @@ body.high-contrast {
   position: absolute;
   inset: 0;
   background-image: 
-    linear-gradient(rgba(37, 99, 235, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(37, 99, 235, 0.05) 1px, transparent 1px);
+    linear-gradient(rgba(2, 89, 151, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(2, 89, 151, 0.06) 1px, transparent 1px);
   background-size: 40px 40px;
   pointer-events: none;
   z-index: 1;
@@ -1674,10 +1674,10 @@ body.high-contrast {
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #3B82F6, #10B981, #06B6D4, #8B5CF6, #EC4899, #3B82F6);
+  background: linear-gradient(90deg, #93C5FD, #025997, #BFDBFE, #60A5FA, #025997, #93C5FD);
   background-size: 300% 100%;
   animation: shimmerBar 4s linear infinite;
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+  box-shadow: 0 0 12px rgba(2, 89, 151, 0.25);
 }
 
 @keyframes shimmerBar {
@@ -1685,13 +1685,11 @@ body.high-contrast {
   100% { background-position: 100% 50%; }
 }
 
-/* Glassmorphic Auth Card (Dark Frosted Obsidian Glass) */
+/* Auth Card (Light Hospital White) */
 .login-auth-card-glass {
-  background: rgba(13, 19, 33, 0.72) !important;
-  backdrop-filter: blur(28px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 0 40px -10px rgba(37, 99, 235, 0.25) !important;
+  background: #FFFFFF !important;
+  border: 1px solid #BFDBFE !important;
+  box-shadow: 0 4px 24px -4px rgba(2, 89, 151, 0.10), 0 1px 4px rgba(2, 89, 151, 0.06) !important;
   border-radius: 16px !important;
   position: relative;
   overflow: hidden;
@@ -1699,8 +1697,8 @@ body.high-contrast {
 }
 
 .login-auth-card-glass:hover {
-  border-color: rgba(59, 130, 246, 0.35) !important;
-  box-shadow: 0 30px 70px -12px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.12) inset, 0 0 50px -5px rgba(37, 99, 235, 0.35) !important;
+  border-color: #93C5FD !important;
+  box-shadow: 0 8px 32px -4px rgba(2, 89, 151, 0.16), 0 1px 4px rgba(2, 89, 151, 0.08) !important;
 }
 
 /* Persona Selection Cards (Dark Glass Glow) */
@@ -1759,20 +1757,20 @@ body.high-contrast {
   100% { transform: scale(2.6); opacity: 0; }
 }
 
-/* Feature Stat Pillars (Dark Glass) */
+/* Feature Stat Pillars (Light Hospital Cards) */
 .feature-stat-box-dark {
   padding: 14px 16px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(16px);
+  background: #FFFFFF;
+  border: 1px solid #BFDBFE;
+  box-shadow: 0 1px 4px rgba(2, 89, 151, 0.06);
   transition: all 0.25s ease;
 }
 
 .feature-stat-box-dark:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(59, 130, 246, 0.3);
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4), 0 0 16px rgba(37, 99, 235, 0.15);
+  background: #F0F9FF;
+  border-color: #93C5FD;
+  box-shadow: 0 4px 16px -2px rgba(2, 89, 151, 0.14);
   transform: translateY(-3px);
 }
 
@@ -3158,3 +3156,4 @@ textarea,
   border-color: #0F172A !important;
   background: #F8FAFC !important;
 }
+

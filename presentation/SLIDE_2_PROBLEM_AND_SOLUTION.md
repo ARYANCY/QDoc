@@ -1,8 +1,8 @@
 ﻿# SLIDE 2: PROBLEM & PROPOSED SOLUTION
 
 **Header:**
-- **Platform Brand:** `Q-MEDSENSE`
-- **Main Title:** `Q-MEDSENSE: A Sovereign, Quantum-Classical Hybrid Clinical Decision Support Platform for Multi-Modal Early Disease Diagnostics & Digital Twin Intelligence`
+- **Platform Brand:** `Q-RAKSHAK`
+- **Main Title:** `Q-RAKSHAK: A Sovereign, Quantum-Classical Hybrid Clinical Decision Support Platform for Multi-Modal Early Disease Diagnostics & Digital Twin Intelligence`
 - **Hackathon Identifier:** `SMART INDIA HACKATHON 2026 | Problem Statement ID: 26139 | Theme: MedTech / BioTech / HealthTech`
 
 ---
@@ -156,7 +156,7 @@ flowchart TD
 
 ### Heading 3: Innovation & Uniqueness Circular Donut Wheel (6 Pillars)
 **Visual Diagram Prompt:**
-> A segmented circular donut infographic wheel divided into 6 equal slices numbered 01 to 06 with a central core labeled 'Q-MedSense Key Innovations':
+> A segmented circular donut infographic wheel divided into 6 equal slices numbered 01 to 06 with a central core labeled 'Q-RAKSHAK Key Innovations':
 > - 01: Quantum Advantage Score (QAS)
 > - 02: Dual-Tier Architecture (Edge + Hub)
 > - 03: Quality-Gated Conformal Prediction
@@ -169,7 +169,7 @@ flowchart TD
 ```json
 {
   "title": "Six Pillars of Innovation Circular Infographic Wheel",
-  "prompt": "A modern 6-segment circular donut infographic wheel on a dark slate background. Center hub labeled 'Q-MedSense Core Innovations'. Six radiating numbered segments (01 to 06) with color-coded gradients from royal blue to cyan and emerald. Outward callout arrows pointing to numbered cards: 01 Quantum Advantage Score, 02 Dual-Tier Architecture, 03 Conformal Prediction, 04 Parameter-Shift Telemetry, 05 3D/2D Digital Twin, 06 DPDP 2023 & WORM Ledger. High-end presentation slide visual, sleek vector art, perfectly circular symmetry.",
+  "prompt": "A modern 6-segment circular donut infographic wheel on a dark slate background. Center hub labeled 'Q-RAKSHAK Core Innovations'. Six radiating numbered segments (01 to 06) with color-coded gradients from royal blue to cyan and emerald. Outward callout arrows pointing to numbered cards: 01 Quantum Advantage Score, 02 Dual-Tier Architecture, 03 Conformal Prediction, 04 Parameter-Shift Telemetry, 05 3D/2D Digital Twin, 06 DPDP 2023 & WORM Ledger. High-end presentation slide visual, sleek vector art, perfectly circular symmetry.",
   "style": "executive presentation infographic, segmented wheel chart",
   "aspect_ratio": "16:9",
   "color_palette": ["#0F172A", "#2563EB", "#06B6D4", "#10B981", "#F59E0B"],

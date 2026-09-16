@@ -1,8 +1,8 @@
-# SLIDE 1: TITLE & EXECUTIVE SUMMARY
+﻿# SLIDE 1: TITLE & EXECUTIVE SUMMARY
 
 **Header:**
-- **Platform Brand:** `Q-MEDSENSE`
-- **Main Title:** `Q-MEDSENSE: HYBRID QUANTUM MACHINE LEARNING CLINICAL DECISION SUPPORT PLATFORM`
+- **Platform Brand:** `Q-RAKSHAK`
+- **Main Title:** `Q-RAKSHAK: HYBRID QUANTUM MACHINE LEARNING CLINICAL DECISION SUPPORT PLATFORM`
 - **Subtitle:** `A Sovereign, Air-Gapped Framework for Multi-Modal Early Disease Detection, Quantum Telemetry & 3D Physiological Digital Twin Intelligence`
 - **Hackathon Details:** `Smart India Hackathon 2026 | Problem Statement ID: 26139 | Theme: MedTech / BioTech / HealthTech`
 
@@ -12,13 +12,13 @@
 
 Modern healthcare diagnostic pipelines are overwhelmed by exponential increases in high-dimensional biomedical data (genomic variants, radiomics, cellular dermoscopy, and electronic health records). Classical deep learning models suffer from the curse of dimensionality, catastrophic vanishing gradients in high-entropy feature spaces, and opaque "black-box" decision architectures that fail clinical safety benchmarks.
 
-**Q-MedSense** solves this crisis by bridging **Variational Quantum Classifiers (VQC)**, **Quantum Support Vector Machines (QSVM)**, and **Quantum Neural Networks (QNN)** with real-time perturbation explainability (SHAP / Grad-CAM), mathematically guaranteed **Conformal Prediction coverage sets (90%)**, and an interactive **3D/2D Physiological Digital Twin**.
+**Q-RAKSHAK** solves this crisis by bridging **Variational Quantum Classifiers (VQC)**, **Quantum Support Vector Machines (QSVM)**, and **Quantum Neural Networks (QNN)** with real-time perturbation explainability (SHAP / Grad-CAM), mathematically guaranteed **Conformal Prediction coverage sets (90%)**, and an interactive **3D/2D Physiological Digital Twin**.
 
 ### Key Architectural Highlights:
 - ⚛️ **Hybrid Quantum-Classical Execution:** Evaluates clinical samples via PennyLane statevector simulations (`default.qubit`) and hardware QPU queues (Qiskit / IBM Quantum), benchmarking against classical models (DenseNet-121, EfficientNet-B0, Random Forest, XGBoost).
 - 🔐 **Dynamic Role-Based Access Control (RBAC):** Automatically adapts navigation menus and access privileges across authenticated personas (*Clinician*, *Researcher*, *Admin*, *Patient*).
 - 📊 **Zero Default Metric Enforcement:** Strictly initializes unanalyzed clinical views at `0%` / `0.00` / `Unanalyzed` with zero hardcoded dummy placeholders.
-- 🗄️ **Persistent SQLite Engine (`qmedsense.db`):** Stores clinical records, patient profiles, diagnostic histories, and WORM-compliant tamper-evident audit logs with SHA-256 digital signatures.
+- 🗄️ **Persistent SQLite Engine (`q-rakshak.db`):** Stores clinical records, patient profiles, diagnostic histories, and WORM-compliant tamper-evident audit logs with SHA-256 digital signatures.
 - ♿ **WCAG 2.1 AA Compliant Clinical UI:** High-contrast, dense single-screen desktop interface with dyslexia font toggles, reduced motion modes, and zero-border-radius aesthetics.
 - 📱 **Offline Emergency Health Pass:** Generates a compressed Base64URL 25x25 QR matrix scannable by any smartphone camera without internet connectivity.
 
@@ -42,7 +42,7 @@ Modern healthcare diagnostic pipelines are overwhelmed by exponential increases 
 
 ## 3. Visual Diagrams & Image Generation Prompts:
 
-### Heading: Q-MedSense Hero Title & Quantum Medical Visual
+### Heading: Q-RAKSHAK Hero Title & Quantum Medical Visual
 **Visual Diagram Prompt:**
 > An ultra-premium title slide graphic representing quantum healthcare innovation:
 > - Center: A glowing, semi-transparent human anatomical digital twin surrounded by concentric quantum orbital rings and pulsing qubit Bloch spheres.
@@ -53,7 +53,7 @@ Modern healthcare diagnostic pipelines are overwhelmed by exponential increases 
 **JSON Prompt to Create Image:**
 ```json
 {
-  "title": "Q-MedSense Championship Pitch Hero Slide Graphic",
+  "title": "Q-RAKSHAK Championship Pitch Hero Slide Graphic",
   "prompt": "Cinematic high-tech medical quantum intelligence hero image. A glowing 3D wireframe human body silhouette at the center surrounded by holographic quantum qubit orbital rings and circuit traces. Left: glowing DNA double-helix intertwining with quantum computing gate symbols (H, CNOT, Rz). Right: floating translucent clinical diagnostic screens displaying chest X-ray radiograph and vital signs monitor. Dark futuristic navy blue environment, electric cyan, teal, and ultraviolet luminescent accents, ultra-sharp detail, 8k resolution.",
   "style": "cinematic 3D sci-fi medical concept art, executive tech cover visual",
   "aspect_ratio": "16:9",

@@ -1,6 +1,6 @@
-# Software Requirements Specification (SRS)
+﻿# Software Requirements Specification (SRS)
 ## Hybrid Quantum Machine Learning Platform for Early Disease Detection
-**Q-MedSense — Quantum-Enhanced Clinical Decision Support Platform**
+**Q-RAKSHAK — Quantum-Enhanced Clinical Decision Support Platform**
 
 | Field | Value |
 |---|---|
@@ -40,10 +40,10 @@
 ## 1. Introduction
 
 ### 1.1 Purpose
-This SRS defines the complete functional, algorithmic, architectural, security, and design requirements for **Q-MedSense**, a hybrid quantum-classical machine learning software platform for early detection of cancer, cardiovascular disease, and neurological disorders from high-dimensional biomedical data (genomics, imaging-derived features, EHR/tabular clinical data).
+This SRS defines the complete functional, algorithmic, architectural, security, and design requirements for **Q-RAKSHAK**, a hybrid quantum-classical machine learning software platform for early detection of cancer, cardiovascular disease, and neurological disorders from high-dimensional biomedical data (genomics, imaging-derived features, EHR/tabular clinical data).
 
 ### 1.2 Scope
-Q-MedSense ingests biomedical data → applies classical preprocessing/feature engineering → encodes reduced features into quantum states → trains hybrid quantum-classical classifiers (VQC / QNN / QSVM) on simulators (Qiskit Aer / PennyLane) and optionally near-term hardware (IBM Quantum, IonQ via cloud) → produces predictions with confidence, explainability, and a 2D digital twin visualization of the patient's physiological/risk state → benchmarks against classical baselines (Logistic Regression, Random Forest, XGBoost, classical SVM, MLP).
+Q-RAKSHAK ingests biomedical data → applies classical preprocessing/feature engineering → encodes reduced features into quantum states → trains hybrid quantum-classical classifiers (VQC / QNN / QSVM) on simulators (Qiskit Aer / PennyLane) and optionally near-term hardware (IBM Quantum, IonQ via cloud) → produces predictions with confidence, explainability, and a 2D digital twin visualization of the patient's physiological/risk state → benchmarks against classical baselines (Logistic Regression, Random Forest, XGBoost, classical SVM, MLP).
 
 ### 1.3 Intended Audience
 SIH evaluators, clinicians, hospital IT administrators, data scientists, quantum computing engineers, and end-patients (via a simplified patient portal).
@@ -634,7 +634,7 @@ See Section 1.4 for core acronyms. Additional terms should be added as the team 
 
 ### Appendix D — Suggested Repository Structure
 ```
-q-medsense/
+Q-RAKSHAK/
 ├── frontend/                # React + TypeScript app
 ├── backend/                 # FastAPI services
 │   ├── ingestion/
@@ -653,4 +653,4 @@ q-medsense/
 
 ---
 
-*End of Document — Q-MedSense SRS v1.0 for SIH Problem Statement 26139.*
+*End of Document — Q-RAKSHAK SRS v1.0 for SIH Problem Statement 26139.*

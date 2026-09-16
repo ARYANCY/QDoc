@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import logging
 import time
@@ -169,7 +169,7 @@ def run_cli_ablation():
     """CLI Entrypoint: runs the full scientific ablation matrix and prints comparison table."""
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
     print("\n" + "=" * 115)
-    print(" Q-MedSense: Scientific Ablation Matrix Runner (Experiments A–F)")
+    print(" Q-RAKSHAK: Scientific Ablation Matrix Runner (Experiments A–F)")
     print("=" * 115)
 
     import pandas as pd

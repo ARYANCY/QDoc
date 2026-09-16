@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import logging
 from fastapi import FastAPI, Request
@@ -29,7 +29,7 @@ from backend.app.features.skin_cancer.controller import router as skin_cancer_ro
 logger = logging.getLogger("qmed.api")
 
 app = FastAPI(
-    title="Q-MedSense — Quantum Clinical Decision Support API",
+    title="Q-RAKSHAK — Quantum Clinical Decision Support API",
     description="Hybrid Quantum Machine Learning Platform for Early Disease Detection (SIH 26139).",
     version="2.0.0",
 )
@@ -92,7 +92,7 @@ app.include_router(ai_doctor_router)
 @app.get("/")
 def root():
     return {
-        "platform": "Q-MedSense",
+        "platform": "Q-RAKSHAK",
         "version": "2.0.0",
         "sih_problem_id": "26139",
         "status": "online",

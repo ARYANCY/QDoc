@@ -63,7 +63,7 @@ export default function ClinicianDashboard({ doctorId = "DOC-KAVITA", currentUse
       primaryModule: b.specialty || b.intake?.disease || "Cardiology / Oncology",
       age: b.intake?.age || 48,
       gender: b.intake?.gender || "Male",
-      risk: isEmergency ? "Emergency Red-Flag" : "Routine Ambulatory",
+      risk: isEmergency ? "Urgent review" : "Regular visit",
       isEmergency,
       crs: Math.round((isEmergency ? 0.92 : 0.28) * 100),
       symptoms: b.intake?.symptoms || b.intake?.reason || "General assessment & vital review",
@@ -81,7 +81,7 @@ export default function ClinicianDashboard({ doctorId = "DOC-KAVITA", currentUse
           onClick={() => setActiveBookingForRoom(null)}
           style={{ marginBottom: "16px", display: "inline-flex", alignItems: "center", gap: "6px" }}
         >
-          ← Return to Clinician Dashboard
+          Return to Clinician Dashboard
         </button>
         <VirtualConsultationRoom
           booking={activeBookingForRoom}
@@ -113,10 +113,10 @@ export default function ClinicianDashboard({ doctorId = "DOC-KAVITA", currentUse
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px" }}>
               <span className="step-badge" style={{ background: "rgba(37, 99, 235, 0.1)", color: "var(--accent-blue)", borderColor: "rgba(37, 99, 235, 0.25)" }}>
-                CLINICAL TRIAGE COMMAND // OPD
+                TODAY'S CARE TEAM
               </span>
               <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.35rem", color: "var(--ink-primary)", fontWeight: 800, margin: 0 }}>
-                Hospital Clinical Triage & Telehealth
+                Patient care and appointments
               </h2>
             </div>
             <p style={{ color: "var(--text-secondary)", fontSize: "0.80rem", margin: 0 }}>
@@ -125,38 +125,38 @@ export default function ClinicianDashboard({ doctorId = "DOC-KAVITA", currentUse
           </div>
           <div style={{ display: "flex", gap: "10px" }}>
             <span className="step-badge" style={{ padding: "6px 12px", fontSize: "0.72rem", background: "var(--risk-low-bg)", color: "var(--risk-low)", borderColor: "var(--risk-low-border)", display: "flex", alignItems: "center", gap: "6px" }}>
-              <ShieldCheck size={14} /> ABAC Verified Care Team
+              Care team verified
             </span>
           </div>
         </div>
       </div>
 
-      {/* Hospital Triage KPI Scoreboard */}
+      {/* Care team overview */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px" }}>
         <div className="card-panel" style={{ padding: "14px 18px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-default)", background: "var(--bg-surface)" }}>
-          <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>Total Queue</div>
+            <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>Patients waiting</div>
           <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--ink-primary)", margin: "2px 0" }}>{bookings.length}</div>
-          <div style={{ fontSize: "0.72rem", color: "var(--text-secondary)" }}>Checked-in patients</div>
+            <div style={{ fontSize: "0.72rem", color: "var(--text-secondary)" }}>Ready for a visit</div>
         </div>
 
         <div className="card-panel" style={{ padding: "14px 18px", borderRadius: "var(--radius-sm)", border: "1px solid var(--risk-high-border)", background: emergencyCount > 0 ? "var(--risk-high-bg)" : "var(--bg-surface)" }}>
           <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--risk-high)", textTransform: "uppercase", display: "flex", alignItems: "center", gap: "6px" }}>
-            <AlertTriangle size={12} /> Red-Flag Triage
+            Urgent reviews
           </div>
           <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--risk-high)", margin: "2px 0" }}>{emergencyCount}</div>
-          <div style={{ fontSize: "0.72rem", color: "var(--risk-high)", fontWeight: 600 }}>Immediate physician review</div>
+            <div style={{ fontSize: "0.72rem", color: "var(--risk-high)", fontWeight: 600 }}>Needs prompt attention</div>
         </div>
 
         <div className="card-panel" style={{ padding: "14px 18px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-default)", background: "var(--bg-surface)" }}>
-          <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>Routine Ambulatory</div>
+            <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>Regular visits</div>
           <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--ink-primary)", margin: "2px 0" }}>{routineCount}</div>
-          <div style={{ fontSize: "0.72rem", color: "var(--text-secondary)" }}>Standard scheduled consultations</div>
+            <div style={{ fontSize: "0.72rem", color: "var(--text-secondary)" }}>Scheduled appointments</div>
         </div>
 
         <div className="card-panel" style={{ padding: "14px 18px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-default)", background: "var(--bg-surface)" }}>
-          <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>Average Wait Time</div>
+            <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>Usual wait</div>
           <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--accent-blue)", margin: "2px 0" }}>&lt; 6 Min</div>
-          <div style={{ fontSize: "0.72rem", color: "var(--text-secondary)" }}>Dynamic automated triage</div>
+          <div style={{ fontSize: "0.72rem", color: "var(--text-secondary)" }}>Usually seen promptly</div>
         </div>
       </div>
 
@@ -171,7 +171,7 @@ export default function ClinicianDashboard({ doctorId = "DOC-KAVITA", currentUse
                 Scheduled Appointments ({bookings.length})
               </h3>
             </div>
-            <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>Live Queue</span>
+            <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>Appointments</span>
           </div>
 
           {loading ? (
@@ -226,16 +226,16 @@ export default function ClinicianDashboard({ doctorId = "DOC-KAVITA", currentUse
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <Activity size={16} color="var(--risk-high)" />
               <h3 style={{ margin: 0, fontSize: "0.95rem", fontWeight: 700, color: "var(--ink-primary)" }}>
-                Clinical Risk Stratification (CRS)
+                Patients needing attention
               </h3>
             </div>
-            <span style={{ fontSize: "0.72rem", color: "var(--risk-high)", fontWeight: 700 }}>Priority Dispatch</span>
+            <span style={{ fontSize: "0.72rem", color: "var(--risk-high)", fontWeight: 700 }}>Priority review</span>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             {triageCohort.length === 0 ? (
               <div style={{ padding: "30px 12px", textAlign: "center", color: "var(--text-muted)", fontSize: "0.82rem" }}>
-                No active triage records currently waiting.
+                No patients currently need attention.
               </div>
             ) : triageCohort.map((pat) => (
               <div

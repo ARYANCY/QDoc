@@ -37,7 +37,7 @@ export default function BottomBar() {
         </div>
       </div>
 
-      {/* Live Twin Telemetry & Status Badges */}
+      {/* Current health view summary */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
         <div className="dt-legend-item" style={{ background: 'var(--dt-accent-blue-soft)', borderColor: 'rgba(37, 99, 235, 0.2)' }}>
           <Activity size={12} color="var(--dt-accent-blue)" />
@@ -47,16 +47,16 @@ export default function BottomBar() {
         </div>
 
         <div className="dt-legend-item">
-          <ShieldAlert size={12} color={organCount > 0 ? '#D97706' : '#059669'} />
+          <ShieldAlert size={12} color="var(--dt-accent-blue)" />
           <span style={{ color: 'var(--dt-text-primary)', fontWeight: 600 }}>
             {organCount} Hotspot{organCount !== 1 ? 's' : ''}
           </span>
         </div>
 
-        <div className="dt-legend-item" style={{ background: '#ECFDF5', borderColor: '#A7F3D0' }}>
-          <Cpu size={12} color="#059669" />
-          <span style={{ color: '#059669', fontWeight: 700 }}>
-            {patientMode === 'active' ? `Twin Synced: ${patient.patientId || 'PT-89421'}` : 'Interactive Standby'}
+        <div className="dt-legend-item" style={{ background: 'var(--dt-bg-card-hover)', borderColor: 'var(--dt-border-default)' }}>
+          <Cpu size={12} color="var(--dt-accent-blue)" />
+          <span style={{ color: 'var(--dt-accent-blue)', fontWeight: 700 }}>
+            {patientMode === 'active' ? `Health view updated: ${patient.patientId || 'PT-89421'}` : 'Ready to explore'}
           </span>
         </div>
       </div>

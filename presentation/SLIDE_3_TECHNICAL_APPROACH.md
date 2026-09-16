@@ -1,4 +1,4 @@
-# SLIDE 3: TECHNICAL APPROACH
+﻿# SLIDE 3: TECHNICAL APPROACH
 
 ## Official SIH 2026 Header
 - **Problem Statement ID:** `26139`
@@ -177,7 +177,7 @@ flowchart LR
 
     %% Core System Boundary
     subgraph S_SYS["System Boundary"]
-        SYS["0.0 Q-MEDSENSE PLATFORM<br/>Hybrid Quantum-Classical Core"]:::cleanNode
+        SYS["0.0 Q-RAKSHAK PLATFORM<br/>Hybrid Quantum-Classical Core"]:::cleanNode
     end
 
     %% External Entities (Egress)
@@ -292,7 +292,7 @@ flowchart TD
 
 ## 5. Working Prototype & Verified Repositories
 
-- **Core GitHub Repository:** [https://github.com/ARYANCY/QDoc](https://github.com/ARYANCY/QDoc)
+- **Core GitHub Repository:** [https://github.com/ARYANCY/Q-Rakshak](https://github.com/ARYANCY/Q-Rakshak)
 - **Local Clinical Studio Application:** `http://localhost:5173`
 - **Emergency Medical Card App:** `http://localhost:5174`
 - **Interactive Swagger API Documentation:** `http://localhost:8000/docs`
@@ -302,7 +302,7 @@ flowchart TD
 
 ## 6. Visual Diagram & Image Generation Specifications
 
-### Heading 1: Q-MedSense System Architecture Diagram
+### Heading 1: Q-RAKSHAK System Architecture Diagram
 **Visual Diagram Prompt:**
 > Detailed multi-tier software system architecture diagram on a dark slate background (`#0A0F1D`). Five clear horizontal layers with a prominent starting badge at the top:
 > 0. Starting Point: Clinical Ingestion (EHR Data, Dermoscopy/X-Ray Scans, Lab Vitals).
@@ -316,7 +316,7 @@ flowchart TD
 **JSON Prompt to Create Image:**
 ```json
 {
-  "title": "Q-MedSense System Architecture Diagram",
+  "title": "Q-RAKSHAK System Architecture Diagram",
   "prompt": "Detailed multi-layered software architecture diagram for a medical quantum AI platform. Five cleanly partitioned tiers stacked vertically with a clear starting badge at the top: Starting Point (Clinical Ingestion), Ingestion & Security Layer (FastAPI Uvicorn 127.0.0.1:8000), Mathematical Preprocessing (Mahalanobis OOD, PCA 8-Component Reduction), Parallel Hybrid ML Engine (PennyLane VQC 8-Qubit Circuit and PyTorch DenseNet Backbone), Uncertainty & Explainability (Conformal Coverage, SHAP, Grad-CAM), and Delivery Layer (React 18 Studio, Three.js 3D Twin, SQLite WAL, WORM SHA-256 Ledger). Dark modern tech blueprint theme, cyan and cobalt blue accents, precise engineering layout, crisp typography, 8k resolution.",
   "style": "clean technical architecture blueprint, engineering schematic",
   "aspect_ratio": "16:9",
@@ -329,7 +329,7 @@ flowchart TD
 
 ---
 
-### Heading 2: Q-MedSense Level 1 Data Flow Diagram (DFD)
+### Heading 2: Q-RAKSHAK Level 1 Data Flow Diagram (DFD)
 **Visual Diagram Prompt:**
 > A clean software engineering Data Flow Diagram (DFD Level 1) on a dark slate background (`#0F172A`):
 > - External Entities: Clinician Cockpit UI, Patient Input, Emergency Card.
@@ -347,7 +347,7 @@ flowchart TD
 **JSON Prompt to Create Image:**
 ```json
 {
-  "title": "Q-MedSense Level 1 Data Flow Diagram",
+  "title": "Q-RAKSHAK Level 1 Data Flow Diagram",
   "prompt": "Clean professional software engineering Data Flow Diagram Level 1 (DFD) on dark slate theme (#0F172A). Showing external entities (Clinician, Patient) interacting with numbered circular process nodes: 1.0 Ingestion and De-identification, 2.0 PCA Dimensionality Reduction, 3.1 PennyLane Quantum Circuit Execution, 3.2 Classical Baseline, 4.0 Hybrid Fusion and Conformal Coverage, 5.0 SHAP and Grad-CAM Explainability, and 6.0 WORM Ledger Logging. Connected to open rectangular data store symbols (D1 Patient DB, D2 Model Registry, D3 Audit Ledger) with labeled data flow arrows. Clean cyan and mint green lines, crisp typography, 8k technical diagram.",
   "style": "software engineering data flow diagram, clean vector flowchart",
   "aspect_ratio": "16:9",

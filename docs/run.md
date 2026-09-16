@@ -1,4 +1,4 @@
-# Q-MedSense: Complete Step-by-Step Execution & Deployment Guide (`run.md`)
+﻿# Q-RAKSHAK: Complete Step-by-Step Execution & Deployment Guide (`run.md`)
 
 [![Execution Guide](https://img.shields.io/badge/Runbook-Complete%20%26%20Verified-brightgreen.svg)]()
 [![SIH Problem ID](https://img.shields.io/badge/SIH%20ID-26139-0052CC.svg)]()
@@ -107,7 +107,7 @@ pip install -r requirements.txt
 The project supports both cloud **Prisma Postgres** and local **SQLite** (with zero external dependencies).
 
 ### Step 1: Configure `DATABASE_URL` in `.env`
-Ensure your [.env](file:///f:/Hackathon/SIH(2026)/QDoc/.env) file contains your PostgreSQL connection string:
+Ensure your [.env](file:///f:/Hackathon/SIH(2026)/Q-Rakshak/.env) file contains your PostgreSQL connection string:
 ```ini
 DATABASE_URL="postgres://user:password@pooled.db.prisma.io:5432/postgres?sslmode=require"
 ```
@@ -210,4 +210,4 @@ python -m pytest tests/ -v
 
 ---
 
-**© 2026 Q-MedSense Team. Smart India Hackathon (SIH Problem Statement ID 26139).**
+**© 2026 Q-RAKSHAK Team. Smart India Hackathon (SIH Problem Statement ID 26139).**

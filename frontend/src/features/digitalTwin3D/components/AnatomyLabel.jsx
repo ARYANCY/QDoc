@@ -79,7 +79,7 @@ export default function AnatomyLabel({ anatomyId, position }) {
           )}
         </div>
         <div style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.56rem', color: percentage > 40 ? '#FCA5A5' : 'var(--dt-text-muted)', marginTop: '1px' }}>
-          {percentage > 40 ? 'Elevated Biomarker Telemetry' : 'Normal Physiological State'}
+          {percentage > 40 ? 'Elevated health reading' : 'Within expected range'}
         </div>
       </div>
     </Html>

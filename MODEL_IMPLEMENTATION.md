@@ -1,5 +1,5 @@
-# Technical Architecture & Model Implementation Guide (MODEL_IMPLEMENTATION.md)
-**Q-MedSense / QDoc Clinical AI System**  
+﻿# Technical Architecture & Model Implementation Guide (MODEL_IMPLEMENTATION.md)
+**Q-RAKSHAK / Q-Rakshak Clinical AI System**  
 **Specification Reference:** `MODEL.md` / `docs/model.md`  
 **Execution Environment:** Conda `sih2026` (Python 3.10)  
 
@@ -7,7 +7,7 @@
 
 ## 1. System Architecture & Multimodal Data Flow
 
-The QDoc Medical AI engine implements a modular 7-stage architecture designed for zero data leakage, high clinical safety, and fair quantum benchmarking:
+The Q-Rakshak Medical AI engine implements a modular 7-stage architecture designed for zero data leakage, high clinical safety, and fair quantum benchmarking:
 
 ```
 [Clinical Input (2D Image / 3D CT-MRI / Tabular / Text)]

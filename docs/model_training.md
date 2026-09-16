@@ -1,7 +1,7 @@
-# QDoc Model Training — Skin Cancer (QuantumDerma) & Pneumonia (QuantumPneu)
+﻿# Q-Rakshak Model Training — Skin Cancer (QuantumDerma) & Pneumonia (QuantumPneu)
 
 Complete, PowerShell-safe guide for training **both** hybrid quantum-classical
-models in the QDoc project:
+models in the Q-Rakshak project:
 
 - **PART A — Skin Cancer (QuantumDerma family):** 7-class HAM10000, 4 quantum variants.
 - **PART B — Pneumonia (QuantumPneu):** Binary chest X-ray (NORMAL / PNEUMONIA).
@@ -707,7 +707,7 @@ $P0_PNEU = @(
 python -m ml.pneumonia.training.train_quantum @P0_PNEU
 ```
 
-What this does end-to-end (see [train_quantum_pneu()](file:///f:/Hackathon/SIH(2026)/QDoc/ml/pneumonia/training/train_quantum.py#L93-L282)):
+What this does end-to-end (see [train_quantum_pneu()](file:///f:/Hackathon/SIH(2026)/Q-Rakshak/ml/pneumonia/training/train_quantum.py#L93-L282)):
 1. Loads PneuVision `best.pt` (auto-trains 8-epoch backbone if missing)
 2. Extracts CNN features on train / val / test
 3. Fits **StandardScaler → PCA(8)** on **train features only** (no leakage), saves `.pkl`
@@ -1037,7 +1037,7 @@ Key thing: the final `best.pt` for quantum contains `decision_threshold` and
 
 ## A1.1 Skin Cancer (QuantumDerma)
 
-All flags match [train_quantum.py main()](file:///f:/Hackathon/SIH(2026)/QDoc/ml/skin_cancer/training/train_quantum.py#L959-L1030).
+All flags match [train_quantum.py main()](file:///f:/Hackathon/SIH(2026)/Q-Rakshak/ml/skin_cancer/training/train_quantum.py#L959-L1030).
 
 | Flag | Type / choices | P0 default | Purpose |
 |---|---|---|---|
@@ -1069,7 +1069,7 @@ All flags match [train_quantum.py main()](file:///f:/Hackathon/SIH(2026)/QDoc/ml
 ## A1.2 Pneumonia (QuantumPneu)
 
 Flags are minimal — most config is YAML-driven. See
-[train_quantum_pneu()](file:///f:/Hackathon/SIH(2026)/QDoc/ml/pneumonia/training/train_quantum.py#L93-L282).
+[train_quantum_pneu()](file:///f:/Hackathon/SIH(2026)/Q-Rakshak/ml/pneumonia/training/train_quantum.py#L93-L282).
 
 | Flag | Type | Default | Purpose |
 |---|---|---|---|

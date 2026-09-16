@@ -82,7 +82,7 @@ export default function EarlyDetectionMap({ patientId = "PT-89421" }) {
             <Compass size={15} color="var(--primary)" /> Multi-Stage Progression Trajectory & Cellular Biomarkers
           </span>
           <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>
-            Asymptomatic Stage 0 → Stage II Clinical Intervention
+            Asymptomatic Stage 0 to Stage II Clinical Intervention
           </span>
         </div>
 
@@ -147,7 +147,7 @@ export default function EarlyDetectionMap({ patientId = "PT-89421" }) {
         <div style={{ display: "flex", flexDirection: "column", gap: "4px", marginTop: "6px" }}>
           {pathway?.preventive_actions?.map((act, i) => (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.74rem", color: "var(--text-secondary)", background: "var(--bg-canvas)", border: "1px solid var(--border-subtle)", padding: "6px 8px" }}>
-              <span style={{ color: "var(--risk-low)", fontWeight: 700 }}>✓</span>
+              <span style={{ color: "var(--risk-low)", fontWeight: 700 }}>Complete</span>
               <span>{act}</span>
             </div>
           ))}

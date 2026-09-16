@@ -1,5 +1,5 @@
-"""
-Q-MedSense — Quantum & Deep Learning Model Inference Microservice
+﻿"""
+Q-RAKSHAK — Quantum & Deep Learning Model Inference Microservice
 Port: 8001 (Configurable via MODEL_SERVICE_PORT)
 """
 
@@ -24,7 +24,7 @@ QUANTUM_BACKEND = os.getenv("QUANTUM_BACKEND", "default.qubit")
 QUANTUM_SHOTS = int(os.getenv("QUANTUM_SHOTS", "1024"))
 
 app = FastAPI(
-    title="Q-MedSense Model Inference Microservice",
+    title="Q-RAKSHAK Model Inference Microservice",
     description="Standalone Quantum & Classical Medical Diagnostics Engine",
     version="2.0.0",
 )

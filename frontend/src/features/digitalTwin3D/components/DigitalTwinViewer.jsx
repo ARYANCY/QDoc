@@ -43,7 +43,7 @@ export default function DigitalTwinViewer({ canvasRef, compact = false }) {
 
   return (
     <ErrorBoundary>
-      <div ref={containerRef} style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', userSelect: 'none', background: '#090D16' }}>
+      <div ref={containerRef} style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', userSelect: 'none', background: '#EADAC8' }}>
 
         {/* 3D WebGL Canvas */}
         <Canvas
@@ -58,19 +58,19 @@ export default function DigitalTwinViewer({ canvasRef, compact = false }) {
           shadows
           style={{ width: '100%', height: '100%', cursor: 'grab' }}
         >
-          <color attach="background" args={['#090D16']} />
+          <color attach="background" args={['#EADAC8']} />
 
           {/* Cinematic Anatomical Studio Lighting */}
           <ambientLight intensity={1.1} />
           <directionalLight position={[5, 8, 5]} intensity={1.6} castShadow shadow-mapSize={[2048, 2048]} />
-          <directionalLight position={[-5, 6, -4]} intensity={0.9} color="#38bdf8" />
-          <directionalLight position={[0, -2, 4]} intensity={0.5} color="#0D9488" />
-          <pointLight position={[0, 0.4, 2.2]} intensity={1.2} color="#ffffff" distance={8} />
-          <hemisphereLight skyColor="#1E293B" groundColor="#090D16" intensity={0.7} />
+          <directionalLight position={[-5, 6, -4]} intensity={0.9} color="#A67C5B" />
+          <directionalLight position={[0, -2, 4]} intensity={0.5} color="#8A6042" />
+          <pointLight position={[0, 0.4, 2.2]} intensity={1.2} color="#FFF8EF" distance={8} />
+          <hemisphereLight skyColor="#F3EADF" groundColor="#D8C3AD" intensity={0.7} />
 
           {/* Holographic Floor Grid */}
           <gridHelper
-            args={[6, 24, '#2563EB', '#1E293B']}
+            args={[6, 24, '#B99D82', '#D8C3AD']}
             position={[0, -0.90, 0]}
           />
 
@@ -162,6 +162,7 @@ export default function DigitalTwinViewer({ canvasRef, compact = false }) {
               { id: 'skeleton', label: 'Skeleton' },
               { id: 'vessels', label: 'Vessels' },
               { id: 'airway', label: 'Airway' },
+              { id: 'digestive', label: 'Digestive' },
               { id: 'urinary', label: 'Urinary' },
               { id: 'skin', label: 'Skin' },
             ].map((layer) => {

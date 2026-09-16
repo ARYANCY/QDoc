@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import base64
 import hashlib
@@ -18,7 +18,7 @@ try:
     from backend.app.core.config import settings as _settings
     SECRET_KEY: str = _settings.JWT_SECRET
 except Exception:  # pragma: no cover
-    SECRET_KEY = os.environ.get("SECRET_KEY", "q-medsense-quantum-clinical-secret-key-2026-production")
+    SECRET_KEY = os.environ.get("SECRET_KEY", "Q-RAKSHAK-quantum-clinical-secret-key-2026-production")
 
 # ── Password Hashing — PBKDF2-HMAC-SHA256 (100k iterations with per-user salt) ──
 _PBKDF2_ITERATIONS = 100_000

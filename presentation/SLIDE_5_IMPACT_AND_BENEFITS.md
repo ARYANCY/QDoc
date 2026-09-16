@@ -1,4 +1,4 @@
-# SLIDE 5: IMPACT AND BENEFITS
+﻿# SLIDE 5: IMPACT AND BENEFITS
 
 ## Official SIH 2026 Header
 - **Problem Statement ID:** `26139`
@@ -65,7 +65,7 @@ graph LR
         I4["Genomic Variants (VCF 4.2)"]
     end
 
-    subgraph CORE["Q-MedSense Core Platform (Air-Gapped)"]
+    subgraph CORE["Q-RAKSHAK Core Platform (Air-Gapped)"]
         C1["HIPAA De-ID & Mahalanobis Gate"]
         C2["Hybrid VQC & QNN Inference"]
         C3["Conformal Coverage Set C(x)"]
@@ -95,11 +95,11 @@ graph LR
 
 ## 4. Visual Diagram & Image Generation Specifications
 
-### Heading: Q-MedSense Clinical Ecosystem Integration Architecture Diagram
+### Heading: Q-RAKSHAK Clinical Ecosystem Integration Architecture Diagram
 **Visual Diagram Prompt:**
 > A modern technical infographic showing seamless healthcare ecosystem integration on a dark slate navy background:
 > - Left: Multi-source clinical inputs (EHR patient charts, DICOM lung X-rays, DNA genomics, smartwatch vitals).
-> - Center: Glowing circular quantum AI medical engine node with cyan circuit patterns labeled 'Q-MedSense Sovereign Core'.
+> - Center: Glowing circular quantum AI medical engine node with cyan circuit patterns labeled 'Q-RAKSHAK Sovereign Core'.
 > - Branching outputs to three deployment sectors: rural Primary Health Centers, large AIIMS hospital buildings, and emergency ambulances.
 > - Far right: Clinical decision outputs including 3D organ risk heatmaps, digital diagnostic prescription, and offline emergency QR health card.
 > - Dark slate navy theme (`#0B132B`), glowing cyan and mint green data pipelines, clean isometric vector art, 8k resolution.
@@ -107,8 +107,8 @@ graph LR
 **JSON Prompt to Create Image:**
 ```json
 {
-  "title": "Q-MedSense Clinical Ecosystem Integration Diagram",
-  "prompt": "Modern technical infographic of a medical AI platform integrated across a healthcare network. Left: clinical input icons (EHR patient charts, DICOM lung X-rays, DNA genomics, smartwatch vitals). Center: glowing circular quantum AI medical engine node with cyan circuit patterns labeled 'Q-MedSense Sovereign Core'. Branching outputs to three deployment sectors: rural Primary Health Centers, large AIIMS hospital buildings, and emergency ambulances. Far right: clinical decision outputs including 3D organ risk heatmaps, digital diagnostic prescription, and offline emergency QR health card. Dark slate navy theme, glowing cyan and mint green data pipelines, clean isometric vector art, 8k resolution.",
+  "title": "Q-RAKSHAK Clinical Ecosystem Integration Diagram",
+  "prompt": "Modern technical infographic of a medical AI platform integrated across a healthcare network. Left: clinical input icons (EHR patient charts, DICOM lung X-rays, DNA genomics, smartwatch vitals). Center: glowing circular quantum AI medical engine node with cyan circuit patterns labeled 'Q-RAKSHAK Sovereign Core'. Branching outputs to three deployment sectors: rural Primary Health Centers, large AIIMS hospital buildings, and emergency ambulances. Far right: clinical decision outputs including 3D organ risk heatmaps, digital diagnostic prescription, and offline emergency QR health card. Dark slate navy theme, glowing cyan and mint green data pipelines, clean isometric vector art, 8k resolution.",
   "style": "clean technical infographic, healthcare systems schematic",
   "aspect_ratio": "16:9",
   "color_palette": ["#0B132B", "#1C2541", "#06B6D4", "#10B981", "#F59E0B", "#F8FAFC"],

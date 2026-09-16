@@ -1,4 +1,4 @@
-# Q-MedSense: Regulatory Compliance, Data Privacy & Security Architecture (`docs/COMPLIANCE_DPDP_HIPAA.md`)
+﻿# Q-RAKSHAK: Regulatory Compliance, Data Privacy & Security Architecture (`docs/COMPLIANCE_DPDP_HIPAA.md`)
 
 [![Compliance](https://img.shields.io/badge/Compliance-DPDP%20Act%202023%20%7C%20HIPAA-green.svg)]()
 [![Security](https://img.shields.io/badge/Security-WORM%20SHA--256%20Audit-blue.svg)]()
@@ -30,7 +30,7 @@
 
 ## 1. Executive Summary & Regulatory Framework
 
-The **Q-MedSense** platform is designed from the ground up under a **Privacy-by-Design and Security-by-Default** methodology. The platform processes highly sensitive electronic medical records, radiological imagery, and genomic variants, mandating rigorous conformance to Indian and international healthcare data regulations.
+The **Q-RAKSHAK** platform is designed from the ground up under a **Privacy-by-Design and Security-by-Default** methodology. The platform processes highly sensitive electronic medical records, radiological imagery, and genomic variants, mandating rigorous conformance to Indian and international healthcare data regulations.
 
 ```mermaid
 graph TD
@@ -46,7 +46,7 @@ graph TD
 
 ## 2. DPDP Act 2023 Compliance & Consent Architecture
 
-Under India's **Digital Personal Data Protection (DPDP) Act, 2023**, patients are recognized as **Data Principals**, while healthcare institutions running Q-MedSense act as **Data Fiduciaries**.
+Under India's **Digital Personal Data Protection (DPDP) Act, 2023**, patients are recognized as **Data Principals**, while healthcare institutions running Q-RAKSHAK act as **Data Fiduciaries**.
 
 ### 2.1 Granular Consent Model
 Patients maintain sovereign, granular control over how their data is stored, shared, and evaluated:
@@ -132,8 +132,8 @@ Access permissions are enforced at the API middleware layer using cryptographica
 In accordance with international Clinical Decision Support System (CDSS) standards and FDA/CDSCO guidelines:
 
 > ⚠️ **MANDATORY CLINICAL DISCLAIMER:**  
-> **Q-MedSense is a Clinical Decision Support System (CDSS) designed exclusively for qualified healthcare professionals. It does not replace independent clinical judgment, professional radiological review, or histopathological biopsy confirmation.**
+> **Q-RAKSHAK is a Clinical Decision Support System (CDSS) designed exclusively for qualified healthcare professionals. It does not replace independent clinical judgment, professional radiological review, or histopathological biopsy confirmation.**
 
 ---
 
-**© 2026 Q-MedSense Compliance & Security Division. SIH Problem Statement ID 26139.**
+**© 2026 Q-RAKSHAK Compliance & Security Division. SIH Problem Statement ID 26139.**

@@ -22,7 +22,7 @@ variable "environment" {
 
 # KMS Key for PHI & Data Encryption at Rest (AES-256)
 resource "aws_kms_key" "qmed_phi_key" {
-  description             = "KMS Key for Q-MedSense PHI and Clinical Feature Store Encryption"
+  description             = "KMS Key for Q-Rakshak PHI and Clinical Feature Store Encryption"
   deletion_window_in_days = 30
   enable_key_rotation     = true
 
@@ -34,7 +34,7 @@ resource "aws_kms_key" "qmed_phi_key" {
 
 # S3 Bucket for Imaging and Clinical Report Blobs (Encrypted)
 resource "aws_s3_bucket" "qmed_reports_storage" {
-  bucket = "qmedsense-clinical-reports-${var.environment}"
+  bucket = "qrakshak-clinical-reports-${var.environment}"
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "qmed_s3_encryption" {

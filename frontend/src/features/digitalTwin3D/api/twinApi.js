@@ -1,6 +1,6 @@
-/**
+﻿/**
  * Digital Twin API Client
- * Connects to Q-MedSense FastAPI backend via centralized apiClient and config
+ * Connects to Q-RAKSHAK FastAPI backend via centralized apiClient and config
  */
 
 import apiClient from "../../../api/client";

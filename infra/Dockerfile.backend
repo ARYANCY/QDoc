@@ -1,4 +1,4 @@
-# Q-MedSense Multi-Stage Backend Dockerfile
+# Q-Rakshak Multi-Stage Backend Dockerfile
 FROM python:3.11-slim as builder
 
 WORKDIR /app

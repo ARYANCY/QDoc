@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   Phone, AlertTriangle, Heart, Shield, Activity,
   Pill, User, Droplet, Clock, Stethoscope, Share2,
@@ -19,7 +19,7 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
   // Permanent public portal URL
   const emergencyPortalUrl = typeof window !== 'undefined'
     ? `${window.location.origin}/#emergency/${patientId}`
-    : `http://localhost:5173/#emergency/${patientId}`;
+    : `${window.location.origin}/#emergency/${patientId}`;
 
   // 1. Fetch Public Emergency Profile
   useEffect(() => {
@@ -175,7 +175,7 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
               <span>CRITICAL MEDICAL PASSPORT</span>
               <span style={{ width: '6px', height: '6px', background: '#DC2626', display: 'inline-block' }} />
             </div>
-            <div className="emergency-brand-sub">Q-MEDSENSE EMERGENCY TRIAGE</div>
+            <div className="emergency-brand-sub">Q-RAKSHAK EMERGENCY TRIAGE</div>
           </div>
         </div>
 
@@ -660,7 +660,7 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
                 <span>WORM AUDIT VERIFIED MEDICAL RECORD</span>
               </div>
               <p className="emergency-audit-meta">
-                Cryptographically sealed & signed by Q-MedSense Health Authority Network
+                Cryptographically sealed & signed by Q-RAKSHAK Health Authority Network
               </p>
             </div>
 

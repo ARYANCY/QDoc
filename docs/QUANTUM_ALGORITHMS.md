@@ -1,4 +1,4 @@
-# Q-MedSense: Quantum Machine Learning Algorithms & Mathematical Foundations (`docs/QUANTUM_ALGORITHMS.md`)
+﻿# Q-RAKSHAK: Quantum Machine Learning Algorithms & Mathematical Foundations (`docs/QUANTUM_ALGORITHMS.md`)
 
 [![PennyLane](https://img.shields.io/badge/Quantum%20Framework-PennyLane%200.36+-blueviolet.svg?logo=quantum-computing)]()
 [![Simulator](https://img.shields.io/badge/Simulator-default.qubit%20%7C%20Qiskit%20Aer-purple.svg)]()
@@ -114,7 +114,7 @@ For a general loss function $\mathcal{L}(\theta) = f(\langle \hat{O} \rangle(\th
 $$\nabla_{\theta_k} \mathcal{L} = \frac{\partial \mathcal{L}}{\partial \langle \hat{O} \rangle} \cdot \left( \frac{\langle \hat{O} \rangle(\theta + \frac{\pi}{2} e_k) - \langle \hat{O} \rangle(\theta - \frac{\pi}{2} e_k)}{2} \right)$$
 
 ### 4.2 Barren Plateau Mitigation
-To prevent vanishing gradients in deep PQCs ($\text{Var}[\partial_k \mathcal{L}] \sim \mathcal{O}(2^{-N})$), Q-MedSense implements:
+To prevent vanishing gradients in deep PQCs ($\text{Var}[\partial_k \mathcal{L}] \sim \mathcal{O}(2^{-N})$), Q-RAKSHAK implements:
 1. **Conservative Depth Bounds:** Restricting ansatz depth to $L \le 4$ layers for $N \le 12$ qubits.
 2. **Local Pauli-Z Observables:** Measuring single-qubit operators $\hat{O} = Z_i$ rather than global operators $Z_1 \otimes Z_2 \dots \otimes Z_N$.
 3. **Identity Initialization:** Initializing rotation angles $\theta$ near 0 to avoid random Haar-distributed states.
@@ -175,7 +175,7 @@ where $T$ is the temperature scaling parameter calibrated via Platt scaling / te
 
 ## 8. Quantum Advantage Score (QAS) & Fair Benchmarking
 
-To ensure scientific honesty and prevent misleading claims, Q-MedSense benchmarks quantum models using the standardized **Quantum Advantage Score (QAS)**:
+To ensure scientific honesty and prevent misleading claims, Q-RAKSHAK benchmarks quantum models using the standardized **Quantum Advantage Score (QAS)**:
 
 $$\text{QAS} = \left( \frac{\text{Acc}_q - \text{Acc}_c}{\text{Acc}_c} \right) \cdot \left( \frac{T_c}{T_q} \right)$$
 
@@ -189,4 +189,4 @@ A positive $\text{QAS} > 0$ denotes quantum performance improvement that outweig
 
 ---
 
-**© 2026 Q-MedSense Quantum Engineering Team. SIH Problem Statement ID 26139.**
+**© 2026 Q-RAKSHAK Quantum Engineering Team. SIH Problem Statement ID 26139.**

@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 import logging
@@ -415,7 +415,7 @@ def init_database():
     # Seed Default Users
     seed_users = [
         ("PT-ALEX", "alex.patient", hash_password("patient123"), "Alexander Reed", "alexander.reed@email.com", "alex.emergency@gmail.com", "+91 98333 44556", "patient", "AIIMS Cardiology & Oncology OPD", "PT-REC-89421"),
-        ("ADM-SYSTEM", "admin.audit", hash_password("admin123"), "Audit & Security Admin", "compliance.lead@egreenquanta.health", "admin.sec@gmail.com", "+91 98222 33445", "admin", "Q-MedSense Governance Board", "SEC-DPDP-001"),
+        ("ADM-SYSTEM", "admin.audit", hash_password("admin123"), "Audit & Security Admin", "compliance.lead@egreenquanta.health", "admin.sec@gmail.com", "+91 98222 33445", "admin", "Q-RAKSHAK Governance Board", "SEC-DPDP-001"),
         ("DOC-USR-KAVITA", "dr.kavita", hash_password("doctor123"), "Dr. Kavita Rao, MD", "kavita.rao@aiims.edu", "dr.kavita@gmail.com", "+91 98111 22334", "doctor", "AIIMS Cardiology OPD", "MCI-2014-89312"),
         ("DOC-USR-RAJESH", "dr.rajesh", hash_password("doctor123"), "Dr. Rajesh Mehta, MD, DM", "rajesh.mehta@tmh.org", "dr.rajesh@gmail.com", "+91 98222 55667", "doctor", "Tata Memorial Hospital", "MCI-2009-44120"),
         ("DOC-USR-ANANYA", "dr.ananya", hash_password("doctor123"), "Dr. Ananya Sen, MD", "ananya.sen@manipal.health", "dr.ananya@gmail.com", "+91 98333 77889", "doctor", "Manipal Hospital Pulmonology", "MCI-2018-77412"),

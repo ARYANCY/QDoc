@@ -1,4 +1,4 @@
-# Q-MedSense: Mathematical Formulations & Formula Reference Sheet (`docs/FORMULA_SHEET.md`)
+﻿# Q-RAKSHAK: Mathematical Formulations & Formula Reference Sheet (`docs/FORMULA_SHEET.md`)
 
 [![Formulas](https://img.shields.io/badge/Mathematics-Peer%20Reviewed%20%26%20Derived-blue.svg)]()
 [![Standards](https://img.shields.io/badge/IEEE-830%20%7C%20ISO%2029148-orange.svg)]()
@@ -147,4 +147,4 @@ Where $T$ represents inference latency per clinical sample in milliseconds.
 
 ---
 
-**© 2026 Q-MedSense Mathematical Sciences Group. SIH Problem Statement ID 26139.**
+**© 2026 Q-RAKSHAK Mathematical Sciences Group. SIH Problem Statement ID 26139.**

@@ -1,1 +1,1 @@
-"""Database package initialization for Q-MedSense."""
+﻿"""Database package initialization for Q-RAKSHAK."""

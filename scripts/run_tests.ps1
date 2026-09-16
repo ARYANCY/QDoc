@@ -1,4 +1,4 @@
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 Set-Location (Join-Path $PSScriptRoot "..")
-Write-Host "Running Q-MedSense Test Suite..." -ForegroundColor Cyan
+Write-Host "Running Q-RAKSHAK Test Suite..." -ForegroundColor Cyan
 pytest

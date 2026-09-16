@@ -1,15 +1,4 @@
 import { useState, useEffect } from "react";
-import {
-  User,
-  LogOut,
-  Sliders,
-  ChevronDown,
-  Menu,
-  X,
-  ShieldCheck,
-  Sparkles,
-} from "lucide-react";
-import NotificationBell from "./NotificationBell";
 
 export default function EditorialHeader({
   currentUser,
@@ -66,19 +55,9 @@ export default function EditorialHeader({
           className="mobile-hamburger-btn"
           onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
           aria-label="Toggle Navigation Drawer"
-          style={{
-            background: "none",
-            border: "1px solid var(--border-default)",
-            borderRadius: "var(--radius-xs)",
-            padding: "6px",
-            cursor: "pointer",
-            color: "var(--ink-primary)",
-            display: "none", // Display controlled via CSS media query
-            alignItems: "center",
-            justifyContent: "center",
-          }}
+          style={{ background: "none", border: "1px solid var(--border-default)", borderRadius: "var(--radius-xs)", padding: "6px", cursor: "pointer", color: "var(--ink-primary)", display: "none", alignItems: "center", justifyContent: "center" }}
         >
-          {mobileSidebarOpen ? <X size={18} /> : <Menu size={18} />}
+          {mobileSidebarOpen ? "Close" : "Menu"}
         </button>
 
         <button
@@ -104,7 +83,7 @@ export default function EditorialHeader({
               color: "var(--ink-primary)",
             }}
           >
-            Q-MEDSENSE
+            Q-Rakshak
           </span>
         </button>
 
@@ -145,7 +124,6 @@ export default function EditorialHeader({
       {/* ── Right: Notifications, A11y & Profile (Role switch removed; available strictly via login) ── */}
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
         {/* Notifications Bell */}
-        <NotificationBell />
 
         {/* A11y Contrast Toggle */}
         <button
@@ -165,7 +143,7 @@ export default function EditorialHeader({
             justifyContent: "center",
           }}
         >
-          <Sliders size={13} />
+          Aa
         </button>
 
         {/* User Profile Dropdown */}
@@ -210,7 +188,7 @@ export default function EditorialHeader({
                 {currentUser?.role || "GUEST"}
               </div>
             </div>
-            <ChevronDown size={12} color="var(--text-muted)" />
+            <span className="header-more">More</span>
           </button>
 
           {/* Menu dropdown */}
@@ -279,7 +257,6 @@ export default function EditorialHeader({
                   borderRadius: "var(--radius-xs)",
                 }}
               >
-                <User size={13} />
                 <span>Profile & Identity</span>
               </button>
 
@@ -307,7 +284,6 @@ export default function EditorialHeader({
                 }}
                 title="Log out to switch role or account"
               >
-                <LogOut size={13} />
                 <span>Sign Out / Switch Persona</span>
               </button>
             </div>

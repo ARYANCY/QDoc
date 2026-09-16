@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 import uuid
@@ -63,11 +63,11 @@ class DatabaseRepository:
             pwd = raw_pwd
 
         name = user_data.get("name", username.replace(".", " ").title()).strip()
-        email = user_data.get("email", f"{username.lower()}@qmedsense.health").strip()
+        email = user_data.get("email", f"{username.lower()}@q-rakshak.health").strip()
         sec_email = user_data.get("secondary_email", "").strip()
         phone = user_data.get("emergency_phone", "+91 98765 43210").strip()
         role = user_data.get("role", "patient").strip().lower()
-        aff = user_data.get("hospital_affiliation", "AIIMS Clinical AI OPD" if role in ("doctor", "clinician") else "Q-MedSense Network")
+        aff = user_data.get("hospital_affiliation", "AIIMS Clinical AI OPD" if role in ("doctor", "clinician") else "Q-RAKSHAK Network")
         lic = user_data.get("license_number", f"MCI-2026-{uuid.uuid4().hex[:4].upper()}" if role in ("doctor", "clinician") else f"LIC-{uuid.uuid4().hex[:4].upper()}")
 
         conn.execute("""
@@ -318,7 +318,7 @@ class DatabaseRepository:
                 "Active Antiplatelet Therapy (Aspirin 75mg)",
             ],
             "verified_at": "2026-09-08 UTC",
-            "issuer": "Q-MedSense Quantum Clinical Network // WORM Ledger Verified",
+            "issuer": "Q-RAKSHAK Quantum Clinical Network // WORM Ledger Verified",
         }
 
     @staticmethod

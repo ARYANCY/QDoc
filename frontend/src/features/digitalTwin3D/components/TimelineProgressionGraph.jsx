@@ -17,7 +17,7 @@ export default function TimelineProgressionGraph({
     return (
       <div style={{ padding: '32px', textAlign: 'center', color: 'var(--dt-text-muted)' }}>
         <RefreshCw size={24} className="spin" style={{ margin: '0 auto 10px' }} />
-        <div style={{ fontSize: '0.82rem', fontWeight: 600 }}>Calculating longitudinal trajectory and quantum early detection models...</div>
+        <div style={{ fontSize: '0.82rem', fontWeight: 600 }}>Preparing your health timeline...</div>
       </div>
     );
   }

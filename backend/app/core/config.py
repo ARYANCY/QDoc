@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import os
 from pathlib import Path
@@ -17,7 +17,7 @@ elif (PROJECT_ROOT / ".env").exists():
 
 
 class Settings:
-    PROJECT_NAME: str = "Q-MedSense — Quantum Clinical Decision Support API"
+    PROJECT_NAME: str = "Q-RAKSHAK — Quantum Clinical Decision Support API"
     VERSION: str = "2.0.0"
     SIH_PROBLEM_ID: str = "26139"
     API_V1_PREFIX: str = os.getenv("API_V1_PREFIX", "/api/v1")
@@ -27,8 +27,8 @@ class Settings:
     BACKEND_DIR: Path = BACKEND_ROOT
     DATA_DIR: Path = BACKEND_DIR
     DB_MODE: str = os.getenv("QMED_DB_MODE", "production").strip().lower()
-    REAL_DB_PATH: Path = Path(os.getenv("QMED_REAL_DB_PATH", str(BACKEND_DIR / "qmedsense.db")))
-    DEMO_DB_PATH: Path = Path(os.getenv("QMED_DEMO_DB_PATH", str(BACKEND_DIR / "qmedsense_demo.db")))
+    REAL_DB_PATH: Path = Path(os.getenv("QMED_REAL_DB_PATH", str(BACKEND_DIR / "q-rakshak.db")))
+    DEMO_DB_PATH: Path = Path(os.getenv("QMED_DEMO_DB_PATH", str(BACKEND_DIR / "q-rakshak_demo.db")))
     DB_PATH: Path = Path(os.getenv("QMED_DB_PATH", str(DEMO_DB_PATH if DB_MODE == "demo" else REAL_DB_PATH)))
     DATABASE_URL: str = os.getenv("DATABASE_URL", "").strip()
     MODELS_DIR: Path = BASE_DIR / "models"
@@ -64,8 +64,8 @@ class Settings:
             "http://127.0.0.1:5173",
             "http://localhost:3000",
             "http://127.0.0.1:3000",
-            "https://qmedsense.health",
-            "https://www.qmedsense.health",
+            "https://q-rakshak.health",
+            "https://www.q-rakshak.health",
         ]
         extra = os.getenv("CORS_ALLOWED_ORIGINS", "")
         if extra:

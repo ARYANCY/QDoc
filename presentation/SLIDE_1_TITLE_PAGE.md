@@ -1,4 +1,4 @@
-# SLIDE 1: TITLE PAGE
+﻿# SLIDE 1: TITLE PAGE
 
 ## Official SIH 2026 Header
 - **Problem Statement ID:** `26139`
@@ -14,7 +14,7 @@
 
 ### Project Title
 **Hybrid Quantum Machine Learning Platform for Early Disease Detection**  
-*(Platform Codename: Q-MedSense / QDoc — Quantum Clinical Operating System)*
+*(Platform Codename: Q-RAKSHAK / Q-Rakshak — Quantum Clinical Operating System)*
 
 ### One-Line Solution Statement
 > An evaluator-oriented, interpretable hybrid quantum-classical software platform that integrates classical biomedical data preprocessing and dimensionality reduction with variational quantum circuits, parameter-shift gradient telemetry, explainable AI, and rigorous benchmarking against classical machine learning baselines.
@@ -32,7 +32,7 @@
 | **Classical Baselines** | Mandatory Standard ML Benchmarks | Random Forest, XGBoost, Logistic Regression, DenseNet-121, MLP |
 | **Explainability** | Interpretable Feature Attribution | Kernel SHAP, Grad-CAM Saliency, Parameter-Shift Gradients |
 | **Verification Gate** | Zero Dummy Data / Automated Testing | **79/79 Automated Pytest Tests Passed (100%)** |
-| **Code Repository** | Version-Controlled Open Source | [https://github.com/ARYANCY/QDoc](https://github.com/ARYANCY/QDoc) |
+| **Code Repository** | Version-Controlled Open Source | [https://github.com/ARYANCY/Q-Rakshak](https://github.com/ARYANCY/Q-Rakshak) |
 
 ---
 

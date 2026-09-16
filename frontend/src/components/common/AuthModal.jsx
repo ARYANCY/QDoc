@@ -163,7 +163,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
               transition: "all 0.15s ease",
             }}
           >
-            ★ Demo Accounts
+            Demo Accounts
           </button>
 
           <button
@@ -493,7 +493,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
             {regRole === "doctor" && (
               <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", borderLeft: "3px solid var(--accent-blue)", padding: "10px 12px", display: "flex", flexDirection: "column", gap: "8px" }}>
                 <div style={{ fontSize: "0.68rem", fontWeight: 800, color: "var(--gold)", letterSpacing: "0.06em", textTransform: "uppercase" }}>
-                  ★ Clinical Practice Details (Appears in Find Doctors & Consultations)
+                  Clinical Practice Details (Appears in Find Doctors & Consultations)
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>

@@ -1,5 +1,5 @@
-# Model Lab Configuration (models.yaml)
-# QDoc / Q-MedSense Foundation Model Specifications
+﻿# Model Lab Configuration (models.yaml)
+# Q-Rakshak / Q-RAKSHAK Foundation Model Specifications
 
 models:
   biomedclip:

@@ -1,4 +1,4 @@
-# Q-MedSense: Hybrid Quantum Machine Learning Clinical Decision Support Platform
+﻿# Q-RAKSHAK: Hybrid Quantum Machine Learning Clinical Decision Support Platform
 
 [![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-3776AB.svg?logo=python&logoColor=white)]()
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688.svg?logo=fastapi&logoColor=white)]()
@@ -11,7 +11,7 @@
 
 > **Smart India Hackathon (SIH) Problem Statement ID 26139**  
 > *Theme:* MedTech / BioTech / Quantum Computing in Healthcare  
-> *Platform:* Q-MedSense Quantum Clinical Operating System
+> *Platform:* Q-RAKSHAK Quantum Clinical Operating System
 
 ---
 
@@ -38,13 +38,13 @@
 
 Modern healthcare diagnostic pipelines face exponential increases in high-dimensional multi-modal clinical data (genomic variants, radiomics, micro-cellular dermoscopy, and electronic health records). Classical deep neural networks often suffer from the curse of dimensionality, catastrophic vanishing gradients in deep feature spaces, and opaque "black-box" decision architectures.
 
-**Q-MedSense** solves this by bridging **Variational Quantum Classifiers (VQC)**, **Quantum Support Vector Machines (QSVM)**, and **Quantum Neural Networks (QNN)** with real-time perturbation explainability (SHAP / Grad-CAM) and an interactive **2D/3D Physiological Digital Twin**.
+**Q-RAKSHAK** solves this by bridging **Variational Quantum Classifiers (VQC)**, **Quantum Support Vector Machines (QSVM)**, and **Quantum Neural Networks (QNN)** with real-time perturbation explainability (SHAP / Grad-CAM) and an interactive **2D/3D Physiological Digital Twin**.
 
 ### Key Architectural Highlights
 - ⚛️ **Hybrid Quantum-Classical Execution:** Evaluates clinical samples via PennyLane statevector simulations (`default.qubit`) and compares results against classical baselines (DenseNet-121, Random Forest, Logistic Regression, MLP).
 - 🔐 **Dynamic Role-Based Access Control (RBAC):** Automatically adapts navigation menus and access privileges to the authenticated persona (*Clinician*, *Researcher*, *Admin*, *Patient*).
 - 📊 **Zero Default Metric Enforcement:** Strictly initializes unanalyzed clinical views at `0%` / `0.00` / `Unanalyzed` with zero hardcoded dummy placeholders.
-- 🗄️ **Persistent SQLite Engine (`qmedsense.db`):** Stores clinical records, patient profiles, diagnostic histories, and WORM-compliant tamper-evident audit logs with SHA-256 digital signatures.
+- 🗄️ **Persistent SQLite Engine (`q-rakshak.db`):** Stores clinical records, patient profiles, diagnostic histories, and WORM-compliant tamper-evident audit logs with SHA-256 digital signatures.
 - ♿ **WCAG 2.1 AA Compliant Clinical UI:** High-contrast, dense single-screen desktop interface with dyslexia font toggles, reduced motion modes, and zero-border-radius aesthetics.
 
 ---
@@ -97,7 +97,7 @@ doc/
 │
 ├── backend/                        # Backend Application Source
 │   ├── requirements.txt            # Scoped backend requirements
-│   ├── qmedsense.db                # Production SQLite database (created on launch)
+│   ├── q-rakshak.db                # Production SQLite database (created on launch)
 │   └── app/
 │       ├── main.py                 # FastAPI application instance & router registry
 │       ├── core/                   # Security, config, logging, QR service
@@ -268,7 +268,7 @@ npm run build
 The `.gitignore` is specifically tailored for AI/ML projects:
 - **Binary Model Weights Excluded:** Binary model files (`*.pt`, `*.pth`, `*.pkl`, `*.onnx`) are excluded from version control to prevent repository bloat and GitHub 100MB file limit errors.
 - **Model Metadata Tracked:** All architecture definitions, labels, hyperparameters, and benchmark metrics (`models/**/*.json`) are fully tracked in Git.
-- **Local Databases Excluded:** SQLite databases (`qmedsense.db`) are generated automatically on first startup and excluded from Git.
+- **Local Databases Excluded:** SQLite databases (`q-rakshak.db`) are generated automatically on first startup and excluded from Git.
 - **Secrets Excluded:** `.env` and secret key files are ignored, while `.env.example` serves as the public configuration template.
 
 ---
@@ -300,7 +300,7 @@ taskkill /PID <PID> /F
 
 ### 4. Database Reset
 To reset the database to factory default seeds:
-1. Delete `backend/qmedsense.db` (or `qmedsense.db` if present).
+1. Delete `backend/q-rakshak.db` (or `q-rakshak.db` if present).
 2. Restart `python main.py` or `.\start_backend.ps1`. The database schema and seed records will be re-initialized automatically.
 
 ---
@@ -315,4 +315,4 @@ To reset the database to factory default seeds:
 
 ---
 
-**© 2026 Q-MedSense Team. Smart India Hackathon (SIH 26139). Licensed under the MIT License.**
+**© 2026 Q-RAKSHAK Team. Smart India Hackathon (SIH 26139). Licensed under the MIT License.**

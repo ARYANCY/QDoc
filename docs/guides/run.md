@@ -1,4 +1,4 @@
-# Q-MedSense: Complete Step-by-Step Execution & Deployment Guide (`docs/guides/run.md`)
+﻿# Q-RAKSHAK: Complete Step-by-Step Execution & Deployment Guide (`docs/guides/run.md`)
 
 [![Execution Guide](https://img.shields.io/badge/Runbook-Complete%20%26%20Verified-brightgreen.svg)]()
 [![SIH Problem ID](https://img.shields.io/badge/SIH%20ID-26139-0052CC.svg)]()
@@ -6,7 +6,7 @@
 [![Python](https://img.shields.io/badge/Python-3.10%20--%203.14-blue.svg)]()
 [![React](https://img.shields.io/badge/React-18%20%2B%20Vite-61DAFB.svg)]()
 
-This guide provides exhaustive, end-to-end instructions for launching, testing, and developing both the **Backend API & Quantum Engine** and the **Frontend Web Applications** of the **Q-MedSense** platform across Windows, macOS, and Linux environments.
+This guide provides exhaustive, end-to-end instructions for launching, testing, and developing both the **Backend API & Quantum Engine** and the **Frontend Web Applications** of the **Q-RAKSHAK** platform across Windows, macOS, and Linux environments.
 
 ---
 
@@ -91,8 +91,8 @@ source .venv/bin/activate
 
 #### Using Anaconda / Miniconda:
 ```bash
-conda create -n qmedsense python=3.11 -y
-conda activate qmedsense
+conda create -n q-rakshak python=3.11 -y
+conda activate q-rakshak
 ```
 
 ---
@@ -168,7 +168,7 @@ Once started, test that the API is running:
    *Expected JSON response:*
    ```json
    {
-     "platform": "Q-MedSense",
+     "platform": "Q-RAKSHAK",
      "version": "2.0.0",
      "sih_problem_id": "26139",
      "status": "online",
@@ -337,8 +337,8 @@ python -m pytest tests/unit/test_early_detection_and_ingestion.py -v
 | **`502 Bad Gateway / Network Error in UI`** | Frontend cannot reach backend at `127.0.0.1:8000`. | Ensure `python main.py` or `start_backend.ps1` is running in Terminal 1. |
 | **`ModuleNotFoundError: No module named 'backend'`** | `PYTHONPATH` does not include repository root. | Run from the repository root, or start via `python main.py` which sets `sys.path` automatically. |
 | **`sqlite3.OperationalError: database is locked`** | Concurrent connection conflict. | Fixed in database settings with `busy_timeout=30000` and `WAL` journal mode. Restart backend. |
-| **`Database Reset to Clean State`** | Need to purge records and re-seed defaults. | Delete `backend/qmedsense.db` (or `qmedsense.db`) and restart `python main.py`. |
+| **`Database Reset to Clean State`** | Need to purge records and re-seed defaults. | Delete `backend/q-rakshak.db` (or `q-rakshak.db`) and restart `python main.py`. |
 
 ---
 
-**© 2026 Q-MedSense Team. Smart India Hackathon (SIH Problem Statement ID 26139).**
+**© 2026 Q-RAKSHAK Team. Smart India Hackathon (SIH Problem Statement ID 26139).**

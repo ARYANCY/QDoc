@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+﻿import { useState, useEffect, useRef } from "react";
 import {
   User,
   Mail,
@@ -1030,7 +1030,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                   <div style={{ width: "18px", height: "18px", background: "#DC2626", color: "#FFFFFF", borderRadius: "3px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: "12px" }}>+</div>
                   <div>
-                    <div style={{ fontSize: "0.58rem", fontWeight: 800, color: "#2563EB", letterSpacing: "0.05em", textTransform: "uppercase", lineHeight: 1 }}>Q-MEDSENSE • CRITICAL EMERGENCY PASSPORT</div>
+                    <div style={{ fontSize: "0.58rem", fontWeight: 800, color: "#2563EB", letterSpacing: "0.05em", textTransform: "uppercase", lineHeight: 1 }}>Q-RAKSHAK • CRITICAL EMERGENCY PASSPORT</div>
                     <div style={{ fontSize: "0.48rem", color: "#64748B", fontWeight: 600 }}>ISO/IEC 7810 ID-1 Standard</div>
                   </div>
                 </div>
@@ -1059,7 +1059,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                 </div>
                 <div>
                   <span style={{ color: "#64748B", fontSize: "0.48rem", fontWeight: 700, textTransform: "uppercase", display: "block" }}>ORGAN DONOR</span>
-                  <strong style={{ color: "#059669" }}>{profile.organ_donor ? "✓ YES (CONSENTED)" : "NO"}</strong>
+                  <strong style={{ color: "#059669" }}>{profile.organ_donor ? "YES (CONSENTED)" : "NO"}</strong>
                 </div>
                 <div>
                   <span style={{ color: "#64748B", fontSize: "0.48rem", fontWeight: 700, textTransform: "uppercase", display: "block" }}>ATTENDING DOCTOR</span>
@@ -1125,7 +1125,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
 
               <div style={{ borderTop: "1px solid #E2E8F0", paddingTop: "3px", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.46rem", color: "#64748B" }}>
                 <span>Portal: {emergencyPortalUrl.replace(/^https?:\/\//, '')}</span>
-                <span>Q-MedSense Verified</span>
+                <span>Q-RAKSHAK Verified</span>
               </div>
             </div>
           </div>
@@ -1351,7 +1351,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                       </div>
                       <div>
                         <div style={{ fontSize: "0.58rem", fontWeight: 800, color: "#2563EB", letterSpacing: "0.05em", textTransform: "uppercase", lineHeight: 1 }}>
-                          Q-MEDSENSE • CRITICAL EMERGENCY PASSPORT
+                          Q-RAKSHAK • CRITICAL EMERGENCY PASSPORT
                         </div>
                         <div style={{ fontSize: "0.48rem", color: "#64748B", fontWeight: 600 }}>
                           ISO/IEC 7810 ID-1 Standard Layout
@@ -1391,7 +1391,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
 
                     <div>
                       <span style={{ color: "#64748B", fontSize: "0.48rem", fontWeight: 700, textTransform: "uppercase", display: "block" }}>ORGAN DONOR</span>
-                      <strong style={{ color: "#059669" }}>{profile.organ_donor ? "✓ YES (CONSENTED)" : "NO"}</strong>
+                      <strong style={{ color: "#059669" }}>{profile.organ_donor ? "YES (CONSENTED)" : "NO"}</strong>
                     </div>
 
                     <div>
@@ -1496,7 +1496,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                   {/* Footer Strip */}
                   <div style={{ borderTop: "1px solid #E2E8F0", paddingTop: "3px", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.46rem", color: "#64748B" }}>
                     <span>Portal: {emergencyPortalUrl.replace(/^https?:\/\//, '')}</span>
-                    <span>Q-MedSense Verified</span>
+                    <span>Q-RAKSHAK Verified</span>
                   </div>
                 </div>
               )}
@@ -1565,7 +1565,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
       {/* ── Dedicated Invisible Print-Only Sheet (Activated by @media print for 1:1 Scale Print & PDF) ── */}
       <div id="printable-health-card-sheet" style={{ display: "none" }}>
         <div className="print-instructions">
-          <strong>Q-MedSense Emergency Medical ID Card (ISO/IEC 7810 ID-1 Standard)</strong>
+          <strong>Q-RAKSHAK Emergency Medical ID Card (ISO/IEC 7810 ID-1 Standard)</strong>
           <br />
           Cut along the dashed lines. Fold along center line to fit standard wallet ID card slots (85.60 mm × 53.98 mm).
         </div>
@@ -1577,7 +1577,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
               <div className="id-card-brand">
                 <div className="id-card-cross">+</div>
                 <div>
-                  <div className="id-card-title">Q-MEDSENSE • EMERGENCY PASSPORT</div>
+                  <div className="id-card-title">Q-RAKSHAK • EMERGENCY PASSPORT</div>
                   <div className="id-card-subtitle">ISO/IEC 7810 ID-1 Standard</div>
                 </div>
               </div>
@@ -1606,7 +1606,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
               </div>
               <div>
                 <span className="id-card-cell-label">ORGAN DONOR</span>
-                <span className="id-card-cell-value success">{profile.organ_donor ? "✓ YES (CONSENTED)" : "NO"}</span>
+                <span className="id-card-cell-value success">{profile.organ_donor ? "YES (CONSENTED)" : "NO"}</span>
               </div>
               <div>
                 <span className="id-card-cell-label">ATTENDING DOCTOR</span>
@@ -1656,7 +1656,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
 
             <div className="id-card-footer">
               <span>Portal: {emergencyPortalUrl.replace(/^https?:\/\//, '')}</span>
-              <span>Q-MedSense Verified</span>
+              <span>Q-RAKSHAK Verified</span>
             </div>
           </div>
         </div>

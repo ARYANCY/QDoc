@@ -1,5 +1,5 @@
-"""
-Q-MedSense — Model Microservice Client
+﻿"""
+Q-RAKSHAK — Model Microservice Client
 Handles inter-service HTTP communication between Backend Core API (8000) and Model Service (8001)
 with timeout protection, keep-alive connection pooling, and graceful fallback.
 """

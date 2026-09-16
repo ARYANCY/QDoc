@@ -128,8 +128,8 @@ export default function DigitalTwin3DPage({ patientId, result, onExportReport })
           </ErrorBoundary>
         </div>
 
-        {/* Bottom: Telemetry KPIs & Severity Legend */}
-        <ErrorBoundary title="Telemetry Toolbar" message="An issue occurred in the telemetry toolbar." compact>
+        {/* Bottom: health summary and severity legend */}
+        <ErrorBoundary title="Health summary" message="The health summary could not be loaded." compact>
           <BottomBar />
         </ErrorBoundary>
 
@@ -148,7 +148,7 @@ export default function DigitalTwin3DPage({ patientId, result, onExportReport })
                   <button
                     type="button"
                     onClick={loadTimeline}
-                    title="Refresh timeline data from database"
+                    title="Refresh health timeline"
                     style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex", alignItems: "center", padding: "4px" }}
                   >
                     <RefreshCw size={15} className={timelineLoading ? "spin" : ""} />
@@ -174,7 +174,7 @@ export default function DigitalTwin3DPage({ patientId, result, onExportReport })
 
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "18px", paddingTop: "12px", borderTop: "1px solid var(--border-default)" }}>
                 <div style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
-                  Patient: <strong style={{ color: "var(--ink-primary)" }}>{activePid}</strong> • Live Database Synchronized
+                  Patient: <strong style={{ color: "var(--ink-primary)" }}>{activePid}</strong> • Updated
                 </div>
                 <button
                   type="button"
@@ -241,7 +241,7 @@ export default function DigitalTwin3DPage({ patientId, result, onExportReport })
                 </div>
 
                 <div style={{ fontSize: "0.70rem", color: "var(--text-muted)" }}>
-                  Biomechanical PBR Simulation Engine • ISO/IEC 27001 & HIPAA Compliant Export
+                  Clinical report export • Privacy-protected record
                 </div>
               </div>
 

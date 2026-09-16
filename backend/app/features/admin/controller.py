@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import time
 import uuid
@@ -64,7 +64,7 @@ async def create_new_user(req: CreateUserRequest, current_user: dict = Depends(g
         "secondary_email": req.secondary_email or "",
         "emergency_phone": req.emergency_phone or "+91 98765 43210",
         "role": req.role,
-        "hospital_affiliation": req.hospital_affiliation or "Q-MedSense Clinical Network",
+        "hospital_affiliation": req.hospital_affiliation or "Q-RAKSHAK Clinical Network",
         "license_number": req.license_number or f"LIC-{uuid.uuid4().hex[:4].upper()}",
     })
 

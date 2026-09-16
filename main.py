@@ -1,8 +1,8 @@
-"""
-Q-MedSense — Universal Application Entry Point
+﻿"""
+Q-RAKSHAK — Universal Application Entry Point
 Smart India Hackathon (SIH) Problem Statement ID: 26139
 
-This top-level entry point allows running the Q-MedSense platform via:
+This top-level entry point allows running the Q-RAKSHAK platform via:
     python main.py
 or importing the FastAPI application:
     from main import app
@@ -26,7 +26,7 @@ __all__ = ["app"]
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Q-MedSense Quantum Clinical Decision Support Platform"
+        description="Q-RAKSHAK Quantum Clinical Decision Support Platform"
     )
     parser.add_argument(
         "--host",

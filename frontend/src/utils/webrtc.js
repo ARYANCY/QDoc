@@ -1,5 +1,5 @@
-/**
- * Q-MedSense WebRTC & Media Engine
+﻿/**
+ * Q-RAKSHAK WebRTC & Media Engine
  * High-reliability clinical tele-consultation media utilities.
  * Handles real camera/mic access, synthetic holographic medical stream fallback,
  * screen sharing, and peer connection negotiation.
@@ -291,7 +291,7 @@ export function captureVideoSnapshot(videoElement) {
   ctx.fillRect(10, canvas.height - 40, 420, 30);
   ctx.fillStyle = "#D4AF37";
   ctx.font = "bold 13px 'JetBrains Mono', monospace";
-  ctx.fillText(`Q-MEDSENSE CLINICAL SNAPSHOT • ${new Date().toISOString().slice(0, 19)}`, 20, canvas.height - 20);
+  ctx.fillText(`Q-RAKSHAK CLINICAL SNAPSHOT • ${new Date().toISOString().slice(0, 19)}`, 20, canvas.height - 20);
 
   return canvas.toDataURL("image/jpeg", 0.92);
 }

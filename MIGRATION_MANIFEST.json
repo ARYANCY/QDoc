@@ -1,6 +1,6 @@
-{
+﻿{
   "manifest_version": "1.0.0",
-  "project_name": "Q-MedSense / QDoc",
+  "project_name": "Q-RAKSHAK / Q-Rakshak",
   "timestamp": "2026-09-09T01:00:00Z",
   "environment": {
     "conda_env": "sih2026",

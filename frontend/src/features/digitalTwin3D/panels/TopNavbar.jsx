@@ -52,7 +52,7 @@ export default function TopNavbar({ onExportReport }) {
           <p className="dt-topbar-sub">
             {patientMode === 'active'
               ? `Synchronized with Patient ${patient.patientId || 'PT-89421'}`
-              : 'Interactive 3D Anatomical & Biomechanical Simulation'}
+              : 'Interactive 3D health view'}
           </p>
         </div>
       </div>

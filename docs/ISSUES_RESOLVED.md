@@ -1,4 +1,4 @@
-# Q-MedSense: Codebase Issue Audit & Resolution Log (`docs/ISSUES_RESOLVED.md`)
+﻿# Q-RAKSHAK: Codebase Issue Audit & Resolution Log (`docs/ISSUES_RESOLVED.md`)
 
 [![Issues Resolved](https://img.shields.io/badge/Audit-100%25%20Resolved-brightgreen.svg)]()
 [![Tests Passing](https://img.shields.io/badge/Automated%20Tests-43%2F43%20Passing-brightgreen.svg)]()
@@ -21,7 +21,7 @@
 | **`ISSUE-ML-01`** | Classical Baselines Convergence | Convergence warnings in Logistic Regression and Multi-Layer Perceptrons on raw features. | Encapsulated classical estimators in scikit-learn `make_pipeline(StandardScaler(), LogisticRegression(...))`. | Unit test `test_classical_baselines` passed. |
 | **`ISSUE-ML-02`** | SMOTE Synthetic Degeneracy | Collinear synthetic samples produced zero-distance clustering in degenerate distributions. | Added numerical stability perturbation ($\epsilon = 10^{-7} \cdot \mathcal{N}(0, 1)$). | Unit test `test_smote_oversample` passed. |
 | **`ISSUE-ML-03`** | Quantum Feature Angle Clamping | Unclamped features caused phase wrapping outside rotation gate bounds. | Standardized `minmax_scale(X, feature_range=(-np.pi, np.pi))` before angle embedding. | Verified in `test_quantum_preprocessor_scaling_and_pca`. |
-| **`ISSUE-DB-01`** | Database Persistence | Ephemeral in-memory mock data did not persist clinical records across server restarts. | Implemented persistent SQLite database (`qmedsense.db`) with full relational schema and context-managed pooling. | Verified in `test_skin_cancer_prediction_sqlite_persistence`. |
+| **`ISSUE-DB-01`** | Database Persistence | Ephemeral in-memory mock data did not persist clinical records across server restarts. | Implemented persistent SQLite database (`q-rakshak.db`) with full relational schema and context-managed pooling. | Verified in `test_skin_cancer_prediction_sqlite_persistence`. |
 | **`ISSUE-DB-02`** | Zero-Default Metric Enforcement | Mock static dummy data rendered on unanalyzed clinical UI pages. | Enforced strict zero initialization (`0%` / `0.00` / `Unanalyzed`) until live computation completes. | Verified in frontend and API response assertions. |
 | **`ISSUE-SEC-01`** | Cryptographic Salts & Password Security | Identical passwords yielded correlated hashes without salt randomization. | Enforced PBKDF2-HMAC-SHA256 with 16-byte cryptographically secure random salts per user. | Verified in `test_pbkdf2_unique_salts_for_identical_passwords`. |
 | **`ISSUE-SEC-02`** | XSS Protection in Reports | Unescaped HTML payloads in diagnostic reports posed injection vulnerabilities. | Integrated Jinja2 / standard HTML entity escaping across all dynamic clinical report generators. | Verified in `test_report_html_xss_escaping`. |
@@ -41,4 +41,4 @@
 
 ---
 
-**© 2026 Q-MedSense Engineering Team. SIH Problem Statement ID 26139.**
+**© 2026 Q-RAKSHAK Engineering Team. SIH Problem Statement ID 26139.**

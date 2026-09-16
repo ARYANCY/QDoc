@@ -1,4 +1,4 @@
-# SLIDE 6: RESEARCH AND REFERENCES
+﻿# SLIDE 6: RESEARCH AND REFERENCES
 
 ## Official SIH 2026 Header
 - **Problem Statement ID:** `26139`
@@ -62,13 +62,13 @@
 - **HL7 FHIR Release 4:** Health Level Seven International. [https://hl7.org/fhir/R4](https://hl7.org/fhir/R4)
 - **DICOM PS3.x Standard:** National Electrical Manufacturers Association (NEMA). [https://www.dicomstandard.org](https://www.dicomstandard.org)
 - **Digital Personal Data Protection Act, 2023:** Ministry of Law and Justice, Government of India. [https://www.meity.gov.in/content/digital-personal-data-protection-act-2023](https://www.meity.gov.in/content/digital-personal-data-protection-act-2023)
-- **Primary Source Code Repository:** [https://github.com/ARYANCY/QDoc](https://github.com/ARYANCY/QDoc)
+- **Primary Source Code Repository:** [https://github.com/ARYANCY/Q-Rakshak](https://github.com/ARYANCY/Q-Rakshak)
 
 ---
 
 ## 5. Visual Diagram & Image Generation Specifications
 
-### Heading: Q-MedSense Scientific Grounding and Research Ecosystem Map
+### Heading: Q-RAKSHAK Scientific Grounding and Research Ecosystem Map
 **Visual Diagram Prompt:**
 > A clean scientific infographic poster illustrating the research foundation of a quantum healthcare platform:
 > - Left Column: 'Quantum ML Literature & Empirical Foundations' with citations to Mitarai (2018), Schuld (2019), Havlíček (2019), and Cerezo (2021), featuring logos for PennyLane, Qiskit, and PyTorch.
@@ -79,7 +79,7 @@
 **JSON Prompt to Create Image:**
 ```json
 {
-  "title": "Q-MedSense Scientific Grounding and Research Ecosystem Map",
+  "title": "Q-RAKSHAK Scientific Grounding and Research Ecosystem Map",
   "prompt": "Clean scientific infographic poster showing the technological and research foundation of a quantum healthcare platform. Two symmetrical columns: left column showing Quantum ML frameworks (PennyLane, Qiskit, PyTorch) and clinical benchmark datasets (HAM10000, Chest X-Rays, WDBC); right column showing Clinical Studio tools (React 18, Three.js WebGL 3D Twin) and healthcare regulatory standards (HL7 FHIR, DICOM, DPDP Act 2023, W3C PROV-O). A subtle glowing central axis with intertwined quantum qubit rails and DNA molecular spirals. Deep navy blue background, glowing cyan and sapphire nodes, razor-sharp technical typography, 8k resolution.",
   "style": "scientific journal infographic, high-tech standards taxonomy map",
   "aspect_ratio": "16:9",

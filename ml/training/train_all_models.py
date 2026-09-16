@@ -1,4 +1,4 @@
-"""End-to-End Hybrid Quantum-Classical Training & Benchmarking Pipeline (train_all_models.py)
+﻿"""End-to-End Hybrid Quantum-Classical Training & Benchmarking Pipeline (train_all_models.py)
 Adhering strictly to model.md protocols:
 - Stratified 70/15/15 train/val/test split (seed=42)
 - SMOTE on training split only (no leakage)
@@ -446,7 +446,7 @@ def train_pima_diabetes_benchmark(seed: int = 42) -> dict[str, Any]:
 
 def main():
     print("\n" + "#" * 70, flush=True)
-    print("# Q-MEDSENSE HYBRID QUANTUM-CLASSICAL MODEL FAMILY TRAINING PIPELINE #", flush=True)
+    print("# Q-RAKSHAK HYBRID QUANTUM-CLASSICAL MODEL FAMILY TRAINING PIPELINE #", flush=True)
     print("# SIH Problem Statement 26139 | Adhering strictly to model.md       #", flush=True)
     print("#" * 70, flush=True)
 
@@ -463,7 +463,7 @@ def main():
 
     registry = {
         "metadata": {
-            "platform": "Q-MedSense",
+            "platform": "Q-RAKSHAK",
             "spec": "model.md v1.0",
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "random_seed": 42,

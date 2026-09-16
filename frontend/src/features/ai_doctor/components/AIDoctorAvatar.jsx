@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+﻿import React, { useRef, useEffect } from "react";
 import { Sparkles, Activity, ShieldCheck, Stethoscope, Mic, Volume2 } from "lucide-react";
 
 export default function AIDoctorAvatar({ isSpeaking, isListening, callActive, voicePersonality = "sarah" }) {
@@ -238,7 +238,7 @@ export default function AIDoctorAvatar({ isSpeaking, isListening, callActive, vo
             letterSpacing: "0.04em",
           }}
         >
-          Chief AI Clinical Specialist • Q-MedSense Platform
+          Chief AI Clinical Specialist • Q-RAKSHAK Platform
         </p>
         <span style={{ fontSize: "0.66rem", color: "var(--text-muted)", display: "block", marginTop: "2px" }}>
           Trained on Multi-Modal EHR, 3D Digital Twin & Quantum Diagnostic Models

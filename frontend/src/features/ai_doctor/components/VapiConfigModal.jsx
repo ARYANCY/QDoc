@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { Key, ShieldCheck, CheckCircle2, AlertCircle, X, ExternalLink, Sparkles, Sliders } from "lucide-react";
 
 export default function VapiConfigModal({ isOpen, onClose, onSaveConfig, currentConfig }) {
@@ -121,7 +121,7 @@ export default function VapiConfigModal({ isOpen, onClose, onSaveConfig, current
             <span>How Vapi Voice AI Operates</span>
           </div>
           <p style={{ margin: 0, color: "var(--text-secondary)" }}>
-            Q-MedSense automatically injects your live vital signs, 3D health twin scores, and quantum diagnostic scan records into Vapi so the AI Doctor speaks with personalized medical context.
+            Q-RAKSHAK automatically injects your live vital signs, 3D health twin scores, and quantum diagnostic scan records into Vapi so the AI Doctor speaks with personalized medical context.
           </p>
           <div style={{ marginTop: "8px", display: "flex", alignItems: "center", gap: "6px" }}>
             <a
@@ -158,7 +158,7 @@ export default function VapiConfigModal({ isOpen, onClose, onSaveConfig, current
               }}
             />
             <span style={{ fontSize: "0.65rem", color: "var(--text-muted)", display: "block", marginTop: "3px" }}>
-              Found in your Vapi Dashboard under <strong>Settings → API Keys → Public Key</strong>.
+              Found in your Vapi Dashboard under <strong>Settings, API Keys, Public Key</strong>.
             </span>
           </div>
 
@@ -184,7 +184,7 @@ export default function VapiConfigModal({ isOpen, onClose, onSaveConfig, current
               }}
             />
             <span style={{ fontSize: "0.65rem", color: "var(--text-muted)", display: "block", marginTop: "3px" }}>
-              If blank, Q-MedSense dynamically provisions Dr. Quantum with your real-time medical dossier.
+              If blank, Q-RAKSHAK dynamically provisions Dr. Quantum with your real-time medical dossier.
             </span>
           </div>
 

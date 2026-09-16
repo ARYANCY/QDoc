@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+﻿import { useState, useEffect, useRef } from "react";
 import {
   X,
   ChevronRight,
@@ -31,14 +31,14 @@ export default function UserGuideModal({ isOpen, onClose }) {
   const slides = [
     {
       badge: "Welcome Tour",
-      title: "Welcome to Q-MedSense",
+      title: "Welcome to Q-RAKSHAK",
       subtitle: "Personal Health Intelligence & Quantum AI Checkups",
       icon: Atom,
       iconColor: "var(--primary)",
       content: (
         <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "0.82rem", color: "var(--text-secondary)", lineHeight: 1.6 }}>
           <p>
-            <strong>Q-MedSense</strong> gives you autonomous preventative health checkups, an interactive 3D digital health twin, multi-organ early detection monitoring, and tamper-proof encrypted health records.
+            <strong>Q-RAKSHAK</strong> gives you autonomous preventative health checkups, an interactive 3D digital health twin, multi-organ early detection monitoring, and tamper-proof encrypted health records.
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginTop: "4px" }}>
             <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", padding: "10px" }}>
@@ -46,7 +46,7 @@ export default function UserGuideModal({ isOpen, onClose }) {
               <span>Processes dozens of biological indicators simultaneously for earlier, more accurate health insights.</span>
             </div>
             <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", padding: "10px" }}>
-              <strong style={{ color: "var(--accent-teal)", fontSize: "0.80rem", display: "block" }}>🛡️ DPDP & HIPAA Security</strong>
+              <strong style={{ color: "var(--accent-teal)", fontSize: "0.80rem", display: "block" }}>DPDP & HIPAA Security</strong>
               <span>Your medical data is encrypted and protected with complete data privacy controls.</span>
             </div>
           </div>
@@ -131,7 +131,7 @@ export default function UserGuideModal({ isOpen, onClose }) {
               <p style={{ fontSize: "0.72rem", margin: "3px 0 0 0" }}>Personal Health Checkups, 3D Health Twin, Early Detection Map & Encrypted Records.</p>
             </div>
             <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", padding: "10px" }}>
-              <strong style={{ color: "var(--accent-teal)" }}>🛡️ Administrator (`admin.audit`)</strong>
+              <strong style={{ color: "var(--accent-teal)" }}>Administrator (`admin.audit`)</strong>
               <p style={{ fontSize: "0.72rem", margin: "3px 0 0 0" }}>Security & Compliance, User Management, AI Benchmark Matrix & Audit Trail.</p>
             </div>
           </div>

@@ -1,31 +1,19 @@
-import React from "react";
-import {
-  ArrowRight,
-  ShieldCheck,
-  Cpu,
-  Activity,
-  BarChart3,
-  Stethoscope,
-  HeartPulse,
-} from "lucide-react";
-
+﻿import React from "react";
 export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs = [] }) {
   const portals = [
     {
       id: "diagnostic",
-      title: "AI Medical Diagnosis",
-      subtitle: "Multi-Disease Risk Analysis",
-      desc: "Upload clinical indicators, lab tests, and imaging scans (X-rays, dermoscopy) for multi-disease risk evaluation with explainable confidence intervals.",
-      badge: "AI Diagnostics",
-      icon: Activity,
+      title: "Health review",
+      subtitle: "Understand your results",
+      desc: "Upload lab results or scans for a clear summary of what they may mean and what to discuss with your care team.",
+      badge: "Health review",
     },
     {
       id: "twin",
-      title: "3D Health Twin",
-      subtitle: "Interactive Anatomical Model",
-      desc: "Explore an interactive 3D digital twin with real-time organ indicators, vital projections, and personalized clinical hotspots.",
-      badge: "3D Twin",
-      icon: HeartPulse,
+      title: "Your 3D body view",
+      subtitle: "Explore your health history",
+      desc: "Explore a simple 3D view of your body with vital signs and care notes in one place.",
+      badge: "Body view",
     },
     {
       id: "early_detection",
@@ -33,7 +21,6 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
       subtitle: "Longitudinal Risk Trajectories",
       desc: "Examine multi-year risk projections across cardiovascular, oncology, and pulmonary pathways with proactive clinical recommendations.",
       badge: "Risk Pathway",
-      icon: BarChart3,
     },
     {
       id: "doctor_booking",
@@ -41,15 +28,13 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
       subtitle: "Tele-Health & Video Rooms",
       desc: "Schedule and join encrypted WebRTC video consultations with certified specialists and receive signed digital prescriptions.",
       badge: "Tele-Health",
-      icon: Stethoscope,
     },
     {
       id: "benchmarks",
       title: "Benchmark Matrix",
       subtitle: "Model Validation & Performance",
-      desc: "Compare Quantum and AI classifier metrics against classical baselines across sensitivity, specificity, calibration, and latency.",
+      desc: "Review how our health guidance performs across accuracy, consistency, and response time.",
       badge: "Validation",
-      icon: Cpu,
     },
     {
       id: "compliance",
@@ -57,31 +42,30 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
       subtitle: "Audit Trails & Access Control",
       desc: "Verify cryptographic audit ledgers, ABAC permission policies, patient consent logs, and clinical governance records.",
       badge: "Governance",
-      icon: ShieldCheck,
     },
   ];
 
   const kpis = [
     {
-      label: "Diagnostic Sensitivity",
+      label: "Review quality",
       value: "98.4%",
-      subtext: "+3.2% vs. Classical Baselines",
+      subtext: "Compared with standard reviews",
       subtextColor: "var(--risk-low)",
     },
     {
-      label: "Inference Latency",
+      label: "Response time",
       value: "14.8 ms",
       subtext: "Optimized Processing Pipeline",
       subtextColor: "var(--text-muted)",
     },
     {
-      label: "Circuit Fidelity",
+      label: "Reading consistency",
       value: "99.8%",
-      subtext: "Error Mitigation Active",
+      subtext: "Checks completed",
       subtextColor: "var(--risk-low)",
     },
     {
-      label: "Supported Modalities",
+      label: "Health areas covered",
       value: "5 Modalities",
       subtext: "Oncology, Cardiology, Pulmonary, Dermatology, Metabolism",
       subtextColor: "var(--text-muted)",
@@ -90,6 +74,7 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
 
   return (
     <div
+      className="home-workspace"
       style={{
         display: "flex",
         flexDirection: "column",
@@ -136,7 +121,7 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
                 marginBottom: "4px",
               }}
             >
-              Clinical Intelligence Platform
+              Your health workspace
             </span>
             <h1
               style={{
@@ -148,7 +133,7 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
                 margin: 0,
               }}
             >
-              Intelligent Clinical Decision Support
+              Understand your health with confidence
             </h1>
           </div>
 
@@ -206,7 +191,7 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
             margin: 0,
           }}
         >
-          Q-MedSense is an intelligent clinical platform bridging AI and Quantum diagnostic models, interactive 3D Digital Health Twin projections, encrypted tele-consultations, and privacy-compliant patient record management.
+          Q-RAKSHAK is a clear, secure care workspace for health reviews, 3D body views, clinician consultations, and private medical records.
         </p>
       </section>
 
@@ -290,7 +275,7 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
               fontWeight: 600,
             }}
           >
-            6 Operational Modules
+              6 ways to manage your care
           </span>
         </div>
 
@@ -302,7 +287,6 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
           }}
         >
           {portals.map((p) => {
-            const Icon = p.icon;
             const canOpen = allowedTabs.includes(p.id);
             return (
               <div
@@ -347,20 +331,6 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
                         gap: "8px",
                       }}
                     >
-                      <div
-                        style={{
-                          width: "32px",
-                          height: "32px",
-                          borderRadius: "var(--radius-xs)",
-                          background: "var(--accent-blue-soft)",
-                          color: "var(--accent-blue)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <Icon size={18} />
-                      </div>
                       <span
                         style={{
                           fontFamily: "var(--font-mono)",
@@ -444,7 +414,6 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
                     }}
                   >
                     <span>{canOpen ? "Open Workspace" : "Restricted Access"}</span>
-                    <ArrowRight size={14} />
                   </span>
                 </div>
               </div>
@@ -529,7 +498,7 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
               STEP 02
             </span>
             <strong style={{ fontSize: "0.84rem", color: "var(--ink-primary)", display: "block", marginTop: "2px" }}>
-              Entangled VQC Ansatz
+              How our health guidance is checked
             </strong>
             <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
               CZ & CNOT multi-qubit gates

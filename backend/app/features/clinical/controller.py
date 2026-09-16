@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import time
 import uuid
@@ -435,4 +435,4 @@ async def get_patient_disease_features(patient_id: str, disease: str):
 @router.get("/status")
 def get_clinical_status():
     """System health check for container liveness and readiness."""
-    return {"status": "ok", "service": "Q-MedSense Clinical Inference Engine", "quantum_backend": "PennyLane default.qubit"}
+    return {"status": "ok", "service": "Q-RAKSHAK Clinical Inference Engine", "quantum_backend": "PennyLane default.qubit"}

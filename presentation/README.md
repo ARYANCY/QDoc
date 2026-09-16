@@ -1,10 +1,10 @@
-# Q-MedSense Presentation Deck (Smart India Hackathon 2026)
+﻿# Q-RAKSHAK Presentation Deck (Smart India Hackathon 2026)
 
 > **SIH Problem Statement ID:** 26139  
 > **Problem Statement Title:** Hybrid Quantum Machine Learning Platform for Early Disease Detection  
 > **Organization:** Egreen Quanta  
 > **Category:** Software | **Theme:** MedTech / BioTech / HealthTech  
-> **Platform Repository:** [https://github.com/ARYANCY/QDoc](https://github.com/ARYANCY/QDoc)  
+> **Platform Repository:** [https://github.com/ARYANCY/Q-Rakshak](https://github.com/ARYANCY/Q-Rakshak)  
 > **Verification Status:** **79/79 Automated Pytest Tests Passed (100%)** | Zero Dummy Data | Cross-Validated
 
 ---

@@ -1,7 +1,7 @@
-# Q-MedSense Comprehensive Codebase Issue Audit & Resolution Log (`issue.md`)
+﻿# Q-RAKSHAK Comprehensive Codebase Issue Audit & Resolution Log (`issue.md`)
 
 **Document Version:** 1.0.0  
-**Project:** Q-MedSense — Hybrid Quantum Machine Learning Clinical Decision Support Platform  
+**Project:** Q-RAKSHAK — Hybrid Quantum Machine Learning Clinical Decision Support Platform  
 **Target Specification:** IEEE 830 SRS Compliant (SIH Problem Statement ID 26139)  
 **Date:** September 6, 2026  
 **Auditor:** Antigravity Autonomous Diagnostic Engine  
@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-A comprehensive architectural and algorithmic audit was performed across all modules of the **Q-MedSense** platform, spanning:
+A comprehensive architectural and algorithmic audit was performed across all modules of the **Q-RAKSHAK** platform, spanning:
 1. **Quantum Machine Learning Engine (`ml/quantum_engine/`)**
 2. **Clinical Preprocessing & Data Pipelines (`ml/data/`, `backend/app/features/ingestion/`)**
 3. **Backend API Endpoints & Security (`backend/app/features/`, `backend/app/core/`)**

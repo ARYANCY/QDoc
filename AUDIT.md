@@ -1,6 +1,6 @@
-# Complete Pre-Migration Repository Audit (AUDIT.md)
+﻿# Complete Pre-Migration Repository Audit (AUDIT.md)
 **Document Version:** 1.0.0  
-**Repository:** QDoc / Q-MedSense  
+**Repository:** Q-Rakshak / Q-RAKSHAK  
 **Execution Environment:** Conda `sih2026` (Python 3.10)  
 **Date:** 2026-09-09  
 
@@ -15,7 +15,7 @@ This repository audit was conducted prior to migrating the medical machine learn
 ## 2. Discovered Architecture & File Hierarchy
 
 ```
-QDoc/
+Q-Rakshak/
 ├── backend/
 │   ├── app/
 │   │   ├── core/              # Security (PBKDF2-HMAC-SHA256, JWT, CORS, Rate Limiter)

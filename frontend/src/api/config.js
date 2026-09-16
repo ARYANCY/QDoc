@@ -1,12 +1,12 @@
-// frontend/src/api/config.js
-// Centralized API configuration and route catalog for Q-MedSense
+﻿// frontend/src/api/config.js
+// Centralized API configuration and route catalog for Q-RAKSHAK
 
 const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || "/api/v1";
 export const API_BASE_URL = rawBaseUrl.replace(/\/+$/, "");
 
 export const API_KEY = import.meta.env.VITE_API_KEY || "";
 export const EMERGENCY_PORTAL_BASE =
-  import.meta.env.VITE_EMERGENCY_PORTAL_BASE || "https://qmedsense.health/#emergency";
+  import.meta.env.VITE_EMERGENCY_PORTAL_BASE || "https://q-rakshak.health/#emergency";
 
 export const API_TIMEOUT_MS = Number(import.meta.env.VITE_API_TIMEOUT_MS) || 15000;
 

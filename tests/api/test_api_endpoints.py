@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 from fastapi.testclient import TestClient
@@ -12,7 +12,7 @@ def test_root_endpoint():
     res = client.get("/")
     assert res.status_code == 200
     data = res.json()
-    assert data["platform"] == "Q-MedSense"
+    assert data["platform"] == "Q-RAKSHAK"
     assert data["sih_problem_id"] == "26139"
 
 

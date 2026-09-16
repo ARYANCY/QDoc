@@ -1,4 +1,4 @@
-# Q-MedSense: Relational Database Architecture & Schema Specification (`docs/DATABASE_SCHEMA.md`)
+﻿# Q-RAKSHAK: Relational Database Architecture & Schema Specification (`docs/DATABASE_SCHEMA.md`)
 
 [![Database](https://img.shields.io/badge/Database-SQLite%203-003B57.svg?logo=sqlite&logoColor=white)]()
 [![Schema Version](https://img.shields.io/badge/Schema%20Version-2.0.0-blue.svg)]()
@@ -7,7 +7,7 @@
 
 > **Target Standard:** ISO/IEC 9075 Relational Database Schema Specification  
 > **Storage Engine:** SQLite 3 with context-managed connection pooling and WORM append-only audit enforcement  
-> **Database File:** `backend/qmedsense.db` (Production) / `backend/qmedsense_demo.db` (Demo)  
+> **Database File:** `backend/q-rakshak.db` (Production) / `backend/q-rakshak_demo.db` (Demo)  
 
 ---
 
@@ -36,7 +36,7 @@
 
 ## 1. Architectural Overview & Principles
 
-The **Q-MedSense** database layer is engineered for mission-critical clinical reliability, high auditability, and absolute adherence to privacy regulations (DPDP Act 2023 & HIPAA Safe Harbor).
+The **Q-RAKSHAK** database layer is engineered for mission-critical clinical reliability, high auditability, and absolute adherence to privacy regulations (DPDP Act 2023 & HIPAA Safe Harbor).
 
 ### Key Design Pillars:
 1. **Zero External Configuration:** Standardized on SQLite 3 with zero external database server setup required, enabling frictionless deployment across local laptops, clinical workstations, and containerized cloud pods.
@@ -374,4 +374,4 @@ def get_db_connection():
 
 ---
 
-**© 2026 Q-MedSense Database Engineering Team. SIH Problem Statement ID 26139.**
+**© 2026 Q-RAKSHAK Database Engineering Team. SIH Problem Statement ID 26139.**

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import UnifiedAnalysisPage from "./features/analysis/UnifiedAnalysisPage.jsx";
 import EmergencyCardView from "./features/clinical/EmergencyCardView.jsx";
+import NotFoundPage from "./components/common/NotFoundPage.jsx";
 import "./styles.css";
 
 function AppRouter() {
@@ -19,7 +20,7 @@ function AppRouter() {
       const parts = path.split("/");
       return { isEmergency: true, patientId: parts[parts.length - 1] || "PT-89421" };
     }
-    return { isEmergency: false, patientId: null };
+    return { isEmergency: false, patientId: null, isNotFound: !["/", "/index.html"].includes(path) };
   }
 
   useEffect(() => {
@@ -37,6 +38,8 @@ function AppRouter() {
   if (route.isEmergency) {
     return <EmergencyCardView patientId={route.patientId} />;
   }
+
+  if (route.isNotFound) return <NotFoundPage />;
 
   return <UnifiedAnalysisPage />;
 }

@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+﻿apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: qmed-backend
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: qmedsense/backend:v1.0.0
+        image: q-rakshak/backend:v1.0.0
         ports:
         - containerPort: 8000
         env:
@@ -65,7 +65,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: qmedsense/frontend:v1.0.0
+        image: q-rakshak/frontend:v1.0.0
         ports:
         - containerPort: 80
         resources:

@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from fastapi import APIRouter
 from pydantic import BaseModel
@@ -63,7 +63,7 @@ DISEASE_PATHWAYS = {
                 "risk_score": 44.0,
                 "cellular_biomarker": "Coronary Artery Calcium (CAC) Score 10 - 99, Oldpeak 0.8 - 1.4",
                 "symptoms": "Mild exertional shortness of breath, delayed peak recovery",
-                "detection_method": "Q-MedSense Multi-Feature Treadmill Stress QNN",
+                "detection_method": "Q-RAKSHAK Multi-Feature Treadmill Stress QNN",
                 "recommended_intervention": "Intensive lipid lowering (LDL < 70 mg/dL) & SGLT2i metabolic support",
             },
             {
@@ -100,7 +100,7 @@ DISEASE_PATHWAYS = {
                 "risk_score": 52.0,
                 "cellular_biomarker": "HbA1c 5.7% - 6.4%, Fasting Glucose 100 - 125 mg/dL",
                 "symptoms": "Mild metabolic fatigue, elevated blood pressure (130/85)",
-                "detection_method": "Q-MedSense Multi-Biomarker Metabolic Profile",
+                "detection_method": "Q-RAKSHAK Multi-Biomarker Metabolic Profile",
                 "recommended_intervention": "Metformin therapy (500mg), low-glycemic dietary regimen",
             },
             {

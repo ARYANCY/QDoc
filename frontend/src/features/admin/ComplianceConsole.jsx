@@ -98,7 +98,7 @@ export default function ComplianceConsole({ patientId = "PT-89421" }) {
             onClick={handleConsentSave}
             style={{ width: "auto", padding: "5px 14px", fontSize: "0.74rem" }}
           >
-            {saved ? "✓ Consent Logged to Immutable Ledger" : "Update Consent Directives"}
+            {saved ? "Consent Logged to Immutable Ledger" : "Update Consent Directives"}
           </button>
         </div>
       </div>

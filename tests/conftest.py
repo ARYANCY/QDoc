@@ -1,9 +1,9 @@
-import os
+﻿import os
 import tempfile
 from pathlib import Path
 
 os.environ["QMED_DB_MODE"] = "demo"
-os.environ["QMED_DEMO_DB_PATH"] = str(Path(tempfile.gettempdir()) / f"qmedsense-tests-{os.getpid()}.db")
+os.environ["QMED_DEMO_DB_PATH"] = str(Path(tempfile.gettempdir()) / f"q-rakshak-tests-{os.getpid()}.db")
 Path(os.environ["QMED_DEMO_DB_PATH"]).unlink(missing_ok=True)
 
 import pytest

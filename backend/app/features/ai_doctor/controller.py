@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import logging
 from typing import Any, Optional
@@ -237,7 +237,7 @@ def build_patient_clinical_dossier(patient_id: str, override_name: Optional[str]
     ])
 
     first_name = dossier["name"].split()[0] if dossier["name"] else "there"
-    system_prompt = f"""You are Dr. Quantum, a friendly, caring, and approachable AI family doctor at Q-MedSense.
+    system_prompt = f"""You are Dr. Quantum, a friendly, caring, and approachable AI family doctor at Q-RAKSHAK.
 You are having a casual 1-on-1 voice conversation with {dossier['name']}.
 
 === CRITICAL CONVERSATION RULES ===
@@ -277,7 +277,7 @@ def get_vapi_configuration():
         "has_vapi_key": bool(settings.VAPI_PUBLIC_KEY or settings.VAPI_API_KEY),
         "vapi_public_key": settings.VAPI_PUBLIC_KEY,
         "vapi_assistant_id": settings.VAPI_ASSISTANT_ID,
-        "service_name": "Q-MedSense Vapi Voice AI Engine",
+        "service_name": "Q-RAKSHAK Vapi Voice AI Engine",
         "supported_voices": [
             {"id": "dashboard", "name": "Dashboard Voice (Clara / Preconfigured)", "provider": "vapi"},
             {"id": "clara", "name": "Clara (Warm & Natural - Female)", "provider": "11labs"},

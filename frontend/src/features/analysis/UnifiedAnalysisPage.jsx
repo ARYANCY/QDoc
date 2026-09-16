@@ -21,6 +21,16 @@ import {
   Info,
   ChevronDown,
   ChevronUp,
+  Home,
+  Stethoscope,
+  ScanSearch,
+  ScanFace,
+  Compass,
+  ChartNoAxesCombined,
+  Cpu,
+  UserRound,
+  UsersRound,
+  CircleUserRound,
 } from "lucide-react";
 import { DigitalTwin3DPage } from "../../features/digitalTwin3D/index.js";
 import DigitalTwin3D from "../../components/visualizations/DigitalTwin3D.jsx";
@@ -45,6 +55,7 @@ import EditorialLoginPage from "../auth/EditorialLoginPage.jsx";
 import EditorialHeader from "../../components/common/EditorialHeader.jsx";
 import EditorialFooter from "../../components/common/EditorialFooter.jsx";
 import EditorialHomePage from "../home/EditorialHomePage.jsx";
+import EmptyState from "../../components/common/EmptyState.jsx";
 import { AIDoctorConsultationPage } from "../ai_doctor/index.js";
 
 import { clinicalApi } from "../../api/clinical";
@@ -56,116 +67,17 @@ import "../../styles.css";
 
 /* ── Custom High-Tech SVG Navigation Icons ──────────────────────────────────── */
 
-function NavHomeSvg() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
-      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-      <polyline points="9 22 9 12 15 12 15 22" />
-    </svg>
-  );
-}
-
-function NavAIDoctorSvg() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
-      <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3" />
-      <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4" />
-      <circle cx="20" cy="10" r="2" />
-    </svg>
-  );
-}
-
-function NavDiagnosticSvg() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
-      <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
-      <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
-      <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
-      <path d="M12 9v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
-    </svg>
-  );
-}
-
-function NavTwinSvg() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
-      <circle cx="12" cy="5" r="3" />
-      <path d="M6.5 21v-7l3-3h5l3 3v7" />
-      <path d="M12 11v6" />
-      <circle cx="12" cy="13" r="1" fill="currentColor" />
-    </svg>
-  );
-}
-
-function NavEarlyDetectionSvg() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
-      <circle cx="12" cy="12" r="10" />
-      <path d="m16.2 7.8-2 6.4-6.4 2 2-6.4z" />
-      <circle cx="12" cy="12" r="1" fill="currentColor" />
-    </svg>
-  );
-}
-
-function NavBenchmarkSvg() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
-      <path d="M3 3v18h18" />
-      <path d="M7 16v-4" />
-      <path d="M11 16V8" />
-      <path d="M15 16v-6" />
-      <path d="M19 16V4" />
-    </svg>
-  );
-}
-
-function NavTelemetrySvg() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
-      <rect x="4" y="4" width="16" height="16" />
-      <rect x="9" y="9" width="6" height="6" />
-      <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 15h3M1 9h3M1 15h3" />
-    </svg>
-  );
-}
-
-function NavComplianceSvg() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      <path d="m9 12 2 2 4-4" />
-    </svg>
-  );
-}
-
-function NavPortalSvg() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
-      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
-  );
-}
-
-function NavUsersSvg() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
-      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-    </svg>
-  );
-}
-
-function NavProfileSvg() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
-  );
-}
+const NavHomeSvg = Home;
+const NavAIDoctorSvg = Stethoscope;
+const NavDiagnosticSvg = ScanSearch;
+const NavTwinSvg = ScanFace;
+const NavEarlyDetectionSvg = Compass;
+const NavBenchmarkSvg = ChartNoAxesCombined;
+const NavTelemetrySvg = Cpu;
+const NavComplianceSvg = ShieldCheck;
+const NavPortalSvg = UserRound;
+const NavUsersSvg = UsersRound;
+const NavProfileSvg = CircleUserRound;
 
 /* ── Interactive Plain-English Patient Guides Dictionary ─────────────────────── */
 const GUIDE_DATA = {
@@ -238,7 +150,7 @@ const GUIDE_DATA = {
     ],
     metrics: [
       { label: "MCC Score", explanation: "Matthews Correlation Coefficient — the gold standard balanced metric for diagnostic accuracy.", color: "var(--primary)" },
-      { label: "Latency (ms)", explanation: "Processing time in milliseconds to complete full quantum statevector evaluation.", color: "var(--accent-violet)" },
+      { label: "Response time", explanation: "How quickly the system completes a health review.", color: "var(--accent-violet)" },
     ],
     quantumBenefit: "Delivers measurable precision gains (+4.2% to +8.6% MCC) across complex biological datasets.",
   },
@@ -361,7 +273,7 @@ const ROLE_PERMISSIONS = {
         items: [
           { id: "ai_doctor", label: "AI Doctor 1-on-1 Studio", icon: NavAIDoctorSvg },
           { id: "benchmarks", label: "AI Health Benchmarks", icon: NavBenchmarkSvg },
-          { id: "telemetry", label: "Quantum Telemetry", icon: NavTelemetrySvg },
+          { id: "telemetry", label: "System activity", icon: NavTelemetrySvg },
         ],
       },
       {
@@ -521,6 +433,15 @@ export default function UnifiedAnalysisPage() {
     }
   }, [activeTab]);
 
+  useEffect(() => {
+    const labels = {
+      home: "Care overview", diagnostic: "Diagnostic support", twin: "Health twin",
+      early_detection: "Early detection", portal: "Health records", profile: "Profile",
+      doctor_booking: "Find a clinician", my_consultations: "Appointments",
+    };
+    document.title = `Q-Rakshak | ${labels[activeTab] || "Hospital Portal"}`;
+  }, [activeTab]);
+
   function resolvePatientId(user) {
     if (!user || user.role !== "patient") return "";
     if (user.username === "alex.patient" || user.id === "PT-ALEX") return "PT-89421";
@@ -626,13 +547,29 @@ export default function UnifiedAnalysisPage() {
   const inputRef = useRef(null);
   const currentStudy = STUDIES[study] || STUDIES.breast_cancer;
 
-  function handleFile(nextFile) {
+  async function handleFile(nextFile) {
     if (!nextFile) return;
-    setFile(nextFile);
+    let preparedFile = nextFile;
+    if (nextFile.type && nextFile.type.startsWith("image/") && nextFile.size > 1024 * 1024) {
+      try {
+        const bitmap = await createImageBitmap(nextFile);
+        const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+        canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+        canvas.getContext("2d").drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+        const compressedBlob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.82));
+        if (compressedBlob) preparedFile = new File([compressedBlob], nextFile.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" });
+        bitmap.close();
+      } catch {
+        preparedFile = nextFile;
+      }
+    }
+    setFile(preparedFile);
     setResult(null);
     setError(null);
-    if (nextFile.type && nextFile.type.startsWith("image/")) {
-      const url = URL.createObjectURL(nextFile);
+    if (preparedFile.type && preparedFile.type.startsWith("image/")) {
+      const url = URL.createObjectURL(preparedFile);
       setImagePreviewUrl(url);
     } else {
       setImagePreviewUrl(null);
@@ -900,7 +837,7 @@ export default function UnifiedAnalysisPage() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = data.download_filename || `Q-MedSense_Report_${patientId}.html`;
+        a.download = data.download_filename || `Q-RAKSHAK_Report_${patientId}.html`;
         a.click();
       }
       setReportSuccess(true);
@@ -938,8 +875,8 @@ export default function UnifiedAnalysisPage() {
         <div className="sidebar-brand">
           {!sidebarCollapsed ? (
             <div>
-              <h1 className="brand-title" onClick={() => { setActiveTab("home"); setMobileSidebarOpen(false); }} style={{ cursor: "pointer" }}>Q-MEDSENSE</h1>
-              <p className="brand-subtitle">Clinical Platform</p>
+              <h1 className="brand-title" onClick={() => { setActiveTab("home"); setMobileSidebarOpen(false); }} style={{ cursor: "pointer" }}>Q-Rakshak</h1>
+              <p className="brand-subtitle">Hospital Portal</p>
             </div>
           ) : (
             <span style={{ fontSize: "0.90rem", fontWeight: 900, color: "var(--primary)", fontFamily: "var(--font-mono)" }}>Q</span>
@@ -960,7 +897,6 @@ export default function UnifiedAnalysisPage() {
             <div key={sIdx} style={{ display: "flex", flexDirection: "column", gap: "2px", marginBottom: "6px" }}>
               {!sidebarCollapsed && <p className="nav-section-label">{sec.title}</p>}
               {sec.items.map((item) => {
-                const IconComponent = item.icon;
                 return (
                   <button
                     key={item.id}
@@ -971,7 +907,6 @@ export default function UnifiedAnalysisPage() {
                     }}
                     title={item.label}
                   >
-                    <IconComponent />
                     {!sidebarCollapsed && <span>{item.label}</span>}
                   </button>
                 );
@@ -1018,6 +953,13 @@ export default function UnifiedAnalysisPage() {
           mobileSidebarOpen={mobileSidebarOpen}
           setMobileSidebarOpen={setMobileSidebarOpen}
         />
+
+        {(error || reportSuccess) && (
+          <div className={`app-alert ${error ? "error" : "success"}`} role={error ? "alert" : "status"}>
+            {error || "Your clinical report is ready to download."}
+            {error && <button type="button" onClick={() => setError(null)} aria-label="Dismiss message">Dismiss</button>}
+          </div>
+        )}
 
         {/* Content Body */}
         <main className="content-body" ref={mainContentRef}>
@@ -1208,7 +1150,7 @@ export default function UnifiedAnalysisPage() {
                                   textTransform: "uppercase",
                                 }}
                               >
-                                ✕ Clear Scan
+                                Clear Scan
                               </button>
                             </div>
                           </div>
@@ -1389,7 +1331,7 @@ export default function UnifiedAnalysisPage() {
                             fontSize: "0.7rem",
                           }}>
                             <span style={{ fontWeight: 700, color: result.active_engine === "quantum" ? "var(--primary)" : "#f59e0b" }}>
-                              {result.active_engine === "quantum" ? "⚛️ Routed Engine: Quantum VQC" : "🛡️ Routed Engine: Classical Sentinel Baseline"}
+                              {result.active_engine === "quantum" ? "Advanced review selected" : "Standard review selected"}
                             </span>
                             <span style={{ color: "var(--text-muted)", fontSize: "0.66rem", maxWidth: "60%", textAlign: "right" }}>
                               {result.hybrid_arbitration?.routing_rationale || (result.active_engine === "quantum" ? "Quantum Advantage Confirmed" : "Clinical Safety Guardrail")}
@@ -1635,7 +1577,7 @@ export default function UnifiedAnalysisPage() {
                         </button>
                         {reportSuccess && (
                           <p style={{ fontSize: "0.66rem", color: "var(--risk-low)", textAlign: "center", marginTop: "4px", fontWeight: 700 }}>
-                            ✓ Health Report downloaded successfully.
+                            Health Report downloaded successfully.
                           </p>
                         )}
                       </div>
@@ -1803,7 +1745,7 @@ export default function UnifiedAnalysisPage() {
                     onClick={() => setSelectedBookingForRoom(null)}
                     style={{ marginBottom: "14px", display: "inline-flex", alignItems: "center", gap: "6px" }}
                   >
-                    ← Back to All Consultations
+                    Back to All Consultations
                   </button>
                   <VirtualConsultationRoom
                     booking={selectedBookingForRoom}
@@ -1830,18 +1772,15 @@ export default function UnifiedAnalysisPage() {
                     </button>
                   </div>
 
-                  {myBookings.length === 0 ? (
-                    <div className="card-panel" style={{ textAlign: "center", padding: "40px" }}>
-                      <p style={{ color: "var(--text-muted)" }}>No consultations found. Book an appointment with a verified clinical specialist.</p>
-                      <button
-                        type="button"
-                        className="action-btn primary"
-                        onClick={() => setActiveTab("doctor_booking")}
-                        style={{ padding: "8px 16px", marginTop: "10px" }}
-                      >
-                        Explore Doctor Network
-                      </button>
-                    </div>
+                  {loading ? (
+                    <div className="skeleton-list" aria-label="Loading consultations"><div className="skeleton" /><div className="skeleton" /></div>
+                  ) : myBookings.length === 0 ? (
+                    <EmptyState
+                      title="No consultations scheduled"
+                      description="When you book an appointment, its details and any prescribed care will appear here."
+                      actionLabel="Find a clinician"
+                      onAction={() => setActiveTab("doctor_booking")}
+                    />
                   ) : (
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: "14px" }}>
                       {myBookings.map((b) => (

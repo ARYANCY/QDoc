@@ -212,7 +212,7 @@ export default function UserManagementConsole() {
 
       {successMsg && (
         <div style={{ background: "var(--risk-low-bg)", color: "var(--risk-low)", border: "1px solid var(--risk-low)", padding: "8px 12px", fontSize: "0.76rem", fontWeight: 600 }}>
-          ✓ {successMsg}
+          {successMsg}
         </div>
       )}
 

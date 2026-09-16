@@ -1,4 +1,4 @@
-# Q-MedSense: Full-Stack Deployment Architecture & File Structure Specification
+﻿# Q-RAKSHAK: Full-Stack Deployment Architecture & File Structure Specification
 **Document Version:** 2.0.0  
 **Target Architecture:** Decoupled 3-Tier Production Microservices (`model/`, `frontend/`, `backend/`)  
 **SIH Problem Statement ID:** 26139  
@@ -44,8 +44,8 @@ doc/ (Monorepo Root)
 │   │   ├── db/               # SQLite DB, Repositories, Schemas
 │   │   ├── features/         # 17 Feature Domain Controllers
 │   │   └── main.py           # FastAPI initialization & Router mounting
-│   ├── qmedsense.db          # Local SQLite runtime database
-│   ├── qmedsense_demo.db     # Local SQLite demo database
+│   ├── q-rakshak.db          # Local SQLite runtime database
+│   ├── q-rakshak_demo.db     # Local SQLite demo database
 │   └── requirements.txt      # Backend Python dependencies
 ├── frontend/                 # React 18 + Vite Web Application
 │   ├── public/models/        # 3D GLB anatomical organs (Three.js)
@@ -72,7 +72,7 @@ doc/ (Monorepo Root)
 2. **Hardcoded API Endpoints in Frontend:** Frontend API modules use direct relative strings (`/api/v1/...`) relying solely on Vite dev proxies. When deployed to static CDNs (Vercel, Netlify, CloudFront, S3), requests fail with 404 or CORS errors.
 3. **Hardcoded Secret Keys in Client Code:** `frontend/src/api/client.js` contains a hardcoded fallback API key (`qmed-master-api-key-2026`).
 4. **Duplicate Frontends:** `card-frontend` is kept as a separate project with redundant build configs instead of an integrated sub-route or micro-frontend.
-5. **Local SQLite Databases in VCS Scope:** `qmedsense.db` resides in the backend directory without multi-tier storage separation.
+5. **Local SQLite Databases in VCS Scope:** `q-rakshak.db` resides in the backend directory without multi-tier storage separation.
 6. **Monolithic `.env` File:** Single root `.env` combines Vite variables (`VITE_*`), server secrets (`JWT_SECRET`), and ML weights paths (`MODEL_CACHE_DIR`), creating credential leakage risks during frontend builds.
 
 ---
@@ -85,7 +85,7 @@ In production, the platform is cleanly decoupled into 3 autonomous services with
 3. **`model/`**: GPU/CPU Accelerated QML & Deep Learning Inference Microservice (FastAPI + Torch + PennyLane).
 
 ```
-qmedsense-platform/
+q-rakshak-platform/
 │
 ├── frontend/                                   # TIER 1: FRONTEND WEB APPLICATION (SPA)
 │   ├── .env.development                       # Local dev overrides (Vite)
@@ -253,7 +253,7 @@ Path: `model/.env` / `model/.env.example`
 
 ```ini
 # ==============================================================================
-# Q-MedSense: Model Inference Service Environment Configuration
+# Q-RAKSHAK: Model Inference Service Environment Configuration
 # ==============================================================================
 
 # Server Network Configuration
@@ -305,26 +305,26 @@ Path: `frontend/.env` / `frontend/.env.example`
 
 ```ini
 # ==============================================================================
-# Q-MedSense: Frontend Client (Vite) Environment Configuration
+# Q-RAKSHAK: Frontend Client (Vite) Environment Configuration
 # ==============================================================================
 
 # Application Meta
-VITE_APP_TITLE=Q-MedSense — Quantum Clinical Decision Support OS
+VITE_APP_TITLE=Q-RAKSHAK — Quantum Clinical Decision Support OS
 VITE_APP_VERSION=2.0.0
 VITE_ENVIRONMENT=production
 
 # Backend REST API Gateway (Target URL for all HTTP/WebSocket requests)
 # In local dev: http://localhost:8000/api/v1
 # In production (same origin reverse proxy): /api/v1
-# In production (cross origin subdomain): https://api.qmedsense.health/api/v1
-VITE_API_BASE_URL=https://api.qmedsense.health/api/v1
-VITE_BACKEND_ORIGIN=https://api.qmedsense.health
+# In production (cross origin subdomain): https://api.q-rakshak.health/api/v1
+VITE_API_BASE_URL=https://api.q-rakshak.health/api/v1
+VITE_BACKEND_ORIGIN=https://api.q-rakshak.health
 
 # API Gateway Key (Passed via X-API-Key header)
 VITE_API_KEY=qmed-master-api-key-2026
 
 # Emergency Portal Public Web Address (Used in QR Code generation)
-VITE_EMERGENCY_PORTAL_BASE=https://qmedsense.health/#emergency
+VITE_EMERGENCY_PORTAL_BASE=https://q-rakshak.health/#emergency
 
 # Feature Toggles & Capabilities
 VITE_ENABLE_3D_DIGITAL_TWIN=true
@@ -343,7 +343,7 @@ Path: `backend/.env` / `backend/.env.example`
 
 ```ini
 # ==============================================================================
-# Q-MedSense: Backend Core API Gateway Environment Configuration
+# Q-RAKSHAK: Backend Core API Gateway Environment Configuration
 # ==============================================================================
 
 # Server Network Configuration
@@ -354,12 +354,12 @@ API_V1_PREFIX=/api/v1
 DEBUG=false
 
 # Database Configuration (PostgreSQL in production, SQLite in development)
-# Production Example: postgresql+asyncpg://qmed_user:secure_pwd@db.internal:5432/qmedsense_prod
-# Local Development: sqlite:///qmedsense.db
-DATABASE_URL=sqlite:///qmedsense.db
+# Production Example: postgresql+asyncpg://qmed_user:secure_pwd@db.internal:5432/q-rakshak_prod
+# Local Development: sqlite:///q-rakshak.db
+DATABASE_URL=sqlite:///q-rakshak.db
 QMED_DB_MODE=production
-QMED_REAL_DB_PATH=qmedsense.db
-QMED_DEMO_DB_PATH=qmedsense_demo.db
+QMED_REAL_DB_PATH=q-rakshak.db
+QMED_DEMO_DB_PATH=q-rakshak_demo.db
 
 # Authentication, Tokens & Security
 SECRET_KEY=replace-with-a-64-character-cryptographic-random-secret-key
@@ -370,7 +370,7 @@ API_KEY=qmed-master-api-key-2026
 
 # CORS Security (Comma-Separated Allowed Origins)
 # Include all client domain variants (localhost, IP, preview URLs, production domains)
-CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://127.0.0.1:3000,https://qmedsense.health,https://www.qmedsense.health,https://app.qmedsense.health
+CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://127.0.0.1:3000,https://q-rakshak.health,https://www.q-rakshak.health,https://app.q-rakshak.health
 CORS_ALLOW_CREDENTIALS=true
 
 # Model Inference Microservice Communication
@@ -379,7 +379,7 @@ MODEL_SERVICE_API_KEY=qmed-internal-model-key-secure-prod-2026
 MODEL_SERVICE_TIMEOUT_SECONDS=45
 
 # Frontend Web Origin (Used for deep links, QR verification, email alerts)
-FRONTEND_URL=https://qmedsense.health
+FRONTEND_URL=https://q-rakshak.health
 
 # Rate Limiting Settings
 RATE_LIMIT_INFERENCE_MAX_PER_MINUTE=60
@@ -474,10 +474,10 @@ In the present frontend files, several values are hardcoded directly into source
    - `const API_KEY = "qmed-master-api-key-2026";` (Hardcoded master key in source).
    - Hardcoded direct relative paths like `/api/v1/...` which break when frontend is hosted on a separate CDN/domain without a reverse proxy.
 2. **`frontend/src/features/profile/UserProfilePage.jsx`**:
-   - `emergencyPortalUrl = ... "https://qmedsense.health/#emergency/..."` (Hardcoded production domain).
+   - `emergencyPortalUrl = ... "https://q-rakshak.health/#emergency/..."` (Hardcoded production domain).
    - `emergencyQrUrl = '/api/v1/emergency/${...}/qr.png'` (Hardcoded relative endpoint).
 3. **`frontend/src/components/common/QRCodeSVG.jsx`**:
-   - Fallback matrix `value || 'https://qmedsense.health'` (Hardcoded domain).
+   - Fallback matrix `value || 'https://q-rakshak.health'` (Hardcoded domain).
 4. **All individual API caller modules (`auth.js`, `clinical.js`, `consultations.js`, etc.)**:
    - Calling `/api/v1/auth/login`, `/api/v1/clinical/diagnose` without an environment prefix.
 
@@ -493,7 +493,7 @@ export const API_BASE_URL = rawBaseUrl.replace(/\/+$/, "");
 
 export const API_KEY = import.meta.env.VITE_API_KEY || "";
 export const EMERGENCY_PORTAL_BASE = 
-  import.meta.env.VITE_EMERGENCY_PORTAL_BASE || "https://qmedsense.health/#emergency";
+  import.meta.env.VITE_EMERGENCY_PORTAL_BASE || "https://q-rakshak.health/#emergency";
 
 export const API_TIMEOUT_MS = Number(import.meta.env.VITE_API_TIMEOUT_MS) || 15000;
 
@@ -647,7 +647,7 @@ Path: `.gitignore`
 
 ```gitignore
 # ==============================================================================
-# Q-MedSense Root .gitignore
+# Q-RAKSHAK Root .gitignore
 # ==============================================================================
 
 # OS & Editor Artifacts
@@ -694,8 +694,8 @@ ENV/
 *.db-journal
 *.db-wal
 *.db-shm
-qmedsense.db
-qmedsense_demo.db
+q-rakshak.db
+q-rakshak_demo.db
 
 # Heavy Training Datasets & Large Checkpoints (Managed by DVC/S3/Model Hub)
 datasets/
@@ -826,8 +826,8 @@ __pycache__/
 *.db
 *.sqlite
 *.sqlite3
-qmedsense.db
-qmedsense_demo.db
+q-rakshak.db
+q-rakshak_demo.db
 
 # Storage & User Uploads
 storage/uploads/*
@@ -858,7 +858,7 @@ Cross-Origin Resource Sharing (CORS) is an HTTP-header based mechanism that allo
 ```
 +------------------+          1. Preflight OPTIONS /api/v1/clinical/diagnose
 |  Browser Client  | -----------------------------------------------------> +--------------------+
-| (qmedsense.health) | <----------------------------------------------------- | Backend / Gateway  |
+| (q-rakshak.health) | <----------------------------------------------------- | Backend / Gateway  |
 +------------------+          2. 200 OK + Access-Control-Allow-Origin        +--------------------+
          |
          |                    3. Actual POST Request with Authorization & X-API-Key
@@ -902,7 +902,7 @@ def setup_cors(app: FastAPI) -> None:
     allowed_origins = parse_cors_origins()
     
     # Check if wildcard regex is enabled (e.g. for Vercel/Netlify preview deployments)
-    origin_regex = os.getenv("CORS_ORIGIN_REGEX", None) # e.g. r"https://.*\.qmedsense\.health"
+    origin_regex = os.getenv("CORS_ORIGIN_REGEX", None) # e.g. r"https://.*\.q-rakshak\.health"
 
     app.add_middleware(
         CORSMiddleware,
@@ -945,7 +945,7 @@ upstream backend_upstream {
 
 server {
     listen 80;
-    server_name api.qmedsense.health;
+    server_name api.q-rakshak.health;
 
     # Maximum upload size for DICOM / Dermoscopy / VCF genomic files
     client_max_body_size 50M;
@@ -987,12 +987,12 @@ server {
 
 #### Error 1: Missing `Access-Control-Allow-Origin` Header
 ```text
-Access to fetch at 'https://api.qmedsense.health/api/v1/clinical/diagnose' from origin 'https://qmedsense.health' 
+Access to fetch at 'https://api.q-rakshak.health/api/v1/clinical/diagnose' from origin 'https://q-rakshak.health' 
 has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
 ```
-* **Decoded Meaning:** The backend received the request, but the requesting origin `https://qmedsense.health` was not present in the backend's allowed list (`CORS_ALLOWED_ORIGINS`). The server responded without an `Access-Control-Allow-Origin` header matching the client.
+* **Decoded Meaning:** The backend received the request, but the requesting origin `https://q-rakshak.health` was not present in the backend's allowed list (`CORS_ALLOWED_ORIGINS`). The server responded without an `Access-Control-Allow-Origin` header matching the client.
 * **Root Causes:**
-  1. `CORS_ALLOWED_ORIGINS` in `backend/.env` is missing `https://qmedsense.health` (or has a trailing slash mismatch like `https://qmedsense.health/`).
+  1. `CORS_ALLOWED_ORIGINS` in `backend/.env` is missing `https://q-rakshak.health` (or has a trailing slash mismatch like `https://q-rakshak.health/`).
   2. The server threw an unhandled 500 exception before the CORS middleware could append headers.
 * **Resolution:** Add the exact protocol + domain + port to `CORS_ALLOWED_ORIGINS` in `backend/.env` without trailing slashes.
 
@@ -1000,7 +1000,7 @@ has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is pres
 
 #### Error 2: Preflight Request Failed (Status code 401/405/500)
 ```text
-Access to fetch at 'https://api.qmedsense.health/api/v1/clinical/diagnose' from origin 'https://qmedsense.health' 
+Access to fetch at 'https://api.q-rakshak.health/api/v1/clinical/diagnose' from origin 'https://q-rakshak.health' 
 has been blocked by CORS policy: Response to preflight request doesn't pass access control check: 
 It does not have HTTP ok status.
 ```
@@ -1014,7 +1014,7 @@ It does not have HTTP ok status.
 
 #### Error 3: Disallowed Custom Header (`X-API-Key` or `Authorization`)
 ```text
-Access to fetch at 'https://api.qmedsense.health/api/v1/clinical/diagnose' from origin 'https://qmedsense.health' 
+Access to fetch at 'https://api.q-rakshak.health/api/v1/clinical/diagnose' from origin 'https://q-rakshak.health' 
 has been blocked by CORS policy: Request header field x-api-key is not allowed by 
 Access-Control-Allow-Headers in preflight response.
 ```
@@ -1025,12 +1025,12 @@ Access-Control-Allow-Headers in preflight response.
 
 #### Error 4: Wildcard `*` Conflict with Credentials
 ```text
-Access to fetch at 'https://api.qmedsense.health/api/v1/clinical/diagnose' from origin 'https://qmedsense.health' 
+Access to fetch at 'https://api.q-rakshak.health/api/v1/clinical/diagnose' from origin 'https://q-rakshak.health' 
 has been blocked by CORS policy: The value of the 'Access-Control-Allow-Origin' header in the response 
 must not be the wildcard '*' when the request's credentials mode is 'include'.
 ```
 * **Decoded Meaning:** The frontend sent cookies, HTTP-only auth tokens, or `credentials: "include"`, but the server responded with `Access-Control-Allow-Origin: *`. The W3C Fetch standard prohibits wildcard origins when credentials are included.
-* **Resolution:** Change `allow_origins=["*"]` in backend configuration to explicit origin strings (e.g. `allow_origins=["https://qmedsense.health"]`) whenever `allow_credentials=True`.
+* **Resolution:** Change `allow_origins=["*"]` in backend configuration to explicit origin strings (e.g. `allow_origins=["https://q-rakshak.health"]`) whenever `allow_credentials=True`.
 
 ---
 
@@ -1084,8 +1084,8 @@ Test and debug your CORS configuration directly from the command line without br
 
 #### 1. Test Preflight `OPTIONS` Request:
 ```bash
-curl -i -X OPTIONS https://api.qmedsense.health/api/v1/clinical/diagnose \
-  -H "Origin: https://qmedsense.health" \
+curl -i -X OPTIONS https://api.q-rakshak.health/api/v1/clinical/diagnose \
+  -H "Origin: https://q-rakshak.health" \
   -H "Access-Control-Request-Method: POST" \
   -H "Access-Control-Request-Headers: Authorization, Content-Type, X-API-Key"
 ```
@@ -1093,7 +1093,7 @@ curl -i -X OPTIONS https://api.qmedsense.health/api/v1/clinical/diagnose \
 **Expected Successful Preflight Response:**
 ```http
 HTTP/1.1 200 OK
-Access-Control-Allow-Origin: https://qmedsense.health
+Access-Control-Allow-Origin: https://q-rakshak.health
 Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH
 Access-Control-Allow-Headers: Authorization, Content-Type, X-API-Key, Accept, Origin
 Access-Control-Allow-Credentials: true
@@ -1105,8 +1105,8 @@ Content-Length: 0
 
 #### 2. Test Actual `POST` Request with Headers:
 ```bash
-curl -i -X POST https://api.qmedsense.health/api/v1/clinical/diagnose \
-  -H "Origin: https://qmedsense.health" \
+curl -i -X POST https://api.q-rakshak.health/api/v1/clinical/diagnose \
+  -H "Origin: https://q-rakshak.health" \
   -H "Content-Type: application/json" \
   -H "X-API-Key: qmed-master-api-key-2026" \
   -H "Authorization: Bearer <YOUR_JWT_TOKEN>" \
@@ -1116,7 +1116,7 @@ curl -i -X POST https://api.qmedsense.health/api/v1/clinical/diagnose \
 **Expected Successful Actual Response:**
 ```http
 HTTP/1.1 200 OK
-Access-Control-Allow-Origin: https://qmedsense.health
+Access-Control-Allow-Origin: https://q-rakshak.health
 Access-Control-Allow-Credentials: true
 Content-Type: application/json
 

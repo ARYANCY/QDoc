@@ -1,10 +1,10 @@
-# Q-MedSense Documentation Hub (`docs/README.md`)
+﻿# Q-RAKSHAK Documentation Hub (`docs/README.md`)
 
 [![Documentation Hub](https://img.shields.io/badge/Documentation-Hub%20v2.0-blue.svg)]()
 [![SIH PS ID](https://img.shields.io/badge/SIH%20ID-26139-0052CC.svg)]()
 [![Build Passing](https://img.shields.io/badge/Tests-43%2F43%20Passing-brightgreen.svg)]()
 
-Welcome to the centralized technical documentation hub for **Q-MedSense: Hybrid Quantum Machine Learning Clinical Decision Support Platform** (Smart India Hackathon Problem Statement ID 26139).
+Welcome to the centralized technical documentation hub for **Q-RAKSHAK: Hybrid Quantum Machine Learning Clinical Decision Support Platform** (Smart India Hackathon Problem Statement ID 26139).
 
 ---
 
@@ -35,4 +35,4 @@ Welcome to the centralized technical documentation hub for **Q-MedSense: Hybrid 
 
 ---
 
-**© 2026 Q-MedSense Architecture Group. SIH Problem Statement ID 26139.**
+**© 2026 Q-RAKSHAK Architecture Group. SIH Problem Statement ID 26139.**

@@ -1,11 +1,11 @@
-# Q-MedSense: Clinical, Operational & Research Workflows (`docs/CLINICAL_WORKFLOWS.md`)
+﻿# Q-RAKSHAK: Clinical, Operational & Research Workflows (`docs/CLINICAL_WORKFLOWS.md`)
 
 [![Workflows](https://img.shields.io/badge/Workflows-Standardized%20Clinical%20Operating%20Procedures-brightgreen.svg)]()
 [![SIH PS ID](https://img.shields.io/badge/SIH%20ID-26139-blue.svg)]()
 [![Status](https://img.shields.io/badge/Status-Approved%20by%20Clinical%20Board-green.svg)]()
 
 > **Target Standard:** ISO 29148 / Good Clinical Practice (GCP) Workflow Specifications  
-> **Platform:** Q-MedSense Hybrid Quantum Clinical Operating System  
+> **Platform:** Q-RAKSHAK Hybrid Quantum Clinical Operating System  
 
 ---
 
@@ -142,4 +142,4 @@ sequenceDiagram
 
 ---
 
-**© 2026 Q-MedSense Operations Division. SIH Problem Statement ID 26139.**
+**© 2026 Q-RAKSHAK Operations Division. SIH Problem Statement ID 26139.**

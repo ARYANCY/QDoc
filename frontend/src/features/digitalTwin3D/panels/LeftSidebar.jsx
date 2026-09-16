@@ -25,13 +25,13 @@ function SectionHeader({ icon: Icon, title, color = 'var(--dt-accent-blue)' }) {
 
 // ── Tab Definitions ────────────────────────────────────────────────────────────
 const TABS = [
-  { id: 'overview',   label: 'Telemetry',    icon: Activity },
+  { id: 'overview',   label: 'Health data',    icon: Activity },
   { id: 'disease',    label: 'Simulation',   icon: Stethoscope },
   { id: 'history',    label: 'History',      icon: Clock },
   { id: 'meds',       label: 'Prescriptions', icon: Pill },
 ];
 
-// ── Telemetry & Overview Tab ──────────────────────────────────────────────────
+// ── Health data and overview tab ─────────────────────────────────────────────
 function TelemetryTab() {
   const patient           = useTwinStore((s) => s.patient);
   const toggleSymptom     = useTwinStore((s) => s.toggleSymptom);
@@ -62,7 +62,7 @@ function TelemetryTab() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <div style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.62rem', color: 'var(--dt-accent-blue)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              Verified Clinical Record
+              Patient health record
             </div>
             <div style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--dt-text-primary)', marginTop: '2px' }}>
               {patient.firstName || 'Demo'} {patient.lastName || 'Patient'}
@@ -75,9 +75,9 @@ function TelemetryTab() {
             style={{
               padding: '3px 8px',
               borderRadius: '4px',
-              background: '#ECFDF5',
-              border: '1px solid #A7F3D0',
-              color: '#059669',
+              background: 'var(--dt-bg-card-hover)',
+              border: '1px solid var(--dt-border-default)',
+              color: 'var(--dt-accent-blue)',
               fontSize: '0.62rem',
               fontWeight: 700,
               fontFamily: 'var(--dt-font-mono)',
@@ -86,7 +86,7 @@ function TelemetryTab() {
               gap: '4px'
             }}
           >
-            <ShieldCheck size={11} /> DB VERIFIED
+            Record updated
           </span>
         </div>
 
@@ -111,12 +111,12 @@ function TelemetryTab() {
         </div>
       </div>
 
-      {/* Cardiopulmonary & Baseline Vitals Telemetry */}
+      {/* Cardiopulmonary and baseline vital signs */}
       <div className="dt-card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <SectionHeader icon={Activity} title="Cardiopulmonary Vitals" color="#E11D48" />
-          <span style={{ fontSize: '0.62rem', color: '#059669', fontWeight: 600 }}>
-            Real-time DB Sync
+          <SectionHeader icon={Activity} title="Heart and breathing" color="var(--dt-accent-blue)" />
+          <span style={{ fontSize: '0.62rem', color: 'var(--dt-accent-blue)', fontWeight: 600 }}>
+            Updated health data
           </span>
         </div>
 
@@ -125,7 +125,7 @@ function TelemetryTab() {
           <div style={{ background: 'var(--dt-bg-surface)', padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--dt-border-default)', display: 'flex', flexDirection: 'column', gap: '3px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '0.62rem', color: 'var(--dt-text-muted)', fontWeight: 700 }}>BLOOD PRESSURE</span>
-              <span style={{ fontSize: '0.56rem', fontWeight: 700, padding: '1px 5px', borderRadius: '3px', background: bpElevated ? '#FFF1F2' : '#ECFDF5', color: bpElevated ? '#E11D48' : '#059669', border: `1px solid ${bpElevated ? '#FECDD3' : '#A7F3D0'}` }}>
+              <span style={{ fontSize: '0.56rem', fontWeight: 700, padding: '1px 5px', borderRadius: '3px', background: 'var(--dt-bg-card-hover)', color: 'var(--dt-accent-blue)', border: '1px solid var(--dt-border-default)' }}>
                 {bpElevated ? 'ELEVATED' : 'NORMAL'}
               </span>
             </div>
@@ -138,7 +138,7 @@ function TelemetryTab() {
           <div style={{ background: 'var(--dt-bg-surface)', padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--dt-border-default)', display: 'flex', flexDirection: 'column', gap: '3px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '0.62rem', color: 'var(--dt-text-muted)', fontWeight: 700 }}>HEART RATE</span>
-              <Heart size={12} color={hrElevated ? '#E11D48' : '#059669'} />
+              <Heart size={12} color="var(--dt-accent-blue)" />
             </div>
             <div style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--dt-text-primary)', fontFamily: 'var(--dt-font-sans)' }}>
               {hr} <span style={{ fontSize: '0.64rem', color: 'var(--dt-text-muted)', fontWeight: 500 }}>BPM</span>
@@ -149,7 +149,7 @@ function TelemetryTab() {
           <div style={{ background: 'var(--dt-bg-surface)', padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--dt-border-default)', display: 'flex', flexDirection: 'column', gap: '3px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '0.62rem', color: 'var(--dt-text-muted)', fontWeight: 700 }}>OXYGEN SpO₂</span>
-              <Wind size={12} color={spo2Low ? '#E11D48' : '#2563EB'} />
+              <Wind size={12} color="var(--dt-accent-blue)" />
             </div>
             <div style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--dt-text-primary)', fontFamily: 'var(--dt-font-sans)' }}>
               {spo2}% <span style={{ fontSize: '0.64rem', color: 'var(--dt-text-muted)', fontWeight: 500 }}>SaO2</span>
@@ -205,7 +205,7 @@ function TelemetryTab() {
             lineHeight: 1.5,
           }}
         >
-          {patient.notes || `Clinical telemetry synchronized for ${patient.patientId || 'patient'}. Biomechanical parameters reflecting active baseline diagnosis.`}
+          {patient.notes || `Health data updated for ${patient.patientId || 'patient'}. Current readings reflect the selected care view.`}
         </div>
       </div>
     </div>
@@ -258,7 +258,7 @@ function DiseaseTab() {
       {/* Disease Controls */}
       <div className="dt-card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <label className="dt-label">Biomechanical Parameters</label>
+          <label className="dt-label">Health readings</label>
           <span style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--dt-accent-blue)' }}>
             {DISEASE_REGISTRY[selectedDisease]?.name}
           </span>
@@ -304,7 +304,7 @@ function HistoryTab() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
       {/* Allergies Card */}
       <div className="dt-card">
-        <SectionHeader icon={AlertTriangle} title="Known Allergies & Contraindications" color="#E11D48" />
+        <SectionHeader icon={AlertTriangle} title="Known allergies and cautions" color="var(--dt-accent-blue)" />
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
           {patient.allergies?.length > 0 ? (
             patient.allergies.map((allergy, idx) => {
@@ -545,7 +545,7 @@ export default function LeftSidebar() {
             <span style={{ fontSize: '0.64rem', fontFamily: 'var(--dt-font-mono)', fontWeight: 700, color: 'var(--dt-text-muted)', textTransform: 'uppercase' }}>
               Patient Record
             </span>
-            <span style={{ fontSize: '0.62rem', color: '#059669', fontWeight: 600 }}>
+            <span style={{ fontSize: '0.62rem', color: 'var(--dt-accent-blue)', fontWeight: 600 }}>
               Live Sync Active
             </span>
           </div>

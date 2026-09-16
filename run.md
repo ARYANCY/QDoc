@@ -1,4 +1,4 @@
-# Q-MedSense: Complete Step-by-Step Execution & Deployment Guide (`run.md`)
+﻿# Q-RAKSHAK: Complete Step-by-Step Execution & Deployment Guide (`run.md`)
 
 [![Execution Guide](https://img.shields.io/badge/Runbook-Complete%20%26%20Verified-brightgreen.svg)]()
 [![SIH Problem ID](https://img.shields.io/badge/SIH%20ID-26139-0052CC.svg)]()
@@ -118,7 +118,7 @@ The project supports both cloud **Prisma Postgres** and local **SQLite** (with z
 
 ### Step 1: Configure `DATABASE_URL` in `.env`
 
-Ensure your [.env](<file:///f:/Hackathon/SIH(2026)/QDoc/.env>) file contains your PostgreSQL connection string:
+Ensure your [.env](<file:///f:/Hackathon/SIH(2026)/Q-Rakshak/.env>) file contains your PostgreSQL connection string:
 
 ```ini
 DATABASE_URL="postgres://user:password@pooled.db.prisma.io:5432/postgres?sslmode=require"
@@ -348,8 +348,8 @@ python -m pytest tests/unit/test_phase17_contract.py -v
 | **`Port 5173 already in use`**                       | Another Vite dev server is running.                  | Vite will automatically switch to port 5174, or run `taskkill /IM node.exe /F`.                         |
 | **`Prisma db push command not found`**               | Using newest Prisma 8 CLI release candidate.         | Run with pinned version: `npx -y prisma@5 db push` or `npx -y prisma@5 studio`.                         |
 | **`502 Bad Gateway / Network Error in UI`**          | Frontend cannot reach backend at `127.0.0.1:8000`.   | Ensure `python main.py` is running in Terminal 1 before launching the frontend.                         |
-| **`Database Reset to Clean Seed State`**             | Need to purge records and re-seed defaults.          | For SQLite: delete `backend/qmedsense.db`. For PostgreSQL: run `npx -y prisma@5 db push --force-reset`. |
+| **`Database Reset to Clean Seed State`**             | Need to purge records and re-seed defaults.          | For SQLite: delete `backend/q-rakshak.db`. For PostgreSQL: run `npx -y prisma@5 db push --force-reset`. |
 
 ---
 
-**© 2026 Q-MedSense Team. Smart India Hackathon (SIH Problem Statement ID 26139).**
+**© 2026 Q-RAKSHAK Team. Smart India Hackathon (SIH Problem Statement ID 26139).**

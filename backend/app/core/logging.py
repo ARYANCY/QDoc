@@ -1,11 +1,11 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import logging
 import sys
 
 
 def setup_logging(level: int = logging.INFO) -> logging.Logger:
-    logger = logging.getLogger("qmedsense")
+    logger = logging.getLogger("q-rakshak")
     if not logger.handlers:
         logger.setLevel(level)
         handler = logging.StreamHandler(sys.stdout)

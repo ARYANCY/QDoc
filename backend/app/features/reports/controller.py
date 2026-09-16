@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import hashlib
 import html
@@ -376,7 +376,7 @@ async def generate_clinical_report(req: ReportGenerationRequest):
       <div class="lab-brand">
         <div class="lab-logo">+</div>
         <div>
-          <h1 class="lab-title">Q-MEDSENSE CLINICAL DIAGNOSTIC LABORATORY</h1>
+          <h1 class="lab-title">Q-RAKSHAK CLINICAL DIAGNOSTIC LABORATORY</h1>
           <div class="lab-sub">Institute of Advanced Clinical Oncology & Precision Pathology</div>
           <span class="lab-accreditation">ISO 15189:2022 ACCREDITED • NABL CERTIFIED LAB #MED-9402</span>
         </div>
@@ -479,7 +479,7 @@ async def generate_clinical_report(req: ReportGenerationRequest):
         <div class="sig-line"></div>
         <div class="sig-meta">
           <strong>Dr. Rajesh Verma, MS, MCh (Surgical Oncology)</strong><br>
-          Chief Medical Officer, Q-MedSense Health System<br>
+          Chief Medical Officer, Q-RAKSHAK Health System<br>
           Verification: WORM Tamper-Evident Ledger
         </div>
       </div>
@@ -488,7 +488,7 @@ async def generate_clinical_report(req: ReportGenerationRequest):
     <!-- Footer Seal -->
     <div class="report-footer">
       <div>WORM AUDIT SIGNATURE: {crypto_hash[:36]}...</div>
-      <div>Q-MEDSENSE HEALTHCARE OS &bull; {timestamp}</div>
+      <div>Q-RAKSHAK HEALTHCARE OS &bull; {timestamp}</div>
     </div>
   </div>
 </body>
@@ -499,7 +499,7 @@ async def generate_clinical_report(req: ReportGenerationRequest):
         "patient_id": req.patient_id,
         "timestamp": timestamp,
         "report_html": report_html,
-        "download_filename": f"Q-MedSense_Report_{req.patient_id}.html",
+        "download_filename": f"Q-RAKSHAK_Report_{req.patient_id}.html",
     }
 
 

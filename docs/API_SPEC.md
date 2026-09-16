@@ -1,4 +1,4 @@
-# Q-MedSense: Complete REST API Specification (`docs/API_SPEC.md`)
+﻿# Q-RAKSHAK: Complete REST API Specification (`docs/API_SPEC.md`)
 
 [![API Version](https://img.shields.io/badge/API%20Version-2.0.0-blue.svg)]()
 [![OpenAPI](https://img.shields.io/badge/OpenAPI-3.1.0-green.svg)]()
@@ -124,7 +124,7 @@ Common HTTP status codes:
     "id": "USR-RESEARCH-01",
     "username": "priya.qml",
     "name": "Priya Nair, PhD",
-    "email": "priya.nair@qmedsense.org",
+    "email": "priya.nair@q-rakshak.org",
     "role": "researcher",
     "hospital_affiliation": "Quantum AI Health Center"
   }
@@ -429,4 +429,4 @@ Common HTTP status codes:
 
 ---
 
-**© 2026 Q-MedSense API Team. SIH Problem Statement ID 26139.**
+**© 2026 Q-RAKSHAK API Team. SIH Problem Statement ID 26139.**

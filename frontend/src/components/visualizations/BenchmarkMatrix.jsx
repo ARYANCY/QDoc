@@ -52,7 +52,7 @@ export default function BenchmarkMatrix({ disease = "breast_cancer" }) {
             color: activeEngine === "quantum" ? "var(--primary)" : "#f59e0b",
             fontFamily: "var(--font-mono)",
           }}>
-            {activeEngine === "quantum" ? "⚛️ QUANTUM ACTIVE" : "🛡️ CLASSICAL SENTINEL ACTIVE"}
+            {activeEngine === "quantum" ? "QUANTUM ACTIVE" : "CLASSICAL SENTINEL ACTIVE"}
           </span>
           <span style={{ fontSize: "0.78rem", color: "var(--text-primary)", fontWeight: 600 }}>
             {activeModel}
@@ -148,7 +148,7 @@ export default function BenchmarkMatrix({ disease = "breast_cancer" }) {
                           border: `1px solid ${activeEngine === "quantum" ? "var(--primary)" : "#f59e0b"}`,
                           borderRadius: "var(--radius-sm)",
                         }}>
-                          {activeEngine === "quantum" ? "⚛️ Active Deployed" : "🛡️ Active Deployed"}
+                          {activeEngine === "quantum" ? "Active Deployed" : "Active Deployed"}
                         </span>
                       ) : (
                         <span style={{

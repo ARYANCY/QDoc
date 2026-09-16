@@ -14,7 +14,7 @@ export default function LiverDiseaseControls() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
       {/* Hepatic Parenchymal Involvement Slider */}
-      <div style={{ background: 'var(--dt-bg-surface)', border: '1px solid var(--dt-border-default)', padding: '10px', borderRadius: '6px', border: '1px solid var(--dt-border-default)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+      <div style={{ background: 'var(--dt-bg-surface)', border: '1px solid var(--dt-border-default)', padding: '10px', borderRadius: '6px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <label style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.68rem', fontWeight: 700, color: 'var(--dt-text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#D97706' }} />
@@ -47,7 +47,7 @@ export default function LiverDiseaseControls() {
       </div>
 
       {/* Hepatic Lobe Segmentation */}
-      <div style={{ background: 'var(--dt-bg-surface)', border: '1px solid var(--dt-border-default)', padding: '10px', borderRadius: '6px', border: '1px solid var(--dt-border-default)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+      <div style={{ background: 'var(--dt-bg-surface)', border: '1px solid var(--dt-border-default)', padding: '10px', borderRadius: '6px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
         <label style={{ fontFamily: 'var(--dt-font-mono)', fontSize: '0.64rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--dt-text-muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
           <Layers size={12} color="#F59E0B" />
           Hepatic Lobe Segmentation

@@ -1,11 +1,11 @@
-# Q-MedSense: Master Documentation Index (`docs/INDEX.md`)
+﻿# Q-RAKSHAK: Master Documentation Index (`docs/INDEX.md`)
 
 [![Master Index](https://img.shields.io/badge/Documentation-Master%20Index%20v2.0-blue.svg)]()
 [![SIH PS ID](https://img.shields.io/badge/SIH%20ID-26139-0052CC.svg)]()
 [![License](https://img.shields.io/badge/License-MIT-green.svg)]()
 
 > **Smart India Hackathon (SIH) Problem Statement ID 26139**  
-> *Platform:* Q-MedSense Quantum Clinical Operating System  
+> *Platform:* Q-RAKSHAK Quantum Clinical Operating System  
 > *Core Focus:* Hybrid Quantum Machine Learning Clinical Decision Support System (CDSS)  
 
 ---
@@ -40,7 +40,7 @@
 ```mermaid
 graph TD
     UI["React 18 Frontend UI (Vite, 0px Borders)"] -->|REST / JWT Bearer| API["FastAPI 0.110 Backend (main.py)"]
-    API --> DB[("SQLite Relational DB (qmedsense.db)")]
+    API --> DB[("SQLite Relational DB (q-rakshak.db)")]
     API --> WORM["WORM Cryptographic Audit Logger"]
     API --> QML["PennyLane Quantum Simulator (default.qubit)"]
     API --> ML["Classical Baseline Models (PyTorch / scikit-learn)"]
@@ -49,4 +49,4 @@ graph TD
 
 ---
 
-**© 2026 Q-MedSense Core Architecture Group. SIH Problem Statement ID 26139.**
+**© 2026 Q-RAKSHAK Core Architecture Group. SIH Problem Statement ID 26139.**

@@ -1,4 +1,4 @@
-version: "3.8"
+﻿version: "3.8"
 
 services:
   # Tier 1: Frontend SPA (Nginx)
@@ -28,7 +28,7 @@ services:
       - PORT=8000
       - ENVIRONMENT=production
       - MODEL_SERVICE_URL=http://model:8001
-      - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,https://qmedsense.health
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,https://q-rakshak.health
       - JWT_SECRET=qmed-sih2026-super-secret-key-change-in-prod
     restart: unless-stopped
     healthcheck:

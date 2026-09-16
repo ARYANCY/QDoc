@@ -113,9 +113,9 @@ export default function RightSidebar() {
         <div className="dt-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--dt-text-primary)' }}>
-              Twin Simulation Status
+              Health view status
             </span>
-            <Activity size={14} color="#059669" />
+            <Activity size={14} color="var(--dt-accent-blue)" />
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.74rem' }}>
@@ -132,8 +132,8 @@ export default function RightSidebar() {
               <strong style={{ color: 'var(--dt-accent-blue)' }}>{disease?.name || 'Breast Cancer'}</strong>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: 'var(--dt-text-muted)' }}>Database Sync:</span>
-              <strong style={{ color: '#059669' }}>Live DB Connected</strong>
+              <span style={{ color: 'var(--dt-text-muted)' }}>Update status:</span>
+              <strong style={{ color: 'var(--dt-accent-brown, #6D5743)' }}>Updated</strong>
             </div>
           </div>
         </div>
