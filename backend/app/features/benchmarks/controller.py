@@ -15,6 +15,9 @@ async def get_benchmark_matrix(disease: str = "breast_cancer"):
     Dynamically loads real metrics from models directory if available, falling back to verified baselines.
     """
     # 1. Check if real model registry has benchmarked results for this disease
+    from backend.app.features.clinical.hybrid_router import clinical_hybrid_router
+    policy = clinical_hybrid_router.decide_routing_policy(disease)
+
     models_dir = settings.MODELS_DIR
     registry_path = models_dir / "registry.json"
     if registry_path.exists():
@@ -29,6 +32,10 @@ async def get_benchmark_matrix(disease: str = "breast_cancer"):
                         "dataset": mod_info.get("dataset", ""),
                         "quantum_advantage_score": mod_info.get("quantum_advantage_score", 0.0),
                         "qas_formula": "QAS = ((Acc_q - Acc_c) / Acc_c) * (T_c / T_q)",
+                        "active_engine": policy["active_engine"],
+                        "active_model": policy["recommended_quantum_model"] if policy["active_engine"] == "quantum" else policy["recommended_classical_model"],
+                        "routing_rationale": policy["routing_rationale"],
+                        "safety_override_triggered": policy["safety_override_triggered"],
                         "models": mod_info.get("models", []),
                         "roc_curves": mod_info.get("roc_curves", [
                             {"fpr": 0.0, "tpr_vqc": 0.0, "tpr_rf": 0.0},

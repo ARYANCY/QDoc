@@ -25,17 +25,54 @@ export default function BenchmarkMatrix({ disease = "breast_cancer" }) {
   const models = data?.models || [];
   const qas = data?.quantum_advantage_score ?? 0.0;
   const bestModel = models.find((m) => m.status === "Active SOTA") || models[0] || {};
+  const activeEngine = data?.active_engine || (qas > 0 ? "quantum" : "classical");
+  const activeModel = data?.active_model || (activeEngine === "quantum" ? "Quantum VQC" : "Sentinel Baseline");
+  const routingRationale = data?.routing_rationale || "";
 
   return (
     <div ref={containerRef} style={{ display: "flex", flexDirection: "column", gap: "16px", height: "100%", overflowY: "auto", padding: "6px" }}>
+      {/* Dynamic Q-Triage Arbiter Deployment Banner */}
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: "12px",
+        padding: "10px 14px",
+        borderRadius: "var(--radius-sm)",
+        background: activeEngine === "quantum" ? "rgba(0, 242, 254, 0.06)" : "rgba(245, 158, 11, 0.06)",
+        border: `1px solid ${activeEngine === "quantum" ? "rgba(0, 242, 254, 0.25)" : "rgba(245, 158, 11, 0.25)"}`,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <span style={{
+            fontSize: "0.75rem",
+            fontWeight: 700,
+            padding: "3px 8px",
+            borderRadius: "4px",
+            background: activeEngine === "quantum" ? "rgba(0, 242, 254, 0.15)" : "rgba(245, 158, 11, 0.15)",
+            color: activeEngine === "quantum" ? "var(--primary)" : "#f59e0b",
+            fontFamily: "var(--font-mono)",
+          }}>
+            {activeEngine === "quantum" ? "⚛️ QUANTUM ACTIVE" : "🛡️ CLASSICAL SENTINEL ACTIVE"}
+          </span>
+          <span style={{ fontSize: "0.78rem", color: "var(--text-primary)", fontWeight: 600 }}>
+            {activeModel}
+          </span>
+        </div>
+        <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", maxWidth: "55%", textAlign: "right" }}>
+          {routingRationale || (activeEngine === "quantum" ? "Quantum advantage confirmed for this clinical modality." : "Autonomous fallback: Classical baseline protects diagnostic accuracy & specificity.")}
+        </div>
+      </div>
+
       {/* QAS Bento Hero Cards */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "8px" }}>
         <div className="bento-stat">
           <div className="corner-tag-arrow">↗</div>
-          <div className="bento-stat-num" style={{ color: "var(--primary)" }}>
-            {qas > 0 ? `+${(qas * 100).toFixed(2)}` : "0.00"}
+          <div className="bento-stat-num" style={{ color: qas > 0 ? "var(--primary)" : qas < 0 ? "#f59e0b" : "var(--text-muted)" }}>
+            {qas > 0 ? `+${(qas * 100).toFixed(2)}%` : qas < 0 ? `${(qas * 100).toFixed(2)}%` : "0.00%"}
           </div>
-          <div className="bento-stat-label">Quantum Advantage Score (QAS)</div>
+          <div className="bento-stat-label">
+            Quantum Advantage Score ({qas > 0 ? "Quantum Lead" : qas < 0 ? "Classical Advantage" : "Parity"})
+          </div>
         </div>
         <div className="bento-stat" style={{ background: "var(--bg-surface-alt)" }}>
           <div className="corner-tag-arrow">↗</div>
@@ -101,17 +138,31 @@ export default function BenchmarkMatrix({ disease = "breast_cancer" }) {
                     <td>{Number(m.mcc).toFixed(4)}</td>
                     <td>{m.inference_time_ms} ms</td>
                     <td>
-                      <span style={{
-                        fontSize: "0.65rem",
-                        fontWeight: 700,
-                        padding: "1px 5px",
-                        background: m.status === "Active SOTA" ? "var(--risk-low-bg)" : "var(--bg-surface-alt)",
-                        color: m.status === "Active SOTA" ? "var(--risk-low)" : "var(--text-secondary)",
-                        border: "1px solid var(--border-default)",
-                        borderRadius: "var(--radius-sm)",
-                      }}>
-                        {m.status}
-                      </span>
+                      {m.model === activeModel ? (
+                        <span style={{
+                          fontSize: "0.65rem",
+                          fontWeight: 700,
+                          padding: "2px 6px",
+                          background: activeEngine === "quantum" ? "rgba(0, 242, 254, 0.15)" : "rgba(245, 158, 11, 0.15)",
+                          color: activeEngine === "quantum" ? "var(--primary)" : "#f59e0b",
+                          border: `1px solid ${activeEngine === "quantum" ? "var(--primary)" : "#f59e0b"}`,
+                          borderRadius: "var(--radius-sm)",
+                        }}>
+                          {activeEngine === "quantum" ? "⚛️ Active Deployed" : "🛡️ Active Deployed"}
+                        </span>
+                      ) : (
+                        <span style={{
+                          fontSize: "0.65rem",
+                          fontWeight: 700,
+                          padding: "1px 5px",
+                          background: m.status === "Active SOTA" ? "var(--risk-low-bg)" : "var(--bg-surface-alt)",
+                          color: m.status === "Active SOTA" ? "var(--risk-low)" : "var(--text-secondary)",
+                          border: "1px solid var(--border-default)",
+                          borderRadius: "var(--radius-sm)",
+                        }}>
+                          {m.status || "Benchmarked"}
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))

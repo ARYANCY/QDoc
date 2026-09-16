@@ -1374,6 +1374,29 @@ export default function UnifiedAnalysisPage() {
                     {/* Real-Time Prediction Output */}
                     {result ? (
                       <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                        {/* Q-Triage Arbiter Routing Badge */}
+                        {result.active_engine && (
+                          <div style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            gap: "8px",
+                            padding: "6px 10px",
+                            borderRadius: "var(--radius-sm)",
+                            background: result.active_engine === "quantum" ? "rgba(0, 242, 254, 0.08)" : "rgba(245, 158, 11, 0.08)",
+                            border: `1px solid ${result.active_engine === "quantum" ? "rgba(0, 242, 254, 0.3)" : "rgba(245, 158, 11, 0.3)"}`,
+                            marginBottom: "2px",
+                            fontSize: "0.7rem",
+                          }}>
+                            <span style={{ fontWeight: 700, color: result.active_engine === "quantum" ? "var(--primary)" : "#f59e0b" }}>
+                              {result.active_engine === "quantum" ? "⚛️ Routed Engine: Quantum VQC" : "🛡️ Routed Engine: Classical Sentinel Baseline"}
+                            </span>
+                            <span style={{ color: "var(--text-muted)", fontSize: "0.66rem", maxWidth: "60%", textAlign: "right" }}>
+                              {result.hybrid_arbitration?.routing_rationale || (result.active_engine === "quantum" ? "Quantum Advantage Confirmed" : "Clinical Safety Guardrail")}
+                            </span>
+                          </div>
+                        )}
+
                         {/* High-Visibility Verdict Box */}
                         <div className={`verdict-box ${result.prediction?.class?.toLowerCase().includes("malignant") || result.prediction?.class?.toLowerCase().includes("disease") || result.prediction?.class?.toLowerCase().includes("pneumonia") ? "danger" : "normal"}`}>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>

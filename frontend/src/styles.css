@@ -89,11 +89,11 @@
   --border-active: #0F172A;
 
   /* ── Ergonomic Radii (Modern Soft Rounded) ── */
-  --radius-xs: 0px;
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
 
   /* ── Soft Ambient Shadows ── */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -1152,6 +1152,164 @@ html, body, #root {
   border-color: var(--border-hover);
 }
 
+.btn-accent {
+  background: var(--accent-blue);
+  color: #FFFFFF;
+  border: 1px solid var(--accent-blue);
+  padding: 9px 18px;
+  font-size: 0.80rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.16s ease;
+  font-family: var(--font-sans);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-accent:hover:not(:disabled) {
+  background: var(--accent-blue-hover);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  background: var(--risk-high);
+  color: #FFFFFF;
+  border: 1px solid var(--risk-high);
+  padding: 8px 16px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.16s ease;
+  font-family: var(--font-sans);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #BE123C;
+  box-shadow: 0 2px 8px rgba(225, 29, 72, 0.25);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-secondary);
+  border: 1px solid transparent;
+  padding: 7px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.16s ease;
+  font-family: var(--font-sans);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-ghost:hover {
+  background: var(--bg-surface-alt);
+  color: var(--ink-primary);
+}
+
+.btn-sm {
+  padding: 5px 10px !important;
+  font-size: 0.72rem !important;
+}
+
+/* ── Universal Clinical Form Controls ── */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+.form-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.input-control,
+.select-control {
+  width: 100%;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  color: var(--ink-primary);
+  font-family: var(--font-sans);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+  outline: none;
+}
+
+.input-control:focus,
+.select-control:focus {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.input-control::placeholder {
+  color: var(--text-muted);
+}
+
+.input-error {
+  border-color: var(--risk-high) !important;
+  background: #FFF1F2 !important;
+}
+
+/* ── Universal Clinical Alert & Status Banners ── */
+.clinical-error-banner {
+  background: var(--risk-high-bg);
+  border: 1px solid var(--risk-high-border);
+  color: #9F1239;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.78rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 14px;
+  line-height: 1.45;
+}
+
+.clinical-success-banner {
+  background: var(--risk-low-bg);
+  border: 1px solid var(--risk-low-border);
+  color: #065F46;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.clinical-caution-banner {
+  background: var(--risk-mid-bg);
+  border: 1px solid var(--risk-mid-border);
+  color: #92400E;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.78rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 14px;
+  line-height: 1.45;
+}
+
 /* ── Badges & Tags ─────────────────────────────────────────────────────────── */
 .step-badge {
   font-family: var(--font-mono);
@@ -1419,72 +1577,107 @@ body.high-contrast {
   .cockpit-col { min-height: 360px; }
 }
 
-/* ── High-Aesthetic Login Page Animations & Micro-Interactions ─────────────── */
+/* ── High-Aesthetic Dark Medical Glassmorphic Login Page ───────────────────── */
 
+.editorial-login-page {
+  min-height: 100vh;
+  overflow-y: auto;
+  background: #070B14 !important;
+  position: relative;
+}
+
+/* Deep Space Ambient Orbs with Neon Luminescence */
 .login-ambient-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
+  filter: blur(100px);
   pointer-events: none;
-  opacity: 0.55;
+  opacity: 0.65;
   z-index: 1;
 }
 
 .login-ambient-orb.orb-1 {
-  width: 480px;
-  height: 480px;
-  top: -100px;
-  right: -50px;
-  background: radial-gradient(circle, rgba(37, 99, 235, 0.22) 0%, rgba(13, 148, 136, 0.12) 60%, transparent 80%);
+  width: 550px;
+  height: 550px;
+  top: -120px;
+  right: -80px;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.45) 0%, rgba(13, 148, 136, 0.25) 50%, transparent 75%);
   animation: orbFloat1 18s ease-in-out infinite alternate;
 }
 
 .login-ambient-orb.orb-2 {
-  width: 540px;
-  height: 540px;
-  bottom: -150px;
-  left: -100px;
-  background: radial-gradient(circle, rgba(124, 58, 237, 0.16) 0%, rgba(37, 99, 235, 0.10) 60%, transparent 80%);
+  width: 620px;
+  height: 620px;
+  bottom: -160px;
+  left: -120px;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.38) 0%, rgba(37, 99, 235, 0.22) 50%, transparent 75%);
   animation: orbFloat2 22s ease-in-out infinite alternate;
 }
 
 .login-ambient-orb.orb-3 {
-  width: 320px;
-  height: 320px;
-  top: 40%;
-  left: 35%;
-  background: radial-gradient(circle, rgba(217, 119, 6, 0.12) 0%, rgba(5, 150, 105, 0.08) 60%, transparent 80%);
-  animation: orbFloat3 15s ease-in-out infinite alternate;
+  width: 420px;
+  height: 420px;
+  top: 35%;
+  left: 30%;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(6, 182, 212, 0.15) 50%, transparent 75%);
+  animation: orbFloat3 16s ease-in-out infinite alternate;
+}
+
+/* Glowing Medical ECG Grid Backdrop */
+.login-ecg-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(37, 99, 235, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 99, 235, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 1;
+  mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0) 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0) 80%);
+}
+
+/* ECG Pulse Line SVG Canvas */
+.login-ecg-heartbeat {
+  position: absolute;
+  width: 100%;
+  height: 120px;
+  bottom: 12%;
+  left: 0;
+  pointer-events: none;
+  opacity: 0.18;
+  z-index: 1;
 }
 
 @keyframes orbFloat1 {
   0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-40px, 60px) scale(1.08); }
-  100% { transform: translate(30px, -30px) scale(0.95); }
+  50% { transform: translate(-50px, 70px) scale(1.12); }
+  100% { transform: translate(40px, -40px) scale(0.92); }
 }
 
 @keyframes orbFloat2 {
   0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(60px, -50px) scale(1.12); }
-  100% { transform: translate(-30px, 40px) scale(0.92); }
+  50% { transform: translate(70px, -60px) scale(1.15); }
+  100% { transform: translate(-40px, 50px) scale(0.90); }
 }
 
 @keyframes orbFloat3 {
-  0% { transform: translate(0, 0) scale(0.9); }
-  50% { transform: translate(-30px, -40px) scale(1.15); }
-  100% { transform: translate(40px, 30px) scale(1); }
+  0% { transform: translate(0, 0) scale(0.85); }
+  50% { transform: translate(-40px, -50px) scale(1.2); }
+  100% { transform: translate(50px, 40px) scale(1); }
 }
 
-/* Shimmering Gradient Top Border */
+/* Shimmering Neon Gradient Top Border */
 .login-shimmer-bar {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #2563EB, #0D9488, #D97706, #7C3AED, #2563EB);
+  background: linear-gradient(90deg, #3B82F6, #10B981, #06B6D4, #8B5CF6, #EC4899, #3B82F6);
   background-size: 300% 100%;
-  animation: shimmerBar 5s linear infinite;
+  animation: shimmerBar 4s linear infinite;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
 }
 
 @keyframes shimmerBar {
@@ -1492,36 +1685,64 @@ body.high-contrast {
   100% { background-position: 100% 50%; }
 }
 
-/* Persona Selection Cards (3D Lift & Glow) */
-.persona-card-aesthetic {
+/* Glassmorphic Auth Card (Dark Frosted Obsidian Glass) */
+.login-auth-card-glass {
+  background: rgba(13, 19, 33, 0.72) !important;
+  backdrop-filter: blur(28px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 0 40px -10px rgba(37, 99, 235, 0.25) !important;
+  border-radius: 16px !important;
   position: relative;
   overflow: hidden;
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.persona-card-aesthetic:hover {
-  transform: translateY(-2px);
-  border-color: var(--border-hover) !important;
-  box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.08), 0 2px 6px -2px rgba(15, 23, 42, 0.04) !important;
+.login-auth-card-glass:hover {
+  border-color: rgba(59, 130, 246, 0.35) !important;
+  box-shadow: 0 30px 70px -12px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.12) inset, 0 0 50px -5px rgba(37, 99, 235, 0.35) !important;
 }
 
-.persona-card-aesthetic:hover .launch-text {
-  transform: translateX(2px);
+/* Persona Selection Cards (Dark Glass Glow) */
+.persona-card-aesthetic-dark {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
-.persona-card-aesthetic .launch-text {
-  transition: transform 0.18s ease;
+.persona-card-aesthetic-dark:hover {
+  transform: translateY(-2px) scale(1.01);
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.5), 0 0 16px -2px rgba(37, 99, 235, 0.25) !important;
+}
+
+.persona-card-aesthetic-dark.active-persona {
+  background: rgba(37, 99, 235, 0.12) !important;
+  border-color: #3B82F6 !important;
+  box-shadow: 0 0 20px -2px rgba(59, 130, 246, 0.3) !important;
+}
+
+.persona-card-aesthetic-dark:hover .launch-text {
+  transform: translateX(4px);
+}
+
+.persona-card-aesthetic-dark .launch-text {
+  transition: transform 0.2s ease;
   display: inline-block;
 }
 
 /* Live Status Pulse Dot */
 .live-status-pulse {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: var(--emerald-couture);
+  background: #10B981;
   display: inline-block;
   position: relative;
+  box-shadow: 0 0 8px #10B981;
 }
 
 .live-status-pulse::after {
@@ -1529,28 +1750,30 @@ body.high-contrast {
   position: absolute;
   inset: -2px;
   border-radius: 50%;
-  background: rgba(5, 150, 105, 0.4);
+  background: rgba(16, 185, 129, 0.5);
   animation: pulseRipple 1.8s cubic-bezier(0.24, 0, 0.38, 1) infinite;
 }
 
 @keyframes pulseRipple {
-  0% { transform: scale(1); opacity: 0.8; }
-  100% { transform: scale(2.4); opacity: 0; }
+  0% { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(2.6); opacity: 0; }
 }
 
-/* Feature Stat Pillars */
-.feature-stat-box {
-  padding: 12px;
-  border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid var(--border-default);
-  transition: all 0.2s ease;
+/* Feature Stat Pillars (Dark Glass) */
+.feature-stat-box-dark {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  transition: all 0.25s ease;
 }
 
-.feature-stat-box:hover {
-  background: #FFFFFF;
-  box-shadow: var(--shadow-sm);
-  transform: translateY(-2px);
+.feature-stat-box-dark:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(59, 130, 246, 0.3);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4), 0 0 16px rgba(37, 99, 235, 0.15);
+  transform: translateY(-3px);
 }
 
 
@@ -2174,35 +2397,37 @@ body.high-contrast {
 
 /* ── Hero Patient Identity Card ── */
 .emergency-hero-card {
-  background: #FFFFFF;
-  border: 1px solid #0F172A;
-  padding: 20px 24px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 24px 28px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 18px;
+  box-shadow: var(--shadow-card);
 }
 
 .emergency-hero-bio {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
 
 .emergency-hero-label {
-  font-size: 0.65rem;
+  font-size: 0.68rem;
   font-family: var(--font-mono);
   font-weight: 800;
-  color: #64748B;
-  letter-spacing: 0.12em;
+  color: var(--accent-blue);
+  letter-spacing: 0.10em;
   text-transform: uppercase;
 }
 
 .emergency-hero-name {
-  font-size: 1.65rem;
+  font-size: 1.75rem;
   font-weight: 900;
-  color: #0F172A;
+  color: var(--ink-primary);
   letter-spacing: -0.02em;
   line-height: 1.15;
   margin: 0;
@@ -2223,50 +2448,78 @@ body.high-contrast {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 8px;
+  gap: 8px;
+  margin-top: 10px;
 }
 
-.emergency-badge-donor,
-.emergency-badge-allergy,
-.emergency-badge-permanent {
-  background: #F8FAFC;
-  color: #0F172A;
-  border: 1px solid #CBD5E1;
-  padding: 3px 8px;
-  font-size: 0.68rem;
+.emergency-badge-donor {
+  background: var(--risk-low-bg);
+  color: var(--risk-low);
+  border: 1px solid var(--risk-low-border);
+  border-radius: var(--radius-xs);
+  padding: 4px 10px;
+  font-size: 0.70rem;
   font-family: var(--font-mono);
   font-weight: 700;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 }
 
-/* Blood Group Display (Clean Dark Anchor) */
+.emergency-badge-allergy {
+  background: var(--risk-high-bg);
+  color: var(--risk-high);
+  border: 1px solid var(--risk-high-border);
+  border-radius: var(--radius-xs);
+  padding: 4px 10px;
+  font-size: 0.70rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.emergency-badge-permanent {
+  background: var(--accent-blue-soft);
+  color: var(--accent-blue);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xs);
+  padding: 4px 10px;
+  font-size: 0.70rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Blood Group Display (Clean Medical Pillar) */
 .emergency-blood-hero {
-  width: 72px;
-  height: 72px;
-  background: #0F172A;
-  border: 1px solid #0F172A;
+  width: 78px;
+  height: 78px;
+  background: #DC2626;
+  border-radius: var(--radius-md);
   color: #FFFFFF;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
 }
 
 .emergency-blood-title {
   font-size: 0.60rem;
   font-family: var(--font-mono);
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #94A3B8;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .emergency-blood-value {
-  font-size: 1.75rem;
+  font-size: 1.9rem;
   font-weight: 900;
   line-height: 1;
   color: #FFFFFF;
@@ -2294,40 +2547,43 @@ body.high-contrast {
 
 /* ── Clean Card Panel ── */
 .emergency-card-panel {
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  padding: 16px 18px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  box-shadow: var(--shadow-card);
 }
 
 .emergency-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #E2E8F0;
-  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-default);
+  padding-bottom: 10px;
 }
 
 .emergency-card-title {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.78rem;
-  font-family: var(--font-mono);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #0F172A;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink-primary);
   margin: 0;
 }
 
 /* ── Contact Details Box ── */
 .emergency-contact-box {
-  background: #FAFAFA;
-  border: 1px solid #E2E8F0;
-  padding: 12px 14px;
+  background: var(--bg-surface-alt);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2341,22 +2597,21 @@ body.high-contrast {
 }
 
 .emergency-contact-name {
-  font-size: 0.90rem;
+  font-size: 0.92rem;
   font-weight: 800;
-  color: #0F172A;
+  color: var(--ink-primary);
 }
 
 .emergency-contact-rel {
-  font-size: 0.72rem;
-  font-family: var(--font-mono);
-  color: #64748B;
+  font-size: 0.74rem;
+  color: var(--text-secondary);
   font-weight: 600;
 }
 
 .emergency-contact-phone {
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   font-family: var(--font-mono);
-  color: #0F172A;
+  color: var(--accent-blue);
   font-weight: 800;
 }
 
@@ -2364,30 +2619,28 @@ body.high-contrast {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
-  background: #0F172A;
+  padding: 8px 16px;
+  background: #DC2626;
   color: #FFFFFF;
   text-decoration: none;
-  font-family: var(--font-mono);
-  font-size: 0.74rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  border: 1px solid #0F172A;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.15s ease;
   flex-shrink: 0;
 }
 
 .emergency-call-btn:hover {
-  background: #334155;
+  background: #B91C1C;
 }
 
 /* ── Allergies and Medication Lists ── */
 .emergency-item-row {
-  background: #FAFAFA;
-  border: 1px solid #E2E8F0;
-  padding: 8px 12px;
+  background: var(--bg-surface-alt);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2395,72 +2648,69 @@ body.high-contrast {
 }
 
 .emergency-item-danger {
-  background: #FAFAFA;
-  border-color: #CBD5E1;
+  background: var(--risk-high-bg);
+  border-color: var(--risk-high-border);
 }
 
 .emergency-item-title {
-  font-size: 0.80rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  color: #0F172A;
+  color: var(--ink-primary);
 }
 
 .emergency-item-sub {
-  font-size: 0.70rem;
-  color: #64748B;
-  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-secondary);
 }
 
 .emergency-pill-tag {
   font-size: 0.64rem;
   font-family: var(--font-mono);
   font-weight: 800;
-  padding: 2px 6px;
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
   text-transform: uppercase;
-  background: #F1F5F9;
-  color: #0F172A;
-  border: 1px solid #CBD5E1;
 }
 
 .pill-danger {
-  background: #0F172A;
+  background: #DC2626;
   color: #FFFFFF;
-  border-color: #0F172A;
 }
 
 .pill-cyan {
-  background: #F1F5F9;
-  color: #0F172A;
-  border-color: #CBD5E1;
+  background: var(--accent-blue-soft);
+  color: var(--accent-blue);
+  border: 1px solid var(--border-default);
 }
 
 /* ── Baseline Vitals Grid ── */
 .emergency-vitals-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  gap: 10px;
 }
 
 .emergency-vital-card {
-  background: #FAFAFA;
-  border: 1px solid #E2E8F0;
-  padding: 10px 12px;
+  background: var(--bg-surface-alt);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .emergency-vital-label {
-  font-size: 0.65rem;
-  color: #64748B;
-  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: var(--text-muted);
+  font-weight: 700;
   text-transform: uppercase;
 }
 
 .emergency-vital-val {
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   font-weight: 800;
-  color: #0F172A;
+  color: var(--ink-primary);
   font-family: var(--font-mono);
 }
 
@@ -2478,9 +2728,10 @@ body.high-contrast {
 }
 
 .emergency-speed-card {
-  background: #FAFAFA;
-  border: 1px solid #E2E8F0;
-  padding: 10px 12px;
+  background: var(--bg-surface-alt);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2489,57 +2740,61 @@ body.high-contrast {
 }
 
 .emergency-speed-card:hover {
-  border-color: #0F172A;
-  background: #FFFFFF;
+  border-color: var(--accent-blue);
+  background: var(--bg-surface);
+  transform: translateY(-1px);
 }
 
 .emergency-speed-dial-num {
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   font-weight: 900;
   font-family: var(--font-mono);
-  color: #0F172A;
+  color: var(--accent-blue);
 }
 
 .emergency-speed-dial-title {
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-weight: 700;
-  color: #0F172A;
+  color: var(--ink-primary);
 }
 
 .emergency-speed-dial-desc {
-  font-size: 0.62rem;
-  color: #64748B;
-  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  color: var(--text-secondary);
 }
 
 .emergency-speed-icon-wrap {
-  width: 28px;
-  height: 28px;
-  border: 1px solid #CBD5E1;
-  background: #FFFFFF;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border-default);
+  background: var(--bg-surface);
+  border-radius: var(--radius-xs);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #0F172A;
+  color: var(--accent-blue);
   flex-shrink: 0;
 }
 
 /* ── Permanent QR Code Triage Panel ── */
 .emergency-qr-panel {
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  padding: 18px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 22px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 10px;
+  gap: 12px;
+  box-shadow: var(--shadow-card);
 }
 
 .emergency-qr-box {
   background: #FFFFFF;
-  padding: 8px;
-  border: 1px solid #0F172A;
+  padding: 10px;
+  border: 1.5px solid var(--border-default);
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2551,58 +2806,35 @@ body.high-contrast {
   width: 100%;
 }
 
-.emergency-btn-secondary {
-  flex: 1;
-  padding: 7px 10px;
-  background: #FAFAFA;
-  border: 1px solid #CBD5E1;
-  color: #0F172A;
-  font-size: 0.72rem;
-  font-weight: 700;
-  font-family: var(--font-mono);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.15s ease;
-}
-
-.emergency-btn-secondary:hover {
-  background: #F1F5F9;
-  border-color: #0F172A;
-}
-
 /* ── WORM Audit Seal Footer ── */
 .emergency-audit-footer {
-  background: #FAFAFA;
-  border: 1px solid #E2E8F0;
-  padding: 10px 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   margin-top: 4px;
 }
 
 .emergency-audit-title {
-  font-size: 0.68rem;
+  font-size: 0.70rem;
   font-family: var(--font-mono);
   font-weight: 800;
-  color: #475569;
+  color: var(--accent-blue);
   letter-spacing: 0.08em;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
 }
 
 .emergency-audit-meta {
-  font-size: 0.64rem;
-  color: #64748B;
-  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: var(--text-secondary);
 }
 
 

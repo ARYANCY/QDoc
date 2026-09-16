@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Q-MedSense — Smart India Hackathon 2026 Idea Presentation Deck</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #070B14;
+      color: #E2E8F0;
+      overflow-x: hidden;
+    }
+    code, pre, .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .slide {
+      display: none;
+      min-height: calc(100vh - 76px);
+      animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .slide.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(56, 189, 248, 0.16);
+      border-radius: 12px;
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      border-radius: 8px;
+    }
+    .accent-glow {
+      box-shadow: 0 0 30px rgba(6, 182, 212, 0.12);
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0b1120; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #0284c7; }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen selection:bg-cyan-500 selection:text-black">
+
+  <!-- TOP NAVIGATION APP BAR -->
+  <header class="h-16 bg-[#0B1120]/95 backdrop-blur border-b border-slate-800 px-5 flex items-center justify-between sticky top-0 z-50">
+    <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-2.5 cursor-pointer" onclick="goToSlide(1)">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-extrabold text-black text-base shadow-md shadow-cyan-500/20">
+          Q
+        </div>
+        <div>
+          <div class="text-xs font-bold tracking-wider text-white flex items-center gap-1.5">
+            Q-MEDSENSE <span class="text-[9px] px-1 py-0.2 rounded bg-cyan-950 text-cyan-400 border border-cyan-800 font-mono">v2.0</span>
+          </div>
+          <div class="text-[10px] text-slate-400 font-medium">Hybrid Quantum Machine Learning Platform</div>
+        </div>
+      </div>
+      <div class="h-5 w-px bg-slate-800 hidden md:block"></div>
+      <nav class="hidden md:flex items-center space-x-1">
+        <button onclick="goToSlide(1)" class="tab-btn px-2.5 py-1 text-xs rounded font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 transition" data-slide="1">1. Title Page</button>
+        <button onclick="goToSlide(2)" class="tab-btn px-2.5 py-1 text-xs rounded font-medium text-cyan-400 bg-cyan-950/50 border border-cyan-800/60 transition" data-slide="2">2. Proposed Solution</button>
+        <button onclick="goToSlide(3)" class="tab-btn px-2.5 py-1 text-xs rounded font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 transition" data-slide="3">3. Technical Approach</button>
+        <button onclick="goToSlide(4)" class="tab-btn px-2.5 py-1 text-xs rounded font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 transition" data-slide="4">4. Feasibility & Viability</button>
+        <button onclick="goToSlide(5)" class="tab-btn px-2.5 py-1 text-xs rounded font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 transition" data-slide="5">5. Impact & Benefits</button>
+        <button onclick="goToSlide(6)" class="tab-btn px-2.5 py-1 text-xs rounded font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 transition" data-slide="6">6. Research & References</button>
+      </nav>
+    </div>
+
+    <div class="flex items-center space-x-3">
+      <div class="text-right hidden sm:block">
+        <div class="text-xs font-bold text-emerald-400 flex items-center justify-end gap-1">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          SIH 2026 PS ID: 26139
+        </div>
+        <div class="text-[10px] text-slate-400">Egreen Quanta • 79/79 Tests Passed</div>
+      </div>
+      <div class="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-1 space-x-1">
+        <button onclick="prevSlide()" class="p-1 rounded hover:bg-slate-800 text-slate-300 hover:text-white" title="Previous Slide (Left Arrow)">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <span id="slide-indicator" class="text-xs font-mono font-semibold px-2 text-cyan-300">2 / 6</span>
+        <button onclick="nextSlide()" class="p-1 rounded hover:bg-slate-800 text-slate-300 hover:text-white" title="Next Slide (Right Arrow)">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+      <button onclick="toggleFullScreen()" class="p-1.5 rounded bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition" title="Toggle Fullscreen (F)">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN SLIDE CONTAINER -->
+  <main class="flex-1 p-4 md:p-6 max-w-7xl mx-auto w-full">
+
+    <!-- SLIDE 1: TITLE PAGE -->
+    <div id="slide-1" class="slide">
+      <div class="glass-panel p-8 md:p-12 relative overflow-hidden accent-glow">
+        <div class="absolute -right-20 -bottom-20 w-96 h-96 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-20 -top-20 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="flex flex-col md:flex-row justify-between items-start gap-6 border-b border-slate-800 pb-8">
+          <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-800 text-cyan-400 text-xs font-semibold mb-4">
+              <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+              Smart India Hackathon 2026 Idea Presentation
+            </div>
+            <h1 class="text-2xl md:text-4xl font-black tracking-tight text-white leading-tight">
+              Hybrid Quantum Machine Learning Platform<br/>
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-300">for Early Disease Detection</span>
+            </h1>
+            <p class="text-slate-300 text-xs md:text-sm mt-3 max-w-2xl leading-relaxed">
+              A scalable, interpretable hybrid quantum-classical healthcare AI platform that combines biomedical data preprocessing and feature engineering with quantum-enhanced learning, explainable predictions, and rigorous benchmarking against classical machine learning baselines.
+            </p>
+          </div>
+          <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 text-xs space-y-2 min-w-[250px]">
+            <div class="text-slate-400 font-mono text-[11px] uppercase tracking-wider">Official SIH 2026 Header</div>
+            <div class="flex justify-between"><span class="text-slate-400">Problem ID:</span> <span class="font-bold text-white">26139</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">Organization:</span> <span class="text-cyan-300 font-medium">Egreen Quanta</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">Category:</span> <span class="text-slate-200">Software</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">Theme:</span> <span class="text-emerald-400">MedTech / BioTech / HealthTech</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">Verified Tests:</span> <span class="text-emerald-400 font-bold font-mono">79/79 Passed (100%)</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">Repository:</span> <span class="text-blue-400 font-mono">ARYANCY/QDoc</span></div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-8">
+          <div class="glass-card p-4 border-l-2 border-cyan-500">
+            <div class="text-2xl font-black text-white">8–12 Qubits</div>
+            <div class="text-xs font-semibold text-cyan-300 mt-1">NISQ-Realistic Budget</div>
+            <div class="text-[11px] text-slate-400 mt-1">Operates via PennyLane statevector simulator with IBM Quantum cloud compatibility.</div>
+          </div>
+          <div class="glass-card p-4 border-l-2 border-blue-500">
+            <div class="text-2xl font-black text-white">90% Coverage</div>
+            <div class="text-xs font-semibold text-blue-300 mt-1">Conformal Uncertainty</div>
+            <div class="text-[11px] text-slate-400 mt-1">Mathematically bounded prediction sets eliminate overconfident black-box errors.</div>
+          </div>
+          <div class="glass-card p-4 border-l-2 border-emerald-500">
+            <div class="text-2xl font-black text-white">&lt; 150 MB</div>
+            <div class="text-xs font-semibold text-emerald-300 mt-1">Edge Clinical Footprint</div>
+            <div class="text-[11px] text-slate-400 mt-1">Runs offline on standard laptops without cloud or GPU dependencies.</div>
+          </div>
+          <div class="glass-card p-4 border-l-2 border-purple-500">
+            <div class="text-2xl font-black text-white">Zero Dummy Data</div>
+            <div class="text-xs font-semibold text-purple-300 mt-1">Rigorous Scientific Honesty</div>
+            <div class="text-[11px] text-slate-400 mt-1">Transparent Quantum Advantage Scores; classical baselines evaluated on identical splits.</div>
+          </div>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-slate-800/80 flex flex-wrap justify-between items-center gap-4 text-xs text-slate-400">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+            <span>PennyLane + Qiskit Aer Statevector Engine</span>
+            <span class="mx-1">•</span>
+            <span>FastAPI (47 REST Endpoints)</span>
+            <span class="mx-1">•</span>
+            <span>React 18 + Three.js 3D Twin</span>
+          </div>
+          <button onclick="goToSlide(2)" class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-bold rounded-lg transition flex items-center gap-1.5 shadow-lg shadow-cyan-500/20">
+            Proceed to Proposed Solution
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: IDEA TITLE / PROPOSED SOLUTION -->
+    <div id="slide-2" class="slide active">
+      <div class="glass-panel p-5 md:p-6 mb-4">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 border-b border-slate-800 pb-3">
+          <div class="flex items-center gap-3">
+            <span class="px-2 py-0.5 rounded bg-blue-900/60 border border-blue-700 text-blue-300 text-xs font-mono font-semibold">SLIDE 2</span>
+            <h2 class="text-base md:text-lg font-bold text-white tracking-wide">
+              <span class="text-cyan-400">PROPOSED SOLUTION:</span> End-to-End Hybrid Quantum-Classical Platform
+            </h2>
+          </div>
+          <div class="text-xs font-mono text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded border border-slate-800">
+            SIH 2026 ID: 26139 • Egreen Quanta
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 mt-4">
+          <!-- LEFT: The Problem & Our Solution (4 cols) -->
+          <div class="lg:col-span-4 space-y-4">
+            <div>
+              <div class="text-xs font-bold text-red-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <span class="w-1.5 h-3 bg-red-500 rounded-sm"></span> Problem Background:
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="glass-card p-2.5 bg-red-950/20 border-red-900/40">
+                  <div class="font-bold text-red-300 text-[11px]">High-Entropy Sparsity</div>
+                  <div class="text-[10px] text-slate-400 mt-0.5">Genomics & 10k-pixel dermoscopy causes exponential overfitting in classical DNNs.</div>
+                </div>
+                <div class="glass-card p-2.5 bg-red-950/20 border-red-900/40">
+                  <div class="font-bold text-red-300 text-[11px]">Diagnostic Black-Box</div>
+                  <div class="text-[10px] text-slate-400 mt-0.5">Deep models lack physical grounding, failing clinical trust with zero uncertainty bounds.</div>
+                </div>
+                <div class="glass-card p-2.5 bg-red-950/20 border-red-900/40">
+                  <div class="font-bold text-red-300 text-[11px]">Fragmented EHR Silos</div>
+                  <div class="text-[10px] text-slate-400 mt-0.5">Oncology, cardio, and radiology remain trapped in disparate EHR databases.</div>
+                </div>
+                <div class="glass-card p-2.5 bg-red-950/20 border-red-900/40">
+                  <div class="font-bold text-red-300 text-[11px]">NISQ Hardware Barrier</div>
+                  <div class="text-[10px] text-slate-400 mt-0.5">Current quantum hardware has noise and qubit constraints; requires hybrid architecture.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-1">
+              <div class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <span class="w-1.5 h-3 bg-cyan-500 rounded-sm"></span> Our Solution:
+              </div>
+              <ul class="text-[11px] space-y-1.5 text-slate-300">
+                <li class="flex items-start gap-1.5">
+                  <span class="text-cyan-400 font-bold">•</span>
+                  <span><strong class="text-white">Dual-Tier Intelligence:</strong> Ultra-fast deterministic edge (<150 MB) + local Sovereign Hub for quantum training.</span>
+                </li>
+                <li class="flex items-start gap-1.5">
+                  <span class="text-cyan-400 font-bold">•</span>
+                  <span><strong class="text-white">Quantum Classifiers:</strong> VQC, QSVM, and QNN with StronglyEntanglingLayers across 8–12 qubits.</span>
+                </li>
+                <li class="flex items-start gap-1.5">
+                  <span class="text-cyan-400 font-bold">•</span>
+                  <span><strong class="text-white">3D Physiological Twin:</strong> Real-time WebGL shader synchronizing organ risks (Cardio, Lung, Skin, Liver).</span>
+                </li>
+                <li class="flex items-start gap-1.5">
+                  <span class="text-cyan-400 font-bold">•</span>
+                  <span><strong class="text-white">Quality-Gated Detection:</strong> Mahalanobis OOD filter ($p < 0.01$) + Conformal Prediction (90% coverage).</span>
+                </li>
+                <li class="flex items-start gap-1.5">
+                  <span class="text-cyan-400 font-bold">•</span>
+                  <span><strong class="text-white">Clinician Verification:</strong> Integrated SHAP attribution and Grad-CAM visual heatmaps before sign-off.</span>
+                </li>
+                <li class="flex items-start gap-1.5">
+                  <span class="text-cyan-400 font-bold">•</span>
+                  <span><strong class="text-white">WORM Audit Provenance:</strong> SHA-256 chained Merkle ledger compliant with DPDP Act 2023.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- CENTER: QR Code & Proposed Solution Architecture (3.5 cols) -->
+          <div class="lg:col-span-3 flex flex-col items-center justify-between space-y-3">
+            <div class="text-center p-3 glass-card w-full border-cyan-900/40">
+              <div class="w-28 h-28 mx-auto bg-white p-2 rounded-lg flex items-center justify-center shadow-md">
+                <svg viewBox="0 0 25 25" class="w-full h-full text-slate-900 fill-current">
+                  <path d="M0,0 h7v7 h-7z M1,1 v5 h5 v-5z M2,2 h3 v3 h-3z"/>
+                  <path d="M18,0 h7v7 h-7z M19,1 v5 h5 v-5z M20,2 h3 v3 h-3z"/>
+                  <path d="M0,18 h7v7 h-7z M1,19 v5 h5 v-5z M2,20 h3 v3 h-3z"/>
+                  <path d="M9,2 h2 v3 h-2z M13,1 h3 v2 h-3z M9,6 h1 v2 h-1z M14,5 h2 v2 h-2z M8,10 h3 v1 h-3z M12,9 h4 v2 h-4z M17,9 h3 v3 h-3z"/>
+                  <path d="M9,14 h2 v4 h-2z M13,13 h2 v2 h-2z M16,15 h2 v3 h-2z M12,19 h3 v2 h-3z M18,18 h3 v3 h-3z M22,14 h2 v4 h-2z"/>
+                </svg>
+              </div>
+              <div class="text-[9px] font-mono text-cyan-400 mt-2 uppercase tracking-wider">
+                Prototype • Architecture • Verification
+              </div>
+              <div class="text-[10px] text-slate-400">github.com/ARYANCY/QDoc</div>
+            </div>
+
+            <div class="w-full glass-card p-3 border-cyan-800/40 bg-gradient-to-b from-slate-900/90 to-slate-950">
+              <div class="text-[11px] font-bold text-white flex items-center justify-between border-b border-slate-800 pb-1.5">
+                <span class="text-cyan-400">Proposed Solution Architecture</span>
+                <span class="text-[9px] bg-cyan-950 text-cyan-300 px-1 rounded border border-cyan-800">Dual-Tier</span>
+              </div>
+              <div class="mt-2 space-y-2 text-[10px]">
+                <div class="p-2 rounded bg-slate-800/60 border border-slate-700/60">
+                  <div class="font-bold text-cyan-300 flex justify-between">
+                    <span>Tier 1: Tactical Clinical Edge</span>
+                    <span class="text-emerald-400">112 MB | &lt;1.2GB</span>
+                  </div>
+                  <div class="text-slate-400 mt-0.5">On-device • Real-time • Deterministic • Zero-LLM</div>
+                  <div class="text-slate-300 mt-1">Mahalanobis OOD • 2D Twin • Base64 QR</div>
+                </div>
+                <div class="text-center text-[9px] font-mono text-cyan-500">
+                  ↕ Secure Transfer (Air-Gapped Intranet) ↕
+                </div>
+                <div class="p-2 rounded bg-slate-800/60 border border-slate-700/60">
+                  <div class="font-bold text-blue-300 flex justify-between">
+                    <span>Tier 2: Sovereign Quantum Hub</span>
+                    <span class="text-cyan-400">PennyLane + Qiskit</span>
+                  </div>
+                  <div class="text-slate-400 mt-0.5">Local Hospital Hub • Multi-Model • Air-Gapped</div>
+                  <div class="text-slate-300 mt-1">Q-Skin-Vortex (10-Q) • QuantumPneu (8-Q) • WORM</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Flowchart & Innovation (4.5 cols) -->
+          <div class="lg:col-span-5 space-y-4">
+            <div>
+              <div class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+                <span class="flex items-center gap-1.5"><span class="w-1.5 h-3 bg-cyan-500 rounded-sm"></span> Solution Flowchart:</span>
+                <span class="text-[9px] text-slate-400 font-mono">Parallel Execution</span>
+              </div>
+              <div class="p-2.5 glass-card text-[10px] space-y-1.5 bg-slate-900/60 font-mono">
+                <div class="flex items-center gap-1 text-slate-300">
+                  <span class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-cyan-300">Ingestion</span>
+                  <span>→</span>
+                  <span class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-amber-300">OOD Gate</span>
+                  <span>→</span>
+                  <span class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-purple-300">PCA-8/16</span>
+                  <span>→</span>
+                  <span class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-cyan-300">Angle Embed</span>
+                </div>
+                <div class="flex items-center gap-1 text-slate-300">
+                  <span class="px-1.5 py-0.5 bg-cyan-950 border border-cyan-800 text-cyan-400 font-bold">VQC 8-Qubit</span>
+                  <span>→</span>
+                  <span class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700">Pauli-Z ⟨Zᵢ⟩</span>
+                  <span>→</span>
+                  <span class="px-1.5 py-0.5 bg-blue-950 border border-blue-800 text-blue-300">Hybrid Fusion</span>
+                  <span>→</span>
+                  <span class="px-1.5 py-0.5 bg-emerald-950 border border-emerald-800 text-emerald-300">Conformal C(x)</span>
+                </div>
+                <div class="flex items-center gap-1 text-slate-300">
+                  <span class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700">Clinician Verify</span>
+                  <span>→</span>
+                  <span class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700">SHAP / Grad-CAM</span>
+                  <span>→</span>
+                  <span class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700">3D Twin Sync</span>
+                  <span>→</span>
+                  <span class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-white font-bold">WORM SHA-256</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <span class="w-1.5 h-3 bg-cyan-500 rounded-sm"></span> Innovation & Uniqueness (6 Pillars):
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="glass-card p-2 border-cyan-800/30">
+                  <div class="flex items-center gap-1.5 font-bold text-white">
+                    <span class="w-4 h-4 rounded-full bg-cyan-500/20 text-cyan-400 text-[10px] flex items-center justify-center font-mono">01</span>
+                    <span class="text-[10px]">Quantum Advantage (QAS)</span>
+                  </div>
+                  <div class="text-[9px] text-slate-400 mt-1">Deterministic metric measuring accuracy gain vs circuit runtime.</div>
+                </div>
+                <div class="glass-card p-2 border-cyan-800/30">
+                  <div class="flex items-center gap-1.5 font-bold text-white">
+                    <span class="w-4 h-4 rounded-full bg-cyan-500/20 text-cyan-400 text-[10px] flex items-center justify-center font-mono">02</span>
+                    <span class="text-[10px]">Dual-Tier Architecture</span>
+                  </div>
+                  <div class="text-[9px] text-slate-400 mt-1">Zero-internet edge engine + Sovereign local quantum hub.</div>
+                </div>
+                <div class="glass-card p-2 border-cyan-800/30">
+                  <div class="flex items-center gap-1.5 font-bold text-white">
+                    <span class="w-4 h-4 rounded-full bg-cyan-500/20 text-cyan-400 text-[10px] flex items-center justify-center font-mono">03</span>
+                    <span class="text-[10px]">Conformal Uncertainty</span>
+                  </div>
+                  <div class="text-[9px] text-slate-400 mt-1">Mahalanobis gating + 90% guaranteed diagnostic coverage set.</div>
+                </div>
+                <div class="glass-card p-2 border-cyan-800/30">
+                  <div class="flex items-center gap-1.5 font-bold text-white">
+                    <span class="w-4 h-4 rounded-full bg-cyan-500/20 text-cyan-400 text-[10px] flex items-center justify-center font-mono">04</span>
+                    <span class="text-[10px]">Parameter-Shift Telemetry</span>
+                  </div>
+                  <div class="text-[9px] text-slate-400 mt-1">Live tracking of circuit gradients ∂⟨Z⟩/∂θ and entanglement entropy.</div>
+                </div>
+                <div class="glass-card p-2 border-cyan-800/30">
+                  <div class="flex items-center gap-1.5 font-bold text-white">
+                    <span class="w-4 h-4 rounded-full bg-cyan-500/20 text-cyan-400 text-[10px] flex items-center justify-center font-mono">05</span>
+                    <span class="text-[10px]">Real-Time 3D/2D Twin</span>
+                  </div>
+                  <div class="text-[9px] text-slate-400 mt-1">Multi-organ risk synchronization on GPU WebGL anatomical shaders.</div>
+                </div>
+                <div class="glass-card p-2 border-cyan-800/30">
+                  <div class="flex items-center gap-1.5 font-bold text-white">
+                    <span class="w-4 h-4 rounded-full bg-cyan-500/20 text-cyan-400 text-[10px] flex items-center justify-center font-mono">06</span>
+                    <span class="text-[10px]">DPDP 2023 & WORM Ledger</span>
+                  </div>
+                  <div class="text-[9px] text-slate-400 mt-1">Immutable SHA-256 Merkle chain ensuring legal evidentiary defensibility.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center text-xs">
+          <div class="text-slate-400 font-mono text-[10px]">
+            Visual Artifact: <a href="assets/qmed_edge_hub_architecture.jpg" target="_blank" class="text-cyan-300 hover:underline">assets/qmed_edge_hub_architecture.jpg</a>
+          </div>
+          <button onclick="togglePromptModal('slide2-prompt')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700 transition flex items-center gap-1 font-mono text-[10px]">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+            View Image Generation JSON
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: TECHNICAL APPROACH -->
+    <div id="slide-3" class="slide">
+      <div class="glass-panel p-5 md:p-6 mb-4">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 border-b border-slate-800 pb-3">
+          <div class="flex items-center gap-3">
+            <span class="px-2 py-0.5 rounded bg-blue-900/60 border border-blue-700 text-blue-300 text-xs font-mono font-semibold">SLIDE 3</span>
+            <h2 class="text-base md:text-lg font-bold text-white tracking-wide">
+              <span class="text-cyan-400">TECHNICAL APPROACH:</span> System Architecture, DFD & Subsystem Stack
+            </h2>
+          </div>
+          <div class="text-xs font-mono text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded border border-slate-800">
+            Smart India Hackathon 2026 • PS 26139
+          </div>
+        </div>
+
+        <!-- TECH STACK RIBBON -->
+        <div class="mt-3 p-2.5 rounded-lg bg-slate-950/80 border border-slate-800 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-[10px] font-mono">
+          <div class="p-1.5 rounded bg-slate-900 border border-cyan-900/40">
+            <span class="text-cyan-400 font-bold block">Frontend UI</span>
+            <span class="text-slate-300">React 18.3, Vite, Tailwind, Three.js 3D</span>
+          </div>
+          <div class="p-1.5 rounded bg-slate-900 border border-blue-900/40">
+            <span class="text-blue-400 font-bold block">API Gateway</span>
+            <span class="text-slate-300">FastAPI 0.110, Uvicorn, Pydantic v2</span>
+          </div>
+          <div class="p-1.5 rounded bg-slate-900 border border-purple-900/40">
+            <span class="text-purple-400 font-bold block">Quantum Engine</span>
+            <span class="text-slate-300">PennyLane 0.36+, Qiskit, VQC, QNN</span>
+          </div>
+          <div class="p-1.5 rounded bg-slate-900 border border-emerald-900/40">
+            <span class="text-emerald-400 font-bold block">Classical ML</span>
+            <span class="text-slate-300">PyTorch, DenseNet-121, PCA, RF, XGB</span>
+          </div>
+          <div class="p-1.5 rounded bg-slate-900 border border-amber-900/40">
+            <span class="text-amber-400 font-bold block">Explainability</span>
+            <span class="text-slate-300">Kernel SHAP, Grad-CAM, Conformal</span>
+          </div>
+          <div class="p-1.5 rounded bg-slate-900 border border-indigo-900/40">
+            <span class="text-indigo-400 font-bold block">Storage & WORM</span>
+            <span class="text-slate-300">SQLite WAL, AES-256, SHA-256 Merkle</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mt-3">
+          <!-- LEFT: System Architecture Diagram & DFD (5.5 cols) -->
+          <div class="lg:col-span-5 space-y-3">
+            <!-- ARCHITECTURE TIERS -->
+            <div>
+              <div class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                <span class="w-1.5 h-3 bg-cyan-500 rounded-sm"></span> System Architecture Diagram:
+              </div>
+              <div class="glass-card p-2.5 space-y-1.5 text-[10px] bg-slate-950/70 border-slate-800 font-mono">
+                <!-- STARTING POINT BADGE -->
+                <div class="p-1.5 rounded bg-blue-600/20 border border-blue-500/60 flex items-center justify-between text-blue-300 font-bold">
+                  <span class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+                    ★ STARTING POINT: Clinical Ingestion
+                  </span>
+                  <span class="text-[9px] text-blue-200">EHR, Scans, Vitals</span>
+                </div>
+                <div class="text-center text-slate-500 text-[9px]">↓ Secure Zero-Trust Ingress ↓</div>
+                <div class="p-1.5 rounded bg-slate-900/90 border border-cyan-900/50">
+                  <div class="text-cyan-300 font-bold flex justify-between">
+                    <span>1. Ingestion & Security Boundary</span>
+                    <span class="text-slate-400 font-normal">FastAPI :8000</span>
+                  </div>
+                  <div class="text-slate-300 mt-0.5">JWT HS256 RBAC • HIPAA/DPDP PII Stripping • Request Sanitization</div>
+                </div>
+                <div class="text-center text-slate-500 text-[9px]">↓ Mathematical Filtering & Projection ↓</div>
+                <div class="p-1.5 rounded bg-slate-900/90 border border-purple-900/50">
+                  <div class="text-purple-300 font-bold flex justify-between">
+                    <span>2. Outlier Gate & Feature Projection</span>
+                    <span class="text-slate-400 font-normal">PCA 8–16</span>
+                  </div>
+                  <div class="text-slate-300 mt-0.5">Mahalanobis Filter (p &lt; 0.01 OOD fallback) • tanh(z) Angle Mapping</div>
+                </div>
+                <div class="text-center text-slate-500 text-[9px]">↓ Parallel Hybrid In-Process Inference ↓</div>
+                <div class="p-1.5 rounded bg-slate-900/90 border border-emerald-900/50">
+                  <div class="text-emerald-300 font-bold flex justify-between">
+                    <span>3. Parallel Quantum-Classical Core</span>
+                    <span class="text-slate-400 font-normal">VQC || PyTorch</span>
+                  </div>
+                  <div class="text-slate-300 mt-0.5">PennyLane 8-Qubit VQC (Parameter-Shift) || PyTorch DenseNet Backbone</div>
+                </div>
+                <div class="text-center text-slate-500 text-[9px]">↓ Fusion, Conformal Bounding & Explainability ↓</div>
+                <div class="p-1.5 rounded bg-slate-900/90 border border-amber-900/50">
+                  <div class="text-amber-300 font-bold flex justify-between">
+                    <span>4. Fusion, Uncertainty & XAI</span>
+                    <span class="text-slate-400 font-normal">90% Coverage</span>
+                  </div>
+                  <div class="text-slate-300 mt-0.5">Convex Logit Fusion • Conformal 90% Set C(x) • Kernel SHAP &amp; Grad-CAM</div>
+                </div>
+                <div class="text-center text-slate-500 text-[9px]">↓ Presentation Delivery & Immutable Persistence ↓</div>
+                <div class="p-1.5 rounded bg-slate-900/90 border border-slate-700/60">
+                  <div class="text-slate-200 font-bold flex justify-between">
+                    <span>5. Presentation & WORM Provenance</span>
+                    <span class="text-slate-400 font-normal">UI + SQLite WAL</span>
+                  </div>
+                  <div class="text-slate-300 mt-0.5">Cockpit UI (:5173) • 3D Twin • Offline 25x25 QR (:5174) • SHA-256 Merkle Ledger</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- DFD LEVEL 1 DECOMPOSITION -->
+            <div>
+              <div class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                <span class="flex items-center gap-1.5"><span class="w-1.5 h-3 bg-cyan-500 rounded-sm"></span> Data Flow Diagram (DFD Level 1):</span>
+                <span class="text-[9px] text-slate-400 font-mono">Process Flow</span>
+              </div>
+              <div class="glass-card p-2 space-y-1 text-[9px] font-mono bg-slate-900/60">
+                <div class="flex items-center gap-1">
+                  <span class="px-1 py-0.5 bg-blue-950 border border-blue-800 text-blue-300 font-bold">★ Start: Patient/EHR</span>
+                  <span>→</span>
+                  <span class="px-1 py-0.5 bg-slate-800 rounded text-amber-300">1.0 Ingestion & De-ID</span>
+                  <span>→</span>
+                  <span class="px-1 py-0.5 bg-slate-800 rounded text-purple-300">2.0 OOD Filter & PCA</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <span class="text-slate-500">└→</span>
+                  <span class="px-1 py-0.5 bg-cyan-950 border border-cyan-800 text-cyan-400 font-bold">3.1 VQC (PennyLane)</span>
+                  <span>&amp;</span>
+                  <span class="px-1 py-0.5 bg-blue-950 border border-blue-800 text-blue-300">3.2 Classical Baseline</span>
+                  <span>→</span>
+                  <span class="px-1 py-0.5 bg-emerald-950 border border-emerald-800 text-emerald-300 font-bold">4.0 Conformal Fusion</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <span class="text-slate-500">└→</span>
+                  <span class="px-1 py-0.5 bg-slate-800 rounded text-slate-300">5.0 SHAP &amp; Grad-CAM</span>
+                  <span>→</span>
+                  <span class="px-1 py-0.5 bg-slate-800 rounded text-slate-300">6.0 3D Twin &amp; WORM</span>
+                  <span>→</span>
+                  <span class="px-1 py-0.5 bg-slate-800 rounded text-white font-bold">Emergency 25x25 QR</span>
+                </div>
+                <div class="text-slate-400 text-[8px] pt-0.5">Data Stores: D1 Patient Store (AES-256) | D2 Model Registry | D3 SHA-256 WORM Ledger</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Punchy Subsystem Table & Prototype (6.5 cols) -->
+          <div class="lg:col-span-7 space-y-3">
+            <div>
+              <div class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                <span class="flex items-center gap-1.5"><span class="w-1.5 h-3 bg-cyan-500 rounded-sm"></span> Subsystem Selection Rationale:</span>
+                <span class="text-[9px] text-emerald-400 font-mono">Concise Justifications</span>
+              </div>
+              <div class="overflow-x-auto glass-card">
+                <table class="w-full text-left text-[10px]">
+                  <thead class="bg-slate-900/80 text-slate-300 font-mono border-b border-slate-800">
+                    <tr>
+                      <th class="p-1.5 w-6 text-center">#</th>
+                      <th class="p-1.5">SUBSYSTEM / TOOL</th>
+                      <th class="p-1.5">TECH STACK & TOOLS</th>
+                      <th class="p-1.5">WHY WE USED THIS PARTICULAR TECH STACK</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-800/60 text-slate-300">
+                    <tr class="hover:bg-slate-800/30">
+                      <td class="p-1.5 text-center font-mono text-cyan-400">01</td>
+                      <td class="p-1.5 font-semibold text-white">Clinical Frontend Studio</td>
+                      <td class="p-1.5 text-cyan-300 font-mono">React 18.3, Vite, Tailwind CSS, Lucide, Zustand</td>
+                      <td class="p-1.5 text-slate-300"><strong class="text-white">Sub-50ms render:</strong> Instant HMR and modular clinician cockpit with zero-lag UI transitions.</td>
+                    </tr>
+                    <tr class="hover:bg-slate-800/30">
+                      <td class="p-1.5 text-center font-mono text-cyan-400">02</td>
+                      <td class="p-1.5 font-semibold text-white">3D Anatomical Digital Twin</td>
+                      <td class="p-1.5 text-cyan-300 font-mono">Three.js 0.162, WebGL, @react-three/fiber</td>
+                      <td class="p-1.5 text-slate-300"><strong class="text-white">60 FPS shader lerp:</strong> Real-time GPU vertex displacement of organ risk states without UI thread blockage.</td>
+                    </tr>
+                    <tr class="hover:bg-slate-800/30">
+                      <td class="p-1.5 text-center font-mono text-cyan-400">03</td>
+                      <td class="p-1.5 font-semibold text-white">Emergency Health Pass App</td>
+                      <td class="p-1.5 text-cyan-300 font-mono">React 19, Vite, Base64URL 25x25 QR SVG</td>
+                      <td class="p-1.5 text-slate-300"><strong class="text-white">Zero-connectivity triage:</strong> Compresses vital triage profiles into a 25x25 QR readable by any phone camera.</td>
+                    </tr>
+                    <tr class="hover:bg-slate-800/30">
+                      <td class="p-1.5 text-center font-mono text-cyan-400">04</td>
+                      <td class="p-1.5 font-semibold text-white">High-Performance API Gateway</td>
+                      <td class="p-1.5 text-cyan-300 font-mono">FastAPI 0.110+, Uvicorn ASGI, Pydantic v2</td>
+                      <td class="p-1.5 text-slate-300"><strong class="text-white">Sub-10ms async IPC:</strong> Non-blocking ASGI routing with direct in-memory PyTorch/PennyLane tensor sharing.</td>
+                    </tr>
+                    <tr class="hover:bg-slate-800/30">
+                      <td class="p-1.5 text-center font-mono text-cyan-400">05</td>
+                      <td class="p-1.5 font-semibold text-white">Security & Identity Boundary</td>
+                      <td class="p-1.5 text-cyan-300 font-mono">PyJWT (HS256 RBAC), SecurityHeaders, CORS</td>
+                      <td class="p-1.5 text-slate-300"><strong class="text-white">Zero-trust boundary:</strong> Enforces role-based access control (Doctor, Nurse, Admin) and sanitized request envelopes.</td>
+                    </tr>
+                    <tr class="hover:bg-slate-800/30">
+                      <td class="p-1.5 text-center font-mono text-cyan-400">06</td>
+                      <td class="p-1.5 font-semibold text-white">Quantum Simulation Engine</td>
+                      <td class="p-1.5 text-cyan-300 font-mono">PennyLane 0.36+, default.qubit Statevector</td>
+                      <td class="p-1.5 text-slate-300"><strong class="text-white">Exact analytic gradients:</strong> Native autograd differentiation via parameter-shift rule without stochastic noise.</td>
+                    </tr>
+                    <tr class="hover:bg-slate-800/30">
+                      <td class="p-1.5 text-center font-mono text-cyan-400">07</td>
+                      <td class="p-1.5 font-semibold text-white">Hardware QPU Compilation</td>
+                      <td class="p-1.5 text-cyan-300 font-mono">Qiskit Aer 0.14+, IBM Quantum, OpenQASM 3.0</td>
+                      <td class="p-1.5 text-slate-300"><strong class="text-white">Hardware portability:</strong> Standardized pulse-level transpilation ready for physical superconducting QPUs.</td>
+                    </tr>
+                    <tr class="hover:bg-slate-800/30">
+                      <td class="p-1.5 text-center font-mono text-cyan-400">08</td>
+                      <td class="p-1.5 font-semibold text-white">Deep Vision Feature Backbone</td>
+                      <td class="p-1.5 text-cyan-300 font-mono">PyTorch 2.2+, DenseNet-121, EfficientNet-B0</td>
+                      <td class="p-1.5 text-slate-300"><strong class="text-white">Dense feature reuse:</strong> Mitigates vanishing gradients on clinical scans with tiny footprint (&lt;80 MB).</td>
+                    </tr>
+                    <tr class="hover:bg-slate-800/30">
+                      <td class="p-1.5 text-center font-mono text-cyan-400">09</td>
+                      <td class="p-1.5 font-semibold text-white">Dimensionality & Outlier Gate</td>
+                      <td class="p-1.5 text-cyan-300 font-mono">Scikit-Learn (Supervised PCA, Mahalanobis)</td>
+                      <td class="p-1.5 text-slate-300"><strong class="text-white">Zero feature collapse:</strong> Rejects outliers (p &lt; 0.01) and projects 10k+ features into 8–16 orthogonal components.</td>
+                    </tr>
+                    <tr class="hover:bg-slate-800/30">
+                      <td class="p-1.5 text-center font-mono text-cyan-400">10</td>
+                      <td class="p-1.5 font-semibold text-white">Explainable AI (XAI) Engine</td>
+                      <td class="p-1.5 text-cyan-300 font-mono">Kernel SHAP, Grad-CAM (Torch Saliency)</td>
+                      <td class="p-1.5 text-slate-300"><strong class="text-white">Clinical transparency:</strong> Generates visual heatmaps and SHAP attributions so clinicians can verify reasoning.</td>
+                    </tr>
+                    <tr class="hover:bg-slate-800/30">
+                      <td class="p-1.5 text-center font-mono text-cyan-400">11</td>
+                      <td class="p-1.5 font-semibold text-white">Distribution-Free Uncertainty</td>
+                      <td class="p-1.5 text-cyan-300 font-mono">Conformal Prediction (MAPIE Non-conformity)</td>
+                      <td class="p-1.5 text-slate-300"><strong class="text-white">Guaranteed safety:</strong> Replaces overconfident softmax with finite-sample 90% true coverage sets C(x).</td>
+                    </tr>
+                    <tr class="hover:bg-slate-800/30">
+                      <td class="p-1.5 text-center font-mono text-cyan-400">12</td>
+                      <td class="p-1.5 font-semibold text-white">Embedded Relational Store</td>
+                      <td class="p-1.5 text-cyan-300 font-mono">SQLite 3 (WAL Mode), SQLAlchemy 2.0, AES-256</td>
+                      <td class="p-1.5 text-slate-300"><strong class="text-white">Zero-daemon resilience:</strong> Single-file ACID engine that guarantees zero corruption during rural power cuts.</td>
+                    </tr>
+                    <tr class="hover:bg-slate-800/30">
+                      <td class="p-1.5 text-center font-mono text-cyan-400">13</td>
+                      <td class="p-1.5 font-semibold text-white">Cryptographic WORM Ledger</td>
+                      <td class="p-1.5 text-cyan-300 font-mono">SHA-256 Chained Merkle Log, W3C PROV-O</td>
+                      <td class="p-1.5 text-slate-300"><strong class="text-white">Tamper-evident legal audit:</strong> Immutable cryptographic ledger compliant with India's DPDP Act 2023.</td>
+                    </tr>
+                    <tr class="hover:bg-slate-800/30">
+                      <td class="p-1.5 text-center font-mono text-cyan-400">14</td>
+                      <td class="p-1.5 font-semibold text-white">Automated Verification Suite</td>
+                      <td class="p-1.5 text-cyan-300 font-mono">Pytest 9.1 (79/79 Passed), Coverage.py</td>
+                      <td class="p-1.5 text-slate-300"><strong class="text-white">100% test reproducibility:</strong> Automated validation of quantum circuits, API endpoints, and mathematical bounds.</td>
+                    </tr>
+                    <tr class="hover:bg-slate-800/30">
+                      <td class="p-1.5 text-center font-mono text-cyan-400">15</td>
+                      <td class="p-1.5 font-semibold text-white">Containerization & DevOps</td>
+                      <td class="p-1.5 text-cyan-300 font-mono">Docker, Docker Compose, PowerShell Scripts</td>
+                      <td class="p-1.5 text-slate-300"><strong class="text-white">Air-gapped portability:</strong> One-command reproducible local/edge deployment with 100% sovereign hospital data residency.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- PROTOTYPE SECTION -->
+            <div class="glass-card p-2.5 border-cyan-800/40">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Working Prototype & Repositories
+                </span>
+                <span class="text-[10px] text-cyan-300 font-mono">79/79 Pytest Passed</span>
+              </div>
+              <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <div>
+                  <div class="text-[10px] text-slate-400 font-mono">Primary Repository:</div>
+                  <a href="https://github.com/ARYANCY/QDoc" target="_blank" class="text-cyan-400 font-semibold hover:underline break-all text-[11px]">
+                    https://github.com/ARYANCY/QDoc
+                  </a>
+                  <div class="text-[10px] text-slate-400 font-mono mt-1">Swagger API Docs:</div>
+                  <span class="text-blue-300 font-mono text-[11px]">http://localhost:8000/docs</span>
+                </div>
+                <div>
+                  <div class="text-[10px] text-slate-400 font-mono">Clinical Studio UI:</div>
+                  <span class="text-emerald-400 font-semibold font-mono text-[11px]">http://localhost:5173</span>
+                  <div class="text-[10px] text-slate-400 font-mono mt-1">Emergency Card View:</div>
+                  <span class="text-purple-300 font-mono text-[11px]">http://localhost:5174</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3 pt-2 border-t border-slate-800 flex justify-between items-center text-xs">
+          <div class="text-slate-400 font-mono text-[10px]">
+            Visual Artifact: <a href="assets/qmed_prototype_ui_cockpit.jpg" target="_blank" class="text-cyan-300 hover:underline">assets/qmed_prototype_ui_cockpit.jpg</a>
+          </div>
+          <button onclick="togglePromptModal('slide3-prompt')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700 transition flex items-center gap-1 font-mono text-[10px]">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+            View Image Generation JSON
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: FEASIBILITY AND VIABILITY -->
+    <div id="slide-4" class="slide">
+      <div class="glass-panel p-5 md:p-6 mb-4">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 border-b border-slate-800 pb-3">
+          <div class="flex items-center gap-3">
+            <span class="px-2 py-0.5 rounded bg-blue-900/60 border border-blue-700 text-blue-300 text-xs font-mono font-semibold">SLIDE 4</span>
+            <h2 class="text-base md:text-lg font-bold text-white tracking-wide">
+              <span class="text-cyan-400">FEASIBILITY AND VIABILITY:</span> Technical Risk Management & Empirical Benchmarks
+            </h2>
+          </div>
+          <div class="text-xs font-mono text-emerald-400 bg-emerald-950/60 px-2.5 py-1 rounded border border-emerald-800">
+            NISQ Realism • Verified in registry.json
+          </div>
+        </div>
+
+        <!-- TOP: 5-POINT RISK MITIGATION MATRIX -->
+        <div class="mt-4">
+          <div class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-3 bg-cyan-500 rounded-sm"></span> Technical Risk Management & Mitigation Matrix:</span>
+            <span class="text-[9px] text-slate-400 font-mono">Addressing Evaluator Concerns</span>
+          </div>
+          <div class="overflow-x-auto glass-card">
+            <table class="w-full text-left text-[10px]">
+              <thead class="bg-slate-900 text-slate-300 font-mono border-b border-slate-800">
+                <tr>
+                  <th class="p-2">IDENTIFIED RISK</th>
+                  <th class="p-2">POTENTIAL IMPACT</th>
+                  <th class="p-2">PLATFORM MITIGATION STRATEGY</th>
+                  <th class="p-2">VERIFICATION STATUS</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800 text-slate-300 text-[10px]">
+                <tr class="hover:bg-slate-800/30">
+                  <td class="p-2 font-bold text-red-300">1. Limited Qubit Count</td>
+                  <td class="p-2 text-slate-400">Cannot directly encode thousands of genes or pixels.</td>
+                  <td class="p-2 text-slate-300 font-semibold">Supervised PCA & Bottleneck Projections (8–16 components) with layer-wise feature re-uploading.</td>
+                  <td class="p-2 text-emerald-400 font-mono font-bold">Verified (8 & 10 Qubit circuits)</td>
+                </tr>
+                <tr class="hover:bg-slate-800/30">
+                  <td class="p-2 font-bold text-amber-300">2. Quantum Noise & Decoherence</td>
+                  <td class="p-2 text-slate-400">Distorts quantum expectations and gradient degradation.</td>
+                  <td class="p-2 text-slate-300 font-semibold">Parameter-shift analytic differentiation avoids finite-difference noise; shallow circuits (L ≤ 5).</td>
+                  <td class="p-2 text-emerald-400 font-mono font-bold">Verified on PennyLane autograd</td>
+                </tr>
+                <tr class="hover:bg-slate-800/30">
+                  <td class="p-2 font-bold text-blue-300">3. High-Dimensional Features</td>
+                  <td class="p-2 text-slate-400">Curse of dimensionality, memory bloat, overfitting.</td>
+                  <td class="p-2 text-slate-300 font-semibold">Classical deep transfer learning backbones (DenseNet-121) extract compact latent vectors before PCA.</td>
+                  <td class="p-2 text-emerald-400 font-mono font-bold">Verified on HAM10000 cohort</td>
+                </tr>
+                <tr class="hover:bg-slate-800/30">
+                  <td class="p-2 font-bold text-purple-300">4. Circuit Execution Latency</td>
+                  <td class="p-2 text-slate-400">High cloud hardware cost and latency queues.</td>
+                  <td class="p-2 text-slate-300 font-semibold">Offline statevector simulator runs locally (&lt;1.2 GB RAM, &lt;200 ms latency) without cloud queue bottlenecks.</td>
+                  <td class="p-2 text-emerald-400 font-mono font-bold">Verified local execution</td>
+                </tr>
+                <tr class="hover:bg-slate-800/30">
+                  <td class="p-2 font-bold text-cyan-300">5. Absence of Quantum Advantage</td>
+                  <td class="p-2 text-slate-400">Quantum circuit underperforms classical ML.</td>
+                  <td class="p-2 text-slate-300 font-semibold">Honest Quantum Advantage Score (QAS) reporting; classical baselines maintained as production fallbacks.</td>
+                  <td class="p-2 text-emerald-400 font-mono font-bold">Verified in registry.json</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- BOTTOM: EMPIRICAL BENCHMARK MATRIX & RADICAL QAS-TRANSPARENCY -->
+        <div class="mt-4">
+          <div class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-3 bg-cyan-500 rounded-sm"></span> Cross-Validated Performance Matrix & Autonomous Q-Triage Arbiter:</span>
+            <span class="text-[9px] text-cyan-300 font-mono">QAS-Transparency Principle</span>
+          </div>
+
+          <!-- Transparency Notice Callout -->
+          <div class="p-2 mb-2 rounded bg-slate-900/90 border border-slate-700/80 text-[10px] text-slate-300 flex items-center justify-between">
+            <div>
+              <span class="text-emerald-400 font-bold">Clinical Reality:</span> Quantum beats classical in <strong class="text-white">2 of 5 modules</strong> (imaging: HAM10000 +3.2%, Kermany +2.1%). Classical Sentinel leads on <strong class="text-white">3 tabular modules</strong> (WDBC, Cleveland, Parkinson's).
+            </div>
+            <div class="font-mono text-cyan-300 text-[9px] bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800">
+              Q-Triage Arbiter Guarantees Zero Clinical Degradation
+            </div>
+          </div>
+
+          <div class="overflow-x-auto glass-card">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-900 text-slate-300 font-mono text-[10px] border-b border-slate-800">
+                <tr>
+                  <th class="p-2">DISEASE & COHORT</th>
+                  <th class="p-2">EVALUATED MODEL</th>
+                  <th class="p-2">MODEL TYPE</th>
+                  <th class="p-2">ACCURACY</th>
+                  <th class="p-2">SENSITIVITY</th>
+                  <th class="p-2">SPECIFICITY</th>
+                  <th class="p-2">F1-SCORE</th>
+                  <th class="p-2">AUC-ROC</th>
+                  <th class="p-2">LATENCY</th>
+                  <th class="p-2 text-cyan-400">DEPLOYED ROUTE</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800 text-slate-300 text-[10px]">
+                <tr class="bg-cyan-950/20 font-medium">
+                  <td class="p-2 font-bold text-white">Dermatology (HAM10000, 10k)</td>
+                  <td class="p-2 text-cyan-300 font-mono">Q-Skin-Vortex</td>
+                  <td class="p-2">10-Qubit VQC Head</td>
+                  <td class="p-2 font-bold text-emerald-400">89.4%</td>
+                  <td class="p-2">0.89</td>
+                  <td class="p-2">0.94</td>
+                  <td class="p-2 font-bold text-white">0.88</td>
+                  <td class="p-2 text-cyan-300">0.9410</td>
+                  <td class="p-2 font-mono">185 ms</td>
+                  <td class="p-2"><span class="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-700 text-[9px] font-mono">⚛️ Quantum Active</span></td>
+                </tr>
+                <tr class="text-slate-400">
+                  <td class="p-2">Dermatology Baseline</td>
+                  <td class="p-2 font-mono">DenseNet-121</td>
+                  <td class="p-2">Classical CNN</td>
+                  <td class="p-2">86.2%</td>
+                  <td class="p-2">0.86</td>
+                  <td class="p-2">0.91</td>
+                  <td class="p-2">0.84</td>
+                  <td class="p-2">0.9120</td>
+                  <td class="p-2 font-mono">45 ms</td>
+                  <td class="p-2 text-slate-500 font-mono text-[9px]">Classical Baseline</td>
+                </tr>
+                <tr class="bg-blue-950/20 font-medium">
+                  <td class="p-2 font-bold text-white">Pneumonia (Kermany, 5.8k)</td>
+                  <td class="p-2 text-cyan-300 font-mono">QuantumPneu</td>
+                  <td class="p-2">8-Qubit VQC + EffNet</td>
+                  <td class="p-2 font-bold text-emerald-400">91.2%</td>
+                  <td class="p-2 font-bold text-white">0.93</td>
+                  <td class="p-2">0.89</td>
+                  <td class="p-2 font-bold text-white">0.90</td>
+                  <td class="p-2 text-cyan-300">0.9540</td>
+                  <td class="p-2 font-mono">142 ms</td>
+                  <td class="p-2"><span class="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-700 text-[9px] font-mono">⚛️ Quantum Active</span></td>
+                </tr>
+                <tr class="text-slate-400">
+                  <td class="p-2">Pneumonia Baseline</td>
+                  <td class="p-2 font-mono">EfficientNet-B0</td>
+                  <td class="p-2">Classical CNN</td>
+                  <td class="p-2">89.1%</td>
+                  <td class="p-2">0.90</td>
+                  <td class="p-2">0.87</td>
+                  <td class="p-2">0.87</td>
+                  <td class="p-2">0.9280</td>
+                  <td class="p-2 font-mono">38 ms</td>
+                  <td class="p-2 text-slate-500 font-mono text-[9px]">Classical Baseline</td>
+                </tr>
+                <tr class="bg-purple-950/20 font-medium">
+                  <td class="p-2 font-bold text-white">Breast Cancer (WDBC, 569)</td>
+                  <td class="p-2 text-purple-300 font-mono">OncoPulse-VQC</td>
+                  <td class="p-2">4-Qubit VQC</td>
+                  <td class="p-2">70.0%</td>
+                  <td class="p-2">0.70</td>
+                  <td class="p-2 text-rose-400 font-bold">0.12</td>
+                  <td class="p-2">0.61</td>
+                  <td class="p-2 text-cyan-300">0.8093</td>
+                  <td class="p-2 font-mono">1570 ms</td>
+                  <td class="p-2 text-slate-500 font-mono text-[9px]">Shadow Mode</td>
+                </tr>
+                <tr class="bg-amber-950/20 font-medium">
+                  <td class="p-2 font-bold text-amber-200">Breast Cancer Baseline</td>
+                  <td class="p-2 font-mono text-emerald-400">Sentinel-RF</td>
+                  <td class="p-2">Random Forest</td>
+                  <td class="p-2 font-bold text-emerald-400">84.0%</td>
+                  <td class="p-2">0.84</td>
+                  <td class="p-2 font-bold text-emerald-400">1.00</td>
+                  <td class="p-2">0.84</td>
+                  <td class="p-2">0.9269</td>
+                  <td class="p-2 font-mono">18 ms</td>
+                  <td class="p-2"><span class="px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-700 text-[9px] font-mono">🛡️ Sentinel-RF (Safety Arbiter)</span></td>
+                </tr>
+                <tr class="bg-indigo-950/20 font-medium">
+                  <td class="p-2 font-bold text-white">Cardiovascular (Cleveland, 303)</td>
+                  <td class="p-2 text-indigo-300 font-mono">CardioWave-QNN</td>
+                  <td class="p-2">5-Stage QNN</td>
+                  <td class="p-2">57.8%</td>
+                  <td class="p-2">0.58</td>
+                  <td class="p-2">0.58</td>
+                  <td class="p-2">0.49</td>
+                  <td class="p-2 text-cyan-300">0.8369</td>
+                  <td class="p-2 font-mono">1379 ms</td>
+                  <td class="p-2 text-slate-500 font-mono text-[9px]">Shadow Mode</td>
+                </tr>
+                <tr class="bg-amber-950/20 font-medium">
+                  <td class="p-2 font-bold text-amber-200">Cardiovascular Baseline</td>
+                  <td class="p-2 font-mono text-emerald-400">Sentinel-XGB</td>
+                  <td class="p-2">Classical XGBoost</td>
+                  <td class="p-2 font-bold text-emerald-400">84.4%</td>
+                  <td class="p-2">0.84</td>
+                  <td class="p-2 font-bold text-emerald-400">0.83</td>
+                  <td class="p-2">0.84</td>
+                  <td class="p-2">0.9048</td>
+                  <td class="p-2 font-mono">5.8 ms</td>
+                  <td class="p-2"><span class="px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-700 text-[9px] font-mono">🛡️ Sentinel-XGB (+26.6% Lead)</span></td>
+                </tr>
+                <tr class="bg-emerald-950/20 font-medium">
+                  <td class="p-2 font-bold text-white">Parkinson's Voice (195 rows)</td>
+                  <td class="p-2 text-cyan-300 font-mono">NeuroSynapse-VQC</td>
+                  <td class="p-2">6-Qubit VQC</td>
+                  <td class="p-2 font-bold text-emerald-400">80.0%</td>
+                  <td class="p-2">0.80</td>
+                  <td class="p-2 text-rose-400 font-bold">0.25</td>
+                  <td class="p-2 font-bold text-white">0.75</td>
+                  <td class="p-2">0.7614</td>
+                  <td class="p-2 font-mono">463 ms</td>
+                  <td class="p-2 text-slate-500 font-mono text-[9px]">Shadow Mode</td>
+                </tr>
+                <tr class="bg-amber-950/20 font-medium">
+                  <td class="p-2 font-bold text-amber-200">Parkinson's Baseline (RF)</td>
+                  <td class="p-2 font-mono text-emerald-400">Sentinel-RF</td>
+                  <td class="p-2">Random Forest</td>
+                  <td class="p-2 font-bold text-emerald-400">80.0%</td>
+                  <td class="p-2">0.80</td>
+                  <td class="p-2 font-bold text-emerald-400">0.75</td>
+                  <td class="p-2">0.81</td>
+                  <td class="p-2">0.9091</td>
+                  <td class="p-2 font-mono">15.5 ms</td>
+                  <td class="p-2"><span class="px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-700 text-[9px] font-mono">🛡️ Sentinel-RF (Spec Guardrail)</span></td>
+                </tr>
+                <tr class="text-slate-400">
+                  <td class="p-2">Parkinson's Linear Baseline</td>
+                  <td class="p-2 font-mono">Sentinel-LogReg</td>
+                  <td class="p-2">Logistic Regression</td>
+                  <td class="p-2">56.7%</td>
+                  <td class="p-2">0.57</td>
+                  <td class="p-2">1.00</td>
+                  <td class="p-2">0.57</td>
+                  <td class="p-2">0.9034</td>
+                  <td class="p-2 font-mono">0.6 ms</td>
+                  <td class="p-2 text-slate-500 font-mono text-[9px]">Classical Baseline</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="mt-3 pt-2 border-t border-slate-800 flex justify-between items-center text-xs">
+          <div class="text-slate-400 font-mono text-[10px]">
+            Operational Feasibility & Risk Management Blueprint
+          </div>
+          <button onclick="togglePromptModal('slide4-prompt')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700 transition flex items-center gap-1 font-mono text-[10px]">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+            View Image Generation JSON
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: IMPACT AND BENEFITS -->
+    <div id="slide-5" class="slide">
+      <div class="glass-panel p-5 md:p-6 mb-4">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 border-b border-slate-800 pb-3">
+          <div class="flex items-center gap-3">
+            <span class="px-2 py-0.5 rounded bg-blue-900/60 border border-blue-700 text-blue-300 text-xs font-mono font-semibold">SLIDE 5</span>
+            <h2 class="text-base md:text-lg font-bold text-white tracking-wide">
+              <span class="text-cyan-400">IMPACT AND BENEFITS:</span> Practical Benefits & Strategic Healthcare Alignment
+            </h2>
+          </div>
+          <div class="text-xs font-mono text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded border border-slate-800">
+            Smart India Hackathon 2026
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 mt-4">
+          <!-- LEFT: Market Size & Budget (4.5 cols) -->
+          <div class="lg:col-span-4 space-y-4">
+            <div>
+              <div class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <span class="w-1.5 h-3 bg-cyan-500 rounded-sm"></span> Market Size & Valuation:
+              </div>
+              <div class="text-xs space-y-2 text-slate-300">
+                <p><strong class="text-white">Global Healthcare AI Market:</strong> Projected to reach <span class="text-cyan-300 font-bold">$88.5 Billion by 2032</span> (CAGR 21.1%), driven by multi-modal early cancer screening.</p>
+                <p><strong class="text-white">Indian Digital Health Space:</strong> Powered by the National Quantum Mission (<span class="text-emerald-300 font-bold">₹6,003 Cr</span>) and Ayushman Bharat Digital Mission (ABDM), addressing a $12.5B domestic diagnostics market.</p>
+              </div>
+            </div>
+
+            <!-- RENDERED BUDGET BAR CHART -->
+            <div class="glass-card p-3 border-cyan-900/50">
+              <div class="text-[11px] font-bold text-white flex justify-between">
+                <span>MoHFW Union Budget Allocation (₹ Cr)</span>
+                <span class="text-emerald-400 font-mono">+33.1% Growth</span>
+              </div>
+              <div class="mt-3 space-y-2 text-[10px] font-mono">
+                <div>
+                  <div class="flex justify-between text-slate-400 mb-0.5"><span>FY 2021-22</span> <span>₹73,932 Cr</span></div>
+                  <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                    <div class="bg-blue-600 h-2 rounded-full" style="width: 67%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-slate-400 mb-0.5"><span>FY 2022-23</span> <span>₹82,600 Cr</span></div>
+                  <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                    <div class="bg-blue-500 h-2 rounded-full" style="width: 75%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-slate-400 mb-0.5"><span>FY 2023-24</span> <span>₹89,155 Cr</span></div>
+                  <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                    <div class="bg-cyan-500 h-2 rounded-full" style="width: 81%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-slate-400 mb-0.5"><span>FY 2024-25</span> <span>₹90,958 Cr</span></div>
+                  <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                    <div class="bg-cyan-400 h-2 rounded-full" style="width: 83%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-slate-300 font-bold mb-0.5"><span>FY 2025-26 (Est.)</span> <span class="text-emerald-400">₹98,400 Cr</span></div>
+                  <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                    <div class="bg-emerald-400 h-2 rounded-full" style="width: 89%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="text-[9px] text-slate-400 mt-2">FY 2026-27 lifts total health allocation towards 2.5% of GDP under National Health Policy.</div>
+            </div>
+
+            <div>
+              <div class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <span class="w-1.5 h-3 bg-cyan-500 rounded-sm"></span> Clinical Positioning Rule:
+              </div>
+              <div class="text-[11px] text-slate-300 glass-card p-2.5 border-amber-900/40 bg-amber-950/20">
+                The platform is strictly positioned as an investigational and decision-support technology. Diagnostic claims are asserted only where supported by empirical, measured comparisons against classical baselines.
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Hospital Integration & Benefits (7.5 cols) -->
+          <div class="lg:col-span-8 space-y-4">
+            <div>
+              <div class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+                <span class="flex items-center gap-1.5"><span class="w-1.5 h-3 bg-cyan-500 rounded-sm"></span> Integrates with Hospital Technology Stack:</span>
+                <span class="text-[10px] text-cyan-300 font-mono">FHIR / DICOM / ABDM</span>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-2 text-xs">
+                <div class="glass-card p-2.5 border-slate-700 bg-slate-900/80">
+                  <div class="font-bold text-cyan-300 text-[11px] mb-1">Multi-Source Inputs</div>
+                  <div class="text-[10px] text-slate-400 space-y-0.5">
+                    <div>• EHR / Lab Panels (FHIR)</div>
+                    <div>• Chest X-Ray (DICOM)</div>
+                    <div>• Dermoscopy (HAM10000)</div>
+                    <div>• Genomics (VCF 4.2)</div>
+                  </div>
+                </div>
+                <div class="glass-card p-2.5 border-cyan-800 bg-cyan-950/20">
+                  <div class="font-bold text-white text-[11px] mb-1">Q-MedSense Core</div>
+                  <div class="text-[10px] text-slate-300 space-y-0.5">
+                    <div>• VQC & QNN Inference</div>
+                    <div>• 90% Conformal Coverage</div>
+                    <div>• 3D/2D Digital Twin</div>
+                    <div>• SHA-256 WORM Ledger</div>
+                  </div>
+                </div>
+                <div class="glass-card p-2.5 border-blue-800 bg-blue-950/20">
+                  <div class="font-bold text-blue-300 text-[11px] mb-1">Deployment Sectors</div>
+                  <div class="text-[10px] text-slate-300 space-y-0.5">
+                    <div>• Primary Health Centers</div>
+                    <div>• AIIMS Medical Colleges</div>
+                    <div>• Armed Forces Ambulances</div>
+                    <div>• Diagnostic Pathology Labs</div>
+                  </div>
+                </div>
+                <div class="glass-card p-2.5 border-emerald-800 bg-emerald-950/20">
+                  <div class="font-bold text-emerald-300 text-[11px] mb-1">Decision Outputs</div>
+                  <div class="text-[10px] text-slate-300 space-y-0.5">
+                    <div>• Organ Risk Heatmaps</div>
+                    <div>• Conformal Alert Sets</div>
+                    <div>• Signed SOAP Notes</div>
+                    <div>• 25x25 Emergency QR</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- KEY BENEFITS -->
+            <div>
+              <div class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <span class="w-1.5 h-3 bg-cyan-500 rounded-sm"></span> Practical Clinical Benefits:
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+                <div class="glass-card p-2.5 border-cyan-800/30">
+                  <div class="font-bold text-white flex items-center gap-1">
+                    <span class="text-cyan-400">⚡</span> Earlier Pattern Detection
+                  </div>
+                  <div class="text-[10px] text-slate-400 mt-1">Exploits Hilbert feature spaces for complex non-linear acoustic and genomic patterns.</div>
+                </div>
+                <div class="glass-card p-2.5 border-blue-800/30">
+                  <div class="font-bold text-white flex items-center gap-1">
+                    <span class="text-blue-400">🎯</span> Data-Driven Transparency
+                  </div>
+                  <div class="text-[10px] text-slate-400 mt-1">Kernel SHAP, Grad-CAM, and 90% conformal coverage sets eliminate black-box guesswork.</div>
+                </div>
+                <div class="glass-card p-2.5 border-purple-800/30">
+                  <div class="font-bold text-white flex items-center gap-1">
+                    <span class="text-purple-400">🌐</span> Reusable Multi-Disease
+                  </div>
+                  <div class="text-[10px] text-slate-400 mt-1">Unified pipeline supports oncology, cardiology, neurology, and pulmonology cohorts.</div>
+                </div>
+                <div class="glass-card p-2.5 border-emerald-800/30">
+                  <div class="font-bold text-white flex items-center gap-1">
+                    <span class="text-emerald-400">💻</span> 100% Offline Deployable
+                  </div>
+                  <div class="text-[10px] text-slate-400 mt-1">Runs on standard laptops (&lt;1.2 GB RAM), zero GPU cloud dependency.</div>
+                </div>
+                <div class="glass-card p-2.5 border-amber-800/30 sm:col-span-2">
+                  <div class="font-bold text-white flex items-center gap-1">
+                    <span class="text-amber-400">🛡️</span> Sovereign HealthTech & ABDM
+                  </div>
+                  <div class="text-[10px] text-slate-400 mt-1">100% localized Indian data residency, zero foreign API reliance, compliant with DPDP Act 2023 and ABDM.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center text-xs">
+          <div class="text-slate-400 font-mono text-[10px]">
+            Visual Artifact: <a href="assets/qmed_hospital_integration.jpg" target="_blank" class="text-cyan-300 hover:underline">assets/qmed_hospital_integration.jpg</a>
+          </div>
+          <button onclick="togglePromptModal('slide5-prompt')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700 transition flex items-center gap-1 font-mono text-[10px]">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+            View Image Generation JSON
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: RESEARCH AND REFERENCES -->
+    <div id="slide-6" class="slide">
+      <div class="glass-panel p-5 md:p-6 mb-4">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 border-b border-slate-800 pb-3">
+          <div class="flex items-center gap-3">
+            <span class="px-2 py-0.5 rounded bg-blue-900/60 border border-blue-700 text-blue-300 text-xs font-mono font-semibold">SLIDE 6</span>
+            <h2 class="text-base md:text-lg font-bold text-white tracking-wide">
+              <span class="text-cyan-400">RESEARCH AND REFERENCES:</span> Peer-Reviewed Literature & Open Standards
+            </h2>
+          </div>
+          <div class="text-xs font-mono text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded border border-slate-800">
+            Smart India Hackathon 2026
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-4 text-xs">
+          <!-- COLUMN 1: Quantum ML & Biomedical Literature -->
+          <div class="space-y-3">
+            <div>
+              <div class="font-bold text-cyan-400 uppercase tracking-wider text-[10px] mb-1 flex items-center gap-1.5">
+                <span class="w-1.5 h-3 bg-cyan-500 rounded-sm"></span> Quantum Machine Learning Literature:
+              </div>
+              <ul class="space-y-1 text-slate-300 text-[11px]">
+                <li>• <strong class="text-white">Mitarai et al. (2018):</strong> <em>Quantum Circuit Learning.</em> Phys. Rev. A 98, 032309. <a href="https://doi.org/10.1103/PhysRevA.98.032309" target="_blank" class="text-cyan-400 hover:underline">DOI</a></li>
+                <li>• <strong class="text-white">Schuld et al. (2019):</strong> <em>Analytic Gradients on Quantum Hardware.</em> Phys. Rev. A 99, 032331. <a href="https://doi.org/10.1103/PhysRevA.99.032331" target="_blank" class="text-cyan-400 hover:underline">DOI</a></li>
+                <li>• <strong class="text-white">Havlíček et al. (2019):</strong> <em>Supervised Learning with Quantum Feature Spaces.</em> Nature 567, 209–212. <a href="https://doi.org/10.1038/s41586-019-0980-2" target="_blank" class="text-cyan-400 hover:underline">DOI</a></li>
+                <li>• <strong class="text-white">Cerezo et al. (2021):</strong> <em>Variational Quantum Algorithms.</em> Nature Rev. Phys. 3, 625–644. <a href="https://doi.org/10.1038/s42254-021-00348-9" target="_blank" class="text-cyan-400 hover:underline">DOI</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <div class="font-bold text-cyan-400 uppercase tracking-wider text-[10px] mb-1 flex items-center gap-1.5">
+                <span class="w-1.5 h-3 bg-cyan-500 rounded-sm"></span> Biomedical Datasets & Provenance:
+              </div>
+              <ul class="space-y-1 text-slate-300 text-[11px]">
+                <li>• <strong class="text-white">HAM10000 Dataset:</strong> 10,015 images (Tschandl et al., Nature Scientific Data 2018). <a href="https://doi.org/10.1038/sdata.2018.161" target="_blank" class="text-cyan-400 hover:underline">DOI</a></li>
+                <li>• <strong class="text-white">Chest Radiographs:</strong> 5,863 X-Rays for pneumonia (Kermany et al., Cell 2018). <a href="https://doi.org/10.1016/j.cell.2018.02.010" target="_blank" class="text-cyan-400 hover:underline">DOI</a></li>
+                <li>• <strong class="text-white">WDBC Dataset:</strong> 569 fine-needle aspirate biopsies (UCI ML Repository).</li>
+                <li>• <strong class="text-white">Cleveland Heart Disease:</strong> 303 clinical records + Framingham cohort (UCI).</li>
+                <li>• <strong class="text-white">Parkinson's Telemonitoring:</strong> 195 voice acoustic rows (Little et al., IEEE TBME).</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- COLUMN 2: Standards, Frameworks & Code -->
+          <div class="space-y-3">
+            <div>
+              <div class="font-bold text-cyan-400 uppercase tracking-wider text-[10px] mb-1 flex items-center gap-1.5">
+                <span class="w-1.5 h-3 bg-cyan-500 rounded-sm"></span> Explainable AI & Statistical Uncertainty:
+              </div>
+              <ul class="space-y-1 text-slate-300 text-[11px]">
+                <li>• <strong class="text-white">Lundberg & Lee (2017):</strong> <em>Unified Approach to Interpreting Model Predictions (SHAP).</em> NeurIPS.</li>
+                <li>• <strong class="text-white">Selvaraju et al. (2017):</strong> <em>Grad-CAM: Visual Explanations via Gradient Localization.</em> ICCV.</li>
+                <li>• <strong class="text-white">Vovk et al. (2005):</strong> <em>Algorithmic Learning in a Random World (Conformal Prediction).</em> Springer.</li>
+              </ul>
+            </div>
+
+            <div>
+              <div class="font-bold text-cyan-400 uppercase tracking-wider text-[10px] mb-1 flex items-center gap-1.5">
+                <span class="w-1.5 h-3 bg-cyan-500 rounded-sm"></span> Official Standards & Documentation:
+              </div>
+              <ul class="space-y-1 text-slate-300 text-[11px]">
+                <li>• <strong class="text-white">PennyLane Documentation:</strong> Xanadu. <a href="https://docs.pennylane.ai" target="_blank" class="text-cyan-400 hover:underline">docs.pennylane.ai</a></li>
+                <li>• <strong class="text-white">Qiskit Documentation:</strong> IBM Quantum. <a href="https://docs.quantum.ibm.com" target="_blank" class="text-cyan-400 hover:underline">docs.quantum.ibm.com</a></li>
+                <li>• <strong class="text-white">HL7 FHIR Release 4:</strong> Clinical Interoperability. <a href="https://hl7.org/fhir/R4" target="_blank" class="text-cyan-400 hover:underline">hl7.org/fhir</a></li>
+                <li>• <strong class="text-white">DPDP Act 2023:</strong> Ministry of Law & Justice, GoI. <a href="https://www.meity.gov.in" target="_blank" class="text-cyan-400 hover:underline">meity.gov.in</a></li>
+              </ul>
+            </div>
+
+            <div class="glass-card p-2.5 border-cyan-800/40">
+              <div class="font-bold text-white text-[11px]">Project Repository & Interactive Docs:</div>
+              <div class="text-[10px] text-cyan-400 font-mono mt-1 space-y-0.5">
+                <div>• Source: <a href="https://github.com/ARYANCY/QDoc" target="_blank" class="hover:underline">https://github.com/ARYANCY/QDoc</a></div>
+                <div class="text-slate-400">• Local Studio: http://localhost:5173 | API: http://localhost:8000/docs</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center text-xs">
+          <div class="text-slate-400 font-mono text-[10px]">
+            Authoritative Peer-Reviewed Grounding
+          </div>
+          <button onclick="togglePromptModal('slide6-prompt')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700 transition flex items-center gap-1 font-mono text-[10px]">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+            View Image Generation JSON
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER CONTROLS -->
+  <footer class="bg-[#0B1120] border-t border-slate-800 px-6 py-3 flex items-center justify-between text-xs text-slate-400 sticky bottom-0 z-40">
+    <div class="flex items-center space-x-4">
+      <span class="font-mono text-cyan-400">SIH-26139</span>
+      <span class="hidden sm:inline text-slate-500">•</span>
+      <span class="hidden sm:inline">Egreen Quanta • Hybrid Quantum Machine Learning Platform</span>
+    </div>
+
+    <div class="flex items-center space-x-2">
+      <span class="text-[11px] text-slate-500 hidden md:inline">Use Arrow Keys (← / →) to Navigate</span>
+      <button onclick="prevSlide()" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium transition flex items-center gap-1">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Previous
+      </button>
+      <button onclick="nextSlide()" class="px-3 py-1.5 rounded bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-medium transition flex items-center gap-1">
+        Next
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </footer>
+
+  <!-- PROMPT INSPECTION MODAL -->
+  <div id="prompt-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-panel p-6 max-w-2xl w-full max-h-[85vh] overflow-y-auto relative border-cyan-500/40">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 id="modal-title" class="text-sm font-bold text-cyan-400 font-mono">Image Generation JSON Prompt</h3>
+        <button onclick="closePromptModal()" class="text-slate-400 hover:text-white p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="mt-4">
+        <pre id="modal-content" class="bg-slate-950 p-4 rounded-lg text-xs font-mono text-cyan-300 overflow-x-auto border border-slate-800 leading-relaxed"></pre>
+      </div>
+      <div class="mt-4 flex justify-end">
+        <button onclick="copyModalContent()" class="px-3 py-1.5 rounded bg-cyan-600 hover:bg-cyan-500 text-black font-bold text-xs transition">
+          Copy JSON to Clipboard
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentSlide = 2;
+    const totalSlides = 6;
+
+    const prompts = {
+      'slide2-prompt': {
+        "title": "Dual-Tier Clinical Edge and Sovereign Quantum Hub Architecture",
+        "prompt": "Professional vector infographic diagram of a dual-tier medical quantum architecture. Left panel: rugged clinician tablet and laptop with on-device offline clinical diagnostic UI, labeled 'Tier 1: Tactical Clinical Edge Engine (112 MB, <1.2 GB RAM, Offline Deterministic)'. Center: encrypted data bridge with glowing lock icon labeled 'Secure Hospital Intranet / Air-Gapped Sync'. Right panel: high-performance quantum computation hub with server rack and glowing 8-qubit quantum circuit wireframe with Hadamard and CNOT gates, labeled 'Tier 2: Sovereign Quantum Hub (PennyLane, VQC, QNN, WORM Ledger)'. Dark tech navy background, glowing cyan and mint green accents, isometric technical layout, ultra-clean vector graphics, 8k resolution.",
+        "style": "technical vector infographic, high-tech engineering schematic",
+        "aspect_ratio": "16:9",
+        "color_palette": ["#0A0F1D", "#00F2FE", "#10B981", "#3B82F6", "#F8FAFC"],
+        "composition": "wide-angle split view, balanced bilateral layout, crisp technical typography, high-contrast infographics",
+        "lighting": "subtle neon circuit edge glow, clean studio luminescence",
+        "negative_prompt": "blurry, low resolution, messy handwriting, comic book, saturated cartoon, 3d render distortion"
+      },
+      'slide3-prompt': {
+        "title": "Clinician Cockpit Prototype Interface Mockup",
+        "prompt": "Ultra-detailed dark-mode clinical workstation software UI dashboard. Left third: 3D glowing anatomical wireframe digital twin human figure with highlighted organ risk zones on heart and lungs with percentage risk tags. Center: dual diagnostic tiles displaying chest radiograph and dermatological skin lesion with colorful Grad-CAM saliency heatmaps. Right third: quantum circuit telemetry panel showing 8-qubit gate schematic, quantum state probability distribution bar graph, and final diagnostic sign-off summary. Top app bar with patient name and status indicators. Premium medical UI design, dark slate theme, neon cyan and emerald accents, crystal-clear typography, 8k UI mockup.",
+        "style": "high-end medical software UI, realistic application screenshot",
+        "aspect_ratio": "16:9",
+        "color_palette": ["#0F172A", "#1E293B", "#06B6D4", "#EF4444", "#10B981", "#F8FAFC"],
+        "composition": "three-column desktop dashboard layout with top navigation header, balanced visual hierarchy",
+        "lighting": "soft ambient monitor glow, clean UI luminescence",
+        "negative_prompt": "smartphone layout, cluttered illegible text, cartoonish, 3d distortion, low contrast"
+      },
+      'slide4-prompt': {
+        "title": "Technical Feasibility and Risk Mitigation Matrix Infographic",
+        "prompt": "Clean professional corporate engineering infographic on technical feasibility and risk mitigation for quantum medical AI. Central shield motif displaying four operational feasibility pillars: Hybrid Architecture, Simulation-First Verification, Dimensionality Reduction, and Fail-Safe Classical Fallback. Radiating connection lines pointing to five structured risk-mitigation cards: Limited Qubit Count, Quantum Noise Mitigation, High-Dimensional Features, Cloud Cost Control, and Transparent Baseline Benchmarking. Dark slate navy background (#0F172A), sharp mint green and cyan vector lines, clean corporate presentation aesthetic, ultra-sharp typography, 8k resolution.",
+        "style": "executive engineering infographic, risk mitigation flowchart",
+        "aspect_ratio": "16:9",
+        "color_palette": ["#0F172A", "#1E293B", "#06B6D4", "#10B981", "#F59E0B", "#F8FAFC"],
+        "composition": "balanced radial layout with central feasibility shield and surrounding structured mitigation cards",
+        "lighting": "subtle edge luminescence, clean presentation slide illumination",
+        "negative_prompt": "cluttered, messy handwriting, broken boxes, cartoonish, low resolution, 3d distortion"
+      },
+      'slide5-prompt': {
+        "title": "Q-MedSense Clinical Ecosystem Integration Diagram",
+        "prompt": "Modern technical infographic of a medical AI platform integrated across a healthcare network. Left: clinical input icons (EHR patient charts, DICOM lung X-rays, DNA genomics, smartwatch vitals). Center: glowing circular quantum AI medical engine node with cyan circuit patterns labeled 'Q-MedSense Sovereign Core'. Branching outputs to three deployment sectors: rural Primary Health Centers, large AIIMS hospital buildings, and emergency ambulances. Far right: clinical decision outputs including 3D organ risk heatmaps, digital diagnostic prescription, and offline emergency QR health card. Dark slate navy theme, glowing cyan and mint green data pipelines, clean isometric vector art, 8k resolution.",
+        "style": "clean technical infographic, healthcare systems schematic",
+        "aspect_ratio": "16:9",
+        "color_palette": ["#0B132B", "#1C2541", "#06B6D4", "#10B981", "#F59E0B", "#F8FAFC"],
+        "composition": "panoramic input-process-output layout, clear directional flow arrows, high visual clarity",
+        "lighting": "central glowing engine backlighting with crisp vector line art",
+        "negative_prompt": "cluttered, blurry, chaotic lines, hand-drawn sketch, low resolution"
+      },
+      'slide6-prompt': {
+        "title": "Q-MedSense Research Ecosystem and Standards Taxonomy Map",
+        "prompt": "Clean scientific infographic poster showing the technological and research foundation of a quantum healthcare platform. Two symmetrical columns: left column showing Quantum ML frameworks (PennyLane, Qiskit, PyTorch) and clinical benchmark datasets (HAM10000, Chest X-Rays, WDBC); right column showing Clinical Studio tools (React 18, Three.js WebGL 3D Twin) and healthcare regulatory standards (HL7 FHIR, DICOM, DPDP Act 2023, W3C PROV-O). A subtle glowing central axis with intertwined quantum qubit rails and DNA molecular spirals. Deep navy blue background, glowing cyan and sapphire nodes, razor-sharp technical typography, 8k resolution.",
+        "style": "scientific journal infographic, high-tech standards taxonomy map",
+        "aspect_ratio": "16:9",
+        "color_palette": ["#0A0F1D", "#1E293B", "#00F2FE", "#10B981", "#6366F1", "#F8FAFC"],
+        "composition": "bilateral two-column technical taxonomy with central thematic bridge and header banner",
+        "lighting": "subtle ambient glow on technology cards, clean high-contrast text",
+        "negative_prompt": "cluttered, blurry logos, irregular fonts, low resolution, childish illustrations"
+      }
+    };
+
+    function goToSlide(n) {
+      if (n < 1 || n > totalSlides) return;
+      currentSlide = n;
+      document.querySelectorAll('.slide').forEach(el => el.classList.remove('active'));
+      const activeEl = document.getElementById(`slide-${n}`);
+      if (activeEl) activeEl.classList.add('active');
+
+      document.getElementById('slide-indicator').innerText = `${n} / ${totalSlides}`;
+
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        if (parseInt(btn.getAttribute('data-slide')) === n) {
+          btn.className = 'tab-btn px-2.5 py-1 text-xs rounded font-medium text-cyan-400 bg-cyan-950/50 border border-cyan-800/60 transition';
+        } else {
+          btn.className = 'tab-btn px-2.5 py-1 text-xs rounded font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 transition';
+        }
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) goToSlide(currentSlide - 1);
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) goToSlide(currentSlide + 1);
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullScreen();
+      } else if (e.key >= '1' && e.key <= '6') {
+        goToSlide(parseInt(e.key));
+      } else if (e.key === 'Escape') {
+        closePromptModal();
+      }
+    });
+
+    function togglePromptModal(promptKey) {
+      const data = prompts[promptKey];
+      if (!data) return;
+      document.getElementById('modal-title').innerText = data.title;
+      document.getElementById('modal-content').innerText = JSON.stringify(data, null, 2);
+      document.getElementById('prompt-modal').classList.remove('hidden');
+    }
+
+    function closePromptModal() {
+      document.getElementById('prompt-modal').classList.add('hidden');
+    }
+
+    function copyModalContent() {
+      const text = document.getElementById('modal-content').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Prompt JSON copied to clipboard!');
+      });
+    }
+
+    // Initialize to Slide 2 to mirror the core solution directly
+    goToSlide(2);
+  </script>
+</body>
+</html>

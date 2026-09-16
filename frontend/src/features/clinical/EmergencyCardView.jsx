@@ -183,21 +183,22 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
           <button
             type="button"
             onClick={handlePrint}
-            className="emergency-btn-secondary no-print"
-            style={{ padding: '8px 14px', fontSize: '0.74rem' }}
+            className="btn-secondary no-print"
+            style={{ padding: '8px 16px', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '6px' }}
             title="Print Medical Passport"
           >
-            <Printer size={14} />
+            <Printer size={15} />
             <span>Print Pass</span>
           </button>
 
           <button
             type="button"
             onClick={() => setShakeTriggered(true)}
-            className="emergency-btn-sos"
+            className="btn-danger"
+            style={{ padding: '8px 16px', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '6px' }}
           >
-            <Smartphone size={14} />
-            <span>SOS / Call</span>
+            <Smartphone size={15} />
+            <span>SOS / Call Hotline</span>
           </button>
         </div>
       </header>

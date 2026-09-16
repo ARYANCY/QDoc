@@ -94,3 +94,107 @@ def compute_entanglement_entropy(density_matrix: np.ndarray) -> float:
     eigenvals = eigenvals[eigenvals > 1e-12]
     entropy = -np.sum(eigenvals * np.log2(eigenvals))
     return round(float(entropy), 4)
+
+
+def find_optimal_clinical_threshold(
+    y_true: np.ndarray,
+    y_prob: np.ndarray,
+    min_specificity: float = 0.80,
+) -> tuple[float, dict[str, float]]:
+    """Finds optimal binary classification threshold using Youden's J-statistic
+    (Sensitivity + Specificity - 1) subject to clinical safety constraints.
+    Prevents catastrophic specificity collapse in imbalanced clinical cohorts.
+    """
+    y_true = np.asarray(y_true).astype(int)
+    scores = y_prob[:, 1] if y_prob.ndim == 2 else y_prob
+
+    best_thresh = 0.5
+    best_j = -1.0
+    best_metrics = {}
+
+    thresholds = np.linspace(0.05, 0.95, 91)
+    for t in thresholds:
+        preds = (scores >= t).astype(int)
+        cm = confusion_matrix(y_true, preds, labels=[0, 1])
+        if cm.shape == (2, 2):
+            tn, fp, fn, tp = cm.ravel()
+            sens = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+            spec = tn / (tn + fp) if (tn + fp) > 0 else 0.0
+            acc = (tp + tn) / len(y_true)
+            j_stat = sens + spec - 1.0
+
+            # Prioritize candidate if it meets the clinical specificity guardrail
+            if spec >= min_specificity and j_stat > best_j:
+                best_j = j_stat
+                best_thresh = float(t)
+                best_metrics = {
+                    "accuracy": round(float(acc), 4),
+                    "sensitivity": round(float(sens), 4),
+                    "specificity": round(float(spec), 4),
+                    "threshold": round(float(t), 4),
+                }
+
+    # Fallback to unrestricted Youden's J if no threshold met strict specificity
+    if not best_metrics:
+        for t in thresholds:
+            preds = (scores >= t).astype(int)
+            cm = confusion_matrix(y_true, preds, labels=[0, 1])
+            if cm.shape == (2, 2):
+                tn, fp, fn, tp = cm.ravel()
+                sens = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+                spec = tn / (tn + fp) if (tn + fp) > 0 else 0.0
+                acc = (tp + tn) / len(y_true)
+                j_stat = sens + spec - 1.0
+                if j_stat > best_j:
+                    best_j = j_stat
+                    best_thresh = float(t)
+                    best_metrics = {
+                        "accuracy": round(float(acc), 4),
+                        "sensitivity": round(float(sens), 4),
+                        "specificity": round(float(spec), 4),
+                        "threshold": round(float(t), 4),
+                    }
+
+    return best_thresh, best_metrics
+
+
+def recommend_clinical_engine(
+    qas: float,
+    quantum_accuracy: float,
+    classical_accuracy: float,
+    quantum_specificity: float,
+    classical_specificity: float,
+    min_specificity: float = 0.80,
+) -> dict[str, Any]:
+    """Autonomous clinical triage policy: determines whether the quantum engine
+    or classical sentinel baseline should serve as the primary diagnostic driver.
+    """
+    # Safety rule: if quantum specificity fails clinical guardrail and classical specificity is higher
+    if quantum_specificity < min_specificity and classical_specificity > quantum_specificity:
+        return {
+            "recommended_engine": "classical",
+            "active_model_type": "Classical Sentinel Baseline",
+            "rationale": f"Safety Override: Quantum specificity ({quantum_specificity:.2f}) fails clinical guardrail (< {min_specificity:.2f}). Classical specificity ({classical_specificity:.2f}) protects patient outcomes.",
+            "safety_guardrail_applied": True,
+        }
+    if classical_accuracy - quantum_accuracy > 0.03:
+        return {
+            "recommended_engine": "classical",
+            "active_model_type": "Classical Sentinel Baseline",
+            "rationale": f"Performance Advantage: Classical baseline leads by {(classical_accuracy - quantum_accuracy) * 100:.1f}% accuracy.",
+            "safety_guardrail_applied": False,
+        }
+    if qas > 0 and quantum_accuracy >= classical_accuracy and quantum_specificity >= min_specificity:
+        return {
+            "recommended_engine": "quantum",
+            "active_model_type": "Quantum Hybrid",
+            "rationale": f"Quantum Advantage Verified: QAS = +{qas:.4f}, quantum accuracy leads classical baseline by {(quantum_accuracy - classical_accuracy) * 100:.1f}%.",
+            "safety_guardrail_applied": False,
+        }
+    return {
+        "recommended_engine": "classical",
+        "active_model_type": "Classical Sentinel Baseline",
+        "rationale": "Classical baseline selected: Non-positive QAS or specificity gap indicates superior classical efficacy.",
+        "safety_guardrail_applied": False,
+    }
+

@@ -22,6 +22,7 @@ from ml.data.preprocessing import QuantumPreprocessor, deidentify_dataframe
 from ml.explainability.explainer import ExplainabilityEngine
 from ml.quantum_engine.classical_baselines import ClassicalBaselineSuite
 from ml.quantum_engine.vqc import VariationalQuantumClassifier
+from backend.app.features.clinical.hybrid_router import clinical_hybrid_router
 
 router = APIRouter(prefix="/api/v1/clinical", tags=["Clinical Diagnosis"])
 
@@ -151,49 +152,75 @@ async def run_clinical_diagnosis(req: DiagnosticRequest):
         ood_detected = False
         ood_score = 0.035
 
-    # Non-blocking Quantum pipeline execution with graceful fallback
+    # Dual-Engine Hybrid Execution: Quantum + Classical Sentinel Baseline
     fallback_used = False
+    q_start = time.perf_counter()
     try:
         sample_q = await anyio.to_thread.run_sync(preprocessor.transform, sample_vec.reshape(1, -1))
         q_probs = (await anyio.to_thread.run_sync(vqc.predict_proba, sample_q))[0]
-        q_class_idx = int(q_probs.argmax())
-        q_conf = float(q_probs[q_class_idx])
     except Exception:
         fallback_used = True
-        c_probs = (await anyio.to_thread.run_sync(baselines.models["Random Forest"].predict_proba, sample_vec.reshape(1, -1)))[0]
-        q_class_idx = int(c_probs.argmax())
-        q_conf = float(c_probs[q_class_idx])
-        q_probs = c_probs
+        c_rf_probs = (await anyio.to_thread.run_sync(baselines.models["Random Forest"].predict_proba, sample_vec.reshape(1, -1)))[0]
+        q_probs = c_rf_probs
+    q_latency_ms = (time.perf_counter() - q_start) * 1000
 
-    # Classical comparison (Non-blocking)
-    c_probs = (await anyio.to_thread.run_sync(baselines.models["Logistic Regression"].predict_proba, sample_vec.reshape(1, -1)))[0]
-    c_conf = float(c_probs[q_class_idx])
-
-    # Class naming
+    # Class naming & clinical labels
     if disease_key in {"breast_cancer", "wdbc"}:
         class_labels = ["Malignant (High Risk)", "Benign (Non-malignant)"]
         disease_name = "Breast Oncology (WDBC)"
+        classical_model_name = "Sentinel-RF"
+        classical_clf = baselines.models.get("Sentinel-RF", baselines.models.get("Random Forest"))
     elif disease_key in {"heart", "cleveland"}:
         class_labels = ["No Coronary Disease", "Cardiovascular Disease Present"]
         disease_name = "Cardiology (Cleveland)"
+        classical_model_name = "Sentinel-XGB"
+        classical_clf = baselines.models.get("Sentinel-XGB", baselines.models.get("Random Forest"))
     elif disease_key in {"parkinsons"}:
         class_labels = ["Healthy Control", "Parkinson's Disease"]
         disease_name = "Neurodegeneration (Parkinson's Voice)"
+        classical_model_name = "Sentinel-RF"
+        classical_clf = baselines.models.get("Sentinel-RF", baselines.models.get("Random Forest"))
     else:
         class_labels = ["Negative / Non-diabetic", "Positive / Diabetic"]
         disease_name = "Metabolic Disorder (PIMA)"
+        classical_model_name = "Sentinel-RF"
+        classical_clf = baselines.models.get("Sentinel-RF", baselines.models.get("Random Forest"))
 
-    predicted_label = class_labels[q_class_idx] if q_class_idx < len(class_labels) else f"Class {q_class_idx}"
+    # Classical Sentinel execution (Non-blocking)
+    c_start = time.perf_counter()
+    try:
+        c_probs = (await anyio.to_thread.run_sync(classical_clf.predict_proba, sample_vec.reshape(1, -1)))[0]
+    except Exception:
+        c_probs = (await anyio.to_thread.run_sync(baselines.models["Logistic Regression"].predict_proba, sample_vec.reshape(1, -1)))[0]
+    c_latency_ms = (time.perf_counter() - c_start) * 1000
 
-    # Quantum perturbation explainability
-    top_features = await anyio.to_thread.run_sync(
-        explainer.compute_quantum_perturbation_importance,
-        lambda x: vqc.predict_proba(x),
-        sample_q[0]
+    # Autonomous Clinical Arbitration via Q-Triage Arbiter
+    arbitration = clinical_hybrid_router.arbitrate(
+        disease=disease_key,
+        q_probs=q_probs,
+        c_probs=c_probs,
+        class_labels=class_labels,
+        q_latency_ms=q_latency_ms,
+        c_latency_ms=c_latency_ms,
     )
 
+    primary_label = arbitration["primary_label"]
+    primary_conf = arbitration["primary_confidence"]
+    active_engine = arbitration["active_engine"]
+    primary_idx = int(np.argmax(q_probs if active_engine == "quantum" else c_probs))
+
+    # Quantum perturbation explainability
+    try:
+        top_features = await anyio.to_thread.run_sync(
+            explainer.compute_quantum_perturbation_importance,
+            lambda x: vqc.predict_proba(x),
+            sample_q[0]
+        )
+    except Exception:
+        top_features = []
+
     narrative = explainer.generate_clinical_narrative(
-        predicted_label, q_conf, c_conf, top_features, disease_name
+        primary_label, primary_conf, arbitration["classical_prediction"]["confidence"], top_features, disease_name
     )
 
     elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
@@ -203,31 +230,36 @@ async def run_clinical_diagnosis(req: DiagnosticRequest):
     q_layers = getattr(vqc, "n_layers", 2)
     q_entanglement = getattr(vqc, "entanglement", "circular").title() + " CNOT"
 
-    # Phase 17 Output Contract integration
+    # Alternatives and uncertainty scoring
+    display_probs = q_probs if active_engine == "quantum" else c_probs
     alternatives = [
-        {"class": class_labels[i] if i < len(class_labels) else f"Class {i}", "probability": round(float(q_probs[i]), 4)}
-        for i in range(len(q_probs)) if i != q_class_idx
+        {"class": class_labels[i] if i < len(class_labels) else f"Class {i}", "probability": round(float(display_probs[i]), 4)}
+        for i in range(len(display_probs)) if i != primary_idx
     ]
-    uncertainty_score = round(float(1.0 - q_conf), 4)
+    uncertainty_score = round(float(1.0 - primary_conf), 4)
     uncertainty_status = "HIGH" if uncertainty_score > 0.35 else "LOW"
 
     result_payload = {
         "request_id": str(uuid.uuid4()),
         "patient_id": req.patient_id,
         "disease": disease_name,
-        "model_architecture": f"{arch_name} ({q_qubits}-Qubit Hardware-Efficient Ansatz)" if not fallback_used else "Classical Fallback (Random Forest)",
-        "fallback_mode": fallback_used,
+        "active_engine": active_engine,
+        "model_architecture": f"{arbitration['primary_model']} ({arbitration['primary_model_type']})",
+        "fallback_mode": fallback_used or arbitration["safety_override_triggered"],
+        "hybrid_arbitration": arbitration,
         "prediction": {
-            "class": predicted_label,
-            "class_index": q_class_idx,
-            "confidence": round(q_conf, 4),
-            "probability": round(q_conf, 4),
-            "severity": "danger" if (q_class_idx == 0 and "malignant" in predicted_label.lower()) or (q_class_idx == 1 and ("disease" in predicted_label.lower() or "diabetic" in predicted_label.lower())) else "normal",
+            "class": primary_label,
+            "class_index": primary_idx,
+            "confidence": round(primary_conf, 4),
+            "probability": round(primary_conf, 4),
+            "severity": "danger" if (primary_idx == 0 and "malignant" in primary_label.lower()) or (primary_idx == 1 and ("disease" in primary_label.lower() or "diabetic" in primary_label.lower())) else "normal",
+            "active_engine": active_engine,
+            "routed_model": arbitration["primary_model"],
         },
         "alternatives": alternatives,
         "probabilities": {
-            class_labels[i] if i < len(class_labels) else f"Class {i}": round(float(q_probs[i]), 4)
-            for i in range(len(q_probs))
+            class_labels[i] if i < len(class_labels) else f"Class {i}": round(float(display_probs[i]), 4)
+            for i in range(len(display_probs))
         },
         "uncertainty": {
             "score": uncertainty_score,
@@ -240,24 +272,27 @@ async def run_clinical_diagnosis(req: DiagnosticRequest):
         "model": {
             "encoder": "BiomedCLIP",
             "encoder_version": "1.0.0",
-            "classifier": arch_name,
+            "classifier": arbitration["primary_model"],
             "version": "1.0.0",
         },
         "quantum": {
-            "enabled": not fallback_used,
+            "enabled": active_engine == "quantum",
             "method": "VQC" if not fallback_used else "None",
             "qubits": q_qubits,
             "depth": q_layers,
             "shots": 2048,
             "backend": "default.qubit",
+            "shadow_evaluated": True,
         },
         "decision": {
             "status": "MODEL_SUPPORTED" if uncertainty_status == "LOW" else "ABSTAIN_HIGH_UNCERTAINTY",
-            "human_review_required": uncertainty_status == "HIGH" or fallback_used,
+            "human_review_required": uncertainty_status == "HIGH" or fallback_used or arbitration["safety_override_triggered"],
+            "routing_rationale": arbitration["routing_rationale"],
         },
         "classical_baseline": {
-            "model": "Logistic Regression",
-            "confidence": round(c_conf, 4),
+            "model": arbitration["classical_prediction"]["model"],
+            "confidence": arbitration["classical_prediction"]["confidence"],
+            "label": arbitration["classical_prediction"]["label"],
         },
         "explainability": {
             "top_features": top_features[:6],

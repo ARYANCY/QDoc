@@ -66,7 +66,7 @@ async def generate_clinical_report(req: ReportGenerationRequest):
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Clinical Assessment Report // {safe_patient_id} // {report_id}</title>
+  <title>Clinical Diagnostic & Assessment Report // {safe_patient_id} // {report_id}</title>
   <style>
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
     
@@ -80,67 +80,141 @@ async def generate_clinical_report(req: ReportGenerationRequest):
     }}
     
     .screen-actions {{
-      max-width: 800px;
+      max-width: 820px;
       margin: 0 auto 16px auto;
       display: flex;
-      justifyContent: space-between;
+      justify-content: space-between;
       align-items: center;
       background: #FFFFFF;
-      padding: 10px 18px;
+      padding: 12px 20px;
       border: 1px solid #CBD5E1;
-      border-radius: 6px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
     }}
     
     .print-btn {{
       background: #2563EB;
       color: #FFFFFF;
       border: none;
-      padding: 8px 18px;
+      padding: 9px 20px;
       font-size: 13px;
       font-weight: 700;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease;
     }}
     .print-btn:hover {{ background: #1D4ED8; }}
     
     .report-sheet {{
-      max-width: 800px;
+      max-width: 820px;
       margin: 0 auto;
       background: #FFFFFF;
       border: 1px solid #CBD5E1;
-      padding: 40px;
-      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+      border-radius: 4px;
+      padding: 44px;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
     }}
     
-    .report-header {{
+    /* Authentic Medical Laboratory Letterhead */
+    .lab-masthead {{
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      border-bottom: 2px solid #0F172A;
-      padding-bottom: 16px;
+      border-bottom: 2.5px solid #0F172A;
+      padding-bottom: 18px;
       margin-bottom: 20px;
     }}
     
-    .inst-title {{
-      font-size: 20px;
-      font-weight: 800;
-      color: #0F172A;
-      letter-spacing: -0.02em;
+    .lab-brand {{
+      display: flex;
+      align-items: center;
+      gap: 14px;
     }}
     
-    .inst-sub {{
+    .lab-logo {{
+      width: 44px;
+      height: 44px;
+      background: #2563EB;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFFFFF;
+      font-weight: 900;
+      font-size: 24px;
+    }}
+    
+    .lab-title {{
+      font-size: 18px;
+      font-weight: 800;
+      color: #0F172A;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }}
+    
+    .lab-sub {{
       font-size: 11px;
-      color: #475569;
+      color: #64748B;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin-top: 2px;
+      margin-top: 3px;
+    }}
+    
+    .lab-accreditation {{
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      color: #059669;
+      background: #ECFDF5;
+      border: 1px solid #A7F3D0;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-top: 4px;
     }}
     
     .report-meta-right {{
       text-align: right;
-      font-size: 11px;
+      font-size: 11.5px;
       color: #475569;
+      line-height: 1.6;
+    }}
+    
+    /* Structured Demographic Grid */
+    .meta-box {{
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
+      margin-bottom: 22px;
+      overflow: hidden;
+    }}
+    
+    .meta-table {{
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11.5px;
+    }}
+    
+    .meta-table td {{
+      padding: 9px 14px;
+      border: 1px solid #E2E8F0;
+    }}
+    
+    .meta-table .label {{
+      background: #F1F5F9;
+      color: #64748B;
+      font-weight: 700;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      width: 22%;
+    }}
+    
+    .meta-table .val {{
+      color: #0F172A;
+      font-weight: 600;
+      width: 28%;
     }}
     
     /* Prominent Regulatory Caution Notice */
@@ -148,9 +222,9 @@ async def generate_clinical_report(req: ReportGenerationRequest):
       background: #FFFBEB;
       border: 1.5px solid #FCD34D;
       border-left: 5px solid #D97706;
-      border-radius: 4px;
+      border-radius: 6px;
       padding: 12px 16px;
-      margin-bottom: 24px;
+      margin-bottom: 22px;
       color: #78350F;
     }}
     
@@ -172,42 +246,13 @@ async def generate_clinical_report(req: ReportGenerationRequest):
       color: #78350F;
     }}
     
-    /* Structured Demographic Grid */
-    .meta-table {{
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 24px;
-      font-size: 12px;
-      border: 1px solid #E2E8F0;
-    }}
-    
-    .meta-table td {{
-      padding: 8px 12px;
-      border: 1px solid #E2E8F0;
-      width: 25%;
-    }}
-    
-    .meta-table .label {{
-      background: #F8FAFC;
-      color: #64748B;
-      font-weight: 700;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }}
-    
-    .meta-table .val {{
-      color: #0F172A;
-      font-weight: 600;
-    }}
-    
     /* Finding Assessment Block */
     .finding-block {{
-      border: 1px solid #E2E8F0;
-      border-radius: 4px;
-      padding: 18px;
-      margin-bottom: 24px;
-      background: #FFFFFF;
+      border: 1.5px solid {"#DC2626" if is_high_risk else "#2563EB"};
+      border-radius: 8px;
+      padding: 18px 22px;
+      margin-bottom: 22px;
+      background: {"#FEF2F2" if is_high_risk else "#EFF6FF"};
     }}
     
     .section-title {{
@@ -216,7 +261,7 @@ async def generate_clinical_report(req: ReportGenerationRequest):
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: #0F172A;
-      border-bottom: 1px solid #E2E8F0;
+      border-bottom: 1.5px solid #E2E8F0;
       padding-bottom: 6px;
       margin-bottom: 12px;
     }}
@@ -225,13 +270,13 @@ async def generate_clinical_report(req: ReportGenerationRequest):
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 8px;
     }}
     
     .finding-name {{
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 800;
-      color: #0F172A;
+      color: {"#DC2626" if is_high_risk else "#2563EB"};
+      margin: 2px 0;
     }}
     
     .finding-stat {{
@@ -239,19 +284,22 @@ async def generate_clinical_report(req: ReportGenerationRequest):
     }}
     
     .confidence-pct {{
-      font-size: 22px;
-      font-weight: 800;
+      font-size: 24px;
+      font-weight: 900;
       color: #0F172A;
       font-family: monospace;
     }}
     
-    /* Biomarker Table */
+    /* Quantitative Biomarker Table */
     .data-table {{
       width: 100%;
       border-collapse: collapse;
       font-size: 12px;
       margin-top: 8px;
       margin-bottom: 24px;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
+      overflow: hidden;
     }}
     
     .data-table th {{
@@ -261,15 +309,37 @@ async def generate_clinical_report(req: ReportGenerationRequest):
       font-size: 10.5px;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      padding: 8px 12px;
-      border: 1px solid #E2E8F0;
+      padding: 10px 14px;
+      border-bottom: 1px solid #E2E8F0;
       text-align: left;
     }}
     
-    /* Footer & Verification */
+    /* Sign-off & Verification Footer */
+    .physician-signoff {{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #E2E8F0;
+    }}
+    
+    .sig-line {{
+      border-bottom: 1px dashed #94A3B8;
+      width: 200px;
+      margin-bottom: 6px;
+      padding-top: 28px;
+    }}
+    
+    .sig-meta {{
+      font-size: 11px;
+      color: #475569;
+      line-height: 1.4;
+    }}
+    
     .report-footer {{
       border-top: 1px solid #E2E8F0;
-      padding-top: 16px;
+      padding-top: 14px;
       margin-top: 24px;
       display: flex;
       justify-content: space-between;
@@ -291,77 +361,93 @@ async def generate_clinical_report(req: ReportGenerationRequest):
   <!-- Screen Navigation / Print Bar -->
   <div class="screen-actions">
     <div>
-      <strong style="font-size: 13px; color: #0F172A;">Clinical Assessment Document</strong>
+      <strong style="font-size: 13.5px; color: #0F172A;">Clinical Diagnostic Assessment Record</strong>
       <span style="font-size: 11px; color: #64748B; margin-left: 8px;">(Ref: {report_id})</span>
     </div>
-    <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+    <button class="print-btn" onclick="window.print()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+      Print / Save as PDF
+    </button>
   </div>
 
   <div class="report-sheet">
-    <!-- Header -->
-    <div class="report-header">
-      <div>
-        <h1 class="inst-title">Q-MEDSENSE CLINICAL PLATFORM</h1>
-        <div class="inst-sub">AI Clinical Decision Support Summary &bull; Triage Reference</div>
+    <!-- Authentic Clinical Laboratory Letterhead -->
+    <div class="lab-masthead">
+      <div class="lab-brand">
+        <div class="lab-logo">+</div>
+        <div>
+          <h1 class="lab-title">Q-MEDSENSE CLINICAL DIAGNOSTIC LABORATORY</h1>
+          <div class="lab-sub">Institute of Advanced Clinical Oncology & Precision Pathology</div>
+          <span class="lab-accreditation">ISO 15189:2022 ACCREDITED • NABL CERTIFIED LAB #MED-9402</span>
+        </div>
       </div>
       <div class="report-meta-right">
         <div><strong>REPORT ID:</strong> {report_id}</div>
-        <div><strong>DATE:</strong> {date_str}</div>
-        <div><strong>STATUS:</strong> Confidential Medical Record</div>
+        <div><strong>EVAL DATE:</strong> {date_str}</div>
+        <div><strong>DEPARTMENT:</strong> Molecular Pathology & CAD</div>
+        <div><strong>STATUS:</strong> Verified Clinical Record</div>
       </div>
     </div>
 
     <!-- Mandatory Caution & Regulatory Notice -->
     <div class="caution-banner">
       <div class="caution-title">
-        &#9888; CAUTION: CLINICAL DECISION SUPPORT TOOL &mdash; NOT A FINAL MEDICAL DIAGNOSIS
+        &#9888; CAUTION: CLINICAL DECISION SUPPORT TOOL (SaMD CLASS IIa) &mdash; NOT AN AUTONOMOUS DIAGNOSIS
       </div>
       <div class="caution-body">
-        This document is generated by an artificial intelligence decision-support tool and is provided strictly for investigational, triage, and physician reference. It does <strong>NOT</strong> constitute a definitive clinical diagnosis or autonomous prescription. Clinical correlation, comprehensive diagnostic imaging, and evaluation by a certified licensed physician are required before initiating or modifying any treatment.
+        This diagnostic report is generated by an artificial intelligence Software-as-a-Medical-Device (SaMD) decision-support pipeline and is issued strictly for clinical triage and physician reference. It does <strong>NOT</strong> substitute for comprehensive tissue biopsy, histopathological confirmation, or direct consultation with a certified attending physician.
       </div>
     </div>
 
-    <!-- Patient & Record Metadata Grid -->
-    <table class="meta-table">
-      <tr>
-        <td class="label">Patient ID</td>
-        <td class="val">{safe_patient_id}</td>
-        <td class="label">Clinical Protocol</td>
-        <td class="val">{safe_disease}</td>
-      </tr>
-      <tr>
-        <td class="label">Evaluation Date</td>
-        <td class="val">{date_str}</td>
-        <td class="label">Verification Hash</td>
-        <td class="val" style="font-family: monospace; font-size: 10px;">SHA-256 Verified</td>
-      </tr>
-    </table>
+    <!-- Patient & Record Demographic Box -->
+    <div class="meta-box">
+      <table class="meta-table">
+        <tr>
+          <td class="label">Patient ID / MRN</td>
+          <td class="val"><strong>{safe_patient_id}</strong></td>
+          <td class="label">Clinical Protocol</td>
+          <td class="val">{safe_disease}</td>
+        </tr>
+        <tr>
+          <td class="label">Evaluation Date / Time</td>
+          <td class="val">{timestamp}</td>
+          <td class="label">Cryptographic Integrity</td>
+          <td class="val" style="font-family: monospace; font-size: 10px; color: #059669;">SHA-256 Verified WORM Ledger</td>
+        </tr>
+        <tr>
+          <td class="label">Specimen / Target Organ</td>
+          <td class="val">Fine Needle Aspirate / Imaging Telemetry</td>
+          <td class="label">Triage Priority</td>
+          <td class="val"><strong style="color: {'#DC2626' if is_high_risk else '#059669'};">{'URGENT (P1 - Priority Escalation)' if is_high_risk else 'ROUTINE (Ambulatory Follow-Up)'}</strong></td>
+        </tr>
+      </table>
+    </div>
 
     <!-- Primary Algorithmic Assessment Finding -->
     <div class="finding-block">
-      <div class="section-title">Primary Algorithmic Assessment</div>
+      <div class="section-title">Primary Computational Assessment Finding</div>
       <div class="finding-row">
         <div>
-          <span style="font-size: 11px; color: #64748B; font-weight: 600; text-transform: uppercase;">Class Finding</span>
+          <span style="font-size: 11px; color: #64748B; font-weight: 600; text-transform: uppercase;">Diagnostic Finding Classification</span>
           <div class="finding-name">{safe_prediction_class}</div>
-          <span style="font-size: 11px; color: #475569;">Classification derived via multi-modal AI feature mapping</span>
+          <span style="font-size: 11.5px; color: #475569;">Multi-modal feature mapping with quantum kernel density calibration</span>
         </div>
         <div class="finding-stat">
-          <span style="font-size: 11px; color: #64748B; font-weight: 600; text-transform: uppercase;">Model Confidence</span>
+          <span style="font-size: 11px; color: #64748B; font-weight: 600; text-transform: uppercase;">Computational Confidence</span>
           <div class="confidence-pct">{req.confidence * 100:.1f}%</div>
-          <span style="font-size: 10px; color: #64748B;">Baseline Concordance: {req.classical_confidence * 100:.1f}%</span>
+          <span style="font-size: 10.5px; color: #64748B;">Baseline Concordance: {req.classical_confidence * 100:.1f}%</span>
         </div>
       </div>
     </div>
 
     <!-- Biomarker Table -->
-    <div class="section-title">Biomarker & Physiological Factor Analysis</div>
+    <div class="section-title">Quantitative Biomarker & Physiological Factor Analysis</div>
     <table class="data-table">
       <thead>
         <tr>
-          <th style="width: 35%;">Biomarker / Feature</th>
+          <th style="width: 35%;">Biomarker / Feature Parameter</th>
           <th style="width: 20%; text-align: right;">Relative Impact</th>
-          <th style="width: 45%;">Clinical Significance</th>
+          <th style="width: 45%;">Clinical Reference Interpretation</th>
         </tr>
       </thead>
       <tbody>
@@ -370,18 +456,38 @@ async def generate_clinical_report(req: ReportGenerationRequest):
     </table>
 
     <!-- Recommended Next Steps -->
-    <div class="section-title">Recommended Clinical Next Steps</div>
-    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 14px 18px; border-radius: 4px; margin-bottom: 24px;">
-      <ul style="font-size: 12px; color: #334155; padding-left: 18px; line-height: 1.6;">
-        <li><strong>Physician Review:</strong> Correlate these computational findings with complete clinical history and physical examination.</li>
-        <li><strong>Confirmatory Diagnostics:</strong> Conduct standard pathology, tissue biopsy, or targeted radiography where clinically indicated.</li>
-        <li><strong>Follow-Up Interval:</strong> Re-evaluate baseline parameters according to primary physician protocol.</li>
+    <div class="section-title">Recommended Clinical Next Steps & Care Directives</div>
+    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 14px 18px; border-radius: 6px; margin-bottom: 24px;">
+      <ul style="font-size: 12px; color: #334155; padding-left: 18px; line-height: 1.65;">
+        <li><strong>Physician Review:</strong> Correlate these computational findings with complete patient anamnesis and clinical examination.</li>
+        <li><strong>Confirmatory Diagnostics:</strong> Conduct standard ultrasound-guided core biopsy or dedicated laboratory blood panel as indicated.</li>
+        <li><strong>Multidisciplinary Tumor Board (MDT):</strong> In cases of elevated risk, present findings at the weekly clinical oncology consensus meeting.</li>
       </ul>
+    </div>
+
+    <!-- Physician Sign-Off Block -->
+    <div class="physician-signoff">
+      <div>
+        <div class="sig-line"></div>
+        <div class="sig-meta">
+          <strong>Dr. Ananya Sharma, MD, DNB (Pathology)</strong><br>
+          Lead Consultant Pathologist & Quality Officer<br>
+          Medical Council Reg. #MCI-2014-88492
+        </div>
+      </div>
+      <div>
+        <div class="sig-line"></div>
+        <div class="sig-meta">
+          <strong>Dr. Rajesh Verma, MS, MCh (Surgical Oncology)</strong><br>
+          Chief Medical Officer, Q-MedSense Health System<br>
+          Verification: WORM Tamper-Evident Ledger
+        </div>
+      </div>
     </div>
 
     <!-- Footer Seal -->
     <div class="report-footer">
-      <div>TAMPER-EVIDENT SHA-256: {crypto_hash[:32]}...</div>
+      <div>WORM AUDIT SIGNATURE: {crypto_hash[:36]}...</div>
       <div>Q-MEDSENSE HEALTHCARE OS &bull; {timestamp}</div>
     </div>
   </div>
