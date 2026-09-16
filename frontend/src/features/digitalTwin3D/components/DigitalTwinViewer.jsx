@@ -58,7 +58,7 @@ export default function DigitalTwinViewer({ canvasRef, compact = false }) {
           shadows
           style={{ width: '100%', height: '100%', cursor: 'grab' }}
         >
-          <color attach="background" args={['#EADAC8']} />
+          <color attach="background" args={['#000000']} />
 
           {/* Cinematic Anatomical Studio Lighting */}
           <ambientLight intensity={1.1} />
@@ -70,7 +70,7 @@ export default function DigitalTwinViewer({ canvasRef, compact = false }) {
 
           {/* Holographic Floor Grid */}
           <gridHelper
-            args={[6, 24, '#B99D82', '#D8C3AD']}
+            args={[6, 24, '#1E293B', '#0F172A']}
             position={[0, -0.90, 0]}
           />
 
