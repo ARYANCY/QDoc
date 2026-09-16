@@ -43,7 +43,7 @@ export default function DigitalTwinViewer({ canvasRef, compact = false }) {
 
   return (
     <ErrorBoundary>
-      <div ref={containerRef} style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', userSelect: 'none', background: '#EADAC8' }}>
+      <div ref={containerRef} style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', userSelect: 'none', background: '#000000' }}>
 
         {/* 3D WebGL Canvas */}
         <Canvas
