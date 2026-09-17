@@ -1,11 +1,11 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import logging
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.gzip import GZipMiddleware
 
-from backend.app.core.cors import setup_cors, get_allowed_origins
+from backend.app.core.cors import setup_cors, get_allowed_origins, is_origin_allowed
 from backend.app.core.security import SecurityHeadersMiddleware
 from backend.app.features.admin.controller import router as admin_router
 from backend.app.features.ai_doctor.controller import router as ai_doctor_router
@@ -47,10 +47,8 @@ setup_cors(app)
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"[Server Error] Unhandled exception on {request.method} {request.url.path}: {exc}", exc_info=True)
     origin = request.headers.get("origin")
-    allowed = get_allowed_origins()
-
     headers = {}
-    if origin and origin in allowed:
+    if origin and is_origin_allowed(origin):
         headers["Access-Control-Allow-Origin"] = origin
         headers["Access-Control-Allow-Credentials"] = "true"
         headers["Access-Control-Allow-Headers"] = "*"

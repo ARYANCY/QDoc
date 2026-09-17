@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import logging
 import os
@@ -27,6 +27,23 @@ def get_allowed_origins() -> List[str]:
             if cleaned and cleaned not in default_origins:
                 default_origins.append(cleaned)
     return list(dict.fromkeys(default_origins))
+
+
+def is_origin_allowed(origin: str | None) -> bool:
+    """Validates whether an origin is allowed via exact origin list or origin regex."""
+    import re
+    if not origin:
+        return False
+    if origin in get_allowed_origins():
+        return True
+    origin_regex = os.getenv("CORS_ORIGIN_REGEX", "").strip()
+    if origin_regex:
+        try:
+            if re.match(origin_regex, origin):
+                return True
+        except Exception:
+            pass
+    return False
 
 
 def setup_cors(app: FastAPI) -> None:

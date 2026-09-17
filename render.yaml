@@ -13,9 +13,33 @@ services:
       - key: ENVIRONMENT
         value: production
       - key: CORS_ORIGIN_REGEX
-        value: "https://.*\\.vercel\\.app"
+        value: "https://.*\\.(onrender\\.com|vercel\\.app)"
       - key: CORS_ALLOW_CREDENTIALS
         value: "true"
       - key: API_KEY
         value: qmed-master-api-key-2026
+
+  - type: static_site
+    name: q-rakshak-frontend
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    publishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_KEY
+        value: qmed-master-api-key-2026
+      - key: VITE_ENVIRONMENT
+        value: production
+      - key: VITE_ENABLE_3D_DIGITAL_TWIN
+        value: "true"
+      - key: VITE_ENABLE_QUANTUM_TELEMETRY
+        value: "true"
+      - key: VITE_ENABLE_RESEARCHER_STUDIO
+        value: "true"
+      - key: VITE_ENABLE_MOCK_FALLBACK
+        value: "true"
+
 
