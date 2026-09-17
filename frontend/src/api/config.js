@@ -1,7 +1,7 @@
-﻿// frontend/src/api/config.js
+// frontend/src/api/config.js
 // Centralized API configuration and route catalog for Q-RAKSHAK
 
-const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || "/api/v1";
+const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "/api/v1";
 export const API_BASE_URL = rawBaseUrl.replace(/\/+$/, "");
 
 export const API_KEY = import.meta.env.VITE_API_KEY || "";
