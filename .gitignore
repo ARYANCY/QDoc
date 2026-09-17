@@ -1,81 +1,187 @@
 # ==============================================================================
-# Q-MedSense Root .gitignore (Production Multi-Tier Repository)
+# Q-RAKSHAK Root .gitignore (Multi-Tier Clinical & Quantum AI Platform)
 # ==============================================================================
 
-# OS & Editor Artifacts
+# ------------------------------------------------------------------------------
+# 1. Operating System & Editor Files
+# ------------------------------------------------------------------------------
 .DS_Store
 Thumbs.db
 desktop.ini
-.idea/
-.vscode/
 *.swp
 *.swo
+*~
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
 
-# Environment Variables (Keep only .env.example tracked)
+# ------------------------------------------------------------------------------
+# 2. Environment Variables & Secrets (Keep only .env.example tracked)
+# ------------------------------------------------------------------------------
 .env
 .env*.local
 .env.production
 .env.staging
+.env.development
 frontend/.env
+frontend/.env*.local
 frontend/.env.production
+card-frontend/.env
+card-frontend/.env*.local
+card-frontend/.env.production
 backend/.env
+backend/.env*.local
 backend/.env.production
+backend/.env.staging
 model/.env
+model/.env*.local
 model/.env.production
+
+# Explicitly keep example templates tracked
 !.env.example
 !frontend/.env.example
+!card-frontend/.env.example
 !backend/.env.example
 !model/.env.example
 
-# Build Outputs & Dependencies
+# ------------------------------------------------------------------------------
+# 3. Node & Frontend Build Artifacts
+# ------------------------------------------------------------------------------
 node_modules/
+frontend/node_modules/
+card-frontend/node_modules/
 dist/
+dist-ssr/
+frontend/dist/
+card-frontend/dist/
 build/
+.pnp
+.pnp.js
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ------------------------------------------------------------------------------
+# 4. Python Bytecode, Caches & Virtual Environments
+# ------------------------------------------------------------------------------
 __pycache__/
+*/__pycache__/
 *.py[cod]
 *$py.class
 *.so
+.Python
+build/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
 .venv/
 venv/
 env/
+ENV/
+env.bak/
+venv.bak/
 
-# Databases & Runtime State
+# ------------------------------------------------------------------------------
+# 5. Testing, Linting & Coverage
+# ------------------------------------------------------------------------------
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+coverage/
+htmlcov/
+.nyc_output/
+
+# ------------------------------------------------------------------------------
+# 6. Databases, Runtime State & Server Logs
+# ------------------------------------------------------------------------------
 *.db
 *.sqlite
 *.sqlite3
 *.db-journal
 *.db-wal
 *.db-shm
-backend/qmedsense.db
-backend/qmedsense_demo.db
 qmedsense.db
 qmedsense_demo.db
+backend/qmedsense.db
+backend/qmedsense_demo.db
+*.log
+logs/
 
-# Storage, Uploads & Reports
-storage/uploads/*
-!storage/uploads/.gitkeep
-storage/reports/*
-!storage/reports/.gitkeep
-reports/*.pdf
-reports/*.json
-
-# Heavy Datasets & Model Weights (Managed via Cloud Storage / S3 / HuggingFace)
+# ------------------------------------------------------------------------------
+# 7. Datasets & Medical Archive Binaries
+# ------------------------------------------------------------------------------
 datasets/
 data/raw/
 data/processed/
+data/reduced/
 *.zip
 *.tar.gz
 *.tar
 *.7z
-*.vcf
+*.rar
+*.gz
 *.dcm
+*.dicom
+*.vcf
 *.npy
-reports/skin_cancer/cache/
+*.npz
 
-# Test Caches & Logs
-.pytest_cache/
-.ruff_cache/
-.mypy_cache/
-.coverage
-htmlcov/
-*.log
+# ------------------------------------------------------------------------------
+# 8. Model Lab Foundation Weights & Heavy Checkpoints
+# ------------------------------------------------------------------------------
+# Heavy foundation model weights downloaded locally (BiomedCLIP, MedSigLIP, MedGemma, etc.)
+model_lab/artifacts/weights/
+model_lab/artifacts/checkpoints/
+
+# Dynamic retraining job outputs
+models/quantum/JOB-QML-*.pt
+
+# Intermediate training / ablation checkpoints and feature caches
+*last.pt
+*best_balanced_accuracy.pt
+*best_macro_f1.pt
+*best_roc_auc.pt
+reports/skin_cancer/cache/
+reports/skin_cancer/features/
+
+# Machine learning experiment trackers & profilers
+lightning_logs/
+runs/
+wandb/
+.cache/
+model_cache/
+*.cuda-prof
+
+# ------------------------------------------------------------------------------
+# 9. Storage, Runtime Uploads & Generated Reports
+# ------------------------------------------------------------------------------
+storage/uploads/*
+!storage/uploads/.gitkeep
+storage/reports/*
+!storage/reports/.gitkeep
+backend/storage/uploads/*
+!backend/storage/uploads/.gitkeep
+backend/storage/reports/*
+!backend/storage/reports/.gitkeep
+reports/*.pdf
+tmp/
+temp/
