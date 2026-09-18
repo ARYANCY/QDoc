@@ -40,20 +40,23 @@ function TelemetryTab() {
   const patientMode       = useTwinStore((s) => s.patientMode);
 
   const v = patient.vitals || {};
-  const sys = Number(v.bloodPressureSystolic) || 120;
-  const dia = Number(v.bloodPressureDiastolic) || 80;
-  const hr  = Number(v.heartRate) || 72;
-  const spo2 = Number(v.spo2) || 98;
-  const temp = Number(v.temperature) || 98.6;
+  const sys  = v.bloodPressureSystolic  ? Number(v.bloodPressureSystolic)  : null;
+  const dia  = v.bloodPressureDiastolic ? Number(v.bloodPressureDiastolic) : null;
+  const hr   = v.heartRate              ? Number(v.heartRate)              : null;
+  const spo2 = v.spo2                   ? Number(v.spo2)                   : null;
+  const temp = v.temperature            ? Number(v.temperature)            : null;
 
-  const bpElevated = sys > 130 || dia > 85;
-  const hrElevated = hr > 95 || hr < 55;
-  const spo2Low = spo2 < 95;
+  const hasVitals = sys !== null || hr !== null || spo2 !== null || temp !== null;
 
-  // Calculate BMI if height and weight exist
-  const hM = (Number(patient.heightCm) || 175) / 100;
-  const wKg = Number(patient.weightKg) || 70;
-  const bmi = (wKg / (hM * hM)).toFixed(1);
+  const bpElevated = sys !== null && dia !== null && (sys > 130 || dia > 85);
+  const hrElevated = hr !== null && (hr > 95 || hr < 55);
+  const spo2Low    = spo2 !== null && spo2 < 95;
+
+  // Calculate BMI only if height and weight are present
+  const hCm  = Number(patient.heightCm) || 0;
+  const wKg  = Number(patient.weightKg) || 0;
+  const hasBMI = hCm > 0 && wKg > 0;
+  const bmi  = hasBMI ? (wKg / ((hCm / 100) ** 2)).toFixed(1) : '—';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -106,89 +109,105 @@ function TelemetryTab() {
           </div>
           <div style={{ background: 'var(--dt-bg-surface)', padding: '6px 8px', borderRadius: '6px', border: '1px solid var(--dt-border-default)' }}>
             <div style={{ fontSize: '0.58rem', color: 'var(--dt-text-muted)', fontWeight: 700 }}>BMI</div>
-            <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--dt-text-primary)', fontFamily: 'var(--dt-font-mono)' }}>{bmi}</div>
+            <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--dt-text-primary)', fontFamily: 'var(--dt-font-mono)' }}>{hasBMI ? bmi : '—'}</div>
           </div>
         </div>
       </div>
 
-      {/* Cardiopulmonary and baseline vital signs */}
-      <div className="dt-card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <SectionHeader icon={Activity} title="Heart and breathing" color="var(--dt-accent-blue)" />
-          <span style={{ fontSize: '0.62rem', color: 'var(--dt-accent-blue)', fontWeight: 600 }}>
-            Updated health data
-          </span>
+      {/* ── Heart and Breathing (only when vitals are recorded) ── */}
+      {hasVitals ? (
+        <div className="dt-card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <SectionHeader icon={Activity} title="Heart and breathing" color="var(--dt-accent-blue)" />
+            <span style={{ fontSize: '0.62rem', color: 'var(--dt-accent-blue)', fontWeight: 600 }}>
+              Updated health data
+            </span>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            {/* Blood Pressure */}
+            <div style={{ background: 'var(--dt-bg-surface)', padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--dt-border-default)', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.62rem', color: 'var(--dt-text-muted)', fontWeight: 700 }}>BLOOD PRESSURE</span>
+                {sys !== null && dia !== null && (
+                  <span style={{ fontSize: '0.56rem', fontWeight: 700, padding: '1px 5px', borderRadius: '3px', background: 'var(--dt-bg-card-hover)', color: 'var(--dt-accent-blue)', border: '1px solid var(--dt-border-default)' }}>
+                    {bpElevated ? 'ELEVATED' : 'NORMAL'}
+                  </span>
+                )}
+              </div>
+              <div style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--dt-text-primary)', fontFamily: 'var(--dt-font-sans)' }}>
+                {sys !== null && dia !== null ? <>{sys} / {dia} <span style={{ fontSize: '0.64rem', color: 'var(--dt-text-muted)', fontWeight: 500 }}>mmHg</span></> : '—'}
+              </div>
+            </div>
+
+            {/* Resting Heart Rate */}
+            <div style={{ background: 'var(--dt-bg-surface)', padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--dt-border-default)', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.62rem', color: 'var(--dt-text-muted)', fontWeight: 700 }}>HEART RATE</span>
+                <Heart size={12} color="var(--dt-accent-blue)" />
+              </div>
+              <div style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--dt-text-primary)', fontFamily: 'var(--dt-font-sans)' }}>
+                {hr !== null ? <>{hr} <span style={{ fontSize: '0.64rem', color: 'var(--dt-text-muted)', fontWeight: 500 }}>BPM</span></> : '—'}
+              </div>
+            </div>
+
+            {/* SpO2 Saturation */}
+            <div style={{ background: 'var(--dt-bg-surface)', padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--dt-border-default)', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.62rem', color: 'var(--dt-text-muted)', fontWeight: 700 }}>OXYGEN SpO₂</span>
+                <Wind size={12} color="var(--dt-accent-blue)" />
+              </div>
+              <div style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--dt-text-primary)', fontFamily: 'var(--dt-font-sans)' }}>
+                {spo2 !== null ? <>{spo2}% <span style={{ fontSize: '0.64rem', color: 'var(--dt-text-muted)', fontWeight: 500 }}>SaO2</span></> : '—'}
+              </div>
+            </div>
+
+            {/* Body Temperature */}
+            <div style={{ background: 'var(--dt-bg-surface)', padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--dt-border-default)', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.62rem', color: 'var(--dt-text-muted)', fontWeight: 700 }}>TEMPERATURE</span>
+                <Thermometer size={12} color="#D97706" />
+              </div>
+              <div style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--dt-text-primary)', fontFamily: 'var(--dt-font-sans)' }}>
+                {temp !== null ? <>{temp}° <span style={{ fontSize: '0.64rem', color: 'var(--dt-text-muted)', fontWeight: 500 }}>F</span></> : '—'}
+              </div>
+            </div>
+          </div>
         </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-          {/* Blood Pressure */}
-          <div style={{ background: 'var(--dt-bg-surface)', padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--dt-border-default)', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.62rem', color: 'var(--dt-text-muted)', fontWeight: 700 }}>BLOOD PRESSURE</span>
-              <span style={{ fontSize: '0.56rem', fontWeight: 700, padding: '1px 5px', borderRadius: '3px', background: 'var(--dt-bg-card-hover)', color: 'var(--dt-accent-blue)', border: '1px solid var(--dt-border-default)' }}>
-                {bpElevated ? 'ELEVATED' : 'NORMAL'}
-              </span>
-            </div>
-            <div style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--dt-text-primary)', fontFamily: 'var(--dt-font-sans)' }}>
-              {sys} / {dia} <span style={{ fontSize: '0.64rem', color: 'var(--dt-text-muted)', fontWeight: 500 }}>mmHg</span>
-            </div>
-          </div>
-
-          {/* Resting Heart Rate */}
-          <div style={{ background: 'var(--dt-bg-surface)', padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--dt-border-default)', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.62rem', color: 'var(--dt-text-muted)', fontWeight: 700 }}>HEART RATE</span>
-              <Heart size={12} color="var(--dt-accent-blue)" />
-            </div>
-            <div style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--dt-text-primary)', fontFamily: 'var(--dt-font-sans)' }}>
-              {hr} <span style={{ fontSize: '0.64rem', color: 'var(--dt-text-muted)', fontWeight: 500 }}>BPM</span>
-            </div>
-          </div>
-
-          {/* SpO2 Saturation */}
-          <div style={{ background: 'var(--dt-bg-surface)', padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--dt-border-default)', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.62rem', color: 'var(--dt-text-muted)', fontWeight: 700 }}>OXYGEN SpO₂</span>
-              <Wind size={12} color="var(--dt-accent-blue)" />
-            </div>
-            <div style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--dt-text-primary)', fontFamily: 'var(--dt-font-sans)' }}>
-              {spo2}% <span style={{ fontSize: '0.64rem', color: 'var(--dt-text-muted)', fontWeight: 500 }}>SaO2</span>
-            </div>
-          </div>
-
-          {/* Body Temperature */}
-          <div style={{ background: 'var(--dt-bg-surface)', padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--dt-border-default)', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.62rem', color: 'var(--dt-text-muted)', fontWeight: 700 }}>TEMPERATURE</span>
-              <Thermometer size={12} color="#D97706" />
-            </div>
-            <div style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--dt-text-primary)', fontFamily: 'var(--dt-font-sans)' }}>
-              {temp}° <span style={{ fontSize: '0.64rem', color: 'var(--dt-text-muted)', fontWeight: 500 }}>F</span>
-            </div>
-          </div>
+      ) : (
+        <div className="dt-card" style={{ textAlign: 'center', padding: '16px 12px' }}>
+          <Activity size={20} color="var(--dt-text-muted)" style={{ margin: '0 auto 6px' }} />
+          <div style={{ fontSize: '0.72rem', color: 'var(--dt-text-muted)', fontWeight: 600 }}>No vitals recorded</div>
+          <div style={{ fontSize: '0.64rem', color: 'var(--dt-text-muted)', marginTop: '3px' }}>Enter vitals in the patient record to see heart & breathing data</div>
         </div>
-      </div>
+      )}
 
       {/* Active Diagnosed Conditions & Symptoms */}
       <div className="dt-card">
         <SectionHeader icon={AlertTriangle} title="Diagnosed Conditions & Symptoms" color="#D97706" />
-        <div className="dt-symptoms-matrix">
-          {(patient.symptoms?.length > 0 ? patient.symptoms : ['Coronary Plaque Risk', 'Dense Breast Tissue', 'Mild Dyslipidemia']).map((symptom) => {
-            const active = patient.symptoms.includes(symptom);
-            return (
-              <button
-                key={symptom}
-                type="button"
-                onClick={() => toggleSymptom(symptom)}
-                className={`dt-symptom-tag ${active ? 'active' : ''}`}
-                title="Toggle symptom status"
-              >
-                {active && <Check size={11} strokeWidth={3} />}
-                <span>{symptom}</span>
-              </button>
-            );
-          })}
-        </div>
+        {patient.symptoms?.length > 0 ? (
+          <div className="dt-symptoms-matrix">
+            {patient.symptoms.map((symptom) => {
+              const active = patient.symptoms.includes(symptom);
+              return (
+                <button
+                  key={symptom}
+                  type="button"
+                  onClick={() => toggleSymptom(symptom)}
+                  className={`dt-symptom-tag ${active ? 'active' : ''}`}
+                  title="Toggle symptom status"
+                >
+                  {active && <Check size={11} strokeWidth={3} />}
+                  <span>{symptom}</span>
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <div style={{ fontSize: '0.70rem', color: 'var(--dt-text-muted)', fontStyle: 'italic', padding: '8px 0' }}>
+            No conditions recorded
+          </div>
+        )}
       </div>
 
       {/* Clinical Observations & Record Notes */}
@@ -201,11 +220,12 @@ function TelemetryTab() {
             borderRadius: '6px',
             padding: '10px 12px',
             fontSize: '0.74rem',
-            color: 'var(--dt-text-secondary)',
+            color: patient.notes ? 'var(--dt-text-secondary)' : 'var(--dt-text-muted)',
             lineHeight: 1.5,
+            fontStyle: patient.notes ? 'normal' : 'italic',
           }}
         >
-          {patient.notes || `Health data updated for ${patient.patientId || 'patient'}. Current readings reflect the selected care view.`}
+          {patient.notes || 'No physician notes recorded.'}
         </div>
       </div>
     </div>

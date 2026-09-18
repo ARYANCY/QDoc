@@ -132,7 +132,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
   const [viewCardOpen, setViewCardOpen] = useState(false);
   const [copiedPass, setCopiedPass] = useState(false);
   const [cardFace, setCardFace] = useState('dual'); // 'dual', 'front', 'back'
-  const [cardTheme, setCardTheme] = useState('both'); // 'both', 'light', 'dark'
+  const [cardTheme, setCardTheme] = useState('light'); // 'light', 'dark'
   const [medicalHistory, setMedicalHistory] = useState([
     { id: "history-1", condition: "", notes: "" },
   ]);
@@ -1324,69 +1324,55 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                 </span>
               </div>
 
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-                {/* Theme Selector */}
-                <div
-                  style={{
-                    display: "flex",
-                    background: "var(--bg-surface-alt)",
-                    padding: "3px",
-                    borderRadius: "var(--radius-xs)",
-                    border: "1px solid var(--border-default)",
-                    gap: "2px",
-                  }}
-                >
-                  <button
-                    type="button"
-                    onClick={() => setCardTheme("both")}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                {/* Theme Selector — one at a time */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '0.62rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Edition:</span>
+                  <div
                     style={{
-                      padding: "4px 8px",
-                      fontSize: "0.68rem",
-                      fontWeight: cardTheme === "both" ? 700 : 500,
-                      background: cardTheme === "both" ? "var(--bg-surface)" : "transparent",
-                      color: cardTheme === "both" ? "var(--ink-primary)" : "var(--text-secondary)",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                      boxShadow: cardTheme === "both" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                      display: 'flex',
+                      background: 'var(--bg-surface-alt)',
+                      padding: '3px',
+                      borderRadius: 'var(--radius-xs)',
+                      border: '1px solid var(--border-default)',
+                      gap: '2px',
                     }}
                   >
-                    Both Editions
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCardTheme("light")}
-                    style={{
-                      padding: "4px 8px",
-                      fontSize: "0.68rem",
-                      fontWeight: cardTheme === "light" ? 700 : 500,
-                      background: cardTheme === "light" ? "var(--bg-surface)" : "transparent",
-                      color: cardTheme === "light" ? "var(--ink-primary)" : "var(--text-secondary)",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                      boxShadow: cardTheme === "light" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
-                    }}
-                  >
-                    Day White
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCardTheme("dark")}
-                    style={{
-                      padding: "4px 8px",
-                      fontSize: "0.68rem",
-                      fontWeight: cardTheme === "dark" ? 700 : 500,
-                      background: cardTheme === "dark" ? "#1E232B" : "transparent",
-                      color: cardTheme === "dark" ? "#FFFFFF" : "var(--text-secondary)",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                      boxShadow: cardTheme === "dark" ? "0 1px 3px rgba(0,0,0,0.2)" : "none",
-                    }}
-                  >
-                    Matte Slate Gray
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => setCardTheme('light')}
+                      style={{
+                        padding: '4px 10px',
+                        fontSize: '0.68rem',
+                        fontWeight: cardTheme === 'light' ? 700 : 500,
+                        background: cardTheme === 'light' ? '#FFFFFF' : 'transparent',
+                        color: cardTheme === 'light' ? '#0F172A' : 'var(--text-secondary)',
+                        border: cardTheme === 'light' ? '1px solid #CBD5E1' : '1px solid transparent',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        boxShadow: cardTheme === 'light' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                      }}
+                    >
+                      ☀ Day White
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCardTheme('dark')}
+                      style={{
+                        padding: '4px 10px',
+                        fontSize: '0.68rem',
+                        fontWeight: cardTheme === 'dark' ? 700 : 500,
+                        background: cardTheme === 'dark' ? '#1E232B' : 'transparent',
+                        color: cardTheme === 'dark' ? '#FFFFFF' : 'var(--text-secondary)',
+                        border: cardTheme === 'dark' ? '1px solid #374151' : '1px solid transparent',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        boxShadow: cardTheme === 'dark' ? '0 1px 3px rgba(0,0,0,0.2)' : 'none',
+                      }}
+                    >
+                      ◼ Matte Slate
+                    </button>
+                  </div>
                 </div>
 
                 {/* Face Toggle Selector */}
@@ -1484,124 +1470,67 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
               </div>
             </div>
 
-            {/* ── Modern Physical Triage Cards (Matching Reference Layout) ── */}
+            {/* ── Physical Triage Card Preview — Single Selected Edition ── */}
             <div
               style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "24px",
-                justifyContent: "center",
-                alignItems: "flex-start",
-                margin: "10px 0 20px 0",
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '10px',
+                margin: '10px 0 20px 0',
+                width: '100%',
               }}
             >
-              {/* Day White Edition */}
-              {(cardTheme === "both" || cardTheme === "light") && (
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", width: "100%", maxWidth: cardFace === "dual" ? "920px" : "440px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span style={{ fontSize: "0.66rem", fontWeight: 800, color: "var(--ink-primary)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                      Clinical White Edition (Day / Print)
-                    </span>
-                    {cardFace === "dual" && (
-                      <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--accent-blue)", background: "var(--accent-blue-light)", padding: "1px 6px", borderRadius: "4px" }}>
-                        FRONT + BACK DUAL VIEW
-                      </span>
-                    )}
+              {/* Edition label */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '0.66rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: cardTheme === 'dark' ? '#94A3B8' : 'var(--ink-primary)' }}>
+                  {cardTheme === 'light' ? '☀ Clinical White Edition (Day / Print)' : '◼ Matte Slate Gray Edition (First Responder)'}
+                </span>
+                {cardFace === 'dual' && (
+                  <span style={{ fontSize: '0.58rem', fontWeight: 700, color: 'var(--accent-blue)', background: 'var(--accent-blue-light)', padding: '1px 6px', borderRadius: '4px' }}>
+                    FRONT + BACK
+                  </span>
+                )}
+              </div>
+
+              {/* Cards row */}
+              <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center', width: '100%' }}>
+                {(cardFace === 'dual' || cardFace === 'front') && (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '0.58rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Front Face · QR &amp; ID</span>
+                    <TriagePhysicalCard
+                      patient={profile}
+                      variant={cardTheme}
+                      face="front"
+                      emergencyPortalUrl={emergencyPortalUrl}
+                      onCopy={() => {
+                        navigator.clipboard?.writeText(emergencyPortalUrl);
+                        setCopiedPass(true);
+                        setTimeout(() => setCopiedPass(false), 2000);
+                      }}
+                      copied={copiedPass}
+                    />
                   </div>
+                )}
 
-                  <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", justifyContent: "center", width: "100%" }}>
-                    {(cardFace === "dual" || cardFace === "front") && (
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", maxWidth: "440px" }}>
-                        <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase" }}>Front View (QR & ID)</span>
-                        <TriagePhysicalCard
-                          patient={profile}
-                          variant="light"
-                          face="front"
-                          emergencyPortalUrl={emergencyPortalUrl}
-                          onCopy={() => {
-                            navigator.clipboard?.writeText(emergencyPortalUrl);
-                            setCopiedPass(true);
-                            setTimeout(() => setCopiedPass(false), 2000);
-                          }}
-                          copied={copiedPass}
-                        />
-                      </div>
-                    )}
-
-                    {(cardFace === "dual" || cardFace === "back") && (
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", maxWidth: "440px" }}>
-                        <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase" }}>Back View (Allergies, Rx & Vitals)</span>
-                        <TriagePhysicalCard
-                          patient={profile}
-                          variant="light"
-                          face="back"
-                          emergencyPortalUrl={emergencyPortalUrl}
-                          onCopy={() => {
-                            navigator.clipboard?.writeText(emergencyPortalUrl);
-                            setCopiedPass(true);
-                            setTimeout(() => setCopiedPass(false), 2000);
-                          }}
-                          copied={copiedPass}
-                        />
-                      </div>
-                    )}
+                {(cardFace === 'dual' || cardFace === 'back') && (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '0.58rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Back Face · Allergies, Rx &amp; Vitals</span>
+                    <TriagePhysicalCard
+                      patient={profile}
+                      variant={cardTheme}
+                      face="back"
+                      emergencyPortalUrl={emergencyPortalUrl}
+                      onCopy={() => {
+                        navigator.clipboard?.writeText(emergencyPortalUrl);
+                        setCopiedPass(true);
+                        setTimeout(() => setCopiedPass(false), 2000);
+                      }}
+                      copied={copiedPass}
+                    />
                   </div>
-                </div>
-              )}
-
-              {/* Matte Slate Gray Edition */}
-              {(cardTheme === "both" || cardTheme === "dark") && (
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", width: "100%", maxWidth: cardFace === "dual" ? "920px" : "440px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span style={{ fontSize: "0.66rem", fontWeight: 800, color: "var(--ink-primary)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                      Matte Slate Gray Edition (First Responder)
-                    </span>
-                    {cardFace === "dual" && (
-                      <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--accent-blue)", background: "var(--accent-blue-light)", padding: "1px 6px", borderRadius: "4px" }}>
-                        FRONT + BACK DUAL VIEW
-                      </span>
-                    )}
-                  </div>
-
-                  <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", justifyContent: "center", width: "100%" }}>
-                    {(cardFace === "dual" || cardFace === "front") && (
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", maxWidth: "440px" }}>
-                        <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase" }}>Front View (QR & ID)</span>
-                        <TriagePhysicalCard
-                          patient={profile}
-                          variant="dark"
-                          face="front"
-                          emergencyPortalUrl={emergencyPortalUrl}
-                          onCopy={() => {
-                            navigator.clipboard?.writeText(emergencyPortalUrl);
-                            setCopiedPass(true);
-                            setTimeout(() => setCopiedPass(false), 2000);
-                          }}
-                          copied={copiedPass}
-                        />
-                      </div>
-                    )}
-
-                    {(cardFace === "dual" || cardFace === "back") && (
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", maxWidth: "440px" }}>
-                        <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase" }}>Back View (Allergies, Rx & Vitals)</span>
-                        <TriagePhysicalCard
-                          patient={profile}
-                          variant="dark"
-                          face="back"
-                          emergencyPortalUrl={emergencyPortalUrl}
-                          onCopy={() => {
-                            navigator.clipboard?.writeText(emergencyPortalUrl);
-                            setCopiedPass(true);
-                            setTimeout(() => setCopiedPass(false), 2000);
-                          }}
-                          copied={copiedPass}
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             {/* ── Modal Footer Action Toolbar ── */}
