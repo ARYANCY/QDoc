@@ -32,18 +32,7 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
   const formContainerRef = useRef(null);
   const narrativeRef = useRef(null);
 
-  // Cold Start Retry Status
-  const [retryInfo, setRetryInfo] = useState(null);
 
-  useEffect(() => {
-    function handleColdStart(e) {
-      if (e.detail) {
-        setRetryInfo(e.detail);
-      }
-    }
-    window.addEventListener("qmed:cold_start_retry", handleColdStart);
-    return () => window.removeEventListener("qmed:cold_start_retry", handleColdStart);
-  }, []);
 
   // Listen for Escape key to close the User Guide modal
   useEffect(() => {
@@ -729,31 +718,12 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                 {loading ? (
                   <>
                     <SquareLoader size="sm" color="#FFFFFF" style={{ padding: 0 }} />
-                    <span>Signing in... (Server waking up, please wait)</span>
+                    <span>Signing in...</span>
                   </>
                 ) : (
                   "Sign In to Workspace"
                 )}
               </button>
-
-              {loading && (
-                <div
-                  style={{
-                    padding: "8px 12px",
-                    background: "#EBF8FA",
-                    border: "1px solid #B8E2E8",
-                    borderRadius: "8px",
-                    fontSize: "0.74rem",
-                    color: "#087F8C",
-                    lineHeight: 1.4,
-                  }}
-                >
-                  ⚡ <strong>Free Tier Cold Start:</strong> The Render backend is spinning up.
-                  {retryInfo
-                    ? ` Gateway retry ${retryInfo.attempt} of ${retryInfo.maxRetries} active (waiting ${Math.round(retryInfo.backoffMs / 1000)}s)...`
-                    : " No timeout timer active — your request will proceed as soon as the server wakes up."}
-                </div>
-              )}
             </form>
           ) : (
             /* REGISTRATION VIEW */
