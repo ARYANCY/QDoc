@@ -2264,34 +2264,36 @@ body.high-contrast {
 
 .print-cards-cutting-frame {
   position: relative;
-  border: 1.5px dashed #94A3B8;
-  border-radius: 12px;
-  padding: 10px;
+  border: 1.5px dashed #64748B;
+  border-radius: 8px;
+  padding: 10px 14px;
   background: #FFFFFF;
+  margin: 0 auto;
+  width: fit-content;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .print-corner-mark {
   position: absolute;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 900;
   color: #64748B;
   line-height: 1;
 }
-.print-corner-mark.top-left { top: -8px; left: -8px; }
-.print-corner-mark.top-right { top: -8px; right: -8px; }
-.print-corner-mark.bottom-left { bottom: -8px; left: -8px; }
-.print-corner-mark.bottom-right { bottom: -8px; right: -8px; }
+.print-corner-mark.top-left { top: -7px; left: -7px; }
+.print-corner-mark.top-right { top: -7px; right: -7px; }
+.print-corner-mark.bottom-left { bottom: -7px; left: -7px; }
+.print-corner-mark.bottom-right { bottom: -7px; right: -7px; }
 
 .print-cards-flex-row {
   display: flex;
   justify-content: center;
-  align-items: stretch;
-  gap: 12px;
+  align-items: flex-start;
+  gap: 16px;
 }
 
 .print-card-face-wrapper {
-  flex: 1;
-  max-width: 440px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2299,23 +2301,39 @@ body.high-contrast {
 }
 
 .print-face-label {
-  font-size: 0.56rem;
+  font-size: 0.54rem;
   font-weight: 800;
-  color: #64748B;
+  color: #475569;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   font-family: var(--font-mono);
+  margin-bottom: 2px;
 }
 
+/* ISO/IEC 7810 ID-1 Precision Scaler (324px × 204px on screen, 85.60mm × 53.98mm in print) */
 .print-card-scaler {
-  width: 100%;
-  display: flex;
-  justify-content: center;
+  width: 324px;
+  height: 204px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  background: transparent;
 }
 
 .print-card-scaler .triage-card-shell {
-  width: 100%;
-  max-width: 100%;
+  width: 440px !important;
+  height: 275px !important;
+  min-height: 275px !important;
+  max-width: none !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  transform: scale(0.736) !important;
+  transform-origin: top left !important;
+  box-shadow: none !important;
+  margin: 0 !important;
 }
 
 .print-fold-divider {
@@ -2323,8 +2341,10 @@ body.high-contrast {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 0 4px;
+  gap: 4px;
+  height: 204px;
+  margin-top: 14px;
+  padding: 0 2px;
 }
 
 .print-fold-line {
@@ -2338,13 +2358,13 @@ body.high-contrast {
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  font-size: 0.50rem;
+  font-size: 0.48rem;
   font-weight: 800;
   font-family: var(--font-mono);
-  color: #475569;
+  color: #334155;
   background: #F1F5F9;
-  padding: 5px 8px;
-  border-radius: 6px;
+  padding: 4px 6px;
+  border-radius: 5px;
   border: 1px solid #CBD5E1;
   white-space: nowrap;
 }
@@ -2356,7 +2376,7 @@ body.high-contrast {
 }
 
 .print-fold-sub {
-  font-size: 0.44rem;
+  font-size: 0.42rem;
   color: #64748B;
   letter-spacing: 0.02em;
 }
@@ -2485,6 +2505,101 @@ body.high-contrast {
     padding: 0 !important;
     page-break-after: avoid !important;
     break-after: avoid !important;
+  }
+
+  /* Physical Cards Print Scaler & Frame (Exact ISO/IEC 7810 ID-1 85.60mm × 53.98mm) */
+  .print-cards-stage {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 3mm 0 !important;
+    width: 100% !important;
+  }
+
+  .print-edition-block {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    width: 100% !important;
+  }
+
+  .print-edition-badge {
+    width: 100% !important;
+    max-width: 184mm !important;
+    margin-bottom: 1.5mm !important;
+  }
+
+  .print-cut-header-guide {
+    width: 100% !important;
+    max-width: 184mm !important;
+    margin: 1.5mm auto !important;
+  }
+
+  .print-cards-cutting-frame {
+    padding: 2.5mm 3.5mm !important;
+    border: 1.5px dashed #475569 !important;
+    border-radius: 4mm !important;
+    width: fit-content !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+
+  .print-cards-flex-row {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    gap: 6mm !important;
+    width: auto !important;
+  }
+
+  .print-card-face-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 1.5mm !important;
+  }
+
+  .print-face-label {
+    font-size: 5.5pt !important;
+    font-weight: 800 !important;
+    color: #475569 !important;
+    margin-bottom: 1mm !important;
+    white-space: nowrap !important;
+  }
+
+  .print-card-scaler {
+    width: 85.60mm !important;
+    height: 53.98mm !important;
+    position: relative !important;
+    overflow: hidden !important;
+    border-radius: 3.18mm !important;
+    box-sizing: border-box !important;
+    display: block !important;
+  }
+
+  .print-card-scaler .triage-card-shell {
+    width: 440px !important;
+    height: 275px !important;
+    min-height: 275px !important;
+    max-width: none !important;
+    transform: scale(calc(85.60mm / 440px)) !important;
+    transform-origin: top left !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .print-fold-divider {
+    height: 53.98mm !important;
+    margin-top: 4.5mm !important;
+    padding: 0 1mm !important;
   }
 
   /* Physical Cards Print Fidelity */

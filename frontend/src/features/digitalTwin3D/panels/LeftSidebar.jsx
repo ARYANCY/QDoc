@@ -177,8 +177,8 @@ function TelemetryTab() {
       ) : (
         <div className="dt-card" style={{ textAlign: 'center', padding: '16px 12px' }}>
           <Activity size={20} color="var(--dt-text-muted)" style={{ margin: '0 auto 6px' }} />
-          <div style={{ fontSize: '0.72rem', color: 'var(--dt-text-muted)', fontWeight: 600 }}>No vitals recorded</div>
-          <div style={{ fontSize: '0.64rem', color: 'var(--dt-text-muted)', marginTop: '3px' }}>Enter vitals in the patient record to see heart & breathing data</div>
+          <div style={{ fontSize: '0.72rem', color: 'var(--dt-text-muted)', fontWeight: 600 }}>No clinical telemetry recorded</div>
+          <div style={{ fontSize: '0.64rem', color: 'var(--dt-text-muted)', marginTop: '3px' }}>Cardiopulmonary vitals populate when clinical ICU telemetry or diagnostic sensor streams are connected.</div>
         </div>
       )}
 

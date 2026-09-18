@@ -15,11 +15,11 @@ const DEFAULT_PATIENT = {
   firstName: '',
   lastName: '',
   dateOfBirth: '',
-  sex: 'female',
+  sex: '',
   bloodType: '',
   heightCm: '',
   weightKg: '',
-  ageGroup: '40-60',
+  ageGroup: '',
 
   // Contact / Administrative
   patientId: '',
@@ -405,14 +405,14 @@ export const useTwinStore = create((set, get) => ({
 
       const vitals = {
         ...get().patient.vitals,
-        bloodPressureSystolic: systolic || '120',
-        bloodPressureDiastolic: diastolic || '80',
-        heartRate: dbVitals.heart_rate_bpm || dbVitals.heart_rate || '72',
-        spo2: dbVitals.spo2_percent || dbVitals.spo2 || '98',
-        temperature: dbVitals.temperature_f || dbVitals.temperature || '98.6',
-        respiratoryRate: dbVitals.respiratory_rate || '16',
-        glucose: dbVitals.glucose || '95',
-        cholesterol: dbVitals.cholesterol || '180'
+        bloodPressureSystolic: systolic || '',
+        bloodPressureDiastolic: diastolic || '',
+        heartRate: dbVitals.heart_rate_bpm || dbVitals.heart_rate || '',
+        spo2: dbVitals.spo2_percent || dbVitals.spo2 || '',
+        temperature: dbVitals.temperature_f || dbVitals.temperature || '',
+        respiratoryRate: dbVitals.respiratory_rate || '',
+        glucose: dbVitals.glucose || '',
+        cholesterol: dbVitals.cholesterol || ''
       };
 
       // Medical history parsing
@@ -468,10 +468,10 @@ export const useTwinStore = create((set, get) => ({
           lastName,
           sex,
           ageGroup,
-          bloodType: clinicalData?.blood_group || get().patient.bloodType || 'O+',
-          heightCm: clinicalData?.height_cm || get().patient.heightCm || 175,
-          weightKg: clinicalData?.weight_kg || get().patient.weightKg || 70,
-          notes: visitNotes || (clinicalData?.conditions ? `Diagnosed Conditions: ${clinicalData.conditions.join(', ')}` : get().patient.notes),
+          bloodType: clinicalData?.blood_group || get().patient.bloodType || '',
+          heightCm: clinicalData?.height_cm || get().patient.heightCm || '',
+          weightKg: clinicalData?.weight_kg || get().patient.weightKg || '',
+          notes: visitNotes || (clinicalData?.conditions?.length ? `Diagnosed Conditions: ${clinicalData.conditions.join(', ')}` : (clinicalData?.notes || '')),
           vitals,
           symptoms,
           medicalHistory,

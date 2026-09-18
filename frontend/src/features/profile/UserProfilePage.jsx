@@ -103,7 +103,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
     username: currentUser?.username || "",
     name: currentUser?.name || "",
     role: currentUser?.role || "patient",
-    age: 48,
+    age: "",
     gender: "Unspecified",
     primary_email: currentUser?.email || "",
     extra_email: "",
@@ -111,7 +111,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
     emergency_contact_name: "",
     emergency_contact_relation: "",
     phone: "",
-    blood_group: "O+",
+    blood_group: "",
     allergies: "",
     active_medications: "",
     medical_history: "",
@@ -119,7 +119,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
     organ_donor: false,
     department: "Patient Self-Analysis & Care",
     hospital: "AIIMS Cardiology & Oncology OPD",
-    license_id: "PT-REC-89421",
+    license_id: "",
     attending_physician: "",
   });
 
@@ -311,7 +311,8 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
   const emergencyQrUrl = ENDPOINTS.EMERGENCY_QR_PNG(profile.user_id || activeUserId);
 
   return (
-    <div ref={containerRef} style={{ height: "100%", overflowY: "auto", padding: "20px 24px", background: "var(--bg-canvas)", fontFamily: "var(--font-sans)" }}>
+    <>
+      <div ref={containerRef} className="no-print" style={{ height: "100%", overflowY: "auto", padding: "20px 24px", background: "var(--bg-canvas)", fontFamily: "var(--font-sans)" }}>
       {/* ── Top Clean Header ── */}
       <div
         style={{
@@ -1593,13 +1594,6 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
         </div>
       )}
 
-      {/* ── Dedicated Invisible Print-Only Sheet (Activated by @media print for 1:1 Scale Print & PDF) ── */}
-      <PrintableMedicalCardSheet
-        patient={profile}
-        cardTheme={cardTheme}
-        cardFace={cardFace}
-        emergencyPortalUrl={emergencyPortalUrl}
-      />
 
       {/* ── Modal: Delete Account Confirmation ── */}
       {deleteConfirmOpen && (
@@ -1658,5 +1652,14 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
         </div>
       )}
     </div>
+
+    {/* ── Dedicated Invisible Print-Only Sheet (Activated by @media print for 1:1 Scale Print & PDF) ── */}
+    <PrintableMedicalCardSheet
+      patient={profile}
+      cardTheme={cardTheme}
+      cardFace={cardFace}
+      emergencyPortalUrl={emergencyPortalUrl}
+    />
+  </>
   );
 }

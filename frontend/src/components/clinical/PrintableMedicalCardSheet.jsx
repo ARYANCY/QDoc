@@ -12,18 +12,24 @@ import TriagePhysicalCard from './TriagePhysicalCard';
  */
 export default function PrintableMedicalCardSheet({
   patient = {},
-  cardTheme = 'light', // 'light' | 'dark' | 'both'
+  cardTheme = 'light', // 'light' | 'dark'
   cardFace = 'dual',   // 'dual' | 'front' | 'back'
   emergencyPortalUrl = '',
 }) {
   const patientId = patient?.user_id || patient?.id || '—';
-  const mrn = patient?.mrn || patient?.license_id || (patientId !== '—' ? `MRN-${patientId}-QX` : '—');
-  const abhaId = patient?.abha_id || '—';
+  const rawLicense = patient?.license_id || patient?.mrn;
+  const mrn = (rawLicense && rawLicense !== 'PT-REC-89421') ? rawLicense : (patientId !== '—' ? `MRN-${patientId}-QX` : '—');
+  const abhaId = patient?.abha_id || patient?.abhaId || '—';
   const currentDate = new Date().toLocaleDateString('en-IN', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
   });
+
+  const activeTheme = cardTheme === 'dark' ? 'dark' : 'light';
+  const activeThemeLabel = activeTheme === 'dark' 
+    ? 'FIRST RESPONDER MATTE SLATE GRAY EDITION' 
+    : 'CLINICAL DAY WHITE EDITION';
 
   const renderCardPair = (variant, editionLabel) => {
     return (
@@ -166,13 +172,9 @@ export default function PrintableMedicalCardSheet({
         </div>
       </div>
 
-      {/* ── Cards Section ── */}
+      {/* ── Cards Section (Single Selected Edition Only) ── */}
       <div className="print-cards-stage">
-        {(cardTheme === 'both' || cardTheme === 'light') &&
-          renderCardPair('light', 'CLINICAL DAY WHITE EDITION')}
-
-        {(cardTheme === 'both' || cardTheme === 'dark') &&
-          renderCardPair('dark', 'FIRST RESPONDER MATTE SLATE GRAY EDITION')}
+        {renderCardPair(activeTheme, activeThemeLabel)}
       </div>
 
       {/* ── Footer Directives & Helpline Matrix ── */}

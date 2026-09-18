@@ -57,14 +57,18 @@ export default function DigitalTwin3D({ patientId = "USR-5EF52B", analysisResult
             riskClass = "Voice Telemetry Monitored";
             topFeat = [{ feature: "Jitter (local)", value: "0.003" }, { feature: "Shimmer", value: "0.02" }];
           } else {
-            // Default heart/cardiovascular
-            const bp = p.baseline_vitals?.blood_pressure || "120/80";
-            const hr = p.baseline_vitals?.heart_rate_bpm || 72;
-            topFeat = [
-              { feature: "Blood Pressure", value: bp },
-              { feature: "Resting Heart Rate", value: `${hr} BPM` },
-            ];
+            // Cardiovascular features only if recorded
+            const bp = p.baseline_vitals?.blood_pressure;
+            const hr = p.baseline_vitals?.heart_rate_bpm;
+            topFeat = [];
+            if (bp) topFeat.push({ feature: "Blood Pressure", value: bp });
+            if (hr) topFeat.push({ feature: "Resting Heart Rate", value: `${hr} BPM` });
           }
+
+          const hasConditions = Array.isArray(p.conditions) && p.conditions.length > 0;
+          const narrative = hasConditions
+            ? `Active clinical conditions: ${p.conditions.join(", ")}.`
+            : (p.notes || "No acute anomalies recorded.");
 
           setPatientAnalysis({
             patient_id: patientId,
@@ -76,7 +80,7 @@ export default function DigitalTwin3D({ patientId = "USR-5EF52B", analysisResult
             },
             explainability: {
               top_features: topFeat,
-              clinical_narrative: `Synchronized physiological baseline for Patient ${patientId}. Monitoring active conditions: ${(p.conditions || []).join(", ") || "No acute anomalies"}.`,
+              clinical_narrative: narrative,
             },
             quantum_telemetry: {
               qubits: 8,
