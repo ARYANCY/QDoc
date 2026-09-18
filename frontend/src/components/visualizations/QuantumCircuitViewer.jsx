@@ -31,7 +31,7 @@ export default function QuantumCircuitViewer({ modelName = "VQC-8Q" }) {
   ];
 
   return (
-    <div ref={containerRef} style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", borderLeft: "3px solid var(--accent-blue)", padding: "12px", marginTop: "auto" }}>
+    <div ref={containerRef} style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", borderLeft: "3px solid var(--primary)", borderRadius: "var(--radius-sm)", padding: "12px", marginTop: "auto" }}>
       {/* Header bar with toggle */}
       <div
         onClick={() => setExpanded(!expanded)}
@@ -39,7 +39,7 @@ export default function QuantumCircuitViewer({ modelName = "VQC-8Q" }) {
       >
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <Cpu size={14} color="var(--primary)" />
-          <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--text-primary)", textTransform: "uppercase" }}>
+          <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--ink-primary)", textTransform: "uppercase" }}>
             Quantum Circuit Architecture ({telemetry?.n_qubits || 8} Qubits)
           </span>
         </div>
@@ -53,11 +53,11 @@ export default function QuantumCircuitViewer({ modelName = "VQC-8Q" }) {
 
       {/* Metrics Row */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "6px", marginTop: "8px" }}>
-        <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border-subtle)", padding: "6px" }}>
-          <p style={{ fontSize: "0.62rem", color: "var(--text-muted)", textTransform: "uppercase" }}>Depth</p>
-          <p style={{ fontSize: "0.85rem", fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--primary)" }}>{telemetry?.circuit_depth || 12}</p>
+        <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-xs)", padding: "6px 8px" }}>
+          <p style={{ fontSize: "0.62rem", color: "var(--text-muted)", textTransform: "uppercase", margin: "0 0 2px" }}>Depth</p>
+          <p style={{ fontSize: "0.85rem", fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--primary)", margin: 0 }}>{telemetry?.circuit_depth || 12}</p>
         </div>
-        <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border-subtle)", padding: "6px" }}>
+        <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-xs)", padding: "6px 8px" }}>
           <p style={{ fontSize: "0.62rem", color: "var(--text-muted)", textTransform: "uppercase" }}>Gates</p>
           <p style={{ fontSize: "0.85rem", fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--accent-teal)" }}>{telemetry?.total_gates || 144}</p>
         </div>

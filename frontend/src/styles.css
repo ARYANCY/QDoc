@@ -7,101 +7,90 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
-  /* ── Typography Tokens ── */
-  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-display: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-serif: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* ── Typography Tokens (Inter & Manrope Human Healthcare Stack) ── */
+  --font-sans: "Inter", "Manrope", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Manrope", "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* ── Light Studio Theme Palette ── */
-  --bg-canvas: #F8FAFC;              /* Clean Slate-50 background */
-  --bg-surface: #FFFFFF;             /* Crisp pure white surface */
-  --bg-surface-alt: #F1F5F9;         /* Soft Slate-100 neutral */
-  --bg-surface-hover: #E2E8F0;       /* Slate-200 hover */
-  --bg-surface-dark: #0F172A;        /* Slate-900 contrast anchor */
-  --bg-card-blue: #F0F9FF;          /* Sky-50 soft accent */
-  --bg-card-sky: #F8FAFC;           /* Neutral card bg */
-  --bg-card-emerald: #ECFDF5;       /* Emerald-50 soft accent */
-  --bg-card-rose: #FFF1F2;          /* Rose-50 soft accent */
+  /* ── QRakshak Light Medical Technology Palette ── */
+  --bg-canvas: #F8FAFC;              /* Medical White (Main page background) */
+  --bg-surface: #FFFFFF;             /* Pure White (Cards, forms, containers) */
+  --bg-surface-alt: #F1F5F9;         /* Soft Blue Gray (Secondary sections, subtle separation) */
+  --bg-surface-hover: #E2E8F0;       /* Cool Slate hover */
+  --bg-surface-dark: #17212B;        /* Medical Charcoal anchor */
+  --bg-card-blue: #F0F7FA;          /* Soft clinical blue-gray */
+  --bg-card-sky: #F8FAFC;           /* Medical White card bg */
+  --bg-card-emerald: #F0FDF4;       /* Clinical Green soft tint */
+  --bg-card-rose: #FEF2F2;          /* Clinical Red soft tint */
 
-  /* ── Brand & Accent Palette (Hospital Blues) ── */
-  --primary: #025997;                /* Hospital Blue */
-  --primary-hover: #014273;          /* Darker Hospital Blue */
-  --primary-dark: #012B4A;           /* Deep Navy Blue */
-  --primary-soft: #E6F3FF;           /* Very light blue */
-  --primary-light: #BFE0FF;          /* Light blue */
-  --primary-glow: rgba(2, 89, 151, 0.18);
-  --primary-gradient: linear-gradient(135deg, #025997 0%, #014273 100%);
+  /* ── Medical Identity & Accent Tokens ── */
+  --primary: #087F8C;                /* Medical Teal (Primary buttons, active states, key accents) */
+  --primary-hover: #075E66;          /* Deep Teal (Hover states, high-emphasis UI) */
+  --primary-dark: #075E66;           /* Deep Teal */
+  --primary-soft: #EBF8FA;           /* Very light medical teal */
+  --primary-light: #D0EFF2;          /* Light teal tint */
+  --primary-glow: rgba(8, 127, 140, 0.14);
+  --primary-gradient: linear-gradient(135deg, #087F8C 0%, #075E66 100%);
   
-  --accent-blue: #2563EB;            /* Royal Blue */
-  --accent-blue-soft: #EFF6FF;
-  --accent-blue-hover: #1D4ED8;
-  --accent-teal: #0D9488;            /* Teal-600 */
-  --accent-violet: #7C3AED;          /* Violet-600 */
-  --accent-violet-soft: #F5F3FF;
+  --secondary: #3B82B6;              /* Soft Blue (Secondary actions, info states, charts) */
+  --accent-blue: #3B82B6;            /* Soft Blue */
+  --accent-blue-soft: #F0F6FA;
+  --accent-blue-hover: #2D6A96;
+  --accent-teal: #087F8C;            /* Medical Teal */
+  --accent-violet: #6366F1;          /* Subtle supporting violet */
+  --accent-violet-soft: #F5F7FF;
   --background: var(--bg-canvas);
   --surface-secondary: #F8FAFC;
 
-  /* Warm Gold & Amber Accents */
-  --gold: #D97706;                  /* Amber-600 (Clear, legible) */
-  --gold-light: #FEF3C7;            /* Amber-100 */
-  --gold-border: #FDE68A;           /* Amber-200 */
-  --gold-glow: 0 0 16px rgba(217, 119, 6, 0.22);
-  --gold-gradient: linear-gradient(135deg, #D97706 0%, #B45309 100%);
-
-  /* Couture / Modern Accents */
-  --rose-couture: #E11D48;           /* Rose-600 */
-  --rose-soft: #FFF1F2;
-  --emerald-couture: #059669;        /* Emerald-600 */
-  --emerald-soft: #ECFDF5;
-  --cobalt-couture: #2563EB;         /* Blue-600 */
-  --cobalt-soft: #EFF6FF;
-
-  /* ── High Contrast Ink Anchors ── */
-  --ink-primary: #0F172A;            /* Slate-900 (High contrast) */
-  --ink-secondary: #334155;          /* Slate-700 */
-  --ink-muted: #64748B;              /* Slate-500 */
-
-  /* ── Vitality & Clinical Risk Hierarchy (Aesthetic & Legible) ── */
-  --risk-low: #059669;               /* Emerald-600 */
-  --risk-low-bg: #ECFDF5;
-  --risk-low-border: #A7F3D0;
-  --risk-mid: #D97706;               /* Amber-600 */
+  /* Status Colors (Semantic clinical states) */
+  --risk-low: #16866A;               /* Clinical Green */
+  --risk-low-bg: #F0FDF4;
+  --risk-low-border: #BBF7D0;
+  --risk-mid: #C78A18;               /* Medical Amber */
   --risk-mid-bg: #FFFBEB;
   --risk-mid-border: #FDE68A;
-  --risk-high: #E11D48;              /* Rose-600 */
-  --risk-high-bg: #FFF1F2;
-  --risk-high-border: #FECDD3;
+  --risk-high: #C94C4C;              /* Clinical Red */
+  --risk-high-bg: #FEF2F2;
+  --risk-high-border: #FECACA;
 
-  /* ── High-Contrast Typography Colors ── */
-  --text-primary: #012B4A;           /* High contrast dark navy for trust */
-  --text-secondary: #334155;         /* Medium high contrast */
-  --text-muted: #64748B;             /* Helper labels */
-  --text-light: #94A3B8;             /* Subtle tertiary */
+  /* Semantic Aliases */
+  --success: #16866A;
+  --warning: #C78A18;
+  --error: #C94C4C;
+
+  /* ── Readable Healthcare Typography Colors ── */
+  --text-primary: #17212B;           /* Medical Charcoal (Headings, primary body text) */
+  --text-secondary: #52616B;         /* Slate Gray (Secondary text, descriptions, metadata) */
+  --text-muted: #7B8794;             /* Helper labels, placeholders */
+  --text-light: #9AA5B1;             /* Subtle tertiary */
   --text-inverse: #FFFFFF;           /* White on dark */
-  --text-gold: #B45309;              /* Deep readable amber */
+  --ink-primary: #17212B;            /* Medical Charcoal */
+  --ink-secondary: #52616B;          /* Slate Gray */
+  --ink-muted: #7B8794;
 
-  /* ── Precision Hairline Borders ── */
+  /* ── Precision Cool Gray Borders ── */
   --border-subtle: #F1F5F9;
-  --border-default: #E2E8F0;          /* Clean slate border */
-  --border-light-blue: #E2E8F0;
-  --border-hover: #CBD5E1;
-  --border-active: #0F172A;
+  --border-default: #D9E2EC;          /* Cool Gray Border */
+  --border-light-blue: #D9E2EC;
+  --border-hover: #BAC7D5;
+  --border-active: #087F8C;
 
-  /* ── Ergonomic Radii (Modern Soft Rounded) ── */
+  /* ── Standardized Medical Radii ── */
   --radius-xs: 4px;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 10px;
-  --radius-xl: 14px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 999px;
 
-  /* ── Soft Ambient Shadows ── */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-card: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
-  --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -2px rgba(15, 23, 42, 0.04);
-  --shadow-lg: 0 12px 24px -4px rgba(15, 23, 42, 0.10), 0 4px 8px -4px rgba(15, 23, 42, 0.05);
-  --shadow-modal: 0 20px 35px -5px rgba(15, 23, 42, 0.18), 0 10px 10px -5px rgba(15, 23, 42, 0.04);
-  --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.15);
+  /* ── Restrained Hospital Shadows ── */
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+  --shadow-card: 0 4px 16px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 16px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.08);
+  --shadow-modal: 0 20px 40px -8px rgba(15, 23, 42, 0.16);
+  --shadow-glow: 0 0 16px rgba(8, 127, 140, 0.12);
 }
 
 /* ── Reset & Baseline ──────────────────────────────────────────────────────── */
@@ -349,14 +338,14 @@ html, body, #root {
 }
 
 .nav-btn.active {
-  background: var(--accent-blue-soft);
-  color: var(--accent-blue);
+  background: var(--primary-soft);
+  color: var(--primary);
   font-weight: 700;
-  border-color: rgba(37, 99, 235, 0.2);
+  border-color: rgba(8, 127, 140, 0.22);
 }
 
 .nav-btn.active svg {
-  color: var(--accent-blue);
+  color: var(--primary);
 }
 
 .sidebar-footer {
@@ -1030,10 +1019,10 @@ html, body, #root {
 .card-panel {
   background: var(--bg-surface);
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-sm);
-  padding: 18px 20px;
+  border-radius: 14px;
+  padding: 20px 22px;
   box-shadow: var(--shadow-card);
-  transition: all 0.2s ease;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
   position: relative;
 }
 
@@ -1043,8 +1032,8 @@ html, body, #root {
 }
 
 .card-panel.highlighted {
-  border-color: var(--accent-blue);
-  box-shadow: var(--shadow-glow);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary), var(--shadow-card);
 }
 
 .panel-tag {
@@ -1109,13 +1098,14 @@ html, body, #root {
   background: var(--primary);
   color: #FFFFFF;
   border: 1px solid var(--primary);
-  padding: 10px 20px;
-  font-size: 0.80rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  border-radius: var(--radius-sm);
+  min-height: 44px;
+  padding: 10px 22px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  border-radius: 9px;
   cursor: pointer;
-  transition: all 0.16s ease;
+  transition: all 0.18s cubic-bezier(0.22, 1, 0.36, 1);
   font-family: var(--font-sans);
   display: inline-flex;
   align-items: center;
@@ -1125,43 +1115,56 @@ html, body, #root {
 
 .btn-primary:hover:not(:disabled) {
   background: var(--primary-hover);
-  box-shadow: var(--shadow-md);
+  border-color: var(--primary-hover);
+  box-shadow: var(--shadow-sm);
   transform: translateY(-1px);
 }
 
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
 .btn-primary:disabled {
-  opacity: 0.5;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
 .btn-secondary {
-  background: var(--bg-surface);
-  color: var(--ink-primary);
-  border: 1px solid var(--border-default);
-  padding: 9px 16px;
-  font-size: 0.78rem;
+  background: #FFFFFF;
+  color: #075E66;
+  border: 1px solid #BFD5DA;
+  min-height: 44px;
+  padding: 10px 20px;
+  font-size: 0.82rem;
   font-weight: 600;
-  border-radius: var(--radius-sm);
+  letter-spacing: 0;
+  border-radius: 9px;
   cursor: pointer;
-  transition: all 0.16s ease;
+  transition: all 0.18s cubic-bezier(0.22, 1, 0.36, 1);
   font-family: var(--font-sans);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .btn-secondary:hover {
   background: var(--bg-surface-alt);
-  border-color: var(--border-hover);
+  border-color: var(--primary);
+  color: var(--primary-hover);
 }
 
 .btn-accent {
-  background: var(--accent-blue);
+  background: var(--secondary);
   color: #FFFFFF;
-  border: 1px solid var(--accent-blue);
-  padding: 9px 18px;
-  font-size: 0.80rem;
-  font-weight: 700;
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--secondary);
+  min-height: 44px;
+  padding: 10px 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: 9px;
   cursor: pointer;
-  transition: all 0.16s ease;
+  transition: all 0.18s cubic-bezier(0.22, 1, 0.36, 1);
   font-family: var(--font-sans);
   display: inline-flex;
   align-items: center;
@@ -1170,8 +1173,9 @@ html, body, #root {
 }
 
 .btn-accent:hover:not(:disabled) {
-  background: var(--accent-blue-hover);
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+  background: #2D6A96;
+  border-color: #2D6A96;
+  box-shadow: var(--shadow-sm);
   transform: translateY(-1px);
 }
 
@@ -1179,12 +1183,13 @@ html, body, #root {
   background: var(--risk-high);
   color: #FFFFFF;
   border: 1px solid var(--risk-high);
-  padding: 8px 16px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  border-radius: var(--radius-sm);
+  min-height: 44px;
+  padding: 9px 18px;
+  font-size: 0.80rem;
+  font-weight: 600;
+  border-radius: 9px;
   cursor: pointer;
-  transition: all 0.16s ease;
+  transition: all 0.18s cubic-bezier(0.22, 1, 0.36, 1);
   font-family: var(--font-sans);
   display: inline-flex;
   align-items: center;
@@ -1192,20 +1197,21 @@ html, body, #root {
 }
 
 .btn-danger:hover:not(:disabled) {
-  background: #BE123C;
-  box-shadow: 0 2px 8px rgba(225, 29, 72, 0.25);
+  background: #B93838;
+  border-color: #B93838;
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-ghost {
   background: transparent;
-  color: var(--ink-secondary);
+  color: var(--primary);
   border: 1px solid transparent;
-  padding: 7px 12px;
-  font-size: 0.78rem;
+  padding: 8px 14px;
+  font-size: 0.80rem;
   font-weight: 600;
-  border-radius: var(--radius-sm);
+  border-radius: 9px;
   cursor: pointer;
-  transition: all 0.16s ease;
+  transition: all 0.18s cubic-bezier(0.22, 1, 0.36, 1);
   font-family: var(--font-sans);
   display: inline-flex;
   align-items: center;
@@ -1213,50 +1219,53 @@ html, body, #root {
 }
 
 .btn-ghost:hover {
-  background: var(--bg-surface-alt);
-  color: var(--ink-primary);
+  background: rgba(8, 127, 140, 0.08);
+  color: var(--primary-hover);
 }
 
 .btn-sm {
-  padding: 5px 10px !important;
-  font-size: 0.72rem !important;
+  min-height: 36px !important;
+  padding: 6px 12px !important;
+  font-size: 0.74rem !important;
 }
 
 /* ── Universal Clinical Form Controls ── */
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  margin-bottom: 12px;
+  gap: 6px;
+  margin-bottom: 14px;
 }
 
 .form-label {
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  color: var(--ink-secondary);
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   gap: 6px;
+  letter-spacing: -0.01em;
 }
 
 .input-control,
 .select-control {
   width: 100%;
-  background: var(--bg-surface);
+  min-height: 46px;
+  background: #FFFFFF;
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-sm);
-  padding: 8px 12px;
-  font-size: 0.82rem;
-  color: var(--ink-primary);
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  color: var(--text-primary);
   font-family: var(--font-sans);
-  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
   outline: none;
 }
 
 .input-control:focus,
 .select-control:focus {
-  border-color: var(--accent-blue);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(8, 127, 140, 0.12);
 }
 
 .input-control::placeholder {
@@ -2009,27 +2018,330 @@ body.high-contrast {
    Laser-Sharp Contrast • ISO/A4 Clinical Document Layout
 ───────────────────────────────────────────────────────────────────────────── */
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   PRINT & PDF EXPORT: ISO/IEC 7810 ID-1 MEDICAL ID CARD SHEET
+───────────────────────────────────────────────────────────────────────────── */
+
+/* Default Screen state: Hidden until printed or in preview */
+.qrakshak-printable-id-card-sheet {
+  display: none;
+  background: #FFFFFF;
+  color: #0F172A;
+  box-sizing: border-box;
+}
+
+.print-sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #0F172A;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+}
+
+.print-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.print-cross-emblem {
+  width: 26px;
+  height: 26px;
+  background: #087F8C;
+  color: #FFFFFF;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 900;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+.print-sheet-title {
+  font-size: 0.90rem;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: #0F172A;
+}
+
+.print-sheet-subtitle {
+  font-size: 0.62rem;
+  color: #475569;
+  margin: 2px 0 0 0;
+  font-family: var(--font-mono);
+}
+
+.print-header-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  font-size: 0.60rem;
+  font-family: var(--font-mono);
+  color: #334155;
+}
+
+.print-calibration-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #F8FAFC;
+  border: 1px dashed #94A3B8;
+  border-radius: 6px;
+  padding: 6px 12px;
+  margin-bottom: 12px;
+  font-size: 0.60rem;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+.print-scale-marker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.print-scale-label {
+  font-weight: 800;
+  color: #0F172A;
+  font-family: var(--font-mono);
+}
+
+.print-scale-ruler {
+  width: 50mm;
+  height: 5px;
+  background: repeating-linear-gradient(
+    90deg,
+    #0F172A,
+    #0F172A 1mm,
+    transparent 1mm,
+    transparent 2mm
+  );
+  border: 1px solid #0F172A;
+  border-radius: 2px;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+.print-scale-hint {
+  font-size: 0.55rem;
+  color: #64748B;
+  font-style: italic;
+}
+
+.print-instructions-callout {
+  font-size: 0.60rem;
+  color: #334155;
+  max-width: 440px;
+  line-height: 1.35;
+}
+
+.print-cards-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.print-edition-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+}
+
+.print-edition-badge {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0F172A;
+  padding: 0 4px;
+}
+
+.print-edition-standard {
+  font-size: 0.58rem;
+  color: #64748B;
+  font-family: var(--font-mono);
+}
+
+.print-cards-cutting-frame {
+  position: relative;
+  border: 1.5px dashed #94A3B8;
+  border-radius: 12px;
+  padding: 10px;
+  background: #FFFFFF;
+}
+
+.print-corner-mark {
+  position: absolute;
+  font-size: 14px;
+  font-weight: 900;
+  color: #64748B;
+  line-height: 1;
+}
+.print-corner-mark.top-left { top: -8px; left: -8px; }
+.print-corner-mark.top-right { top: -8px; right: -8px; }
+.print-corner-mark.bottom-left { bottom: -8px; left: -8px; }
+.print-corner-mark.bottom-right { bottom: -8px; right: -8px; }
+
+.print-cards-flex-row {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.print-card-face-wrapper {
+  flex: 1;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.print-face-label {
+  font-size: 0.56rem;
+  font-weight: 800;
+  color: #64748B;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+}
+
+.print-card-scaler {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.print-card-scaler .triage-card-shell {
+  width: 100%;
+  max-width: 100%;
+}
+
+.print-fold-divider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 4px;
+}
+
+.print-fold-line {
+  flex: 1;
+  width: 1px;
+  border-left: 1.5px dashed #94A3B8;
+}
+
+.print-fold-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.50rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: #64748B;
+  background: #F1F5F9;
+  padding: 4px 6px;
+  border-radius: 4px;
+  border: 1px solid #CBD5E1;
+  white-space: nowrap;
+}
+
+.print-scissors-icon {
+  transform: rotate(90deg);
+}
+
+.print-sheet-footer {
+  border-top: 1.5px solid #0F172A;
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.print-helplines-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.print-helpline-cell {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  padding: 5px;
+  text-align: center;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+.print-helpline-num {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 900;
+  color: #0F172A;
+  line-height: 1.1;
+  font-family: var(--font-mono);
+}
+
+.print-helpline-desc {
+  font-size: 0.52rem;
+  color: #64748B;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.print-legal-notice {
+  font-size: 0.56rem;
+  color: #475569;
+  line-height: 1.35;
+}
+
+.print-legal-notice p {
+  margin: 0 0 3px 0;
+}
+
+.print-ledger-seal-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.50rem;
+  color: #64748B;
+  font-family: var(--font-mono);
+  border-top: 1px dotted #CBD5E1;
+  padding-top: 3px;
+}
+
 @media print {
   @page {
     size: A4 portrait;
-    margin: 12mm 15mm 12mm 15mm;
+    margin: 8mm 10mm 8mm 10mm;
   }
 
+  /* Force background printing on all print engines */
   *,
   *::before,
   *::after {
-    background: transparent !important;
-    color: #000000 !important;
-    box-shadow: none !important;
-    text-shadow: none !important;
-    border-radius: 0px !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    color-adjust: exact !important;
   }
 
   body, html, #root, .emergency-passport-canvas {
     background: #FFFFFF !important;
-    color: #000000 !important;
+    color: #0F172A !important;
     font-size: 10pt !important;
     line-height: 1.35 !important;
     margin: 0 !important;
@@ -2041,245 +2353,160 @@ body.high-contrast {
     visibility: visible !important;
   }
 
+  /* Hide normal screen elements */
   .no-print,
   button,
-  .emergency-header-actions,
-  .emergency-btn-sos,
-  .emergency-btn-secondary,
-  .emergency-call-btn,
-  .mobile-hamburger-btn,
+  .modal-overlay,
   .sidebar,
   .editorial-header,
-  .editorial-footer {
+  .editorial-footer,
+  .emergency-header-sticky,
+  .emergency-hero-card,
+  .emergency-grid-layout,
+  .emergency-column,
+  .emergency-container,
+  .panel,
+  #shake-sos-modal,
+  #printable-health-card-sheet {
     display: none !important;
   }
 
-  /* Main Document Container */
-  .emergency-container {
-    max-width: 100% !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    gap: 10pt !important;
-  }
-
-  /* Clean Printed Header */
-  .emergency-header-sticky {
-    position: static !important;
-    border: none !important;
-    border-bottom: 2pt solid #000000 !important;
-    padding: 0 0 8pt 0 !important;
-    margin-bottom: 12pt !important;
-    background: transparent !important;
-    box-shadow: none !important;
-  }
-
-  .emergency-brand-icon {
-    display: none !important;
-  }
-
-  .emergency-brand-title {
-    color: #000000 !important;
-    font-size: 8pt !important;
-    letter-spacing: 0.1em !important;
-  }
-
-  .emergency-brand-sub {
-    font-size: 14pt !important;
-    font-weight: 900 !important;
-    color: #000000 !important;
-  }
-
-  /* Patient Identity Section */
-  .emergency-hero-card {
-    border: 1.5pt solid #000000 !important;
-    padding: 10pt 14pt !important;
-    margin-bottom: 10pt !important;
-    display: flex !important;
-    flex-direction: row !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    page-break-inside: avoid !important;
-  }
-
-  .emergency-hero-name {
-    font-size: 16pt !important;
-    font-weight: 900 !important;
-    color: #000000 !important;
-  }
-
-  .emergency-hero-meta {
-    font-size: 9pt !important;
-    color: #333333 !important;
-    margin-top: 2pt !important;
-  }
-
-  .emergency-blood-hero {
-    width: 50pt !important;
-    height: 50pt !important;
-    border: 1.5pt solid #000000 !important;
-    background: #FFFFFF !important;
-    color: #000000 !important;
+  /* Show dedicated print sheet */
+  .qrakshak-printable-id-card-sheet {
     display: flex !important;
     flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
+    visibility: visible !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
   }
 
-  .emergency-blood-title {
-    font-size: 7pt !important;
-    font-weight: 800 !important;
-    color: #000000 !important;
+  /* Physical Cards Print Fidelity */
+  .triage-card-shell {
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  .emergency-blood-value {
-    font-size: 16pt !important;
-    font-weight: 900 !important;
-    color: #000000 !important;
-  }
-
-  .emergency-badge-permanent,
-  .emergency-badge-donor,
-  .emergency-badge-allergy {
-    border: 1pt solid #000000 !important;
+  .triage-card-shell.triage-light {
     background: #FFFFFF !important;
-    color: #000000 !important;
-    font-size: 7pt !important;
-    padding: 2pt 6pt !important;
+    color: #17212B !important;
+    border: 2px solid #17212B !important;
+    border-radius: 18px !important;
   }
 
-  /* Grid Layout */
-  .emergency-grid-layout {
-    display: grid !important;
-    grid-template-columns: 1.2fr 0.8fr !important;
-    gap: 12pt !important;
-  }
-
-  .emergency-card-panel {
-    border: 1pt solid #000000 !important;
-    padding: 8pt 10pt !important;
-    gap: 6pt !important;
-    page-break-inside: avoid !important;
-  }
-
-  .emergency-card-header {
-    border-bottom: 1pt solid #000000 !important;
-    padding-bottom: 4pt !important;
-  }
-
-  .emergency-card-title {
-    font-size: 9pt !important;
-    font-weight: 800 !important;
-    color: #000000 !important;
-  }
-
-  .emergency-contact-box {
-    border: 1pt solid #CCCCCC !important;
-    padding: 6pt 8pt !important;
-    background: #FAFAFA !important;
-  }
-
-  .emergency-contact-name {
-    font-size: 10pt !important;
-    font-weight: 800 !important;
-  }
-
-  .emergency-contact-phone {
-    font-size: 9pt !important;
-    font-weight: 800 !important;
-    color: #000000 !important;
-  }
-
-  .emergency-item-row {
-    border: 1pt solid #CCCCCC !important;
-    padding: 4pt 6pt !important;
-    margin-bottom: 3pt !important;
-  }
-
-  .emergency-pill-tag {
-    border: 1pt solid #000000 !important;
+  .triage-card-shell.triage-light .triage-inner-frame {
     background: #FFFFFF !important;
-    color: #000000 !important;
-    font-size: 7pt !important;
+    border: 1.75px solid #17212B !important;
+    color: #17212B !important;
+    border-radius: 14px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  .emergency-vitals-grid {
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 6pt !important;
+  .triage-card-shell.triage-dark {
+    background: #181C20 !important;
+    color: #FFFFFF !important;
+    border: 2px solid #FFFFFF !important;
+    border-radius: 18px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  .emergency-vital-card {
-    border: 1pt solid #CCCCCC !important;
-    padding: 4pt 6pt !important;
+  .triage-card-shell.triage-dark .triage-inner-frame {
+    background: #181C20 !important;
+    border: 1.75px solid #FFFFFF !important;
+    color: #FFFFFF !important;
+    border-radius: 14px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  .emergency-vital-val {
-    font-size: 10pt !important;
-    font-weight: 800 !important;
+  .triage-card-shell.triage-dark * {
+    color: #FFFFFF !important;
   }
 
-  /* QR Code Triage Box */
-  .emergency-qr-panel {
-    border: 1pt solid #000000 !important;
-    padding: 8pt !important;
-    text-align: center !important;
-    page-break-inside: avoid !important;
+  .triage-card-shell.triage-light * {
+    color: #17212B !important;
   }
 
-  .emergency-qr-box {
-    border: 1pt solid #000000 !important;
-    padding: 4pt !important;
-    margin: 4pt auto !important;
-    display: inline-block !important;
+  /* Specific Badge & Pill Protections */
+  .triage-blood-tag {
+    background: #DC2626 !important;
+    color: #FFFFFF !important;
+    border: 1px solid #991B1B !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .triage-blood-tag * {
+    color: #FFFFFF !important;
   }
 
-  .emergency-qr-box svg,
-  .emergency-qr-box img {
-    width: 90pt !important;
-    height: 90pt !important;
+  .triage-role-pill {
+    background: #EBF8FA !important;
+    color: #087F8C !important;
+    border: 1px solid #BCE3E8 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .triage-card-shell.triage-dark .triage-role-pill {
+    background: #087F8C !important;
+    color: #FFFFFF !important;
+    border: 1px solid #139DAA !important;
   }
 
-  /* Speed Dial Grid */
-  .emergency-speed-grid {
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 4pt !important;
+  .triage-badge-pill.triage-donor-pill {
+    background: #ECFDF5 !important;
+    color: #059669 !important;
+    border: 1px solid #A7F3D0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .triage-card-shell.triage-dark .triage-badge-pill.triage-donor-pill {
+    background: #064E3B !important;
+    color: #A7F3D0 !important;
+    border: 1px solid #059669 !important;
   }
 
-  .emergency-speed-card {
-    border: 1pt solid #CCCCCC !important;
-    padding: 4pt 6pt !important;
+  .triage-back-alert-box {
+    background: #FEF2F2 !important;
+    border: 1.5px solid #F87171 !important;
+    color: #991B1B !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .triage-back-alert-box * {
+    color: #991B1B !important;
   }
 
-  .emergency-speed-dial-num {
-    font-size: 11pt !important;
-    font-weight: 900 !important;
-    color: #000000 !important;
+  .triage-card-shell.triage-dark .triage-back-alert-box {
+    background: #450A0A !important;
+    border: 1.5px solid #EF4444 !important;
+    color: #FCA5A5 !important;
+  }
+  .triage-card-shell.triage-dark .triage-back-alert-box * {
+    color: #FCA5A5 !important;
   }
 
-  .emergency-speed-icon-wrap {
-    display: none !important;
+  .triage-back-vital-cell {
+    background: #F8FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .triage-card-shell.triage-dark .triage-back-vital-cell {
+    background: #272F38 !important;
+    border: 1px solid #3E4956 !important;
   }
 
-  /* Footer Seal */
-  .emergency-audit-footer {
-    border: 1pt solid #000000 !important;
-    padding: 6pt 10pt !important;
-    margin-top: 8pt !important;
-    text-align: center !important;
-    page-break-inside: avoid !important;
-  }
-
-  .emergency-audit-title {
-    font-size: 8pt !important;
-    font-weight: 800 !important;
-    color: #000000 !important;
-  }
-
-  .emergency-audit-meta {
-    font-size: 7pt !important;
-    color: #444444 !important;
+  .triage-bottom-tray {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }
 
@@ -2835,6 +3062,524 @@ body.high-contrast {
   color: var(--text-secondary);
 }
 
+/* ── PHYSICAL TRIAGE CARD (DUAL-THEME MODULAR GEOMETRY) ─────────────────────
+   Faithful recreation of rounded outer shell with offset inner stroke:
+   - Nested rounded frames
+   - Top compartmentalized tabs
+   - Left bold "hello" / Name typography & blood tag
+   - Right QR code & clean contact rows
+   - Bottom full-width @handle tray
+───────────────────────────────────────────────────────────────────────────── */
+
+.triage-card-shell {
+  width: 100%;
+  max-width: 520px;
+  border-radius: 24px;
+  padding: 10px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 16px 36px -8px rgba(15, 23, 42, 0.12), 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+/* Light Theme (Pure White with Crisp Charcoal Stroke) */
+.triage-card-shell.triage-light {
+  background: #FFFFFF;
+  color: #17212B;
+  border: 2px solid #17212B;
+}
+
+.triage-card-shell.triage-light .triage-inner-frame {
+  background: #FFFFFF;
+  border: 1.75px solid #17212B;
+  color: #17212B;
+}
+
+.triage-card-shell.triage-light .triage-dot {
+  background: #17212B;
+}
+
+.triage-card-shell.triage-light .triage-tab-divider {
+  background: #17212B;
+}
+
+.triage-card-shell.triage-light .triage-contact-line {
+  color: #17212B;
+}
+
+.triage-card-shell.triage-light .triage-tab-item {
+  color: #17212B;
+}
+
+/* Dark Theme (Matte Charcoal with Crisp Pure White Stroke) */
+.triage-card-shell.triage-dark {
+  background: #181C20;
+  color: #FFFFFF;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.65), 0 2px 10px rgba(255, 255, 255, 0.08);
+}
+
+.triage-card-shell.triage-dark .triage-inner-frame {
+  background: #181C20;
+  border: 1.75px solid #FFFFFF;
+  color: #FFFFFF;
+}
+
+.triage-card-shell.triage-dark .triage-dot {
+  background: #FFFFFF;
+}
+
+.triage-card-shell.triage-dark .triage-tab-divider {
+  background: #FFFFFF;
+}
+
+.triage-card-shell.triage-dark .triage-contact-line {
+  color: #FFFFFF;
+}
+
+.triage-card-shell.triage-dark .triage-tab-item {
+  color: #FFFFFF;
+}
+
+/* Layout Split */
+.triage-card-top-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr;
+  gap: 10px;
+  align-items: stretch;
+}
+
+@media (max-width: 520px) {
+  .triage-card-top-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.triage-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.triage-inner-frame {
+  border-radius: 18px;
+  padding: 14px 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  position: relative;
+}
+
+/* Left Cell Internals */
+.triage-dots-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.triage-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  opacity: 0.85;
+}
+
+.triage-left-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 6px 0;
+}
+
+.triage-role-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  width: fit-content;
+}
+
+.triage-pulse-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #16866A;
+  display: inline-block;
+  box-shadow: 0 0 6px #16866A;
+}
+
+.triage-role-text {
+  font-size: 0.60rem;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.triage-blood-tag {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.triage-blood-lbl {
+  font-size: 0.58rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  opacity: 0.75;
+  letter-spacing: 0.04em;
+}
+
+.triage-blood-val {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #DC2626;
+  line-height: 1;
+}
+
+/* Giant Bold Typography */
+.triage-giant-headline {
+  margin-top: auto;
+  padding-top: 10px;
+}
+
+.triage-headline-sub {
+  font-size: 1.75rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+}
+
+.triage-headline-name {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-top: 2px;
+}
+
+.triage-headline-last {
+  font-size: 0.82rem;
+  font-weight: 600;
+  opacity: 0.75;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Right Cell Internals */
+.triage-tabs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.triage-tab-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.64rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  opacity: 0.9;
+  cursor: pointer;
+}
+
+.triage-tab-divider {
+  width: 1px;
+  height: 12px;
+  opacity: 0.4;
+}
+
+.triage-qr-meta-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.triage-qr-wrap {
+  width: 82px;
+  height: 82px;
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.triage-meta-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.triage-title-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.triage-card-title-text {
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.triage-chevron {
+  opacity: 0.6;
+}
+
+.triage-affiliation-text {
+  font-size: 0.68rem;
+  font-weight: 700;
+  opacity: 0.85;
+  line-height: 1.25;
+}
+
+.triage-tagline-text {
+  font-size: 0.60rem;
+  font-family: var(--font-mono);
+  opacity: 0.6;
+}
+
+/* Direct Contacts List */
+.triage-contact-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-top: 1px dashed currentColor;
+  padding-top: 10px;
+}
+
+.triage-contact-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.68rem;
+  font-family: var(--font-mono);
+  text-decoration: none;
+  opacity: 0.85;
+  transition: opacity 0.15s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.triage-contact-line:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.triage-contact-icon {
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+/* Bottom Full-Width Rounded Capsule Tray */
+.triage-bottom-tray {
+  width: 100%;
+}
+
+.triage-bottom-frame {
+  border-radius: 16px;
+  padding: 10px 18px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.triage-handle-text {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.86rem;
+  letter-spacing: -0.01em;
+}
+
+.triage-at-symbol {
+  opacity: 0.55;
+  font-size: 0.95rem;
+}
+
+.triage-bottom-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.triage-id-badge {
+  font-size: 0.62rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  opacity: 0.7;
+}
+
+.triage-copy-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+  font-size: 0.62rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.triage-copy-pill:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.triage-card-shell.triage-light .triage-copy-pill:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* ── Triage Physical Card Back Face Layout ────────────────────────────────── */
+.triage-back-section-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.64rem;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+
+.triage-back-alert-box {
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  border-radius: 8px;
+  padding: 6px 8px;
+  margin-bottom: 8px;
+}
+
+.triage-dark .triage-back-alert-box {
+  background: rgba(220, 38, 38, 0.2);
+  border-color: rgba(220, 38, 38, 0.5);
+}
+
+.triage-back-lbl {
+  font-size: 0.52rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+}
+
+.triage-back-val-danger {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #DC2626;
+  line-height: 1.25;
+}
+
+.triage-back-vitals-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.triage-back-vital-item {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  padding: 4px;
+  text-align: center;
+  opacity: 0.9;
+}
+
+.triage-back-vital-lbl {
+  font-size: 0.48rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  opacity: 0.75;
+}
+
+.triage-back-vital-val {
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.triage-back-donor-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.58rem;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  margin-top: auto;
+  opacity: 0.9;
+}
+
+.triage-back-rx-box {
+  border-bottom: 1px dashed currentColor;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.triage-back-rx-text {
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 2px;
+}
+
+.triage-back-instruction-box {
+  margin-bottom: 8px;
+}
+
+.triage-back-instruction-text {
+  font-size: 0.62rem;
+  line-height: 1.35;
+  opacity: 0.8;
+  margin: 2px 0 0 0;
+}
+
+.triage-back-attending-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 0.62rem;
+  margin-top: auto;
+}
+
+.triage-back-val-bold {
+  font-weight: 700;
+  opacity: 0.95;
+}
+
+.triage-verified-tag {
+  font-size: 0.55rem;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid currentColor;
+}
+
 
 /* ── APPLE DESIGN SYSTEM & CLINICAL STUDIO UTILITY KIT ───────────────────────
    Tactile Micro-Interactions • Frosted Glass Surfaces • Optical Spacing
@@ -3073,87 +3818,371 @@ body.high-contrast {
 
 
 
-/* ── SWISS MINIMALIST ZERO BORDER-RADIUS PRECISION SYSTEM ───────────────────
-   Pure Geometric Precision • Crisp 1px Hairline Borders • Sharp Edges
+/* ── Q-RAKSHAK CLINICAL SHAPE & ELEVATION SYSTEM ───────────────────────────
+   Moderate Radii • 1px Precision Cool Gray Borders • Accessible Medical Tech
 ───────────────────────────────────────────────────────────────────────────── */
 
-*,
-*::before,
-*::after,
-button,
-a,
-input,
-select,
-textarea,
+/* Cards & Modals: 14px-16px radius */
 .card-panel,
 .apple-card,
+.emergency-card-panel,
+.emergency-hero-card,
+.emergency-qr-panel,
+.modal-content,
+.cockpit-col {
+  border-radius: 14px !important;
+  border: 1px solid var(--border-default) !important;
+  box-shadow: var(--shadow-card);
+}
+
+/* Form Inputs & Selects: 9px radius, 46px height */
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea,
+.input-control,
+.select-control {
+  border-radius: 9px !important;
+  border: 1px solid var(--border-default);
+}
+
+/* Primary and Secondary Interactive Buttons: 9px radius */
+.btn-primary,
+.btn-secondary,
+.btn-accent,
+.btn-danger,
+.btn-ghost,
 .apple-btn-primary,
 .apple-btn-secondary,
 .apple-btn-accent,
-.apple-segmented-control,
-.apple-segmented-tab,
-.apple-metric-tile,
-.emergency-card-panel,
-.emergency-hero-card,
-.emergency-blood-hero,
-.emergency-brand-icon,
-.emergency-contact-box,
 .emergency-call-btn,
-.emergency-btn-sos,
-.emergency-item-row,
-.emergency-pill-tag,
-.emergency-vital-card,
-.emergency-speed-card,
-.emergency-speed-icon-wrap,
-.emergency-qr-panel,
-.emergency-qr-box,
-.emergency-btn-secondary,
-.emergency-audit-footer,
+.emergency-btn-secondary {
+  border-radius: 9px !important;
+}
+
+/* Badges & Status Chips: 6px-8px or pill */
+.step-badge,
+.step-chip,
 .emergency-badge-donor,
 .emergency-badge-allergy,
-.emergency-badge-permanent,
-.modal-content,
-.step-chip,
-.workflow-stepper,
-.study-card-btn,
-.nav-btn,
-.cockpit-col,
-.id-card-viewport,
-.id-card-viewport.back-face,
-.panel {
-  border-radius: 0px !important;
+.emergency-badge-permanent {
+  border-radius: 6px !important;
 }
 
-/* Subtle architectural box-shadows for sharp flat surfaces */
-.apple-card,
-.emergency-card-panel,
-.emergency-hero-card,
-.emergency-qr-panel,
-.cockpit-col {
-  box-shadow: none !important;
-  border: 1px solid #E2E8F0 !important;
+.pill-badge,
+.user-role-pill {
+  border-radius: 999px !important;
 }
 
-.emergency-hero-card {
-  border: 1.5px solid #0F172A !important;
+/* ── Background Visual Language: Subtle Scientific & Medical Line-Art ────── */
+.medical-grid-bg {
+  background-color: var(--bg-canvas);
+  background-image: 
+    linear-gradient(to right, rgba(217, 226, 236, 0.4) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(217, 226, 236, 0.4) 1px, transparent 1px);
+  background-size: 32px 32px;
 }
 
-.emergency-hero-card::before {
-  display: none !important;
+.medical-subtle-pattern {
+  background-color: #F8FAFC;
+  background-image: radial-gradient(circle at 1px 1px, rgba(8, 127, 140, 0.05) 1px, transparent 0);
+  background-size: 24px 24px;
 }
 
-.emergency-blood-hero {
-  border: 2px solid #0F172A !important;
-  background: #DC2626 !important;
+/* ── Square Matrix Clinical Loader ─────────────────────────────────────────── */
+@keyframes loader_5191 {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
-.emergency-speed-card {
-  box-shadow: none !important;
-  border: 1px solid #E2E8F0 !important;
+.loader {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  display: inline-block;
+  vertical-align: middle;
 }
 
-.emergency-speed-card:hover {
-  border-color: #0F172A !important;
-  background: #F8FAFC !important;
+.square {
+  background: var(--square-color, var(--primary, #087F8C));
+  width: 10px;
+  height: 10px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -5px;
+  margin-left: -5px;
+  border-radius: 2px;
+}
+
+#sq1 {
+  margin-top: -25px;
+  margin-left: -25px;
+  animation: loader_5191 675ms ease-in-out 0s infinite alternate;
+}
+
+#sq2 {
+  margin-top: -25px;
+  animation: loader_5191 675ms ease-in-out 75ms infinite alternate;
+}
+
+#sq3 {
+  margin-top: -25px;
+  margin-left: 15px;
+  animation: loader_5191 675ms ease-in-out 150ms infinite;
+}
+
+#sq4 {
+  margin-left: -25px;
+  animation: loader_5191 675ms ease-in-out 225ms infinite;
+}
+
+#sq5 {
+  animation: loader_5191 675ms ease-in-out 300ms infinite;
+}
+
+#sq6 {
+  margin-left: 15px;
+  animation: loader_5191 675ms ease-in-out 375ms infinite;
+}
+
+#sq7 {
+  margin-top: 15px;
+  margin-left: -25px;
+  animation: loader_5191 675ms ease-in-out 450ms infinite;
+}
+
+#sq8 {
+  margin-top: 15px;
+  animation: loader_5191 675ms ease-in-out 525ms infinite;
+}
+
+#sq9 {
+  margin-top: 15px;
+  margin-left: 15px;
+  animation: loader_5191 675ms ease-in-out 600ms infinite;
+}
+
+.loader.sm {
+  transform: scale(0.65);
+}
+
+.loader.lg {
+  transform: scale(1.3);
+}
+
+.loader.neutral .square {
+  background: #ddd;
+}
+
+/* ── 3D Rotating DNA Helix Visual (Login Page Background) ─────────────────── */
+.dna-viewport-wrap {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: clamp(0px, 1.5vw, 24px);
+  right: auto;
+  width: clamp(280px, 32vw, 440px);
+  height: 100%;
+  min-height: 100vh;
+  perspective: 1100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.52;
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 90%, transparent 100%);
+}
+
+@media (max-width: 1024px) {
+  .dna-viewport-wrap {
+    opacity: 0.20;
+    left: 0;
+    width: 220px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dna-viewport-wrap {
+    display: none;
+  }
+}
+
+/* ── Editorial Main Grid with Horizontal Clearance for DNA Track ─────────── */
+.editorial-main-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: clamp(24px, 4vw, 56px);
+  align-items: center;
+  margin: 32px auto;
+  max-width: 1240px;
+  width: 100%;
+  position: relative;
+  z-index: 10;
+  box-sizing: border-box;
+  padding-left: clamp(20px, 3vw, 48px);
+}
+
+@media (max-width: 768px) {
+  .editorial-main-grid {
+    padding-left: 0;
+  }
+}
+
+.dna {
+  position: relative;
+  transform: rotate(-22deg);
+  transform-style: preserve-3d;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.link {
+  margin: 0.85em auto;
+  width: 9.0em;
+  height: 0.95em;
+  transform-style: preserve-3d;
+  animation: linkY 15s infinite linear;
+  animation-delay: var(--iad);
+}
+
+.link:nth-child(1) { --iad: 0s; }
+.link:nth-child(2) { --iad: -0.625s; }
+.link:nth-child(3) { --iad: -1.25s; }
+.link:nth-child(4) { --iad: -1.875s; }
+.link:nth-child(5) { --iad: -2.5s; }
+.link:nth-child(6) { --iad: -3.125s; }
+.link:nth-child(7) { --iad: -3.75s; }
+.link:nth-child(8) { --iad: -4.375s; }
+.link:nth-child(9) { --iad: -5s; }
+.link:nth-child(10) { --iad: -5.625s; }
+.link:nth-child(11) { --iad: -6.25s; }
+.link:nth-child(12) { --iad: -6.875s; }
+.link:nth-child(13) { --iad: -7.5s; }
+.link:nth-child(14) { --iad: -8.125s; }
+.link:nth-child(15) { --iad: -8.75s; }
+.link:nth-child(16) { --iad: -9.375s; }
+.link:nth-child(17) { --iad: -10s; }
+.link:nth-child(18) { --iad: -10.625s; }
+.link:nth-child(19) { --iad: -11.25s; }
+.link:nth-child(20) { --iad: -11.875s; }
+.link:nth-child(21) { --iad: -12.5s; }
+.link:nth-child(22) { --iad: -13.125s; }
+.link:nth-child(23) { --iad: -13.75s; }
+.link:nth-child(24) { --iad: -14.375s; }
+
+/* Blood red gradient transitions across the base pairs */
+.link:nth-child(4n + 1) {
+  --clr1: #8A0303; /* Deep Crimson Blood */
+  --clr2: #E60000; /* Vivid Arterial Red */
+}
+.link:nth-child(4n + 2) {
+  --clr1: #B22222; /* Firebrick / Blood Vessel Red */
+  --clr2: #FF4D4D; /* Radiant Capillary Red */
+}
+.link:nth-child(4n + 3) {
+  --clr1: #660000; /* Rich Dark Oxblood */
+  --clr2: #C41E3A; /* Cardinal Blood Red */
+}
+.link:nth-child(4n + 4) {
+  --clr1: #A30000; /* Ruby Crimson */
+  --clr2: #FF1A1A; /* Bright Blood Red */
+}
+
+.link > div {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.65;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.4), transparent),
+    linear-gradient(90deg, var(--clr1), var(--clr2));
+  box-shadow: 0 0 0.45em rgba(179, 0, 0, 0.35);
+  animation: linkX 7.5s infinite linear reverse;
+}
+
+@keyframes linkX {
+  0% {
+    transform: rotateX(0deg);
+  }
+  100% {
+    transform: rotateX(360deg);
+  }
+}
+
+.link > div:nth-child(1) {
+  animation-delay: calc(var(--iad) + 0s);
+}
+.link > div:nth-child(2) {
+  animation-delay: calc(var(--iad) + -1.875s);
+}
+.link > div:nth-child(3) {
+  animation-delay: calc(var(--iad) + -3.75s);
+}
+.link > div:nth-child(4) {
+  animation-delay: calc(var(--iad) + -5.625s);
+}
+
+.link::before,
+.link::after {
+  content: "";
+  position: absolute;
+  top: -0.625em;
+  width: 2.2em;
+  height: 2.2em;
+  border-radius: 50%;
+  animation: linkY 15s infinite linear reverse;
+  animation-delay: inherit;
+}
+
+.link::before {
+  left: -1.75em;
+  box-shadow: 0 0 0.75em var(--clr1), 0 0 0.2em rgba(255, 255, 255, 0.7);
+  background-image: radial-gradient(
+    circle at 45% 25%,
+    #FFF 0%,
+    var(--clr1) 50%,
+    #200000 95%
+  );
+}
+
+.link::after {
+  right: -1.75em;
+  box-shadow: 0 0 0.75em var(--clr2), 0 0 0.2em rgba(255, 255, 255, 0.7);
+  background-image: radial-gradient(
+    circle at 45% 25%,
+    #FFF 0%,
+    var(--clr2) 50%,
+    #200000 95%
+  );
+}
+
+@keyframes linkY {
+  0% {
+    transform: rotateY(0deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 

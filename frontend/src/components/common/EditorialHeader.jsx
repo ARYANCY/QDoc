@@ -72,18 +72,31 @@ export default function EditorialHeader({
             gap: "10px",
             padding: 0,
           }}
-          title="Return to Home Overview"
+          title="Return to QRakshak Overview"
         >
           <span
             style={{
-              fontFamily: "var(--font-sans)",
+              fontFamily: "var(--font-display)",
               fontSize: "1.15rem",
-              fontWeight: 800,
+              fontWeight: 700,
               letterSpacing: "-0.02em",
-              color: "var(--ink-primary)",
+              color: "var(--text-primary)",
             }}
           >
-            Q-Rakshak
+            QRakshak
+          </span>
+          <span
+            style={{
+              fontSize: "0.68rem",
+              color: "var(--primary-dark)",
+              background: "var(--primary-soft)",
+              padding: "2px 8px",
+              borderRadius: "6px",
+              fontWeight: 600,
+              letterSpacing: "0.02em",
+            }}
+          >
+            Clinical Platform
           </span>
         </button>
 
@@ -96,7 +109,7 @@ export default function EditorialHeader({
           }}
         />
 
-        {/* Live Quantum Clock & Telemetry */}
+        {/* Live System Status & Telemetry */}
         <div
           className="header-telemetry-desktop"
           style={{
@@ -104,27 +117,27 @@ export default function EditorialHeader({
             alignItems: "center",
             gap: "8px",
             fontFamily: "var(--font-mono)",
-            fontSize: "0.64rem",
-            color: "var(--text-muted)",
+            fontSize: "0.66rem",
+            color: "var(--text-secondary)",
           }}
         >
           <span
             style={{
               display: "inline-block",
-              width: "6px",
-              height: "6px",
+              width: "7px",
+              height: "7px",
               borderRadius: "50%",
-              background: "var(--emerald-couture)",
+              background: "var(--risk-low)",
             }}
           />
+          <span style={{ fontWeight: 600 }}>SYSTEM READY</span>
+          <span style={{ color: "var(--border-hover)" }}>•</span>
           <span>{timeString}</span>
         </div>
       </div>
 
-      {/* ── Right: Notifications, A11y & Profile (Role switch removed; available strictly via login) ── */}
+      {/* ── Right: User Profile & A11y ── */}
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-        {/* Notifications Bell */}
-
         {/* A11y Contrast Toggle */}
         <button
           type="button"
@@ -132,15 +145,18 @@ export default function EditorialHeader({
           onClick={() => setHighContrast(!highContrast)}
           title="Toggle High Contrast Mode"
           style={{
-            background: highContrast ? "var(--ink-primary)" : "var(--bg-surface-alt)",
-            color: highContrast ? "var(--accent-blue)" : "var(--text-muted)",
+            background: highContrast ? "var(--text-primary)" : "var(--bg-surface)",
+            color: highContrast ? "#FFFFFF" : "var(--text-secondary)",
             border: "1px solid var(--border-default)",
-            borderRadius: "var(--radius-xs)",
-            padding: "6px 8px",
+            borderRadius: "8px",
+            padding: "6px 10px",
+            fontSize: "0.74rem",
+            fontWeight: 600,
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            transition: "all 0.15s ease",
           }}
         >
           Aa

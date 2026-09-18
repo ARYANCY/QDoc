@@ -373,52 +373,57 @@ export default function VirtualConsultationRoom({ booking, isDoctor = false, onL
         style={{
           background: "var(--bg-surface)",
           border: "1px solid var(--border-default)",
-          padding: "10px 18px",
+          borderRadius: "14px",
+          padding: "12px 20px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           flexWrap: "wrap",
           gap: "10px",
+          boxShadow: "var(--shadow-card)",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
           <span
             className="step-badge"
             style={{
-              background: isWaiting ? "var(--risk-mid)" : "var(--emerald-couture)",
+              background: isWaiting ? "var(--risk-mid)" : "var(--risk-low)",
               color: "#FFFFFF",
-              letterSpacing: "0.08em",
-              fontSize: "0.66rem",
-              padding: "2px 8px",
+              letterSpacing: "0.06em",
+              fontSize: "0.68rem",
+              padding: "4px 10px",
+              borderRadius: "6px",
+              fontWeight: 600,
             }}
           >
             {isWaiting ? "VIRTUAL WAITING ENCLAVE" : "LIVE WEBRTC SESSION"}
           </span>
-          <span style={{ fontFamily: "var(--font-display)", fontSize: "0.95rem", fontWeight: 800, color: "var(--ink-primary)" }}>
-            {booking.doctor_name || "Unknown clinician"} ↔ {booking.patient_name || "Unknown patient"}
+          <span style={{ fontFamily: "var(--font-display)", fontSize: "0.98rem", fontWeight: 700, color: "var(--text-primary)" }}>
+            {booking.doctor_name || "Clinician"} ↔ {booking.patient_name || "Patient"}
           </span>
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem", color: "var(--text-muted)" }}>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem", color: "var(--text-secondary)" }}>
             [{booking.mode?.toUpperCase()} • {booking.slot_time}]
           </span>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "16px", fontSize: "0.74rem", fontFamily: "var(--font-mono)" }}>
-          <span style={{ display: "flex", alignItems: "center", gap: "5px", color: "var(--emerald-couture)", fontWeight: 700 }}>
+          <span style={{ display: "flex", alignItems: "center", gap: "5px", color: "var(--risk-low)", fontWeight: 700 }}>
             <Lock size={12} /> {connectionStatus}
           </span>
           {isSyntheticStream && (
             <span
               style={{
-                background: "var(--gold-light)",
-                color: "var(--text-gold)",
-                border: "1px solid var(--gold-border)",
-                padding: "1px 6px",
-                fontSize: "0.62rem",
-                fontWeight: 800,
+                background: "var(--primary-soft)",
+                color: "var(--primary-dark)",
+                border: "1px solid var(--border-default)",
+                padding: "2px 8px",
+                fontSize: "0.66rem",
+                borderRadius: "6px",
+                fontWeight: 600,
               }}
               title="Camera simulated with high-tech diagnostic HUD"
             >
-              HOLOGRAPHIC SCANNER ACTIVE
+              CAMERA SCANNER ACTIVE
             </span>
           )}
         </div>
@@ -446,7 +451,7 @@ export default function VirtualConsultationRoom({ booking, isDoctor = false, onL
               alignItems: "center",
               justifyContent: "center",
               overflow: "hidden",
-              borderRadius: "var(--radius-xs)",
+              borderRadius: "14px",
               boxShadow: "0 12px 32px rgba(0, 0, 0, 0.25)",
             }}
           >

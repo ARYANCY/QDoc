@@ -1,11 +1,12 @@
 import React from "react";
 import { Shield, Activity, Heart, AlertTriangle, FileText, CheckCircle2, Stethoscope, Sparkles } from "lucide-react";
+import SquareLoader from "../../../components/common/SquareLoader.jsx";
 
 export default function PatientClinicalDossier({ dossier }) {
   if (!dossier) {
     return (
-      <div style={{ padding: "20px", textAlign: "center", color: "var(--text-muted)", fontSize: "0.76rem" }}>
-        Loading patient clinical dossier...
+      <div style={{ padding: "40px 20px", textAlign: "center", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <SquareLoader size="sm" label="Loading clinical dossier..." />
       </div>
     );
   }

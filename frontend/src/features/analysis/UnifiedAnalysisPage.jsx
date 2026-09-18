@@ -56,6 +56,7 @@ import EditorialHeader from "../../components/common/EditorialHeader.jsx";
 import EditorialFooter from "../../components/common/EditorialFooter.jsx";
 import EditorialHomePage from "../home/EditorialHomePage.jsx";
 import EmptyState from "../../components/common/EmptyState.jsx";
+import SquareLoader from "../../components/common/SquareLoader.jsx";
 import { AIDoctorConsultationPage } from "../ai_doctor/index.js";
 
 import { clinicalApi } from "../../api/clinical";
@@ -439,7 +440,7 @@ export default function UnifiedAnalysisPage() {
       early_detection: "Early detection", portal: "Health records", profile: "Profile",
       doctor_booking: "Find a clinician", my_consultations: "Appointments",
     };
-    document.title = `Q-Rakshak | ${labels[activeTab] || "Hospital Portal"}`;
+    document.title = `QRakshak | ${labels[activeTab] || "Clinical Platform"}`;
   }, [activeTab]);
 
   function resolvePatientId(user) {
@@ -875,8 +876,8 @@ export default function UnifiedAnalysisPage() {
         <div className="sidebar-brand">
           {!sidebarCollapsed ? (
             <div>
-              <h1 className="brand-title" onClick={() => { setActiveTab("home"); setMobileSidebarOpen(false); }} style={{ cursor: "pointer" }}>Q-Rakshak</h1>
-              <p className="brand-subtitle">Hospital Portal</p>
+              <h1 className="brand-title" onClick={() => { setActiveTab("home"); setMobileSidebarOpen(false); }} style={{ cursor: "pointer" }}>QRakshak</h1>
+              <p className="brand-subtitle">Clinical Platform</p>
             </div>
           ) : (
             <span style={{ fontSize: "0.90rem", fontWeight: 900, color: "var(--primary)", fontFamily: "var(--font-mono)" }}>Q</span>
@@ -1294,10 +1295,10 @@ export default function UnifiedAnalysisPage() {
                         style={{ padding: "8px 12px", width: "100%", borderRadius: "var(--radius-sm)" }}
                       >
                         {loading ? (
-                          <>
-                            <RefreshCw size={14} className="spin" />
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                            <SquareLoader size="sm" color="#FFFFFF" style={{ padding: 0 }} />
                             <span>Analyzing Biological Markers with Quantum AI...</span>
-                          </>
+                          </div>
                         ) : (
                           <>
                             <Play size={14} />

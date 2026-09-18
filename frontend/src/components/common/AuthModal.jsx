@@ -115,25 +115,24 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
         style={{
           maxWidth: "640px",
           padding: "24px 28px",
-          borderRadius: "var(--radius-sm)",
+          borderRadius: "14px",
           border: "1px solid var(--border-default)",
-          borderTop: "3px solid var(--accent-blue)",
-          boxShadow: "var(--shadow-modal), 0 20px 50px rgba(2, 132, 199, 0.16)",
+          boxShadow: "var(--shadow-modal)",
           background: "var(--bg-surface)",
         }}
       >
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px", borderBottom: "1px solid var(--border-default)", paddingBottom: "10px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <div style={{ padding: "8px", background: "var(--primary-gradient)", color: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <KeyRound size={20} />
+            <div style={{ width: "32px", height: "32px", borderRadius: "8px", background: "var(--primary)", color: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <KeyRound size={18} />
             </div>
             <div>
-              <div style={{ fontSize: "0.60rem", fontWeight: 800, color: "var(--primary)", letterSpacing: "0.10em", textTransform: "uppercase" }}>
-                USER ACCOUNT
+              <div style={{ fontSize: "0.64rem", fontWeight: 700, color: "var(--primary)", letterSpacing: "0.06em", textTransform: "uppercase", fontFamily: "var(--font-mono)" }}>
+                CLINICAL ACCESS
               </div>
-              <h2 id="auth-modal-title" style={{ fontSize: "1.10rem", fontWeight: 800, color: "var(--text-primary)", margin: "2px 0 0 0" }}>
-                Sign In or Create Account
+              <h2 id="auth-modal-title" style={{ fontSize: "1.15rem", fontWeight: 700, color: "var(--text-primary)", margin: "2px 0 0 0", letterSpacing: "-0.01em" }}>
+                Sign In or Register Account
               </h2>
             </div>
           </div>
@@ -148,19 +147,21 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
         </div>
 
         {/* Mode Switcher Tabs */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "4px", marginBottom: "14px", background: "var(--bg-canvas)", padding: "3px", border: "1px solid var(--border-default)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "4px", marginBottom: "16px", background: "var(--bg-surface-alt)", padding: "4px", borderRadius: "9px" }}>
           <button
             type="button"
             onClick={() => setAuthMode("cards")}
             style={{
               padding: "8px 10px",
-              background: authMode === "cards" ? "var(--primary)" : "transparent",
-              color: authMode === "cards" ? "#FFFFFF" : "var(--text-secondary)",
+              background: authMode === "cards" ? "#FFFFFF" : "transparent",
+              color: authMode === "cards" ? "var(--primary)" : "var(--text-secondary)",
               border: 0,
-              fontSize: "0.72rem",
-              fontWeight: 700,
+              borderRadius: "7px",
+              boxShadow: authMode === "cards" ? "0 1px 3px rgba(15, 23, 42, 0.08)" : "none",
+              fontSize: "0.76rem",
+              fontWeight: 600,
               cursor: "pointer",
-              transition: "all 0.15s ease",
+              transition: "all 0.16s ease",
             }}
           >
             Demo Accounts
@@ -171,13 +172,15 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
             onClick={() => setAuthMode("login")}
             style={{
               padding: "8px 10px",
-              background: authMode === "login" ? "var(--primary)" : "transparent",
-              color: authMode === "login" ? "#FFFFFF" : "var(--text-secondary)",
+              background: authMode === "login" ? "#FFFFFF" : "transparent",
+              color: authMode === "login" ? "var(--primary)" : "var(--text-secondary)",
               border: 0,
-              fontSize: "0.72rem",
-              fontWeight: 700,
+              borderRadius: "7px",
+              boxShadow: authMode === "login" ? "0 1px 3px rgba(15, 23, 42, 0.08)" : "none",
+              fontSize: "0.76rem",
+              fontWeight: 600,
               cursor: "pointer",
-              transition: "all 0.15s ease",
+              transition: "all 0.16s ease",
             }}
           >
             Sign In
@@ -188,20 +191,22 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
             onClick={() => setAuthMode("register")}
             style={{
               padding: "8px 10px",
-              background: authMode === "register" ? "var(--primary)" : "transparent",
-              color: authMode === "register" ? "#FFFFFF" : "var(--text-secondary)",
+              background: authMode === "register" ? "#FFFFFF" : "transparent",
+              color: authMode === "register" ? "var(--primary)" : "var(--text-secondary)",
               border: 0,
-              fontSize: "0.72rem",
-              fontWeight: 700,
+              borderRadius: "7px",
+              boxShadow: authMode === "register" ? "0 1px 3px rgba(15, 23, 42, 0.08)" : "none",
+              fontSize: "0.76rem",
+              fontWeight: 600,
               cursor: "pointer",
-              transition: "all 0.15s ease",
+              transition: "all 0.16s ease",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              gap: "4px",
+              gap: "6px",
             }}
           >
-            <Sparkles size={12} /> Create Account
+            <Sparkles size={12} /> Register
           </button>
         </div>
 

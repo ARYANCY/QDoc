@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Phone, AlertTriangle, Heart, Shield, Activity,
   Pill, User, Droplet, Clock, Stethoscope, Share2,
@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import QRCodeSVG from '../../components/common/QRCodeSVG';
+import TriagePhysicalCard from '../../components/clinical/TriagePhysicalCard';
+import PrintableMedicalCardSheet from '../../components/clinical/PrintableMedicalCardSheet';
 
 export default function EmergencyCardView({ patientId = 'PT-89421' }) {
   const [data, setData] = useState(null);
@@ -15,6 +17,9 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
   const [error, setError] = useState(null);
   const [shakeTriggered, setShakeTriggered] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [cardTheme, setCardTheme] = useState('both'); // 'both' | 'light' | 'dark'
+  const [cardFace, setCardFace] = useState('dual'); // 'dual' | 'front' | 'back'
+  const [printModalOpen, setPrintModalOpen] = useState(false);
 
   // Permanent public portal URL
   const emergencyPortalUrl = typeof window !== 'undefined'
@@ -132,7 +137,7 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
   }
 
   function handlePrint() {
-    window.print();
+    setPrintModalOpen(true);
   }
 
   if (loading) {
@@ -173,13 +178,68 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
           <div>
             <div className="emergency-brand-title">
               <span>CRITICAL MEDICAL PASSPORT</span>
-              <span style={{ width: '6px', height: '6px', background: '#DC2626', display: 'inline-block' }} />
+              <span style={{ width: '6px', height: '6px', background: 'var(--risk-high)', display: 'inline-block', borderRadius: '50%' }} />
             </div>
-            <div className="emergency-brand-sub">Q-RAKSHAK EMERGENCY TRIAGE</div>
+            <div className="emergency-brand-sub">QRakshak Emergency Triage</div>
           </div>
         </div>
 
         <div className="emergency-header-actions">
+          {/* Card Style Switcher */}
+          <div className="no-print" style={{ display: 'inline-flex', background: '#F1F5F9', padding: '3px', borderRadius: '8px', border: '1px solid #CBD5E1', gap: '3px' }}>
+            <button
+              type="button"
+              onClick={() => setCardTheme('both')}
+              style={{
+                background: cardTheme === 'both' ? '#FFFFFF' : 'transparent',
+                color: cardTheme === 'both' ? '#0F172A' : '#64748B',
+                border: 0,
+                borderRadius: '6px',
+                padding: '5px 10px',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: cardTheme === 'both' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+              }}
+            >
+              Both Cards
+            </button>
+            <button
+              type="button"
+              onClick={() => setCardTheme('light')}
+              style={{
+                background: cardTheme === 'light' ? '#FFFFFF' : 'transparent',
+                color: cardTheme === 'light' ? '#0F172A' : '#64748B',
+                border: 0,
+                borderRadius: '6px',
+                padding: '5px 10px',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: cardTheme === 'light' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+              }}
+            >
+              Day White
+            </button>
+            <button
+              type="button"
+              onClick={() => setCardTheme('dark')}
+              style={{
+                background: cardTheme === 'dark' ? '#0F172A' : 'transparent',
+                color: cardTheme === 'dark' ? '#FFFFFF' : '#64748B',
+                border: 0,
+                borderRadius: '6px',
+                padding: '5px 10px',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: cardTheme === 'dark' ? '0 1px 3px rgba(0,0,0,0.2)' : 'none',
+              }}
+            >
+              Matte Black
+            </button>
+          </div>
+
           <button
             type="button"
             onClick={handlePrint}
@@ -376,6 +436,235 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
           <div className="emergency-blood-hero">
             <span className="emergency-blood-title">BLOOD</span>
             <span className="emergency-blood-value">{data?.blood_group || 'O+'}</span>
+          </div>
+        </div>
+
+        {/* ── PHYSICAL CARD SHOWCASE (MATCHING USER REFERENCE DESIGN) ── */}
+        <div style={{ margin: '8px 0 16px 0' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <QrCode size={18} color="#0F172A" />
+              <h2 style={{ fontSize: '0.95rem', fontWeight: 800, margin: 0, color: '#0F172A', letterSpacing: '-0.01em' }}>
+                Physical-Digital Emergency Triage Passports
+              </h2>
+            </div>
+
+            {/* Theme & Face Controls */}
+            <div className="no-print" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              {/* Theme Selector */}
+              <div style={{ display: 'inline-flex', background: '#F1F5F9', padding: '3px', borderRadius: '8px', border: '1px solid #CBD5E1', gap: '2px' }}>
+                <button
+                  type="button"
+                  onClick={() => setCardTheme('both')}
+                  style={{
+                    background: cardTheme === 'both' ? '#FFFFFF' : 'transparent',
+                    color: cardTheme === 'both' ? '#0F172A' : '#64748B',
+                    border: 0,
+                    borderRadius: '6px',
+                    padding: '4px 9px',
+                    fontSize: '0.70rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: cardTheme === 'both' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                  }}
+                >
+                  Both Editions
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCardTheme('light')}
+                  style={{
+                    background: cardTheme === 'light' ? '#FFFFFF' : 'transparent',
+                    color: cardTheme === 'light' ? '#0F172A' : '#64748B',
+                    border: 0,
+                    borderRadius: '6px',
+                    padding: '4px 9px',
+                    fontSize: '0.70rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: cardTheme === 'light' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                  }}
+                >
+                  Day White
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCardTheme('dark')}
+                  style={{
+                    background: cardTheme === 'dark' ? '#0F172A' : 'transparent',
+                    color: cardTheme === 'dark' ? '#FFFFFF' : '#64748B',
+                    border: 0,
+                    borderRadius: '6px',
+                    padding: '4px 9px',
+                    fontSize: '0.70rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: cardTheme === 'dark' ? '0 1px 3px rgba(0,0,0,0.2)' : 'none',
+                  }}
+                >
+                  Matte Black
+                </button>
+              </div>
+
+              {/* Face Selector: Front, Back, Dual */}
+              <div style={{ display: 'inline-flex', background: '#F1F5F9', padding: '3px', borderRadius: '8px', border: '1px solid #CBD5E1', gap: '2px' }}>
+                <button
+                  type="button"
+                  onClick={() => setCardFace('dual')}
+                  style={{
+                    background: cardFace === 'dual' ? '#FFFFFF' : 'transparent',
+                    color: cardFace === 'dual' ? '#087F8C' : '#64748B',
+                    border: 0,
+                    borderRadius: '6px',
+                    padding: '4px 9px',
+                    fontSize: '0.70rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: cardFace === 'dual' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                  }}
+                >
+                  Dual View (Front + Back)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCardFace('front')}
+                  style={{
+                    background: cardFace === 'front' ? '#FFFFFF' : 'transparent',
+                    color: cardFace === 'front' ? '#087F8C' : '#64748B',
+                    border: 0,
+                    borderRadius: '6px',
+                    padding: '4px 9px',
+                    fontSize: '0.70rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: cardFace === 'front' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                  }}
+                >
+                  Front Face
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCardFace('back')}
+                  style={{
+                    background: cardFace === 'back' ? '#FFFFFF' : 'transparent',
+                    color: cardFace === 'back' ? '#087F8C' : '#64748B',
+                    border: 0,
+                    borderRadius: '6px',
+                    padding: '4px 9px',
+                    fontSize: '0.70rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: cardFace === 'back' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                  }}
+                >
+                  Back Face (Clinical)
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Cards Showcase Render */}
+          <div
+            style={{
+              display: 'flex',
+              gap: '24px',
+              justifyContent: 'center',
+              alignItems: 'flex-start',
+              flexWrap: 'wrap',
+              padding: '16px 8px',
+            }}
+          >
+            {/* DAY WHITE EDITION */}
+            {(cardTheme === 'both' || cardTheme === 'light') && (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', width: '100%', maxWidth: cardFace === 'dual' ? '920px' : '480px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0F172A', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                    Clinical White Edition (Day / Print)
+                  </span>
+                  {cardFace === 'dual' && (
+                    <span style={{ fontSize: '0.58rem', fontWeight: 700, color: '#087F8C', background: '#EBF8FA', padding: '1px 6px', borderRadius: '4px' }}>
+                      FRONT + BACK DUAL VIEW
+                    </span>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center', width: '100%' }}>
+                  {(cardFace === 'dual' || cardFace === 'front') && (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', width: '100%', maxWidth: '440px' }}>
+                      <span style={{ fontSize: '0.58rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Front View (QR & ID)</span>
+                      <TriagePhysicalCard
+                        patient={data}
+                        variant="light"
+                        face="front"
+                        emergencyPortalUrl={emergencyPortalUrl}
+                        onCopy={copyTriageLink}
+                        copied={copiedLink}
+                      />
+                    </div>
+                  )}
+
+                  {(cardFace === 'dual' || cardFace === 'back') && (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', width: '100%', maxWidth: '440px' }}>
+                      <span style={{ fontSize: '0.58rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Back View (Allergies, Rx & Vitals)</span>
+                      <TriagePhysicalCard
+                        patient={data}
+                        variant="light"
+                        face="back"
+                        emergencyPortalUrl={emergencyPortalUrl}
+                        onCopy={copyTriageLink}
+                        copied={copiedLink}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* MATTE CHARCOAL EDITION */}
+            {(cardTheme === 'both' || cardTheme === 'dark') && (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', width: '100%', maxWidth: cardFace === 'dual' ? '920px' : '480px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0F172A', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                    Matte Charcoal Edition (Emergency First Responder)
+                  </span>
+                  {cardFace === 'dual' && (
+                    <span style={{ fontSize: '0.58rem', fontWeight: 700, color: '#087F8C', background: '#EBF8FA', padding: '1px 6px', borderRadius: '4px' }}>
+                      FRONT + BACK DUAL VIEW
+                    </span>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center', width: '100%' }}>
+                  {(cardFace === 'dual' || cardFace === 'front') && (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', width: '100%', maxWidth: '440px' }}>
+                      <span style={{ fontSize: '0.58rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Front View (QR & ID)</span>
+                      <TriagePhysicalCard
+                        patient={data}
+                        variant="dark"
+                        face="front"
+                        emergencyPortalUrl={emergencyPortalUrl}
+                        onCopy={copyTriageLink}
+                        copied={copiedLink}
+                      />
+                    </div>
+                  )}
+
+                  {(cardFace === 'dual' || cardFace === 'back') && (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', width: '100%', maxWidth: '440px' }}>
+                      <span style={{ fontSize: '0.58rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Back View (Allergies, Rx & Vitals)</span>
+                      <TriagePhysicalCard
+                        patient={data}
+                        variant="dark"
+                        face="back"
+                        emergencyPortalUrl={emergencyPortalUrl}
+                        onCopy={copyTriageLink}
+                        copied={copiedLink}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -668,6 +957,222 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
 
         </div>
       </main>
+
+      {/* ── Dedicated Invisible Print Sheet (Rendered by @media print / window.print) ── */}
+      <PrintableMedicalCardSheet
+        patient={data}
+        cardTheme={cardTheme}
+        cardFace={cardFace}
+        emergencyPortalUrl={emergencyPortalUrl}
+      />
+
+      {/* ── Interactive Print / Save PDF Preview Modal ── */}
+      {printModalOpen && (
+        <div
+          className="modal-overlay no-print"
+          onClick={() => setPrintModalOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 1100,
+            background: 'rgba(15, 23, 42, 0.75)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+          }}
+        >
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: '#FFFFFF',
+              borderRadius: '16px',
+              maxWidth: '900px',
+              width: '100%',
+              maxHeight: '92vh',
+              overflowY: 'auto',
+              padding: '24px',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+            }}
+          >
+            {/* Modal Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #E2E8F0', paddingBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Printer size={18} color="#087F8C" />
+                  <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 900, color: '#0F172A' }}>
+                    Print & Save PDF Medical ID Sheet
+                  </h3>
+                </div>
+                <span style={{ fontSize: '0.72rem', color: '#64748B', marginTop: '2px', display: 'block' }}>
+                  ISO/IEC 7810 ID-1 Standard (85.60 mm × 53.98 mm) • Scaled for double-sided wallet card lamination
+                </span>
+              </div>
+
+              {/* Theme & Face Controls */}
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <div style={{ display: 'inline-flex', background: '#F1F5F9', padding: '3px', borderRadius: '8px', border: '1px solid #CBD5E1', gap: '2px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setCardTheme('both')}
+                    style={{
+                      background: cardTheme === 'both' ? '#FFFFFF' : 'transparent',
+                      color: cardTheme === 'both' ? '#0F172A' : '#64748B',
+                      border: 0,
+                      borderRadius: '6px',
+                      padding: '4px 8px',
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      boxShadow: cardTheme === 'both' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
+                    }}
+                  >
+                    Both Editions
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCardTheme('light')}
+                    style={{
+                      background: cardTheme === 'light' ? '#FFFFFF' : 'transparent',
+                      color: cardTheme === 'light' ? '#0F172A' : '#64748B',
+                      border: 0,
+                      borderRadius: '6px',
+                      padding: '4px 8px',
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      boxShadow: cardTheme === 'light' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
+                    }}
+                  >
+                    Day White
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCardTheme('dark')}
+                    style={{
+                      background: cardTheme === 'dark' ? '#0F172A' : 'transparent',
+                      color: cardTheme === 'dark' ? '#FFFFFF' : '#64748B',
+                      border: 0,
+                      borderRadius: '6px',
+                      padding: '4px 8px',
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      boxShadow: cardTheme === 'dark' ? '0 1px 2px rgba(0,0,0,0.2)' : 'none',
+                    }}
+                  >
+                    Matte Black
+                  </button>
+                </div>
+
+                <div style={{ display: 'inline-flex', background: '#F1F5F9', padding: '3px', borderRadius: '8px', border: '1px solid #CBD5E1', gap: '2px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setCardFace('dual')}
+                    style={{
+                      background: cardFace === 'dual' ? '#FFFFFF' : 'transparent',
+                      color: cardFace === 'dual' ? '#087F8C' : '#64748B',
+                      border: 0,
+                      borderRadius: '6px',
+                      padding: '4px 8px',
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      boxShadow: cardFace === 'dual' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
+                    }}
+                  >
+                    Dual (Front+Back)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCardFace('front')}
+                    style={{
+                      background: cardFace === 'front' ? '#FFFFFF' : 'transparent',
+                      color: cardFace === 'front' ? '#087F8C' : '#64748B',
+                      border: 0,
+                      borderRadius: '6px',
+                      padding: '4px 8px',
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      boxShadow: cardFace === 'front' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
+                    }}
+                  >
+                    Front
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCardFace('back')}
+                    style={{
+                      background: cardFace === 'back' ? '#FFFFFF' : 'transparent',
+                      color: cardFace === 'back' ? '#087F8C' : '#64748B',
+                      border: 0,
+                      borderRadius: '6px',
+                      padding: '4px 8px',
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      boxShadow: cardFace === 'back' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
+                    }}
+                  >
+                    Back
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Live Document Preview */}
+            <div className="print-preview-container" style={{ background: '#F8FAFC', border: '1.5px dashed #CBD5E1', borderRadius: '10px', padding: '16px', maxHeight: '56vh', overflowY: 'auto' }}>
+              <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
+                <span>Print Document Preview (Live Card Sheet)</span>
+                <span>ISO/IEC 7810 ID-1 • A4 / Letter</span>
+              </div>
+              <div>
+                <PrintableMedicalCardSheet
+                  patient={data}
+                  cardTheme={cardTheme}
+                  cardFace={cardFace}
+                  emergencyPortalUrl={emergencyPortalUrl}
+                />
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #E2E8F0', paddingTop: '12px', flexWrap: 'wrap', gap: '10px' }}>
+              <div style={{ fontSize: '0.72rem', color: '#64748B' }}>
+                Tip: In the print dialog, select <strong>"Save as PDF"</strong> or your local color printer. Scale: <strong>100%</strong>.
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  onClick={() => setPrintModalOpen(false)}
+                  className="btn-secondary"
+                  style={{ padding: '8px 14px', fontSize: '0.78rem' }}
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPrintModalOpen(false);
+                    setTimeout(() => window.print(), 120);
+                  }}
+                  className="btn-primary"
+                  style={{ padding: '8px 18px', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Printer size={15} />
+                  <span>Print Now / Save as PDF</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

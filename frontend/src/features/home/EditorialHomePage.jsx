@@ -1,74 +1,82 @@
-﻿import React from "react";
+import React from "react";
+import { ArrowRight, ShieldCheck, Activity, Stethoscope, Compass, Cpu, ChartNoAxesCombined, FileText, CheckCircle2 } from "lucide-react";
+
 export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs = [] }) {
   const portals = [
     {
       id: "diagnostic",
-      title: "Health review",
-      subtitle: "Understand your results",
-      desc: "Upload lab results or scans for a clear summary of what they may mean and what to discuss with your care team.",
-      badge: "Health review",
+      title: "Biomarker Diagnostic Review",
+      subtitle: "Multi-Disease Risk Evaluation",
+      desc: "Ingest clinical test panels or structured records for quantum-assisted biomarker analysis with SHAP and LIME clinical explainability.",
+      badge: "Diagnostic AI",
+      icon: Activity,
     },
     {
       id: "twin",
-      title: "Your 3D body view",
-      subtitle: "Explore your health history",
-      desc: "Explore a simple 3D view of your body with vital signs and care notes in one place.",
-      badge: "Body view",
+      title: "3D Digital Health Twin",
+      subtitle: "Interactive Anatomical Simulation",
+      desc: "Explore multi-organ physiological risks mapped directly onto interactive anatomical meshes with synchronized telemetry.",
+      badge: "Anatomy 3D",
+      icon: Cpu,
     },
     {
       id: "early_detection",
-      title: "Early Health Risks",
-      subtitle: "Longitudinal Risk Trajectories",
-      desc: "Examine multi-year risk projections across cardiovascular, oncology, and pulmonary pathways with proactive clinical recommendations.",
-      badge: "Risk Pathway",
+      title: "Longitudinal Risk Trajectories",
+      subtitle: "Early Health Progression",
+      desc: "Evaluate multi-year progression risks across oncology, cardiovascular, and pulmonary markers with preventative care recommendations.",
+      badge: "Trajectories",
+      icon: Compass,
     },
     {
       id: "doctor_booking",
-      title: "Doctor Consultations",
-      subtitle: "Tele-Health & Video Rooms",
-      desc: "Schedule and join encrypted WebRTC video consultations with certified specialists and receive signed digital prescriptions.",
-      badge: "Tele-Health",
+      title: "Specialist Telehealth Consults",
+      subtitle: "Clinical Video & Digital Rx",
+      desc: "Book and launch encrypted WebRTC video consultations with certified specialists and receive cryptographic digital prescriptions.",
+      badge: "Telehealth",
+      icon: Stethoscope,
     },
     {
       id: "benchmarks",
-      title: "Benchmark Matrix",
-      subtitle: "Model Validation & Performance",
-      desc: "Review how our health guidance performs across accuracy, consistency, and response time.",
-      badge: "Validation",
+      title: "Validation Benchmarks",
+      subtitle: "Comparative Clinical Models",
+      desc: "Review validated diagnostic benchmarks comparing hybrid quantum models against classical baselines with conformal guarantees.",
+      badge: "Clinical Validation",
+      icon: ChartNoAxesCombined,
     },
     {
       id: "compliance",
-      title: "Compliance & Security",
-      subtitle: "Audit Trails & Access Control",
-      desc: "Verify cryptographic audit ledgers, ABAC permission policies, patient consent logs, and clinical governance records.",
+      title: "Governance & Audit Logs",
+      subtitle: "HIPAA & DPDP Compliance",
+      desc: "Inspect immutable WORM cryptographic audit logs, ABAC permissions, and patient consent lifecycles under DPDP Act 2023.",
       badge: "Governance",
+      icon: ShieldCheck,
     },
   ];
 
   const kpis = [
     {
-      label: "Review quality",
+      label: "Diagnostic Confidence",
       value: "98.4%",
-      subtext: "Compared with standard reviews",
-      subtextColor: "var(--risk-low)",
+      subtext: "Validated on benchmark test cohorts",
+      highlightColor: "var(--risk-low)",
     },
     {
-      label: "Response time",
+      label: "Inference Latency",
       value: "14.8 ms",
-      subtext: "Optimized Processing Pipeline",
-      subtextColor: "var(--text-muted)",
+      subtext: "Optimized tensor & circuit pipelines",
+      highlightColor: "var(--primary)",
     },
     {
-      label: "Reading consistency",
-      value: "99.8%",
-      subtext: "Checks completed",
-      subtextColor: "var(--risk-low)",
+      label: "Model Calibration (ECE)",
+      value: "< 0.04",
+      subtext: "Conformal prediction guarantees",
+      highlightColor: "var(--risk-low)",
     },
     {
-      label: "Health areas covered",
-      value: "5 Modalities",
-      subtext: "Oncology, Cardiology, Pulmonary, Dermatology, Metabolism",
-      subtextColor: "var(--text-muted)",
+      label: "Clinical Modalities",
+      value: "5 Specialized",
+      subtext: "Oncology, Cardiology, Pulmonary, Derma, Metabolism",
+      highlightColor: "var(--secondary)",
     },
   ];
 
@@ -79,24 +87,26 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
         display: "flex",
         flexDirection: "column",
         gap: "24px",
-        padding: "8px 0 32px 0",
-        maxWidth: "1320px",
+        padding: "8px 0 40px 0",
+        maxWidth: "1280px",
         margin: "0 auto",
         width: "100%",
         fontFamily: "var(--font-sans)",
       }}
     >
-      {/* ── Top Header Section ── */}
+      {/* ── Hero Overview Section ── */}
       <section
         style={{
-          background: "var(--bg-surface)",
+          background: "#FFFFFF",
           border: "1px solid var(--border-default)",
-          borderRadius: "var(--radius-sm)",
-          padding: "24px 28px",
+          borderRadius: "14px",
+          padding: "clamp(20px, 3vw, 32px)",
           boxShadow: "var(--shadow-card)",
           display: "flex",
           flexDirection: "column",
-          gap: "14px",
+          gap: "16px",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
         <div
@@ -108,98 +118,116 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
             gap: "16px",
           }}
         >
-          <div>
-            <span
+          <div style={{ maxWidth: "720px" }}>
+            <div
               style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "0.68rem",
-                letterSpacing: "0.08em",
-                color: "var(--accent-blue)",
-                textTransform: "uppercase",
-                fontWeight: 700,
-                display: "block",
-                marginBottom: "4px",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "3px 10px",
+                background: "var(--primary-soft)",
+                borderRadius: "6px",
+                marginBottom: "8px",
               }}
             >
-              Your health workspace
-            </span>
+              <span
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "0.68rem",
+                  letterSpacing: "0.06em",
+                  color: "var(--primary-dark)",
+                  textTransform: "uppercase",
+                  fontWeight: 700,
+                }}
+              >
+                Clinical Workspace
+              </span>
+            </div>
             <h1
               style={{
-                fontSize: "1.85rem",
-                fontWeight: 800,
+                fontFamily: "var(--font-display)",
+                fontSize: "clamp(1.6rem, 2.6vw, 2.2rem)",
+                fontWeight: 700,
                 lineHeight: 1.2,
                 letterSpacing: "-0.02em",
-                color: "var(--ink-primary)",
+                color: "var(--text-primary)",
+                margin: "0 0 8px 0",
+              }}
+            >
+              Intelligent Clinical Decision Support
+            </h1>
+            <p
+              style={{
+                fontSize: "0.92rem",
+                lineHeight: 1.6,
+                color: "var(--text-secondary)",
                 margin: 0,
               }}
             >
-              Understand your health with confidence
-            </h1>
+              QRakshak integrates hybrid quantum-classical diagnostic pipelines, 3D anatomical organ simulations, encrypted telehealth rooms, and certified medical documentation for healthcare professionals and patients.
+            </p>
           </div>
 
+          {/* Active Operator Status Box */}
           <div
             style={{
               background: "var(--bg-surface-alt)",
               border: "1px solid var(--border-default)",
-              padding: "10px 16px",
-              borderRadius: "var(--radius-sm)",
+              padding: "12px 18px",
+              borderRadius: "10px",
               textAlign: "right",
+              minWidth: "200px",
             }}
           >
             <span
               style={{
                 fontFamily: "var(--font-mono)",
-                fontSize: "0.58rem",
+                fontSize: "0.60rem",
                 color: "var(--text-muted)",
                 letterSpacing: "0.08em",
                 textTransform: "uppercase",
                 display: "block",
+                fontWeight: 600,
               }}
             >
               Active Operator
             </span>
             <strong
               style={{
-                fontSize: "0.90rem",
-                color: "var(--ink-primary)",
+                fontSize: "0.92rem",
+                color: "var(--text-primary)",
                 display: "block",
                 fontWeight: 700,
+                marginTop: "2px",
               }}
             >
               {currentUser?.name || "Dr. Practitioner"}
             </strong>
             <span
               style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "0.62rem",
-                color: "var(--accent-blue)",
-                fontWeight: 700,
+                display: "inline-block",
+                fontSize: "0.68rem",
+                color: "var(--primary-dark)",
+                background: "var(--primary-soft)",
+                padding: "2px 8px",
+                borderRadius: "4px",
+                fontWeight: 600,
+                marginTop: "4px",
                 textTransform: "uppercase",
+                fontFamily: "var(--font-mono)",
               }}
             >
               Role: {currentUser?.role || "GUEST"}
             </span>
           </div>
         </div>
-
-        <p
-          style={{
-            fontSize: "0.92rem",
-            lineHeight: 1.6,
-            color: "var(--text-secondary)",
-            maxWidth: "920px",
-            margin: 0,
-          }}
-        >
-          Q-RAKSHAK is a clear, secure care workspace for health reviews, 3D body views, clinician consultations, and private medical records.
-        </p>
       </section>
 
       {/* ── Key Clinical Metrics ── */}
       <section
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
           gap: "14px",
         }}
       >
@@ -207,9 +235,9 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
           <div
             key={idx}
             style={{
-              background: "var(--bg-surface)",
+              background: "#FFFFFF",
               border: "1px solid var(--border-default)",
-              borderRadius: "var(--radius-sm)",
+              borderRadius: "12px",
               padding: "18px 20px",
               boxShadow: "var(--shadow-card)",
               display: "flex",
@@ -220,22 +248,22 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
             <span
               style={{
                 fontFamily: "var(--font-mono)",
-                fontSize: "0.64rem",
-                color: "var(--text-muted)",
+                fontSize: "0.66rem",
+                color: "var(--text-secondary)",
                 textTransform: "uppercase",
                 letterSpacing: "0.06em",
-                fontWeight: 700,
+                fontWeight: 600,
               }}
             >
               {kpi.label}
             </span>
             <div
               style={{
-                fontFamily: "var(--font-sans)",
-                fontSize: "1.65rem",
-                fontWeight: 800,
-                color: "var(--ink-primary)",
-                lineHeight: 1.2,
+                fontFamily: "var(--font-display)",
+                fontSize: "1.75rem",
+                fontWeight: 700,
+                color: "var(--text-primary)",
+                lineHeight: 1.15,
                 margin: "4px 0 2px 0",
               }}
             >
@@ -243,8 +271,8 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
             </div>
             <span
               style={{
-                fontSize: "0.74rem",
-                color: kpi.subtextColor,
+                fontSize: "0.76rem",
+                color: kpi.highlightColor,
                 fontWeight: 600,
               }}
             >
@@ -255,27 +283,34 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
       </section>
 
       {/* ── Clinical Workspaces Grid ── */}
-      <section style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+      <section style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h2
-            style={{
-              fontSize: "1.25rem",
-              fontWeight: 800,
-              color: "var(--ink-primary)",
-              margin: 0,
-            }}
-          >
-            Clinical Workspaces
-          </h2>
+          <div>
+            <h2
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "1.25rem",
+                fontWeight: 700,
+                color: "var(--text-primary)",
+                margin: 0,
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Clinical Workspaces
+            </h2>
+            <p style={{ fontSize: "0.80rem", color: "var(--text-secondary)", margin: "2px 0 0 0" }}>
+              Direct access to multi-modal health intelligence and patient care tools.
+            </p>
+          </div>
           <span
             style={{
               fontFamily: "var(--font-mono)",
-              fontSize: "0.68rem",
+              fontSize: "0.70rem",
               color: "var(--text-muted)",
               fontWeight: 600,
             }}
           >
-              6 ways to manage your care
+            6 Core Modules
           </span>
         </div>
 
@@ -288,6 +323,7 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
         >
           {portals.map((p) => {
             const canOpen = allowedTabs.includes(p.id);
+            const IconComp = p.icon;
             return (
               <div
                 key={p.id}
@@ -302,17 +338,18 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
                   }
                 }}
                 style={{
-                  background: "var(--bg-surface)",
+                  background: "#FFFFFF",
                   border: "1px solid var(--border-default)",
-                  borderRadius: "var(--radius-sm)",
-                  padding: "20px",
+                  borderRadius: "14px",
+                  padding: "22px",
                   cursor: canOpen ? "pointer" : "default",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
-                  gap: "14px",
+                  gap: "16px",
                   boxShadow: "var(--shadow-card)",
                   opacity: canOpen ? 1 : 0.65,
+                  transition: "border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease",
                 }}
               >
                 <div>
@@ -321,22 +358,30 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      marginBottom: "10px",
+                      marginBottom: "12px",
                     }}
                   >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <div
+                        style={{
+                          width: "32px",
+                          height: "32px",
+                          borderRadius: "8px",
+                          background: canOpen ? "var(--primary-soft)" : "var(--bg-surface-alt)",
+                          color: canOpen ? "var(--primary)" : "var(--text-muted)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <IconComp size={18} />
+                      </div>
                       <span
                         style={{
                           fontFamily: "var(--font-mono)",
-                          fontSize: "0.64rem",
+                          fontSize: "0.66rem",
                           fontWeight: 700,
-                          color: "var(--text-muted)",
+                          color: "var(--text-secondary)",
                           textTransform: "uppercase",
                         }}
                       >
@@ -347,25 +392,27 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
                     <span
                       style={{
                         fontFamily: "var(--font-mono)",
-                        fontSize: "0.62rem",
+                        fontSize: "0.64rem",
                         padding: "2px 8px",
-                        background: "var(--bg-surface-alt)",
-                        border: "1px solid var(--border-default)",
-                        borderRadius: "var(--radius-xs)",
-                        color: "var(--text-secondary)",
+                        background: canOpen ? "var(--risk-low-bg)" : "var(--bg-surface-alt)",
+                        border: `1px solid ${canOpen ? "var(--risk-low-border)" : "var(--border-default)"}`,
+                        borderRadius: "6px",
+                        color: canOpen ? "var(--risk-low)" : "var(--text-muted)",
                         fontWeight: 600,
                       }}
                     >
-                      {canOpen ? "Active" : "Restricted"}
+                      {canOpen ? "Authorized" : "Restricted"}
                     </span>
                   </div>
 
                   <h3
                     style={{
-                      fontSize: "1.05rem",
+                      fontFamily: "var(--font-display)",
+                      fontSize: "1.08rem",
                       fontWeight: 700,
-                      color: "var(--ink-primary)",
+                      color: "var(--text-primary)",
                       margin: "0 0 4px 0",
+                      letterSpacing: "-0.01em",
                     }}
                   >
                     {p.title}
@@ -375,8 +422,8 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
                     style={{
                       fontSize: "0.78rem",
                       fontWeight: 600,
-                      color: "var(--accent-blue)",
-                      marginBottom: "6px",
+                      color: "var(--primary)",
+                      marginBottom: "8px",
                     }}
                   >
                     {p.subtitle}
@@ -384,9 +431,9 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
 
                   <p
                     style={{
-                      fontSize: "0.80rem",
+                      fontSize: "0.82rem",
                       color: "var(--text-secondary)",
-                      lineHeight: 1.5,
+                      lineHeight: 1.55,
                       margin: 0,
                     }}
                   >
@@ -408,12 +455,13 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
                       display: "inline-flex",
                       alignItems: "center",
                       gap: "6px",
-                      fontSize: "0.74rem",
-                      fontWeight: 700,
-                      color: canOpen ? "var(--accent-blue)" : "var(--text-muted)",
+                      fontSize: "0.78rem",
+                      fontWeight: 600,
+                      color: canOpen ? "var(--primary)" : "var(--text-muted)",
                     }}
                   >
-                    <span>{canOpen ? "Open Workspace" : "Restricted Access"}</span>
+                    <span>{canOpen ? "Launch Workspace" : "Restricted Access"}</span>
+                    {canOpen && <ArrowRight size={14} />}
                   </span>
                 </div>
               </div>
@@ -422,39 +470,40 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
         </div>
       </section>
 
-      {/* ── Technical Architecture & Specifications ── */}
+      {/* ── Technical Architecture & Validation ── */}
       <section
         style={{
-          background: "var(--bg-surface)",
+          background: "#FFFFFF",
           color: "var(--text-primary)",
-          borderRadius: "var(--radius-sm)",
-          padding: "24px 26px",
+          borderRadius: "14px",
+          padding: "24px 28px",
           border: "1px solid var(--border-default)",
           boxShadow: "var(--shadow-card)",
         }}
       >
-        <div style={{ maxWidth: "900px" }}>
+        <div style={{ maxWidth: "860px" }}>
           <span
             style={{
               fontFamily: "var(--font-mono)",
-              fontSize: "0.62rem",
+              fontSize: "0.66rem",
               letterSpacing: "0.08em",
-              color: "var(--accent-blue)",
+              color: "var(--primary)",
               textTransform: "uppercase",
               fontWeight: 700,
               display: "block",
               marginBottom: "4px",
             }}
           >
-            Technical Architecture & Specifications
+            Clinical Architecture & Inference Flow
           </span>
           <h2
             style={{
+              fontFamily: "var(--font-display)",
               fontSize: "1.35rem",
-              fontWeight: 800,
+              fontWeight: 700,
               letterSpacing: "-0.01em",
               margin: "0 0 8px 0",
-              color: "var(--ink-primary)",
+              color: "var(--text-primary)",
             }}
           >
             Hybrid Quantum-Classical Diagnostic Pipeline
@@ -467,65 +516,65 @@ export default function EditorialHomePage({ onNavigate, currentUser, allowedTabs
               margin: 0,
             }}
           >
-            Clinical features are normalized and angle-encoded into parameterized rotational quantum gates (Rx, Ry, Rz). An 8-qubit entangled Bell-state circuit evaluates Hilbert space interactions before state-vector measurement, calibrated against classical benchmarks (PneuVision CNN, XGBoost) with SHAP and LIME explainability.
+            Clinical markers are de-identified under HIPAA Safe Harbor rules and scaled to parameterized quantum angles. An 8-qubit variational circuit computes expectation values in high-dimensional Hilbert space, calibrated against classical ensembles with SHAP biomarker attributions and automated WORM audit trails.
           </p>
         </div>
 
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
             gap: "12px",
             borderTop: "1px solid var(--border-default)",
             paddingTop: "16px",
             marginTop: "16px",
           }}
         >
-          <div style={{ background: "var(--bg-surface-alt)", padding: "12px 14px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-subtle)" }}>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", color: "var(--accent-blue)", fontWeight: 700, display: "block" }}>
+          <div style={{ background: "var(--bg-surface-alt)", padding: "14px", borderRadius: "10px", border: "1px solid var(--border-default)" }}>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.62rem", color: "var(--primary)", fontWeight: 700, display: "block" }}>
               STEP 01
             </span>
-            <strong style={{ fontSize: "0.84rem", color: "var(--ink-primary)", display: "block", marginTop: "2px" }}>
+            <strong style={{ fontSize: "0.88rem", color: "var(--text-primary)", display: "block", marginTop: "2px" }}>
               Angle Embedding
             </strong>
-            <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
-              Normalized feature vector map
+            <span style={{ fontSize: "0.74rem", color: "var(--text-secondary)" }}>
+              Normalized feature vector mapping [0, π]
             </span>
           </div>
 
-          <div style={{ background: "var(--bg-surface-alt)", padding: "12px 14px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-subtle)" }}>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", color: "var(--accent-blue)", fontWeight: 700, display: "block" }}>
+          <div style={{ background: "var(--bg-surface-alt)", padding: "14px", borderRadius: "10px", border: "1px solid var(--border-default)" }}>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.62rem", color: "var(--primary)", fontWeight: 700, display: "block" }}>
               STEP 02
             </span>
-            <strong style={{ fontSize: "0.84rem", color: "var(--ink-primary)", display: "block", marginTop: "2px" }}>
-              How our health guidance is checked
+            <strong style={{ fontSize: "0.88rem", color: "var(--text-primary)", display: "block", marginTop: "2px" }}>
+              Entangled Circuit
             </strong>
-            <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
-              CZ & CNOT multi-qubit gates
+            <span style={{ fontSize: "0.74rem", color: "var(--text-secondary)" }}>
+              Strongly entangling layers & CNOT gates
             </span>
           </div>
 
-          <div style={{ background: "var(--bg-surface-alt)", padding: "12px 14px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-subtle)" }}>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", color: "var(--accent-blue)", fontWeight: 700, display: "block" }}>
+          <div style={{ background: "var(--bg-surface-alt)", padding: "14px", borderRadius: "10px", border: "1px solid var(--border-default)" }}>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.62rem", color: "var(--primary)", fontWeight: 700, display: "block" }}>
               STEP 03
             </span>
-            <strong style={{ fontSize: "0.84rem", color: "var(--ink-primary)", display: "block", marginTop: "2px" }}>
+            <strong style={{ fontSize: "0.88rem", color: "var(--text-primary)", display: "block", marginTop: "2px" }}>
               Pauli-Z Expectation
             </strong>
-            <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
-              Log-likelihood projection
+            <span style={{ fontSize: "0.74rem", color: "var(--text-secondary)" }}>
+              Quantum state measurement & probabilities
             </span>
           </div>
 
-          <div style={{ background: "var(--bg-surface-alt)", padding: "12px 14px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-subtle)" }}>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.60rem", color: "var(--accent-blue)", fontWeight: 700, display: "block" }}>
+          <div style={{ background: "var(--bg-surface-alt)", padding: "14px", borderRadius: "10px", border: "1px solid var(--border-default)" }}>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.62rem", color: "var(--primary)", fontWeight: 700, display: "block" }}>
               STEP 04
             </span>
-            <strong style={{ fontSize: "0.84rem", color: "var(--ink-primary)", display: "block", marginTop: "2px" }}>
+            <strong style={{ fontSize: "0.88rem", color: "var(--text-primary)", display: "block", marginTop: "2px" }}>
               Explainability & Triage
             </strong>
-            <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
-              Feature attribution & clinician notes
+            <span style={{ fontSize: "0.74rem", color: "var(--text-secondary)" }}>
+              KernelSHAP attribution & WORM audit log
             </span>
           </div>
         </div>

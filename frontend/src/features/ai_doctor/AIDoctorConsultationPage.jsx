@@ -28,6 +28,7 @@ import LiveTranscriptHUD from "./components/LiveTranscriptHUD.jsx";
 import PatientClinicalDossier from "./components/PatientClinicalDossier.jsx";
 import VapiConfigModal from "./components/VapiConfigModal.jsx";
 import { aiDoctorApi } from "../../api/aiDoctor.js";
+import SquareLoader from "../../components/common/SquareLoader.jsx";
 import "../../styles.css";
 
 export default function AIDoctorConsultationPage({ patientId = "PT-89421", currentUser }) {
@@ -557,9 +558,8 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
 
   if (loadingContext) {
     return (
-      <div style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)", fontSize: "0.85rem" }}>
-        <RefreshCw size={24} className="spin" style={{ margin: "0 auto 12px" }} />
-        <p style={{ margin: 0 }}>Compiling patient clinical dossier and initializing Dr. Quantum AI...</p>
+      <div style={{ padding: "80px 20px", textAlign: "center", display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
+        <SquareLoader label="Compiling patient clinical dossier and initializing Dr. Quantum AI..." />
       </div>
     );
   }
@@ -580,17 +580,18 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
         style={{
           background: "var(--bg-surface)",
           border: "1px solid var(--border-default)",
-          padding: "10px 16px",
+          borderRadius: "var(--radius-md)",
+          padding: "12px 18px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           flexWrap: "wrap",
-          gap: "8px",
+          gap: "10px",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <div style={{ width: "34px", height: "34px", background: "var(--primary-soft)", border: "1px solid var(--border-default)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Sparkles size={18} color="var(--gold)" />
+          <div style={{ width: "36px", height: "36px", background: "var(--primary-soft)", border: "1px solid var(--primary-light)", borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Sparkles size={18} color="var(--primary)" />
           </div>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -600,17 +601,18 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
               <span
                 style={{
                   fontSize: "0.62rem",
-                  fontWeight: 900,
-                  padding: "2px 6px",
-                  background: callActive ? "var(--risk-low-bg)" : "var(--bg-surface-alt)",
-                  color: callActive ? "var(--risk-low)" : "var(--text-muted)",
-                  border: `1px solid ${callActive ? "var(--risk-low-border)" : "var(--border-default)"}`,
+                  fontWeight: 800,
+                  padding: "3px 8px",
+                  borderRadius: "var(--radius-xs)",
+                  background: callActive ? "var(--state-success-bg)" : "var(--bg-surface-alt)",
+                  color: callActive ? "var(--state-success)" : "var(--text-muted)",
+                  border: `1px solid ${callActive ? "var(--state-success)" : "var(--border-default)"}`,
                 }}
               >
                 {callActive ? `LIVE (${formatTime(callDuration)})` : "STANDBY"}
               </span>
             </div>
-            <p style={{ margin: "2px 0 0 0", fontSize: "0.72rem", color: "var(--text-secondary)" }}>
+            <p style={{ margin: "2px 0 0 0", fontSize: "0.74rem", color: "var(--text-secondary)" }}>
               Name: <strong>{patientFullName}</strong> (ID: {dossier?.patient_id || patientId || "PT-89421"}) • Dr. Quantum Voice Protocol
             </p>
           </div>
@@ -621,9 +623,9 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
       <div
         style={{
           display: "flex",
-          gap: "6px",
+          gap: "8px",
           overflowX: "auto",
-          paddingBottom: "2px",
+          paddingBottom: "4px",
         }}
       >
         {QUICK_PROMPTS.map((prompt, pIdx) => (
@@ -633,21 +635,23 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
             onClick={() => handleUserSpeechFinal(prompt)}
             disabled={!callActive}
             style={{
-              padding: "5px 10px",
-              fontSize: "0.70rem",
+              padding: "6px 12px",
+              fontSize: "0.72rem",
               fontWeight: 700,
+              borderRadius: "var(--radius-sm)",
               background: "var(--bg-surface)",
               border: "1px solid var(--border-default)",
-              color: "var(--text-primary)",
+              color: "var(--ink-primary)",
               cursor: callActive ? "pointer" : "not-allowed",
               whiteSpace: "nowrap",
               opacity: callActive ? 1 : 0.6,
               display: "inline-flex",
               alignItems: "center",
-              gap: "4px",
+              gap: "6px",
+              transition: "all 0.15s ease",
             }}
           >
-            <Sparkles size={11} color="var(--gold)" />
+            <Sparkles size={12} color="var(--primary)" />
             <span>{prompt}</span>
           </button>
         ))}
@@ -673,7 +677,7 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
             flexDirection: "column",
             background: "#FFFFFF",
             border: "1px solid var(--border-default)",
-            borderRadius: "var(--radius-sm)",
+            borderRadius: "var(--radius-md)",
             overflow: "hidden",
             boxShadow: "var(--shadow-card)",
           }}
@@ -696,10 +700,10 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
               right: "16px",
               width: "180px",
               height: "135px",
-              background: "#F8FAFC",
+              background: "var(--bg-surface)",
               border: "1.5px solid var(--border-default)",
-              borderRadius: "8px",
-              boxShadow: "0 6px 16px rgba(15, 23, 42, 0.12)",
+              borderRadius: "var(--radius-sm)",
+              boxShadow: "0 4px 14px rgba(15, 23, 42, 0.10)",
               overflow: "hidden",
               zIndex: 20,
               display: "flex",
@@ -889,15 +893,15 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
                 className="btn-secondary"
                 onClick={() => setShowTranscript(!showTranscript)}
                 style={{
-                  padding: "6px 12px",
+                  padding: "6px 14px",
                   fontSize: "0.72rem",
                   fontWeight: 600,
                   display: "flex",
                   alignItems: "center",
                   gap: "5px",
-                  background: showTranscript ? "var(--accent-blue-soft)" : "var(--bg-surface)",
-                  borderColor: showTranscript ? "var(--accent-blue)" : "var(--border-default)",
-                  color: showTranscript ? "var(--accent-blue)" : "var(--text-secondary)",
+                  background: showTranscript ? "var(--primary-soft)" : "var(--bg-surface)",
+                  borderColor: showTranscript ? "var(--primary-light)" : "var(--border-default)",
+                  color: showTranscript ? "var(--primary)" : "var(--text-secondary)",
                 }}
               >
                 <MessageSquare size={13} />
@@ -909,15 +913,15 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
                 className="btn-secondary"
                 onClick={() => setShowDossier(!showDossier)}
                 style={{
-                  padding: "6px 12px",
+                  padding: "6px 14px",
                   fontSize: "0.72rem",
                   fontWeight: 600,
                   display: "flex",
                   alignItems: "center",
                   gap: "5px",
-                  background: showDossier ? "var(--accent-blue-soft)" : "var(--bg-surface)",
-                  borderColor: showDossier ? "var(--accent-blue)" : "var(--border-default)",
-                  color: showDossier ? "var(--accent-blue)" : "var(--text-secondary)",
+                  background: showDossier ? "var(--primary-soft)" : "var(--bg-surface)",
+                  borderColor: showDossier ? "var(--primary-light)" : "var(--border-default)",
+                  color: showDossier ? "var(--primary)" : "var(--text-secondary)",
                 }}
               >
                 <FileText size={13} />
@@ -929,7 +933,7 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
 
         {/* COLUMN 2: Live Transcript & Speech Feed */}
         {showTranscript && (
-          <div style={{ height: "100%", overflow: "hidden" }}>
+          <div style={{ height: "100%", overflow: "hidden", borderRadius: "var(--radius-md)" }}>
             <LiveTranscriptHUD
               transcript={transcript}
               interimUserSpeech={interimSpeech}
@@ -941,7 +945,7 @@ export default function AIDoctorConsultationPage({ patientId = "PT-89421", curre
 
         {/* COLUMN 3: Injected Patient Clinical Dossier Sidebar */}
         {showDossier && (
-          <div style={{ height: "100%", overflow: "hidden" }}>
+          <div style={{ height: "100%", overflow: "hidden", borderRadius: "var(--radius-md)" }}>
             <PatientClinicalDossier dossier={dossier} />
           </div>
         )}

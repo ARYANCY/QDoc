@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   User,
   Mail,
@@ -26,6 +26,8 @@ import { clinicalApi } from "../../api/clinical";
 import { authApi } from "../../api/auth";
 import { ENDPOINTS, EMERGENCY_PORTAL_BASE } from "../../api/config";
 import QRCodeSVG from "../../components/common/QRCodeSVG";
+import TriagePhysicalCard from "../../components/clinical/TriagePhysicalCard";
+import PrintableMedicalCardSheet from "../../components/clinical/PrintableMedicalCardSheet";
 
 function formatAllergies(allergies) {
   if (!allergies) return "";
@@ -130,6 +132,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
   const [viewCardOpen, setViewCardOpen] = useState(false);
   const [copiedPass, setCopiedPass] = useState(false);
   const [cardFace, setCardFace] = useState('dual'); // 'dual', 'front', 'back'
+  const [cardTheme, setCardTheme] = useState('both'); // 'both', 'light', 'dark'
   const [medicalHistory, setMedicalHistory] = useState([
     { id: "history-1", condition: "", notes: "" },
   ]);
@@ -314,7 +317,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
         style={{
           background: "var(--bg-surface)",
           border: "1px solid var(--border-default)",
-          borderRadius: "var(--radius-md)",
+          borderRadius: "14px",
           padding: "20px 24px",
           marginBottom: "16px",
           display: "flex",
@@ -329,9 +332,11 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px" }}>
             <h1
               style={{
+                fontFamily: "var(--font-display)",
                 fontSize: "1.4rem",
-                fontWeight: 800,
-                color: "var(--ink-primary)",
+                fontWeight: 700,
+                color: "var(--text-primary)",
+                letterSpacing: "-0.01em",
                 margin: 0,
               }}
             >
@@ -341,12 +346,13 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
               style={{
                 fontSize: "0.68rem",
                 padding: "3px 8px",
-                background: "var(--bg-surface-alt)",
+                background: "var(--primary-soft)",
                 border: "1px solid var(--border-default)",
-                borderRadius: "var(--radius-xs)",
-                color: "var(--accent-blue)",
+                borderRadius: "6px",
+                color: "var(--primary-dark)",
                 fontWeight: 700,
                 textTransform: "uppercase",
+                fontFamily: "var(--font-mono)",
               }}
             >
               {effectiveRole}
@@ -367,7 +373,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
               alignItems: "center",
               gap: "6px",
               padding: "6px 12px",
-              borderRadius: "var(--radius-sm)",
+              borderRadius: "8px",
               background: syncStatus === "saving" ? "var(--risk-mid-bg)" : "var(--risk-low-bg)",
               color: syncStatus === "saving" ? "var(--risk-mid)" : "var(--risk-low)",
               border: `1px solid ${syncStatus === "saving" ? "var(--risk-mid-border)" : "var(--risk-low-border)"}`,
@@ -390,9 +396,9 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
             onClick={fetchProfileData}
             disabled={loading}
             style={{
+              minHeight: "40px",
               padding: "8px 14px",
               fontSize: "0.78rem",
-              fontWeight: 600,
               display: "flex",
               alignItems: "center",
               gap: "6px",
@@ -407,9 +413,9 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
             className="btn-primary"
             onClick={() => setViewCardOpen(true)}
             style={{
+              minHeight: "40px",
               padding: "8px 16px",
               fontSize: "0.78rem",
-              fontWeight: 700,
               display: "flex",
               alignItems: "center",
               gap: "6px",
@@ -432,10 +438,10 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
       <div
         style={{
           display: "flex",
-          gap: "8px",
+          gap: "6px",
           background: "var(--bg-surface-alt)",
-          padding: "5px",
-          borderRadius: "var(--radius-md)",
+          padding: "4px",
+          borderRadius: "10px",
           border: "1px solid var(--border-default)",
           marginBottom: "20px",
           overflowX: "auto",
@@ -449,11 +455,11 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
             minWidth: "150px",
             padding: "8px 14px",
             fontSize: "0.80rem",
-            fontWeight: activeTab === "identity" ? 700 : 600,
-            color: activeTab === "identity" ? "var(--accent-blue)" : "var(--text-secondary)",
+            fontWeight: activeTab === "identity" ? 600 : 500,
+            color: activeTab === "identity" ? "var(--primary)" : "var(--text-secondary)",
             background: activeTab === "identity" ? "var(--bg-surface)" : "transparent",
             border: activeTab === "identity" ? "1px solid var(--border-default)" : "1px solid transparent",
-            borderRadius: "var(--radius-sm)",
+            borderRadius: "8px",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
@@ -474,11 +480,11 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
             minWidth: "150px",
             padding: "8px 14px",
             fontSize: "0.80rem",
-            fontWeight: activeTab === "records" ? 700 : 600,
-            color: activeTab === "records" ? "var(--accent-blue)" : "var(--text-secondary)",
+            fontWeight: activeTab === "records" ? 600 : 500,
+            color: activeTab === "records" ? "var(--primary)" : "var(--text-secondary)",
             background: activeTab === "records" ? "var(--bg-surface)" : "transparent",
             border: activeTab === "records" ? "1px solid var(--border-default)" : "1px solid transparent",
-            borderRadius: "var(--radius-sm)",
+            borderRadius: "8px",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
@@ -499,11 +505,11 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
             minWidth: "150px",
             padding: "8px 14px",
             fontSize: "0.80rem",
-            fontWeight: activeTab === "pass" ? 700 : 600,
-            color: activeTab === "pass" ? "var(--accent-blue)" : "var(--text-secondary)",
+            fontWeight: activeTab === "pass" ? 600 : 500,
+            color: activeTab === "pass" ? "var(--primary)" : "var(--text-secondary)",
             background: activeTab === "pass" ? "var(--bg-surface)" : "transparent",
             border: activeTab === "pass" ? "1px solid var(--border-default)" : "1px solid transparent",
-            borderRadius: "var(--radius-sm)",
+            borderRadius: "8px",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
@@ -975,7 +981,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
       {/* ── TAB 3: EMERGENCY ID PASS PREVIEW ── */}
       {activeTab === "pass" && (
         <div className="panel" style={{ padding: "24px", background: "var(--bg-surface)", border: "1px solid var(--border-default)", borderRadius: "var(--radius-md)", marginBottom: "20px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", borderBottom: "1px solid var(--border-default)", paddingBottom: "12px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", borderBottom: "1px solid var(--border-default)", paddingBottom: "12px", flexWrap: "wrap", gap: "12px" }}>
             <div>
               <h3 style={{ fontSize: "1rem", fontWeight: 800, color: "var(--ink-primary)", margin: 0 }}>
                 Digital Health Identity Pass (ISO/IEC 7810 ID-1 Standard)
@@ -985,7 +991,117 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
               </span>
             </div>
 
-            <div style={{ display: "flex", gap: "8px" }}>
+            <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+              {/* Theme Selector */}
+              <div style={{ display: "inline-flex", background: "var(--bg-surface-alt)", padding: "3px", borderRadius: "8px", border: "1px solid var(--border-default)", gap: "2px" }}>
+                <button
+                  type="button"
+                  onClick={() => setCardTheme("both")}
+                  style={{
+                    background: cardTheme === "both" ? "var(--bg-surface)" : "transparent",
+                    color: cardTheme === "both" ? "var(--ink-primary)" : "var(--text-secondary)",
+                    border: 0,
+                    borderRadius: "6px",
+                    padding: "4px 9px",
+                    fontSize: "0.70rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    boxShadow: cardTheme === "both" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                  }}
+                >
+                  Both Editions
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCardTheme("light")}
+                  style={{
+                    background: cardTheme === "light" ? "var(--bg-surface)" : "transparent",
+                    color: cardTheme === "light" ? "var(--ink-primary)" : "var(--text-secondary)",
+                    border: 0,
+                    borderRadius: "6px",
+                    padding: "4px 9px",
+                    fontSize: "0.70rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    boxShadow: cardTheme === "light" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                  }}
+                >
+                  Day White
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCardTheme("dark")}
+                  style={{
+                    background: cardTheme === "dark" ? "#0F172A" : "transparent",
+                    color: cardTheme === "dark" ? "#FFFFFF" : "var(--text-secondary)",
+                    border: 0,
+                    borderRadius: "6px",
+                    padding: "4px 9px",
+                    fontSize: "0.70rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    boxShadow: cardTheme === "dark" ? "0 1px 3px rgba(0,0,0,0.2)" : "none",
+                  }}
+                >
+                  Matte Black
+                </button>
+              </div>
+
+              {/* Face Selector: Dual, Front, Back */}
+              <div style={{ display: "inline-flex", background: "var(--bg-surface-alt)", padding: "3px", borderRadius: "8px", border: "1px solid var(--border-default)", gap: "2px" }}>
+                <button
+                  type="button"
+                  onClick={() => setCardFace("dual")}
+                  style={{
+                    background: cardFace === "dual" ? "var(--bg-surface)" : "transparent",
+                    color: cardFace === "dual" ? "var(--accent-blue)" : "var(--text-secondary)",
+                    border: 0,
+                    borderRadius: "6px",
+                    padding: "4px 9px",
+                    fontSize: "0.70rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    boxShadow: cardFace === "dual" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                  }}
+                >
+                  Dual View (Front + Back)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCardFace("front")}
+                  style={{
+                    background: cardFace === "front" ? "var(--bg-surface)" : "transparent",
+                    color: cardFace === "front" ? "var(--accent-blue)" : "var(--text-secondary)",
+                    border: 0,
+                    borderRadius: "6px",
+                    padding: "4px 9px",
+                    fontSize: "0.70rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    boxShadow: cardFace === "front" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                  }}
+                >
+                  Front Face
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCardFace("back")}
+                  style={{
+                    background: cardFace === "back" ? "var(--bg-surface)" : "transparent",
+                    color: cardFace === "back" ? "var(--accent-blue)" : "var(--text-secondary)",
+                    border: 0,
+                    borderRadius: "6px",
+                    padding: "4px 9px",
+                    fontSize: "0.70rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    boxShadow: cardFace === "back" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                  }}
+                >
+                  Back Face
+                </button>
+              </div>
+
               <button
                 type="button"
                 className="btn-secondary"
@@ -1007,127 +1123,115 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
             </div>
           </div>
 
-          {/* Render both cards side-by-side cleanly */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", justifyContent: "center", alignItems: "center", padding: "10px 0" }}>
-            {/* Front Card */}
-            <div
-              style={{
-                width: "380px",
-                maxWidth: "100%",
-                aspectRatio: "85.6 / 53.98",
-                background: "#FFFFFF",
-                border: "1.5px solid #CBD5E1",
-                borderRadius: "10px",
-                padding: "14px",
-                boxSizing: "border-box",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                boxShadow: "0 4px 14px rgba(15, 23, 42, 0.06)",
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1.5px solid #E2E8F0", paddingBottom: "6px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                  <div style={{ width: "18px", height: "18px", background: "#DC2626", color: "#FFFFFF", borderRadius: "3px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: "12px" }}>+</div>
-                  <div>
-                    <div style={{ fontSize: "0.58rem", fontWeight: 800, color: "#2563EB", letterSpacing: "0.05em", textTransform: "uppercase", lineHeight: 1 }}>Q-RAKSHAK • CRITICAL EMERGENCY PASSPORT</div>
-                    <div style={{ fontSize: "0.48rem", color: "#64748B", fontWeight: 600 }}>ISO/IEC 7810 ID-1 Standard</div>
-                  </div>
-                </div>
-                <div style={{ background: "#DC2626", color: "#FFFFFF", padding: "2px 7px", borderRadius: "5px", textAlign: "center", lineHeight: 1 }}>
-                  <span style={{ fontSize: "0.44rem", fontWeight: 700, textTransform: "uppercase", display: "block" }}>BLOOD</span>
-                  <strong style={{ fontSize: "0.88rem", fontWeight: 900, display: "block" }}>{profile.blood_group || "O+"}</strong>
-                </div>
-              </div>
-
-              <div>
-                <h2 style={{ fontSize: "0.95rem", fontWeight: 800, color: "#0F172A", margin: "2px 0 0 0" }}>PATIENT {profile.name?.toUpperCase() || "ALEXANDER REED"}</h2>
-                <div style={{ fontSize: "0.54rem", color: "#475569", fontFamily: "var(--font-mono)", marginTop: "1px" }}>
-                  MRN: <strong>{profile.license_id || "PT-REC-89421"}</strong> • ABHA: <strong>{profile.abha_id || "91-4829-1092-8821"}</strong>
-                </div>
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 8px", fontSize: "0.56rem", margin: "2px 0" }}>
-                <div>
-                  <span style={{ color: "#64748B", fontSize: "0.48rem", fontWeight: 700, textTransform: "uppercase", display: "block" }}>NEXT OF KIN HOTLINE</span>
-                  <strong style={{ color: "#DC2626", fontSize: "0.60rem" }}>{profile.emergency_phone || "+91 98333 44556"}</strong>
-                  <div style={{ color: "#475569", fontSize: "0.48rem" }}>{profile.emergency_contact_name || "Liam Reed"} ({profile.emergency_contact_relation || "Brother"})</div>
-                </div>
-                <div>
-                  <span style={{ color: "#64748B", fontSize: "0.48rem", fontWeight: 700, textTransform: "uppercase", display: "block" }}>SEVERE ALLERGIES</span>
-                  <strong style={{ color: "#DC2626" }}>{formatAllergies(profile.allergies) || "Penicillin (high)"}</strong>
-                </div>
-                <div>
-                  <span style={{ color: "#64748B", fontSize: "0.48rem", fontWeight: 700, textTransform: "uppercase", display: "block" }}>ORGAN DONOR</span>
-                  <strong style={{ color: "#059669" }}>{profile.organ_donor ? "YES (CONSENTED)" : "NO"}</strong>
-                </div>
-                <div>
-                  <span style={{ color: "#64748B", fontSize: "0.48rem", fontWeight: 700, textTransform: "uppercase", display: "block" }}>ATTENDING DOCTOR</span>
-                  <strong style={{ color: "#0F172A" }}>{profile.hospital || "AIIMS Cardiology"}</strong>
-                </div>
-              </div>
-
-              <div style={{ borderTop: "1px solid #E2E8F0", paddingTop: "3px", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.48rem", color: "#64748B" }}>
-                <div style={{ maxWidth: "70%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  <strong>RX: </strong>{formatMedications(profile.active_medications || profile.medications) || "Atorvastatin 20mg (OD)"}
-                </div>
-                <div style={{ fontWeight: 700, color: "#2563EB", textTransform: "uppercase" }}>LIVE TELEMETRY PASS</div>
-              </div>
-            </div>
-
-            {/* Back Card (QR) */}
-            <div
-              style={{
-                width: "380px",
-                maxWidth: "100%",
-                aspectRatio: "85.6 / 53.98",
-                background: "#F8FAFC",
-                border: "1.5px solid #CBD5E1",
-                borderRadius: "10px",
-                padding: "14px",
-                boxSizing: "border-box",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                boxShadow: "0 4px 14px rgba(15, 23, 42, 0.06)",
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1.5px solid #E2E8F0", paddingBottom: "6px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                  <Shield size={14} color="#2563EB" />
-                  <span style={{ fontSize: "0.58rem", fontWeight: 800, color: "#0F172A", textTransform: "uppercase" }}>EMERGENCY TRIAGE ACCESS</span>
-                </div>
-                <span style={{ fontSize: "0.48rem", fontWeight: 700, color: "#059669", background: "#ECFDF5", padding: "1px 5px", borderRadius: "3px" }}>PERMANENT PASS</span>
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 88px", gap: "8px", alignItems: "center", margin: "2px 0" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "3px", fontSize: "0.52rem", color: "#475569", lineHeight: 1.25 }}>
-                  <div>
-                    <strong style={{ color: "#0F172A" }}>Instructions for First Responders:</strong>
-                    <p style={{ margin: "2px 0 0 0" }}>
-                      Scan the QR code with any camera for immediate clinical history, drug interactions, and emergency contacts.
-                    </p>
-                  </div>
-                  <div>
-                    <span>Permanent ID: </span>
-                    <strong style={{ color: "#2563EB", fontFamily: "var(--font-mono)" }}>{profile.user_id || activeUserId}</strong>
-                  </div>
-                  <div style={{ color: "#94A3B8", fontSize: "0.46rem", fontFamily: "var(--font-mono)" }}>
-                    SHA-256: e3b0c442...991b7852 • WORM Ledger
-                  </div>
+          {/* Render both physical cards with Dual / Front / Back support */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "28px", justifyContent: "center", alignItems: "flex-start", padding: "16px 0" }}>
+            {/* Day White Edition */}
+            {(cardTheme === "both" || cardTheme === "light") && (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", width: "100%", maxWidth: cardFace === "dual" ? "920px" : "480px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ fontSize: "0.68rem", fontWeight: 800, color: "var(--ink-primary)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                    Clinical Day White Edition
+                  </span>
+                  {cardFace === "dual" && (
+                    <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--accent-blue)", background: "var(--accent-blue-light)", padding: "1px 6px", borderRadius: "4px" }}>
+                      FRONT + BACK DUAL VIEW
+                    </span>
+                  )}
                 </div>
 
-                <div style={{ width: "88px", height: "88px", background: "#FFFFFF", border: "1.5px solid #CBD5E1", borderRadius: "6px", padding: "4px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                  <QRCodeSVG value={emergencyPortalUrl} size={66} fgColor="#0F172A" bgColor="#FFFFFF" />
-                  <span style={{ fontSize: "0.42rem", fontWeight: 800, color: "#2563EB", textTransform: "uppercase", marginTop: "2px" }}>SCAN TRIAGE</span>
+                <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", justifyContent: "center", width: "100%" }}>
+                  {(cardFace === "dual" || cardFace === "front") && (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", maxWidth: "440px" }}>
+                      <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Front View (QR & ID)</span>
+                      <TriagePhysicalCard
+                        patient={profile}
+                        variant="light"
+                        face="front"
+                        emergencyPortalUrl={emergencyPortalUrl}
+                        onCopy={() => {
+                          navigator.clipboard?.writeText(emergencyPortalUrl);
+                          setCopiedPass(true);
+                          setTimeout(() => setCopiedPass(false), 2000);
+                        }}
+                        copied={copiedPass}
+                      />
+                    </div>
+                  )}
+
+                  {(cardFace === "dual" || cardFace === "back") && (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", maxWidth: "440px" }}>
+                      <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Back View (Allergies, Rx & Vitals)</span>
+                      <TriagePhysicalCard
+                        patient={profile}
+                        variant="light"
+                        face="back"
+                        emergencyPortalUrl={emergencyPortalUrl}
+                        onCopy={() => {
+                          navigator.clipboard?.writeText(emergencyPortalUrl);
+                          setCopiedPass(true);
+                          setTimeout(() => setCopiedPass(false), 2000);
+                        }}
+                        copied={copiedPass}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
+            )}
 
-              <div style={{ borderTop: "1px solid #E2E8F0", paddingTop: "3px", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.46rem", color: "#64748B" }}>
-                <span>Portal: {emergencyPortalUrl.replace(/^https?:\/\//, '')}</span>
-                <span>Q-RAKSHAK Verified</span>
+            {/* Matte Black Edition */}
+            {(cardTheme === "both" || cardTheme === "dark") && (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", width: "100%", maxWidth: cardFace === "dual" ? "920px" : "480px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ fontSize: "0.68rem", fontWeight: 800, color: "var(--ink-primary)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                    Matte Black Edition (First Responder)
+                  </span>
+                  {cardFace === "dual" && (
+                    <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--accent-blue)", background: "var(--accent-blue-light)", padding: "1px 6px", borderRadius: "4px" }}>
+                      FRONT + BACK DUAL VIEW
+                    </span>
+                  )}
+                </div>
+
+                <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", justifyContent: "center", width: "100%" }}>
+                  {(cardFace === "dual" || cardFace === "front") && (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", maxWidth: "440px" }}>
+                      <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Front View (QR & ID)</span>
+                      <TriagePhysicalCard
+                        patient={profile}
+                        variant="dark"
+                        face="front"
+                        emergencyPortalUrl={emergencyPortalUrl}
+                        onCopy={() => {
+                          navigator.clipboard?.writeText(emergencyPortalUrl);
+                          setCopiedPass(true);
+                          setTimeout(() => setCopiedPass(false), 2000);
+                        }}
+                        copied={copiedPass}
+                      />
+                    </div>
+                  )}
+
+                  {(cardFace === "dual" || cardFace === "back") && (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", maxWidth: "440px" }}>
+                      <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Back View (Allergies, Rx & Vitals)</span>
+                      <TriagePhysicalCard
+                        patient={profile}
+                        variant="dark"
+                        face="back"
+                        emergencyPortalUrl={emergencyPortalUrl}
+                        onCopy={() => {
+                          navigator.clipboard?.writeText(emergencyPortalUrl);
+                          setCopiedPass(true);
+                          setTimeout(() => setCopiedPass(false), 2000);
+                        }}
+                        copied={copiedPass}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       )}
@@ -1220,7 +1324,71 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                 </span>
               </div>
 
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                {/* Theme Selector */}
+                <div
+                  style={{
+                    display: "flex",
+                    background: "var(--bg-surface-alt)",
+                    padding: "3px",
+                    borderRadius: "var(--radius-xs)",
+                    border: "1px solid var(--border-default)",
+                    gap: "2px",
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setCardTheme("both")}
+                    style={{
+                      padding: "4px 8px",
+                      fontSize: "0.68rem",
+                      fontWeight: cardTheme === "both" ? 700 : 500,
+                      background: cardTheme === "both" ? "var(--bg-surface)" : "transparent",
+                      color: cardTheme === "both" ? "var(--ink-primary)" : "var(--text-secondary)",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      boxShadow: cardTheme === "both" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                    }}
+                  >
+                    Both Editions
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCardTheme("light")}
+                    style={{
+                      padding: "4px 8px",
+                      fontSize: "0.68rem",
+                      fontWeight: cardTheme === "light" ? 700 : 500,
+                      background: cardTheme === "light" ? "var(--bg-surface)" : "transparent",
+                      color: cardTheme === "light" ? "var(--ink-primary)" : "var(--text-secondary)",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      boxShadow: cardTheme === "light" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                    }}
+                  >
+                    Day White
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCardTheme("dark")}
+                    style={{
+                      padding: "4px 8px",
+                      fontSize: "0.68rem",
+                      fontWeight: cardTheme === "dark" ? 700 : 500,
+                      background: cardTheme === "dark" ? "#0F172A" : "transparent",
+                      color: cardTheme === "dark" ? "#FFFFFF" : "var(--text-secondary)",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      boxShadow: cardTheme === "dark" ? "0 1px 3px rgba(0,0,0,0.2)" : "none",
+                    }}
+                  >
+                    Matte Black
+                  </button>
+                </div>
+
                 {/* Face Toggle Selector */}
                 <div
                   style={{
@@ -1229,6 +1397,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                     padding: "3px",
                     borderRadius: "var(--radius-xs)",
                     border: "1px solid var(--border-default)",
+                    gap: "2px",
                   }}
                 >
                   <button
@@ -1239,13 +1408,14 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                       fontSize: "0.68rem",
                       fontWeight: cardFace === "dual" ? 700 : 500,
                       background: cardFace === "dual" ? "var(--bg-surface)" : "transparent",
-                      color: cardFace === "dual" ? "var(--accent-blue)" : "var(--text-muted)",
+                      color: cardFace === "dual" ? "var(--accent-blue)" : "var(--text-secondary)",
                       border: "none",
                       borderRadius: "4px",
                       cursor: "pointer",
+                      boxShadow: cardFace === "dual" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
                     }}
                   >
-                    Dual View
+                    Dual View (Front + Back)
                   </button>
                   <button
                     type="button"
@@ -1255,10 +1425,11 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                       fontSize: "0.68rem",
                       fontWeight: cardFace === "front" ? 700 : 500,
                       background: cardFace === "front" ? "var(--bg-surface)" : "transparent",
-                      color: cardFace === "front" ? "var(--accent-blue)" : "var(--text-muted)",
+                      color: cardFace === "front" ? "var(--accent-blue)" : "var(--text-secondary)",
                       border: "none",
                       borderRadius: "4px",
                       cursor: "pointer",
+                      boxShadow: cardFace === "front" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
                     }}
                   >
                     Front Face
@@ -1271,13 +1442,14 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                       fontSize: "0.68rem",
                       fontWeight: cardFace === "back" ? 700 : 500,
                       background: cardFace === "back" ? "var(--bg-surface)" : "transparent",
-                      color: cardFace === "back" ? "var(--accent-blue)" : "var(--text-muted)",
+                      color: cardFace === "back" ? "var(--accent-blue)" : "var(--text-secondary)",
                       border: "none",
                       borderRadius: "4px",
                       cursor: "pointer",
+                      boxShadow: cardFace === "back" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
                     }}
                   >
-                    Back Face (QR)
+                    Back Face
                   </button>
                 </div>
 
@@ -1312,191 +1484,121 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
               </div>
             </div>
 
-            {/* ── Interactive Card View (Standard ID-1 Aspect Ratio: 85.60mm x 53.98mm) ── */}
+            {/* ── Modern Physical Triage Cards (Matching Reference Layout) ── */}
             <div
               style={{
                 display: "flex",
                 flexWrap: "wrap",
-                gap: "16px",
+                gap: "24px",
                 justifyContent: "center",
-                alignItems: "center",
+                alignItems: "flex-start",
                 margin: "10px 0 20px 0",
               }}
             >
-              {/* FRONT FACE CARD */}
-              {(cardFace === "dual" || cardFace === "front") && (
-                <div
-                  className="id-card-viewport"
-                  style={{
-                    width: cardFace === "dual" ? "370px" : "440px",
-                    maxWidth: "100%",
-                    aspectRatio: "85.6 / 53.98",
-                    background: "#FFFFFF",
-                    border: "1.5px solid #CBD5E1",
-                    borderRadius: "10px",
-                    padding: "12px 14px",
-                    boxSizing: "border-box",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    boxShadow: "0 4px 12px rgba(15, 23, 42, 0.06)",
-                    position: "relative",
-                  }}
-                >
-                  {/* Top Bar */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1.5px solid #E2E8F0", paddingBottom: "6px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <div style={{ width: "18px", height: "18px", background: "#DC2626", color: "#FFFFFF", borderRadius: "3px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: "12px" }}>
-                        +
+              {/* Day White Edition */}
+              {(cardTheme === "both" || cardTheme === "light") && (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", width: "100%", maxWidth: cardFace === "dual" ? "920px" : "440px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span style={{ fontSize: "0.66rem", fontWeight: 800, color: "var(--ink-primary)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                      Clinical White Edition (Day / Print)
+                    </span>
+                    {cardFace === "dual" && (
+                      <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--accent-blue)", background: "var(--accent-blue-light)", padding: "1px 6px", borderRadius: "4px" }}>
+                        FRONT + BACK DUAL VIEW
+                      </span>
+                    )}
+                  </div>
+
+                  <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", justifyContent: "center", width: "100%" }}>
+                    {(cardFace === "dual" || cardFace === "front") && (
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", maxWidth: "420px" }}>
+                        <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase" }}>Front View (QR & ID)</span>
+                        <TriagePhysicalCard
+                          patient={profile}
+                          variant="light"
+                          face="front"
+                          emergencyPortalUrl={emergencyPortalUrl}
+                          onCopy={() => {
+                            navigator.clipboard?.writeText(emergencyPortalUrl);
+                            setCopiedPass(true);
+                            setTimeout(() => setCopiedPass(false), 2000);
+                          }}
+                          copied={copiedPass}
+                        />
                       </div>
-                      <div>
-                        <div style={{ fontSize: "0.58rem", fontWeight: 800, color: "#2563EB", letterSpacing: "0.05em", textTransform: "uppercase", lineHeight: 1 }}>
-                          Q-RAKSHAK • CRITICAL EMERGENCY PASSPORT
-                        </div>
-                        <div style={{ fontSize: "0.48rem", color: "#64748B", fontWeight: 600 }}>
-                          ISO/IEC 7810 ID-1 Standard Layout
-                        </div>
+                    )}
+
+                    {(cardFace === "dual" || cardFace === "back") && (
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", maxWidth: "420px" }}>
+                        <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase" }}>Back View (Allergies, Rx & Vitals)</span>
+                        <TriagePhysicalCard
+                          patient={profile}
+                          variant="light"
+                          face="back"
+                          emergencyPortalUrl={emergencyPortalUrl}
+                          onCopy={() => {
+                            navigator.clipboard?.writeText(emergencyPortalUrl);
+                            setCopiedPass(true);
+                            setTimeout(() => setCopiedPass(false), 2000);
+                          }}
+                          copied={copiedPass}
+                        />
                       </div>
-                    </div>
-                    
-                    {/* Blood Group Pill */}
-                    <div style={{ background: "#DC2626", color: "#FFFFFF", padding: "2px 7px", borderRadius: "5px", textAlign: "center", lineHeight: 1 }}>
-                      <span style={{ fontSize: "0.44rem", fontWeight: 700, textTransform: "uppercase", display: "block", opacity: 0.9 }}>BLOOD</span>
-                      <strong style={{ fontSize: "0.88rem", fontWeight: 900, display: "block" }}>{profile.blood_group || "O+"}</strong>
-                    </div>
-                  </div>
-
-                  {/* Patient Bio */}
-                  <div>
-                    <h2 style={{ fontSize: "0.95rem", fontWeight: 800, color: "#0F172A", margin: "2px 0 0 0", letterSpacing: "-0.01em" }}>
-                      PATIENT {profile.name?.toUpperCase() || "ALEXANDER REED"}
-                    </h2>
-                    <div style={{ fontSize: "0.54rem", color: "#475569", fontFamily: "var(--font-mono)", marginTop: "1px" }}>
-                      MRN: <strong>{profile.license_id || "PT-REC-89421"}</strong> • ABHA: <strong>{profile.abha_id || "91-4829-1092-8821"}</strong>
-                    </div>
-                  </div>
-
-                  {/* Medical Details Grid */}
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 8px", fontSize: "0.56rem", margin: "2px 0" }}>
-                    <div>
-                      <span style={{ color: "#64748B", fontSize: "0.48rem", fontWeight: 700, textTransform: "uppercase", display: "block" }}>NEXT OF KIN HOTLINE</span>
-                      <strong style={{ color: "#DC2626", fontSize: "0.60rem" }}>{profile.emergency_phone || "+91 98333 44556"}</strong>
-                      <div style={{ color: "#475569", fontSize: "0.48rem" }}>{profile.emergency_contact_name || "Liam Reed"} ({profile.emergency_contact_relation || "Brother"})</div>
-                    </div>
-
-                    <div>
-                      <span style={{ color: "#64748B", fontSize: "0.48rem", fontWeight: 700, textTransform: "uppercase", display: "block" }}>SEVERE ALLERGIES</span>
-                      <strong style={{ color: "#DC2626" }}>{formatAllergies(profile.allergies) || "Penicillin (high)"}</strong>
-                    </div>
-
-                    <div>
-                      <span style={{ color: "#64748B", fontSize: "0.48rem", fontWeight: 700, textTransform: "uppercase", display: "block" }}>ORGAN DONOR</span>
-                      <strong style={{ color: "#059669" }}>{profile.organ_donor ? "YES (CONSENTED)" : "NO"}</strong>
-                    </div>
-
-                    <div>
-                      <span style={{ color: "#64748B", fontSize: "0.48rem", fontWeight: 700, textTransform: "uppercase", display: "block" }}>ATTENDING DOCTOR</span>
-                      <strong style={{ color: "#0F172A" }}>{profile.hospital || "AIIMS Cardiology"}</strong>
-                    </div>
-                  </div>
-
-                  {/* Prescriptions & Footer Strip */}
-                  <div style={{ borderTop: "1px solid #E2E8F0", paddingTop: "3px", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.48rem", color: "#64748B" }}>
-                    <div style={{ maxWidth: "70%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      <strong>RX: </strong>{formatMedications(profile.active_medications || profile.medications) || "Atorvastatin 20mg (OD)"}
-                    </div>
-                    <div style={{ fontWeight: 700, color: "#2563EB", letterSpacing: "0.04em", textTransform: "uppercase" }}>
-                      LIVE TELEMETRY PASS
-                    </div>
+                    )}
                   </div>
                 </div>
               )}
 
-              {/* BACK FACE CARD (Dedicated Scannable QR Code) */}
-              {(cardFace === "dual" || cardFace === "back") && (
-                <div
-                  className="id-card-viewport back-face"
-                  style={{
-                    width: cardFace === "dual" ? "370px" : "440px",
-                    maxWidth: "100%",
-                    aspectRatio: "85.6 / 53.98",
-                    background: "#F8FAFC",
-                    border: "1.5px solid #CBD5E1",
-                    borderRadius: "10px",
-                    padding: "12px 14px",
-                    boxSizing: "border-box",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    boxShadow: "0 4px 12px rgba(15, 23, 42, 0.06)",
-                    position: "relative",
-                  }}
-                >
-                  {/* Top Bar */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1.5px solid #E2E8F0", paddingBottom: "6px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <Shield size={14} color="#2563EB" />
-                      <span style={{ fontSize: "0.58rem", fontWeight: 800, color: "#0F172A", letterSpacing: "0.04em", textTransform: "uppercase" }}>
-                        EMERGENCY TRIAGE & TELEMETRY ACCESS
-                      </span>
-                    </div>
-                    <span style={{ fontSize: "0.48rem", fontWeight: 700, color: "#059669", background: "#ECFDF5", padding: "1px 5px", borderRadius: "3px" }}>
-                      PERMANENT PASS
+              {/* Matte Black Edition */}
+              {(cardTheme === "both" || cardTheme === "dark") && (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", width: "100%", maxWidth: cardFace === "dual" ? "920px" : "440px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span style={{ fontSize: "0.66rem", fontWeight: 800, color: "var(--ink-primary)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                      Matte Charcoal Edition (First Responder)
                     </span>
-                  </div>
-
-                  {/* Body: Instructions Left + QR Right */}
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 88px", gap: "8px", alignItems: "center", margin: "2px 0" }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "3px", fontSize: "0.52rem", color: "#475569", lineHeight: 1.25 }}>
-                      <div>
-                        <strong style={{ color: "#0F172A" }}>Instructions for First Responders:</strong>
-                        <p style={{ margin: "2px 0 0 0" }}>
-                          Scan the QR code with any smartphone or terminal camera for immediate clinical history, drug interactions, and emergency EHR record access.
-                        </p>
-                      </div>
-
-                      <div style={{ marginTop: "2px" }}>
-                        <span style={{ color: "#64748B" }}>Permanent ID: </span>
-                        <strong style={{ color: "#2563EB", fontFamily: "var(--font-mono)" }}>{profile.user_id || activeUserId}</strong>
-                      </div>
-
-                      <div style={{ color: "#94A3B8", fontSize: "0.46rem", fontFamily: "var(--font-mono)" }}>
-                        SHA-256: e3b0c442...991b7852 • WORM Ledger
-                      </div>
-                    </div>
-
-                    {/* QR Code Container (Crisp & Bounded) */}
-                    <div
-                      style={{
-                        width: "88px",
-                        height: "88px",
-                        background: "#FFFFFF",
-                        border: "1.5px solid #CBD5E1",
-                        borderRadius: "6px",
-                        padding: "4px",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        boxSizing: "border-box",
-                      }}
-                    >
-                      <QRCodeSVG
-                        value={emergencyPortalUrl}
-                        size={66}
-                        fgColor="#0F172A"
-                        bgColor="#FFFFFF"
-                      />
-                      <span style={{ fontSize: "0.42rem", fontWeight: 800, color: "#2563EB", letterSpacing: "0.04em", textTransform: "uppercase", marginTop: "2px" }}>
-                        SCAN TRIAGE
+                    {cardFace === "dual" && (
+                      <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--accent-blue)", background: "var(--accent-blue-light)", padding: "1px 6px", borderRadius: "4px" }}>
+                        FRONT + BACK DUAL VIEW
                       </span>
-                    </div>
+                    )}
                   </div>
 
-                  {/* Footer Strip */}
-                  <div style={{ borderTop: "1px solid #E2E8F0", paddingTop: "3px", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.46rem", color: "#64748B" }}>
-                    <span>Portal: {emergencyPortalUrl.replace(/^https?:\/\//, '')}</span>
-                    <span>Q-RAKSHAK Verified</span>
+                  <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", justifyContent: "center", width: "100%" }}>
+                    {(cardFace === "dual" || cardFace === "front") && (
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", maxWidth: "420px" }}>
+                        <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase" }}>Front View (QR & ID)</span>
+                        <TriagePhysicalCard
+                          patient={profile}
+                          variant="dark"
+                          face="front"
+                          emergencyPortalUrl={emergencyPortalUrl}
+                          onCopy={() => {
+                            navigator.clipboard?.writeText(emergencyPortalUrl);
+                            setCopiedPass(true);
+                            setTimeout(() => setCopiedPass(false), 2000);
+                          }}
+                          copied={copiedPass}
+                        />
+                      </div>
+                    )}
+
+                    {(cardFace === "dual" || cardFace === "back") && (
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", maxWidth: "420px" }}>
+                        <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase" }}>Back View (Allergies, Rx & Vitals)</span>
+                        <TriagePhysicalCard
+                          patient={profile}
+                          variant="dark"
+                          face="back"
+                          emergencyPortalUrl={emergencyPortalUrl}
+                          onCopy={() => {
+                            navigator.clipboard?.writeText(emergencyPortalUrl);
+                            setCopiedPass(true);
+                            setTimeout(() => setCopiedPass(false), 2000);
+                          }}
+                          copied={copiedPass}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -1563,104 +1665,12 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
       )}
 
       {/* ── Dedicated Invisible Print-Only Sheet (Activated by @media print for 1:1 Scale Print & PDF) ── */}
-      <div id="printable-health-card-sheet" style={{ display: "none" }}>
-        <div className="print-instructions">
-          <strong>Q-RAKSHAK Emergency Medical ID Card (ISO/IEC 7810 ID-1 Standard)</strong>
-          <br />
-          Cut along the dashed lines. Fold along center line to fit standard wallet ID card slots (85.60 mm × 53.98 mm).
-        </div>
-
-        <div className="print-cards-row">
-          {/* Front Face for Print */}
-          <div className="id-card-viewport">
-            <div className="id-card-header">
-              <div className="id-card-brand">
-                <div className="id-card-cross">+</div>
-                <div>
-                  <div className="id-card-title">Q-RAKSHAK • EMERGENCY PASSPORT</div>
-                  <div className="id-card-subtitle">ISO/IEC 7810 ID-1 Standard</div>
-                </div>
-              </div>
-              <div className="id-card-blood-badge">
-                <span className="id-card-blood-label">BLOOD</span>
-                <span className="id-card-blood-type">{profile.blood_group || "O+"}</span>
-              </div>
-            </div>
-
-            <div>
-              <h2 className="id-card-patient-name">PATIENT {profile.name?.toUpperCase() || "ALEXANDER REED"}</h2>
-              <div className="id-card-patient-meta">
-                MRN: <strong>{profile.license_id || "PT-REC-89421"}</strong> • ABHA: <strong>{profile.abha_id || "91-4829-1092-8821"}</strong>
-              </div>
-            </div>
-
-            <div className="id-card-grid">
-              <div>
-                <span className="id-card-cell-label">NEXT OF KIN HOTLINE</span>
-                <span className="id-card-cell-value alert">{profile.emergency_phone || "+91 98333 44556"}</span>
-                <div style={{ fontSize: "0.48rem", color: "#475569" }}>{profile.emergency_contact_name || "Liam Reed"} ({profile.emergency_contact_relation || "Brother"})</div>
-              </div>
-              <div>
-                <span className="id-card-cell-label">SEVERE ALLERGIES</span>
-                <span className="id-card-cell-value alert">{formatAllergies(profile.allergies) || "Penicillin (high)"}</span>
-              </div>
-              <div>
-                <span className="id-card-cell-label">ORGAN DONOR</span>
-                <span className="id-card-cell-value success">{profile.organ_donor ? "YES (CONSENTED)" : "NO"}</span>
-              </div>
-              <div>
-                <span className="id-card-cell-label">ATTENDING DOCTOR</span>
-                <span className="id-card-cell-value">{profile.hospital || "AIIMS Cardiology"}</span>
-              </div>
-            </div>
-
-            <div className="id-card-footer">
-              <div><strong>RX: </strong>{formatMedications(profile.active_medications || profile.medications) || "Atorvastatin 20mg (OD)"}</div>
-              <div style={{ fontWeight: 700, color: "#2563EB" }}>LIVE TELEMETRY PASS</div>
-            </div>
-          </div>
-
-          {/* Back Face for Print */}
-          <div className="id-card-viewport back-face">
-            <div className="id-card-header">
-              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <span style={{ fontSize: "0.58rem", fontWeight: 800, color: "#0F172A", textTransform: "uppercase" }}>
-                  EMERGENCY TRIAGE & TELEMETRY ACCESS
-                </span>
-              </div>
-              <span style={{ fontSize: "0.48rem", fontWeight: 700, color: "#059669" }}>PERMANENT PASS</span>
-            </div>
-
-            <div className="id-card-back-content">
-              <div style={{ display: "flex", flexDirection: "column", gap: "4px", fontSize: "0.52rem", color: "#475569" }}>
-                <div>
-                  <strong style={{ color: "#0F172A" }}>Instructions for First Responders:</strong>
-                  <p style={{ margin: "2px 0 0 0", lineHeight: 1.25 }}>
-                    Scan QR code with smartphone camera for instant clinical history, trauma directives, and physician contacts.
-                  </p>
-                </div>
-                <div>
-                  <span>Permanent ID: </span>
-                  <strong style={{ color: "#2563EB" }}>{profile.user_id || activeUserId}</strong>
-                </div>
-                <div style={{ fontSize: "0.46rem", color: "#94A3B8" }}>
-                  SHA-256: e3b0c442...991b7852 • WORM Ledger
-                </div>
-              </div>
-
-              <div className="id-card-qr-box">
-                <img src={emergencyQrUrl} alt="QR Pass" />
-                <div className="id-card-qr-caption">SCAN TRIAGE</div>
-              </div>
-            </div>
-
-            <div className="id-card-footer">
-              <span>Portal: {emergencyPortalUrl.replace(/^https?:\/\//, '')}</span>
-              <span>Q-RAKSHAK Verified</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PrintableMedicalCardSheet
+        patient={profile}
+        cardTheme={cardTheme}
+        cardFace={cardFace}
+        emergencyPortalUrl={emergencyPortalUrl}
+      />
 
       {/* ── Modal: Delete Account Confirmation ── */}
       {deleteConfirmOpen && (

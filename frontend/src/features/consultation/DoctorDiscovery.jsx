@@ -90,41 +90,45 @@ export default function DoctorDiscovery({ onOpenBooking, onJoinRoom, patientId }
         style={{
           background: "var(--bg-surface)",
           border: "1px solid var(--border-default)",
-          borderLeft: "3px solid var(--accent-blue)",
+          borderLeft: "4px solid var(--primary)",
           padding: "24px",
+          borderRadius: "14px",
+          boxShadow: "var(--shadow-card)",
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "14px" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px" }}>
-              <span className="step-badge gold">CLINICAL NETWORK</span>
-              <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.45rem", color: "var(--ink-primary)", fontWeight: 900, margin: 0 }}>
-                Verified Medical Specialist Network & Tele-Consultation
+              <span className="step-badge" style={{ background: "var(--primary-soft)", color: "var(--primary-dark)", borderColor: "var(--border-default)" }}>
+                CLINICAL NETWORK
+              </span>
+              <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.35rem", color: "var(--text-primary)", fontWeight: 700, margin: 0, letterSpacing: "-0.01em" }}>
+                Verified Medical Specialists & Tele-Consultation
               </h2>
             </div>
             <p style={{ color: "var(--text-secondary)", fontSize: "0.82rem", margin: 0, maxWidth: "700px" }}>
               Connect with board-certified oncologists, cardiologists, and pulmonologists. Two-way synchronized calendar
-              with 5-minute soft-lock protection prevents double-booking.
+              with soft-lock protection prevents double-booking.
             </p>
           </div>
           <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-            <span className="step-badge" style={{ padding: "6px 12px", fontSize: "0.74rem", background: "var(--bg-surface-alt)", display: "flex", alignItems: "center", gap: "6px" }}>
-              <ShieldCheck size={14} color="var(--emerald-couture)" /> Medical Council Verified
+            <span className="step-badge" style={{ padding: "6px 12px", fontSize: "0.74rem", background: "var(--risk-low-bg)", color: "var(--risk-low)", borderColor: "var(--risk-low-border)", display: "flex", alignItems: "center", gap: "6px" }}>
+              <ShieldCheck size={14} /> Medical Council Verified
             </span>
           </div>
         </div>
 
         {/* Filter Controls Bar */}
-        <div style={{ display: "flex", gap: "12px", marginTop: "16px", flexWrap: "wrap" }}>
-          <div style={{ position: "relative", flex: "1 1 240px" }}>
-            <Search size={15} style={{ position: "absolute", left: "10px", top: "10px", color: "var(--text-muted)" }} />
+        <div style={{ display: "flex", gap: "12px", marginTop: "18px", flexWrap: "wrap", alignItems: "center" }}>
+          <div style={{ position: "relative", flex: "1 1 260px" }}>
+            <Search size={16} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
             <input
               type="text"
-              className="terminal-input"
+              className="input-control"
               placeholder="Search by doctor name, condition, or hospital..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ paddingLeft: "32px", width: "100%" }}
+              style={{ paddingLeft: "36px", width: "100%" }}
             />
           </div>
 
@@ -139,9 +143,19 @@ export default function DoctorDiscovery({ onOpenBooking, onJoinRoom, patientId }
               <button
                 key={spec.id}
                 type="button"
-                className={`tab-btn ${selectedSpecialty === spec.id ? "active" : ""}`}
                 onClick={() => setSelectedSpecialty(spec.id)}
-                style={{ fontSize: "0.8rem", padding: "6px 14px", whiteSpace: "nowrap" }}
+                style={{
+                  fontSize: "0.80rem",
+                  padding: "8px 14px",
+                  borderRadius: "8px",
+                  border: selectedSpecialty === spec.id ? "1px solid var(--primary)" : "1px solid var(--border-default)",
+                  background: selectedSpecialty === spec.id ? "var(--primary-soft)" : "var(--bg-surface)",
+                  color: selectedSpecialty === spec.id ? "var(--primary-dark)" : "var(--text-secondary)",
+                  fontWeight: selectedSpecialty === spec.id ? 600 : 500,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  transition: "all 0.15s ease",
+                }}
               >
                 {spec.label}
               </button>

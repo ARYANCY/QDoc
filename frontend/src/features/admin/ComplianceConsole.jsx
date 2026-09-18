@@ -40,18 +40,18 @@ export default function ComplianceConsole({ patientId = "PT-89421" }) {
   return (
     <div ref={containerRef} style={{ display: "flex", flexDirection: "column", gap: "16px", height: "100%", overflowY: "auto", padding: "6px" }}>
       {/* DPDP Act 2023 Consent Management Card (SRS Section 9.1) */}
-      <div className="card-panel" style={{ borderLeft: "3px solid var(--accent-blue)" }}>
+      <div className="card-panel" style={{ borderLeft: "3px solid var(--primary)", borderRadius: "var(--radius-md)" }}>
         <div className="card-header">
           <span className="card-title">
             <Lock size={15} color="var(--primary)" /> DPDP Act, 2023 — Granular Patient Consent Controls
           </span>
-          <span style={{ fontSize: "0.68rem", color: "var(--accent-teal)", fontWeight: 700 }}>
+          <span style={{ fontSize: "0.68rem", color: "var(--primary)", fontWeight: 700 }}>
             DPDP-2023-v2 Verified
           </span>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px", marginTop: "8px" }}>
-          <label style={{ display: "flex", alignItems: "flex-start", gap: "8px", padding: "8px 10px", background: "var(--bg-canvas)", border: "1px solid var(--border-default)", cursor: "pointer" }}>
+          <label style={{ display: "flex", alignItems: "flex-start", gap: "8px", padding: "10px 12px", background: "var(--bg-canvas)", border: "1px solid var(--border-default)", borderRadius: "var(--radius-sm)", cursor: "pointer" }}>
             <input
               type="checkbox"
               checked={consent.storage}
@@ -59,12 +59,12 @@ export default function ComplianceConsole({ patientId = "PT-89421" }) {
               style={{ accentColor: "var(--primary)", marginTop: "2px" }}
             />
             <div>
-              <strong style={{ fontSize: "0.78rem", display: "block" }}>Clinical Data Storage</strong>
+              <strong style={{ fontSize: "0.78rem", display: "block", color: "var(--ink-primary)" }}>Clinical Data Storage</strong>
               <span style={{ fontSize: "0.68rem", color: "var(--text-secondary)" }}>Retain encrypted PHI for direct diagnostic care.</span>
             </div>
           </label>
 
-          <label style={{ display: "flex", alignItems: "flex-start", gap: "8px", padding: "8px 10px", background: "var(--bg-canvas)", border: "1px solid var(--border-default)", cursor: "pointer" }}>
+          <label style={{ display: "flex", alignItems: "flex-start", gap: "8px", padding: "10px 12px", background: "var(--bg-canvas)", border: "1px solid var(--border-default)", borderRadius: "var(--radius-sm)", cursor: "pointer" }}>
             <input
               type="checkbox"
               checked={consent.research}
@@ -72,12 +72,12 @@ export default function ComplianceConsole({ patientId = "PT-89421" }) {
               style={{ accentColor: "var(--primary)", marginTop: "2px" }}
             />
             <div>
-              <strong style={{ fontSize: "0.78rem", display: "block" }}>QML Research & Retraining</strong>
+              <strong style={{ fontSize: "0.78rem", display: "block", color: "var(--ink-primary)" }}>QML Research & Retraining</strong>
               <span style={{ fontSize: "0.68rem", color: "var(--text-secondary)" }}>Allow de-identified vectors in QNN benchmarks.</span>
             </div>
           </label>
 
-          <label style={{ display: "flex", alignItems: "flex-start", gap: "8px", padding: "8px 10px", background: "var(--bg-canvas)", border: "1px solid var(--border-default)", cursor: "pointer" }}>
+          <label style={{ display: "flex", alignItems: "flex-start", gap: "8px", padding: "10px 12px", background: "var(--bg-canvas)", border: "1px solid var(--border-default)", borderRadius: "var(--radius-sm)", cursor: "pointer" }}>
             <input
               type="checkbox"
               checked={consent.sharing}
@@ -85,18 +85,18 @@ export default function ComplianceConsole({ patientId = "PT-89421" }) {
               style={{ accentColor: "var(--primary)", marginTop: "2px" }}
             />
             <div>
-              <strong style={{ fontSize: "0.78rem", display: "block" }}>ABDM Inter-Hospital Exchange</strong>
+              <strong style={{ fontSize: "0.78rem", display: "block", color: "var(--ink-primary)" }}>ABDM Inter-Hospital Exchange</strong>
               <span style={{ fontSize: "0.68rem", color: "var(--text-secondary)" }}>Federated sharing via Ayushman Bharat FHIR.</span>
             </div>
           </label>
         </div>
 
-        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "8px" }}>
+        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "12px" }}>
           <button
             type="button"
             className="btn-primary"
             onClick={handleConsentSave}
-            style={{ width: "auto", padding: "5px 14px", fontSize: "0.74rem" }}
+            style={{ width: "auto", padding: "6px 16px", fontSize: "0.76rem" }}
           >
             {saved ? "Consent Logged to Immutable Ledger" : "Update Consent Directives"}
           </button>
@@ -104,17 +104,17 @@ export default function ComplianceConsole({ patientId = "PT-89421" }) {
       </div>
 
       {/* Immutable Audit Log Table (SRS Section 9.1 & 10) */}
-      <div className="card-panel">
+      <div className="card-panel" style={{ borderRadius: "var(--radius-md)" }}>
         <div className="card-header">
           <span className="card-title">
-            <ShieldCheck size={15} color="var(--risk-low)" /> Immutable Audit Trail (WORM Ledger)
+            <ShieldCheck size={15} color="var(--state-success)" /> Immutable Audit Trail (WORM Ledger)
           </span>
           <span style={{ fontSize: "0.68rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
             100% PHI Access Tracked
           </span>
         </div>
 
-        <div className="data-table-wrap" style={{ maxHeight: "200px", overflowY: "auto" }}>
+        <div className="data-table-wrap" style={{ maxHeight: "200px", overflowY: "auto", borderRadius: "var(--radius-sm)" }}>
           <table className="clinical-data-table">
             <thead>
               <tr>
@@ -140,10 +140,11 @@ export default function ComplianceConsole({ patientId = "PT-89421" }) {
                     <span style={{
                       fontSize: "0.64rem",
                       fontWeight: 700,
-                      padding: "1px 5px",
-                      background: "var(--risk-low-bg)",
-                      color: "var(--risk-low)",
-                      border: "1px solid rgba(22, 163, 74, 0.3)",
+                      padding: "2px 6px",
+                      borderRadius: "var(--radius-xs)",
+                      background: "var(--state-success-bg)",
+                      color: "var(--state-success)",
+                      border: "1px solid rgba(22, 134, 106, 0.25)",
                     }}>
                       {log.compliance}
                     </span>
@@ -156,41 +157,42 @@ export default function ComplianceConsole({ patientId = "PT-89421" }) {
       </div>
 
       {/* Model Registry (SRS Section 9.3) */}
-      <div className="card-panel">
+      <div className="card-panel" style={{ borderRadius: "var(--radius-md)" }}>
         <div className="card-header">
           <span className="card-title">
-            <Database size={15} color="var(--accent-violet)" /> Model Governance & Lineage Registry
+            <Database size={15} color="var(--primary)" /> Model Governance & Lineage Registry
           </span>
           <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>
             Version Lineage & Validation Checkpoints
           </span>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px", marginTop: "8px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px", marginTop: "10px" }}>
           {registry.map((mod) => (
             <div
               key={mod.version}
               style={{
                 background: "var(--bg-canvas)",
                 border: "1px solid var(--border-default)",
-                padding: "8px 10px",
+                borderRadius: "var(--radius-sm)",
+                padding: "10px 12px",
               }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
-                <strong style={{ fontSize: "0.78rem" }}>{mod.model_name}</strong>
-                <span style={{ fontSize: "0.64rem", padding: "1px 4px", background: "var(--primary-soft)", color: "var(--primary)", fontWeight: 700 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                <strong style={{ fontSize: "0.78rem", color: "var(--ink-primary)" }}>{mod.model_name}</strong>
+                <span style={{ fontSize: "0.64rem", padding: "2px 6px", borderRadius: "var(--radius-xs)", background: "var(--primary-soft)", color: "var(--primary)", fontWeight: 700 }}>
                   {mod.version}
                 </span>
               </div>
-              <p style={{ fontSize: "0.68rem", color: "var(--text-secondary)", marginBottom: "3px" }}>
+              <p style={{ fontSize: "0.68rem", color: "var(--text-secondary)", marginBottom: "4px" }}>
                 Trained: {mod.training_date}
               </p>
-              <p style={{ fontSize: "0.68rem", color: "var(--text-secondary)", marginBottom: "4px" }}>
+              <p style={{ fontSize: "0.68rem", color: "var(--text-secondary)", marginBottom: "6px" }}>
                 Dataset: <strong>{mod.dataset_lineage}</strong>
               </p>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.68rem", borderTop: "1px solid var(--border-subtle)", paddingTop: "4px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.68rem", borderTop: "1px solid var(--border-subtle)", paddingTop: "6px" }}>
                 <span>ROC-AUC: <strong style={{ color: "var(--primary)" }}>{mod.metrics?.auc_roc}</strong></span>
-                <span>Status: <strong style={{ color: "var(--risk-low)" }}>{mod.status}</strong></span>
+                <span>Status: <strong style={{ color: "var(--state-success)" }}>{mod.status}</strong></span>
               </div>
             </div>
           ))}

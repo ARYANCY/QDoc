@@ -103,29 +103,29 @@ export default function ClinicianDashboard({ doctorId = "DOC-KAVITA", currentUse
         style={{
           background: "var(--bg-surface)",
           border: "1px solid var(--border-default)",
-          borderLeft: "4px solid var(--accent-blue)",
+          borderLeft: "4px solid var(--primary)",
           padding: "20px 24px",
-          borderRadius: "var(--radius-md)",
-          boxShadow: "var(--shadow-sm)",
+          borderRadius: "14px",
+          boxShadow: "var(--shadow-card)",
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "14px" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px" }}>
-              <span className="step-badge" style={{ background: "rgba(37, 99, 235, 0.1)", color: "var(--accent-blue)", borderColor: "rgba(37, 99, 235, 0.25)" }}>
-                TODAY'S CARE TEAM
+              <span className="step-badge" style={{ background: "var(--primary-soft)", color: "var(--primary-dark)", borderColor: "var(--border-default)" }}>
+                ATTENDING ROSTER
               </span>
-              <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.35rem", color: "var(--ink-primary)", fontWeight: 800, margin: 0 }}>
-                Patient care and appointments
+              <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.35rem", color: "var(--text-primary)", fontWeight: 700, margin: 0, letterSpacing: "-0.01em" }}>
+                Patient Care & Ambulatory Triage
               </h2>
             </div>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.80rem", margin: 0 }}>
-              Attending: <strong>{currentUser?.name || "Dr. Kavita Rao, MD"}</strong> • License / Provider ID: <strong style={{ fontFamily: "var(--font-mono)" }}>{resolvedDoctorId}</strong> • Ward: <strong>Emergency & Ambulatory OPD</strong>
+            <p style={{ color: "var(--text-secondary)", fontSize: "0.82rem", margin: 0 }}>
+              Attending: <strong style={{ color: "var(--text-primary)" }}>{currentUser?.name || "Dr. Kavita Rao, MD"}</strong> • License / Provider ID: <strong style={{ fontFamily: "var(--font-mono)" }}>{resolvedDoctorId}</strong> • Ward: <strong>Emergency & Ambulatory OPD</strong>
             </p>
           </div>
           <div style={{ display: "flex", gap: "10px" }}>
             <span className="step-badge" style={{ padding: "6px 12px", fontSize: "0.72rem", background: "var(--risk-low-bg)", color: "var(--risk-low)", borderColor: "var(--risk-low-border)", display: "flex", alignItems: "center", gap: "6px" }}>
-              Care team verified
+              <CheckCircle2 size={13} /> Attending Verified
             </span>
           </div>
         </div>
@@ -133,30 +133,30 @@ export default function ClinicianDashboard({ doctorId = "DOC-KAVITA", currentUse
 
       {/* Care team overview */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px" }}>
-        <div className="card-panel" style={{ padding: "14px 18px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-default)", background: "var(--bg-surface)" }}>
-            <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>Patients waiting</div>
-          <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--ink-primary)", margin: "2px 0" }}>{bookings.length}</div>
-            <div style={{ fontSize: "0.72rem", color: "var(--text-secondary)" }}>Ready for a visit</div>
+        <div className="card-panel" style={{ padding: "16px 18px", borderRadius: "12px", border: "1px solid var(--border-default)", background: "var(--bg-surface)" }}>
+          <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase" }}>Patients waiting</div>
+          <div style={{ fontSize: "1.6rem", fontWeight: 700, color: "var(--text-primary)", margin: "2px 0", fontFamily: "var(--font-display)" }}>{bookings.length}</div>
+          <div style={{ fontSize: "0.74rem", color: "var(--text-secondary)" }}>Ready for consultation</div>
         </div>
 
-        <div className="card-panel" style={{ padding: "14px 18px", borderRadius: "var(--radius-sm)", border: "1px solid var(--risk-high-border)", background: emergencyCount > 0 ? "var(--risk-high-bg)" : "var(--bg-surface)" }}>
+        <div className="card-panel" style={{ padding: "16px 18px", borderRadius: "12px", border: "1px solid var(--risk-high-border)", background: emergencyCount > 0 ? "var(--risk-high-bg)" : "var(--bg-surface)" }}>
           <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--risk-high)", textTransform: "uppercase", display: "flex", alignItems: "center", gap: "6px" }}>
             Urgent reviews
           </div>
-          <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--risk-high)", margin: "2px 0" }}>{emergencyCount}</div>
-            <div style={{ fontSize: "0.72rem", color: "var(--risk-high)", fontWeight: 600 }}>Needs prompt attention</div>
+          <div style={{ fontSize: "1.6rem", fontWeight: 700, color: "var(--risk-high)", margin: "2px 0", fontFamily: "var(--font-display)" }}>{emergencyCount}</div>
+          <div style={{ fontSize: "0.74rem", color: "var(--risk-high)", fontWeight: 600 }}>Needs prompt attention</div>
         </div>
 
-        <div className="card-panel" style={{ padding: "14px 18px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-default)", background: "var(--bg-surface)" }}>
-            <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>Regular visits</div>
-          <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--ink-primary)", margin: "2px 0" }}>{routineCount}</div>
-            <div style={{ fontSize: "0.72rem", color: "var(--text-secondary)" }}>Scheduled appointments</div>
+        <div className="card-panel" style={{ padding: "16px 18px", borderRadius: "12px", border: "1px solid var(--border-default)", background: "var(--bg-surface)" }}>
+          <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase" }}>Regular visits</div>
+          <div style={{ fontSize: "1.6rem", fontWeight: 700, color: "var(--text-primary)", margin: "2px 0", fontFamily: "var(--font-display)" }}>{routineCount}</div>
+          <div style={{ fontSize: "0.74rem", color: "var(--text-secondary)" }}>Scheduled appointments</div>
         </div>
 
-        <div className="card-panel" style={{ padding: "14px 18px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-default)", background: "var(--bg-surface)" }}>
-            <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>Usual wait</div>
-          <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--accent-blue)", margin: "2px 0" }}>&lt; 6 Min</div>
-          <div style={{ fontSize: "0.72rem", color: "var(--text-secondary)" }}>Usually seen promptly</div>
+        <div className="card-panel" style={{ padding: "16px 18px", borderRadius: "12px", border: "1px solid var(--border-default)", background: "var(--bg-surface)" }}>
+          <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase" }}>Median Wait Time</div>
+          <div style={{ fontSize: "1.6rem", fontWeight: 700, color: "var(--primary)", margin: "2px 0", fontFamily: "var(--font-display)" }}>&lt; 6 Min</div>
+          <div style={{ fontSize: "0.74rem", color: "var(--text-secondary)" }}>Prompt clinical triage</div>
         </div>
       </div>
 

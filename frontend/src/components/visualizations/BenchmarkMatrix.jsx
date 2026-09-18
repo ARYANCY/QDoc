@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { BarChart3, Zap, Activity, CheckCircle2, RefreshCw } from "lucide-react";
 import { benchmarksApi } from "../../api/benchmarks";
 import { animateEntrance, animateCardStagger } from "../../utils/motion";
+import SquareLoader from "../common/SquareLoader.jsx";
 
 export default function BenchmarkMatrix({ disease = "breast_cancer" }) {
   const containerRef = useRef(null);
@@ -29,6 +30,14 @@ export default function BenchmarkMatrix({ disease = "breast_cancer" }) {
   const activeModel = data?.active_model || (activeEngine === "quantum" ? "Quantum VQC" : "Sentinel Baseline");
   const routingRationale = data?.routing_rationale || "";
 
+  if (loading && !data) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "260px" }}>
+        <SquareLoader label="Syncing stratified quantum benchmarks..." />
+      </div>
+    );
+  }
+
   return (
     <div ref={containerRef} style={{ display: "flex", flexDirection: "column", gap: "16px", height: "100%", overflowY: "auto", padding: "6px" }}>
       {/* Dynamic Q-Triage Arbiter Deployment Banner */}
@@ -37,58 +46,58 @@ export default function BenchmarkMatrix({ disease = "breast_cancer" }) {
         alignItems: "center",
         justifyContent: "space-between",
         gap: "12px",
-        padding: "10px 14px",
-        borderRadius: "var(--radius-sm)",
-        background: activeEngine === "quantum" ? "rgba(0, 242, 254, 0.06)" : "rgba(245, 158, 11, 0.06)",
-        border: `1px solid ${activeEngine === "quantum" ? "rgba(0, 242, 254, 0.25)" : "rgba(245, 158, 11, 0.25)"}`,
+        padding: "12px 16px",
+        borderRadius: "var(--radius-md)",
+        background: activeEngine === "quantum" ? "var(--primary-soft)" : "var(--state-warning-bg)",
+        border: `1px solid ${activeEngine === "quantum" ? "var(--primary-light)" : "var(--state-warning)"}`,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <span style={{
-            fontSize: "0.75rem",
+            fontSize: "0.72rem",
             fontWeight: 700,
             padding: "3px 8px",
-            borderRadius: "4px",
-            background: activeEngine === "quantum" ? "rgba(0, 242, 254, 0.15)" : "rgba(245, 158, 11, 0.15)",
-            color: activeEngine === "quantum" ? "var(--primary)" : "#f59e0b",
+            borderRadius: "var(--radius-xs)",
+            background: activeEngine === "quantum" ? "var(--primary)" : "var(--state-warning)",
+            color: "#FFFFFF",
             fontFamily: "var(--font-mono)",
           }}>
             {activeEngine === "quantum" ? "QUANTUM ACTIVE" : "CLASSICAL SENTINEL ACTIVE"}
           </span>
-          <span style={{ fontSize: "0.78rem", color: "var(--text-primary)", fontWeight: 600 }}>
+          <span style={{ fontSize: "0.80rem", color: "var(--ink-primary)", fontWeight: 700 }}>
             {activeModel}
           </span>
         </div>
-        <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", maxWidth: "55%", textAlign: "right" }}>
+        <div style={{ fontSize: "0.74rem", color: "var(--text-secondary)", maxWidth: "55%", textAlign: "right" }}>
           {routingRationale || (activeEngine === "quantum" ? "Quantum advantage confirmed for this clinical modality." : "Autonomous fallback: Classical baseline protects diagnostic accuracy & specificity.")}
         </div>
       </div>
 
       {/* QAS Bento Hero Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "8px" }}>
-        <div className="bento-stat">
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "10px" }}>
+        <div className="bento-stat" style={{ borderRadius: "var(--radius-md)" }}>
           <div className="corner-tag-arrow">↗</div>
-          <div className="bento-stat-num" style={{ color: qas > 0 ? "var(--primary)" : qas < 0 ? "#f59e0b" : "var(--text-muted)" }}>
+          <div className="bento-stat-num" style={{ color: qas > 0 ? "var(--primary)" : qas < 0 ? "var(--state-warning)" : "var(--text-muted)" }}>
             {qas > 0 ? `+${(qas * 100).toFixed(2)}%` : qas < 0 ? `${(qas * 100).toFixed(2)}%` : "0.00%"}
           </div>
           <div className="bento-stat-label">
             Quantum Advantage Score ({qas > 0 ? "Quantum Lead" : qas < 0 ? "Classical Advantage" : "Parity"})
           </div>
         </div>
-        <div className="bento-stat" style={{ background: "var(--bg-surface-alt)" }}>
+        <div className="bento-stat" style={{ background: "var(--bg-surface-alt)", borderRadius: "var(--radius-md)" }}>
           <div className="corner-tag-arrow">↗</div>
-          <div className="bento-stat-num" style={{ color: "var(--risk-low)" }}>
+          <div className="bento-stat-num" style={{ color: "var(--state-success)" }}>
             {bestModel.accuracy ? `${(bestModel.accuracy * 100).toFixed(2)}%` : "0.00%"}
           </div>
           <div className="bento-stat-label">Peak Accuracy ({bestModel.model || "Active"})</div>
         </div>
-        <div className="bento-stat">
+        <div className="bento-stat" style={{ borderRadius: "var(--radius-md)" }}>
           <div className="corner-tag-arrow">↗</div>
-          <div className="bento-stat-num" style={{ color: "var(--text-primary)" }}>
+          <div className="bento-stat-num" style={{ color: "var(--ink-primary)" }}>
             {bestModel.auc_roc ? Number(bestModel.auc_roc).toFixed(4) : "0.0000"}
           </div>
           <div className="bento-stat-label">ROC-AUC Discrimination</div>
         </div>
-        <div className="bento-stat" style={{ background: "var(--bg-surface-alt)" }}>
+        <div className="bento-stat" style={{ background: "var(--bg-surface-alt)", borderRadius: "var(--radius-md)" }}>
           <div className="corner-tag-arrow">↗</div>
           <div className="bento-stat-num" style={{ color: "var(--primary)" }}>
             {bestModel.mcc ? Number(bestModel.mcc).toFixed(4) : "0.0000"}
@@ -98,7 +107,7 @@ export default function BenchmarkMatrix({ disease = "breast_cancer" }) {
       </div>
 
       {/* Comparative Matrix Table */}
-      <div className="card-panel" style={{ borderRadius: "var(--radius-sm)", border: "1px solid var(--border-default)" }}>
+      <div className="card-panel" style={{ borderRadius: "var(--radius-md)", border: "1px solid var(--border-default)" }}>
         <div className="card-header">
           <span className="card-title">
             <BarChart3 size={15} color="var(--primary)" /> Standardized Comparative Evaluation Matrix
