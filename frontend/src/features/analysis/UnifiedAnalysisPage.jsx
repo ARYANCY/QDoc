@@ -249,6 +249,39 @@ const ROLE_PERMISSIONS = {
       },
     ],
   },
+  clinician: {
+    label: "Doctor / Clinician (Tele-Consultations & Triage)",
+    badgeColor: "var(--accent-teal)",
+    defaultTab: "clinician_dashboard",
+    allowedTabs: ["home", "clinician_dashboard", "ai_doctor", "portal", "profile"],
+    sections: [
+      {
+        title: "Overview",
+        items: [
+          { id: "home", label: "Overview & Dashboard", icon: NavHomeSvg },
+        ],
+      },
+      {
+        title: "Clinical Practice",
+        items: [
+          { id: "clinician_dashboard", label: "Consultation Queue & Triage", icon: NavUsersSvg },
+          { id: "ai_doctor", label: "AI Doctor Simulation", icon: NavAIDoctorSvg },
+        ],
+      },
+      {
+        title: "Health Records",
+        items: [
+          { id: "portal", label: "Patient Records", icon: NavPortalSvg },
+        ],
+      },
+      {
+        title: "Account & Profile",
+        items: [
+          { id: "profile", label: "Doctor Profile & Security", icon: NavProfileSvg },
+        ],
+      },
+    ],
+  },
   admin: {
     label: "System & Compliance Administrator",
     badgeColor: "var(--accent-teal)",
@@ -395,6 +428,7 @@ export default function UnifiedAnalysisPage() {
             setPatientId(resolvePatientId(validUser));
           } else {
             setCurrentUser(null);
+            setError(null);
           }
         } catch {
           // Keep current stored user on network cold start
@@ -405,7 +439,7 @@ export default function UnifiedAnalysisPage() {
 
     function handleAuthExpired() {
       setCurrentUser(null);
-      setError("Your clinical session has expired. Please sign in to resume your workspace.");
+      setError(null); // clear error so login page renders clean; the session lapse is self-evident from the redirect
     }
 
     window.addEventListener("qmed:auth_expired", handleAuthExpired);
@@ -475,7 +509,7 @@ export default function UnifiedAnalysisPage() {
 
   function resolvePatientId(user) {
     if (!user || user.role !== "patient") return "";
-    return user.patient_id || user.user_id || user.id || "USR-5EF52B";
+    return user.patient_id || user.user_id || user.id || "";
   }
 
   async function handleQuickRoleSwitch(u, p, r) {
@@ -488,7 +522,7 @@ export default function UnifiedAnalysisPage() {
       const nextRoleCfg = ROLE_PERMISSIONS[data.user.role] || ROLE_PERMISSIONS.patient;
       setActiveTab(nextRoleCfg.defaultTab);
     } catch (err) {
-      setError(err.message || "Quick role switch failed.");
+      setError(err.message || "Sign in failed. Please check your username and password, then try again.");
     } finally {
       setLoading(false);
     }

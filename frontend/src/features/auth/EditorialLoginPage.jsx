@@ -28,11 +28,19 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
   const [registerSpecialty, setRegisterSpecialty] = useState("General Medicine & Clinical AI");
   const [registerAffiliation, setRegisterAffiliation] = useState("AIIMS Clinical AI OPD");
 
+  // Local form-scoped error state — cleared independently per form, isolated from global error
+  const [loginError, setLoginError] = useState("");
+  const [registerError, setRegisterError] = useState("");
+
   const pageRef = useRef(null);
   const formContainerRef = useRef(null);
   const narrativeRef = useRef(null);
 
-
+  // Clear errors when switching tabs
+  useEffect(() => {
+    setLoginError("");
+    setRegisterError("");
+  }, [authMode]);
 
   // Listen for Escape key to close the User Guide modal
   useEffect(() => {
@@ -105,25 +113,57 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
     }
   }, [authMode]);
 
-  // Tactile GSAP attention shake on authentication error
+  // Tactile GSAP attention shake on authentication error (triggers on local errors too)
   useEffect(() => {
-    if (error && formContainerRef.current) {
+    if ((loginError || registerError || error) && formContainerRef.current) {
       animateErrorShake(formContainerRef.current);
     }
-  }, [error]);
+  }, [loginError, registerError, error]);
 
   function handleSubmit(e) {
     e.preventDefault();
-    onLogin(username, password, selectedRole);
+    setLoginError("");
+    // Client-side validation
+    if (!username.trim()) {
+      setLoginError("Please enter your username or email.");
+      return;
+    }
+    if (!password) {
+      setLoginError("Please enter your password.");
+      return;
+    }
+    onLogin(username.trim(), password, selectedRole);
   }
 
   async function handleRegister(e) {
     e.preventDefault();
+    setRegisterError("");
+    // Client-side validation
+    if (!registerName.trim()) {
+      setRegisterError("Full name is required.");
+      return;
+    }
+    if (!registerUsername.trim()) {
+      setRegisterError("Choose a username.");
+      return;
+    }
+    if (!/^[a-zA-Z0-9._-]+$/.test(registerUsername.trim())) {
+      setRegisterError("Username can only contain letters, numbers, dots, hyphens, and underscores.");
+      return;
+    }
+    if (!registerEmail.trim() || !registerEmail.includes("@")) {
+      setRegisterError("Enter a valid email address.");
+      return;
+    }
+    if (!registerPassword || registerPassword.length < 6) {
+      setRegisterError("Password must be at least 6 characters.");
+      return;
+    }
     await onRegister({
-      username: registerUsername,
+      username: registerUsername.trim(),
       password: registerPassword,
-      name: registerName,
-      email: registerEmail,
+      name: registerName.trim(),
+      email: registerEmail.trim(),
       role: registerRole,
       specialty: registerRole === "doctor" ? registerSpecialty : undefined,
       hospital_affiliation: registerRole === "doctor" ? registerAffiliation : undefined,
@@ -639,6 +679,7 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                         setSelectedRole(r.id);
                         setUsername(r.u);
                         setPassword(r.p);
+                        setLoginError(""); // clear any stale error when switching persona
                       }}
                       style={{
                         padding: "8px 10px",
@@ -702,11 +743,12 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                 />
               </div>
 
-              {error && (
+              {(loginError || error) && (
                 <div className="clinical-error-banner" style={{ margin: "4px 0 0 0" }}>
-                  <div>{error}</div>
+                  <div>{loginError || error}</div>
                 </div>
               )}
+
 
               {/* Submit Button */}
               <button
@@ -833,9 +875,9 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                 />
               </div>
 
-              {error && (
+              {(registerError || error) && (
                 <div className="clinical-error-banner" style={{ margin: "4px 0 0 0" }}>
-                  <div>{error}</div>
+                  <div>{registerError || error}</div>
                 </div>
               )}
 

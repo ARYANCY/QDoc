@@ -19,7 +19,7 @@ export default function EmergencyCardView({ patientId = 'USR-5EF52B' }) {
   const [error, setError] = useState(null);
   const [shakeTriggered, setShakeTriggered] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
-  const [cardTheme, setCardTheme] = useState('both'); // 'both' | 'light' | 'dark'
+  const [cardTheme, setCardTheme] = useState('light'); // 'light' | 'dark'
   const [cardFace, setCardFace] = useState('dual'); // 'dual' | 'front' | 'back' | 'flip3d'
   const [printModalOpen, setPrintModalOpen] = useState(false);
   const [is3DFlipped, setIs3DFlipped] = useState(false);
@@ -1102,23 +1102,6 @@ export default function EmergencyCardView({ patientId = 'USR-5EF52B' }) {
               {/* Theme & Face Controls */}
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                 <div style={{ display: 'inline-flex', background: '#F1F5F9', padding: '3px', borderRadius: '8px', border: '1px solid #CBD5E1', gap: '2px' }}>
-                  <button
-                    type="button"
-                    onClick={() => setCardTheme('both')}
-                    style={{
-                      background: cardTheme === 'both' ? '#FFFFFF' : 'transparent',
-                      color: cardTheme === 'both' ? '#0F172A' : '#64748B',
-                      border: 0,
-                      borderRadius: '6px',
-                      padding: '4px 8px',
-                      fontSize: '0.68rem',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      boxShadow: cardTheme === 'both' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
-                    }}
-                  >
-                    Both Editions
-                  </button>
                   <button
                     type="button"
                     onClick={() => setCardTheme('light')}
