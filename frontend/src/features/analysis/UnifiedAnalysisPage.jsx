@@ -1096,44 +1096,34 @@ export default function UnifiedAnalysisPage() {
               <div className="workflow-stepper">
                 <div className={`step-chip ${study ? "active" : ""}`}>
                   <span className="step-badge">0.1</span>
-                  <span>Choose Checkup</span>
+                  <span>Select & Run Checkup</span>
                 </div>
                 <ChevronRight size={12} color="var(--text-muted)" />
-                <div className={`step-chip ${rawFeatures.length > 0 ? "active" : ""}`}>
+                <div className={`step-chip ${result ? "active" : ""}`}>
                   <span className="step-badge">0.2</span>
-                  <span>Health Indicators</span>
-                </div>
-                <ChevronRight size={12} color="var(--text-muted)" />
-                <div className={`step-chip ${result ? "active" : ""}`}>
-                  <span className="step-badge">0.3</span>
-                  <span>Run Quantum AI</span>
-                </div>
-                <ChevronRight size={12} color="var(--text-muted)" />
-                <div className={`step-chip ${result ? "active" : ""}`}>
-                  <span className="step-badge">0.4</span>
-                  <span>Health Assessment & Report</span>
+                  <span>Health Assessment & 3D Twin</span>
                 </div>
               </div>
 
               <div
                 className="cockpit-grid"
                 style={{
-                  gridTemplateColumns: twinCollapsed ? "290px 1fr 44px" : "290px 1fr 320px",
+                  gridTemplateColumns: twinCollapsed ? "1fr 44px" : "1fr 420px",
                   transition: "grid-template-columns 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
                   flex: 1,
                   minHeight: 0,
                 }}
               >
-                {/* COLUMN 1: Ingestion & Checkup Selection */}
+                {/* COLUMN 1: Clinical Checkup & Diagnostic Intelligence */}
                 <div className="cockpit-col">
                   <div className="cockpit-col-header">
                     <div>
                       <span className="step-badge">0.1</span>
-                      <span>Health Checkups</span>
+                      <span>Health Checkups & Quantum AI</span>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <span style={{ fontSize: "0.66rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
-                        Step 1 of 4
+                      <span style={{ fontSize: "0.68rem", color: "var(--primary)", fontFamily: "var(--font-mono)", fontWeight: 700 }}>
+                        {currentStudy.model}
                       </span>
                       <button
                         type="button"
@@ -1436,210 +1426,117 @@ export default function UnifiedAnalysisPage() {
                             ))}
                           </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* COLUMN 2: Quantum AI Assessment & Key Factors */}
-                <div className="cockpit-col">
-                  <div className="cockpit-col-header">
-                    <div>
-                      <span className="step-badge">0.2</span>
-                      <span>Quantum AI Health Assessment</span>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <span style={{ fontSize: "0.68rem", color: "var(--primary)", fontFamily: "var(--font-mono)", fontWeight: 700 }}>
-                        {currentStudy.model}
-                      </span>
-                      <button
-                        type="button"
-                        className="section-guide-btn"
-                        onClick={() => setActiveGuide(GUIDE_DATA.ai_assessment)}
-                        title="How Quantum AI Assessment works (Plain English Guide)"
-                      >
-                        <Info size={13} />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="cockpit-col-body">
-                    {/* Action Launch Bar */}
-                    <div>
-                      <button
-                        type="button"
-                        className="btn-primary"
-                        onClick={runDiagnosis}
-                        disabled={loading}
-                        style={{ padding: "8px 12px", width: "100%", borderRadius: "var(--radius-sm)" }}
-                      >
-                        {loading ? (
-                          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                            <SquareLoader size="sm" color="#FFFFFF" style={{ padding: 0 }} />
-                            <span>Analyzing Biological Markers with Quantum AI...</span>
-                          </div>
-                        ) : (
-                          <>
-                            <Play size={14} />
-                            <span>Run Instant Quantum AI Checkup</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-
-                    {error && (
-                      <div style={{ background: "var(--risk-high-bg)", color: "var(--risk-high)", padding: "6px 8px", fontSize: "0.72rem", border: "1px solid rgba(220, 38, 38, 0.3)", borderRadius: "var(--radius-sm)" }}>
-                        {error}
-                      </div>
-                    )}
-
-                    {/* Real-Time Prediction Output */}
-                    {result ? (
-                      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                        {/* Q-Triage Arbiter Routing Badge */}
-                        {result.active_engine && (
-                          <div style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            gap: "8px",
-                            padding: "6px 10px",
-                            borderRadius: "var(--radius-sm)",
-                            background: result.active_engine === "quantum" ? "rgba(0, 242, 254, 0.08)" : "rgba(245, 158, 11, 0.08)",
-                            border: `1px solid ${result.active_engine === "quantum" ? "rgba(0, 242, 254, 0.3)" : "rgba(245, 158, 11, 0.3)"}`,
-                            marginBottom: "2px",
-                            fontSize: "0.7rem",
-                          }}>
-                            <span style={{ fontWeight: 700, color: result.active_engine === "quantum" ? "var(--primary)" : "#f59e0b" }}>
-                              {result.active_engine === "quantum" ? "Advanced review selected" : "Standard review selected"}
-                            </span>
-                            <span style={{ color: "var(--text-muted)", fontSize: "0.66rem", maxWidth: "60%", textAlign: "right" }}>
-                              {result.hybrid_arbitration?.routing_rationale || (result.active_engine === "quantum" ? "Quantum Advantage Confirmed" : "Clinical Safety Guardrail")}
-                            </span>
-                          </div>
-                        )}
-
-                        {/* High-Visibility Verdict Box */}
-                        <div className={`verdict-box ${result.prediction?.class?.toLowerCase().includes("malignant") || result.prediction?.class?.toLowerCase().includes("disease") || result.prediction?.class?.toLowerCase().includes("pneumonia") ? "danger" : "normal"}`}>
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <span style={{ fontSize: "0.68rem", fontWeight: 700, textTransform: "uppercase", color: "var(--text-muted)" }}>Health Risk Assessment</span>
-                            <span style={{ fontSize: "0.68rem", fontWeight: 700, color: result.prediction?.class?.toLowerCase().includes("malignant") || result.prediction?.class?.toLowerCase().includes("disease") ? "var(--risk-high)" : "var(--risk-low)" }}>
-                              {result.prediction?.class?.toLowerCase().includes("malignant") || result.prediction?.class?.toLowerCase().includes("disease") ? "Elevated Risk Detected" : "Optimal / Low Risk"}
-                            </span>
-                          </div>
-                          <h3 style={{ fontSize: "1.15rem", fontWeight: 800, margin: "2px 0", color: "var(--text-primary)" }}>
-                            {result.prediction?.class}
-                          </h3>
-                          <p style={{ fontSize: "0.74rem", color: "var(--text-secondary)", margin: 0 }}>
-                            AI Confidence Level: <strong>{((result.prediction?.confidence || 0.0) * 100).toFixed(1)}%</strong> • Baseline: <strong>{((result.classical_baseline?.confidence || 0.0) * 100).toFixed(1)}%</strong> • Processing Time: <strong>{result.inference_ms} ms</strong>
-                          </p>
+                        {/* Instant Quantum AI Diagnosis Trigger */}
+                        <div style={{ marginTop: "4px" }}>
+                          <button
+                            type="button"
+                            className="btn-primary"
+                            onClick={runDiagnosis}
+                            disabled={loading}
+                            style={{ padding: "9px 14px", width: "100%", borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
+                          >
+                            {loading ? (
+                              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                                <SquareLoader size="sm" color="#FFFFFF" style={{ padding: 0 }} />
+                                <span>Analyzing Biological Markers with Quantum AI...</span>
+                              </div>
+                            ) : (
+                              <>
+                                <Play size={14} />
+                                <span>Run Instant Quantum AI Checkup</span>
+                              </>
+                            )}
+                          </button>
                         </div>
 
-                        {/* Probabilities Progress */}
-                        {result.probabilities && (
-                          <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border-subtle)", padding: "6px", borderRadius: "var(--radius-sm)" }}>
-                            <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", marginBottom: "4px" }}>
-                              Assessment Probability Distribution
-                            </p>
-                            {Object.entries(result.probabilities).map(([cls, prob]) => (
-                              <div key={cls} style={{ marginBottom: "3px" }}>
-                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.68rem", marginBottom: "1px" }}>
-                                  <span>{cls}</span>
-                                  <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700 }}>{(prob * 100).toFixed(1)}%</span>
-                                </div>
-                                <div style={{ width: "100%", height: "5px", background: "var(--bg-surface-alt)", borderRadius: "var(--radius-sm)" }}>
-                                  <div style={{ width: `${prob * 100}%`, height: "100%", background: prob > 0.5 ? "var(--primary)" : "var(--accent-teal)", borderRadius: "var(--radius-sm)" }} />
-                                </div>
-                              </div>
-                            ))}
+                        {error && (
+                          <div style={{ background: "var(--risk-high-bg)", color: "var(--risk-high)", padding: "6px 8px", fontSize: "0.72rem", border: "1px solid rgba(220, 38, 38, 0.3)", borderRadius: "var(--radius-sm)" }}>
+                            {error}
                           </div>
                         )}
 
-                        {/* Explainability / Key Factors */}
-                        {result.explainability && (
-                          <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", padding: "8px", borderRadius: "var(--radius-sm)" }}>
-                            <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", marginBottom: "4px" }}>
-                              Key Biological Factors Influencing Your Assessment
-                            </p>
-                            {result.explainability.top_features?.map((f, i) => (
-                              <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "0.68rem", marginBottom: "2px" }}>
-                                <span>{f.feature}</span>
-                                <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700, color: "var(--primary)" }}>{f.percentage}% weight</span>
+                        {/* Real-Time Prediction Output */}
+                        {result && (
+                          <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "4px" }}>
+                            {/* Q-Triage Arbiter Routing Badge */}
+                            {result.active_engine && (
+                              <div style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                gap: "8px",
+                                padding: "6px 10px",
+                                borderRadius: "var(--radius-sm)",
+                                background: result.active_engine === "quantum" ? "rgba(0, 242, 254, 0.08)" : "rgba(245, 158, 11, 0.08)",
+                                border: `1px solid ${result.active_engine === "quantum" ? "rgba(0, 242, 254, 0.3)" : "rgba(245, 158, 11, 0.3)"}`,
+                                marginBottom: "2px",
+                                fontSize: "0.7rem",
+                              }}>
+                                <span style={{ fontWeight: 700, color: result.active_engine === "quantum" ? "var(--primary)" : "#f59e0b" }}>
+                                  {result.active_engine === "quantum" ? "Advanced review selected" : "Standard review selected"}
+                                </span>
+                                <span style={{ color: "var(--text-muted)", fontSize: "0.66rem", maxWidth: "60%", textAlign: "right" }}>
+                                  {result.hybrid_arbitration?.routing_rationale || (result.active_engine === "quantum" ? "Quantum Advantage Confirmed" : "Clinical Safety Guardrail")}
+                                </span>
                               </div>
-                            ))}
-                            <p style={{ fontSize: "0.68rem", color: "var(--text-secondary)", marginTop: "4px", borderTop: "1px solid var(--border-subtle)", paddingTop: "3px" }}>
-                              {result.explainability.clinical_narrative}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      /* Initial Clean State: Dynamic Standby for Modality (Image vs Biomarkers) */
-                      currentStudy.modality === "image" ? (
-                        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "8px" }}>
-                          {imagePreviewUrl ? (
-                            <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", padding: "12px", borderRadius: "var(--radius-sm)", display: "flex", flexDirection: "column", gap: "10px" }}>
+                            )}
+
+                            {/* High-Visibility Verdict Box */}
+                            <div className={`verdict-box ${result.prediction?.class?.toLowerCase().includes("malignant") || result.prediction?.class?.toLowerCase().includes("disease") || result.prediction?.class?.toLowerCase().includes("pneumonia") ? "danger" : "normal"}`}>
                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                <p style={{ fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", color: "var(--text-primary)", margin: 0 }}>
-                                  Staged Medical Image Ready for AI Checkup
+                                <span style={{ fontSize: "0.68rem", fontWeight: 700, textTransform: "uppercase", color: "var(--text-muted)" }}>Health Risk Assessment</span>
+                                <span style={{ fontSize: "0.68rem", fontWeight: 700, color: result.prediction?.class?.toLowerCase().includes("malignant") || result.prediction?.class?.toLowerCase().includes("disease") ? "var(--risk-high)" : "var(--risk-low)" }}>
+                                  {result.prediction?.class?.toLowerCase().includes("malignant") || result.prediction?.class?.toLowerCase().includes("disease") ? "Elevated Risk Detected" : "Optimal / Low Risk"}
+                                </span>
+                              </div>
+                              <h3 style={{ fontSize: "1.15rem", fontWeight: 800, margin: "2px 0", color: "var(--text-primary)" }}>
+                                {result.prediction?.class}
+                              </h3>
+                              <p style={{ fontSize: "0.74rem", color: "var(--text-secondary)", margin: 0 }}>
+                                AI Confidence Level: <strong>{((result.prediction?.confidence || 0.0) * 100).toFixed(1)}%</strong> • Baseline: <strong>{((result.classical_baseline?.confidence || 0.0) * 100).toFixed(1)}%</strong> • Processing Time: <strong>{result.inference_ms} ms</strong>
+                              </p>
+                            </div>
+
+                            {/* Probabilities Progress */}
+                            {result.probabilities && (
+                              <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border-subtle)", padding: "6px", borderRadius: "var(--radius-sm)" }}>
+                                <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", marginBottom: "4px" }}>
+                                  Assessment Probability Distribution
                                 </p>
-                                <span style={{ fontSize: "0.64rem", color: "var(--accent-teal)", fontWeight: 700, padding: "2px 6px", background: "var(--bg-surface)", border: "1px solid var(--border-default)", borderRadius: "var(--radius-sm)" }}>
-                                  Ready for Ingestion
-                                </span>
+                                {Object.entries(result.probabilities).map(([cls, prob]) => (
+                                  <div key={cls} style={{ marginBottom: "3px" }}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.68rem", marginBottom: "1px" }}>
+                                      <span>{cls}</span>
+                                      <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700 }}>{(prob * 100).toFixed(1)}%</span>
+                                    </div>
+                                    <div style={{ width: "100%", height: "5px", background: "var(--bg-surface-alt)", borderRadius: "var(--radius-sm)" }}>
+                                      <div style={{ width: `${prob * 100}%`, height: "100%", background: prob > 0.5 ? "var(--primary)" : "var(--accent-teal)", borderRadius: "var(--radius-sm)" }} />
+                                    </div>
+                                  </div>
+                                ))}
                               </div>
-                              <div style={{ display: "flex", gap: "12px", alignItems: "center", background: "var(--bg-surface)", padding: "8px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-subtle)" }}>
-                                <img src={imagePreviewUrl} alt="Staged Scan" style={{ width: "72px", height: "72px", objectFit: "cover", borderRadius: "4px", border: "1px solid var(--border-default)" }} />
-                                <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                                  <strong style={{ fontSize: "0.76rem", color: "var(--text-primary)" }}>{file?.name || "Medical Scan"}</strong>
-                                  <span style={{ fontSize: "0.66rem", color: "var(--text-muted)" }}>{study === "pneumonia" ? "Pulmonary PA/AP Radiograph" : "Dermatoscopic Lesion"}</span>
-                                  <span style={{ fontSize: "0.62rem", color: "var(--primary)", fontFamily: "var(--font-mono)" }}>Quantum Vision Pre-processing Ready</span>
-                                </div>
-                              </div>
-                              <p style={{ fontSize: "0.74rem", color: "var(--text-secondary)", margin: 0, lineHeight: 1.4 }}>
-                                Click <strong>"Run Instant Quantum AI Checkup"</strong> above to run deep feature extraction and quantum circuit classification.
-                              </p>
-                            </div>
-                          ) : (
-                            <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", padding: "24px 16px", textAlign: "center", borderRadius: "var(--radius-sm)", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
-                              <Upload size={26} color="var(--text-muted)" />
-                              <h4 style={{ fontSize: "0.84rem", fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>No Medical Image Selected</h4>
-                              <p style={{ fontSize: "0.72rem", color: "var(--text-secondary)", margin: 0, maxWidth: "340px", lineHeight: 1.4 }}>
-                                Select one of the sample medical scans from the left column, or browse your local files to upload a DICOM/PNG/JPEG scan before running the checkup.
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "10px" }}>
-                          <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", padding: "16px", borderRadius: "var(--radius-sm)", display: "flex", flexDirection: "column", gap: "12px" }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                <Sparkles size={16} color="var(--primary)" />
-                                <span style={{ fontSize: "0.78rem", fontWeight: 800, textTransform: "uppercase", color: "var(--text-primary)" }}>
-                                  Clinical Telemetry Ready for Evaluation
-                                </span>
-                              </div>
-                              <span style={{ fontSize: "0.64rem", color: "var(--accent-teal)", fontWeight: 700, padding: "2px 8px", background: "var(--bg-surface)", border: "1px solid var(--border-default)", borderRadius: "var(--radius-sm)" }}>
-                                Calibrated Baseline Active
-                              </span>
-                            </div>
+                            )}
 
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-                              <div style={{ background: "var(--bg-surface)", padding: "10px 12px", borderRadius: "var(--radius-xs)", border: "1px solid var(--border-subtle)" }}>
-                                <div style={{ fontSize: "0.62rem", color: "var(--text-muted)", fontWeight: 700, textTransform: "uppercase" }}>TARGET PROTOCOL</div>
-                                <div style={{ fontSize: "0.82rem", fontWeight: 800, color: "var(--text-primary)", marginTop: "2px" }}>{currentStudy.label}</div>
+                            {/* Explainability / Key Factors */}
+                            {result.explainability && (
+                              <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", padding: "8px", borderRadius: "var(--radius-sm)" }}>
+                                <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", marginBottom: "4px" }}>
+                                  Key Biological Factors Influencing Your Assessment
+                                </p>
+                                {result.explainability.top_features?.map((f, i) => (
+                                  <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "0.68rem", marginBottom: "2px" }}>
+                                    <span>{f.feature}</span>
+                                    <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700, color: "var(--primary)" }}>{f.percentage}% weight</span>
+                                  </div>
+                                ))}
+                                <p style={{ fontSize: "0.68rem", color: "var(--text-secondary)", marginTop: "4px", borderTop: "1px solid var(--border-subtle)", paddingTop: "3px" }}>
+                                  {result.explainability.clinical_narrative}
+                                </p>
                               </div>
-                              <div style={{ background: "var(--bg-surface)", padding: "10px 12px", borderRadius: "var(--radius-xs)", border: "1px solid var(--border-subtle)" }}>
-                                <div style={{ fontSize: "0.62rem", color: "var(--text-muted)", fontWeight: 700, textTransform: "uppercase" }}>QUANTUM ANSATZ</div>
-                                <div style={{ fontSize: "0.82rem", fontWeight: 800, color: "var(--primary)", fontFamily: "var(--font-mono)", marginTop: "2px" }}>{currentStudy.model}</div>
-                              </div>
-                            </div>
-
-                            <p style={{ fontSize: "0.74rem", color: "var(--text-secondary)", margin: 0, lineHeight: 1.5 }}>
-                              Patient biological telemetry and clinical features are synchronized. Click <strong>"Run Instant Quantum AI Checkup"</strong> above to perform variational quantum circuit evaluation and longitudinal early detection analysis.
-                            </p>
+                            )}
                           </div>
-                        </div>
-                      )
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -1664,7 +1561,7 @@ export default function UnifiedAnalysisPage() {
                     {!twinCollapsed ? (
                       <>
                         <div>
-                          <span className="step-badge">0.3</span>
+                          <span className="step-badge">0.2</span>
                           <span>3D Digital Health Avatar</span>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
