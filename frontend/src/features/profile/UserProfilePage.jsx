@@ -96,11 +96,11 @@ function formatMedicalHistory(history) {
 
 export default function UserProfilePage({ currentUser, onProfileUpdated, onProfileDeleted, openCard = false, onCardOpened }) {
   const containerRef = useRef(null);
-  const activeUserId = currentUser?.user_id || currentUser?.id || currentUser?.username || "PT-ALEX";
+  const activeUserId = currentUser?.user_id || currentUser?.id || currentUser?.username || "";
 
   const [profile, setProfile] = useState({
     user_id: activeUserId,
-    username: currentUser?.username || "alex.patient",
+    username: currentUser?.username || "",
     name: currentUser?.name || "",
     role: currentUser?.role || "patient",
     age: 48,
@@ -306,8 +306,8 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
 
   const effectiveRole = currentUser?.role || profile.role || "patient";
   const emergencyPortalUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/#emergency/${profile.user_id || "PT-ALEX"}`
-    : `${EMERGENCY_PORTAL_BASE}/${profile.user_id || "PT-ALEX"}`;
+    ? `${window.location.origin}/#emergency/${profile.user_id || activeUserId || "USR-5EF52B"}`
+    : `${EMERGENCY_PORTAL_BASE}/${profile.user_id || activeUserId || "USR-5EF52B"}`;
   const emergencyQrUrl = ENDPOINTS.EMERGENCY_QR_PNG(profile.user_id || activeUserId);
 
   return (
@@ -578,7 +578,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                 <input
                   type="text"
                   className="input-control"
-                  value={profile.username || currentUser?.username || "alex.patient"}
+                  value={profile.username || currentUser?.username || ""}
                   readOnly
                   style={{ background: "var(--bg-surface-alt)", color: "var(--text-muted)", cursor: "not-allowed" }}
                 />
@@ -1377,7 +1377,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                       padding: "4px 8px",
                       fontSize: "0.68rem",
                       fontWeight: cardTheme === "dark" ? 700 : 500,
-                      background: cardTheme === "dark" ? "#0F172A" : "transparent",
+                      background: cardTheme === "dark" ? "#1E232B" : "transparent",
                       color: cardTheme === "dark" ? "#FFFFFF" : "var(--text-secondary)",
                       border: "none",
                       borderRadius: "4px",
@@ -1385,7 +1385,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                       boxShadow: cardTheme === "dark" ? "0 1px 3px rgba(0,0,0,0.2)" : "none",
                     }}
                   >
-                    Matte Black
+                    Matte Slate Gray
                   </button>
                 </div>
 
@@ -1511,7 +1511,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
 
                   <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", justifyContent: "center", width: "100%" }}>
                     {(cardFace === "dual" || cardFace === "front") && (
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", maxWidth: "420px" }}>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", maxWidth: "440px" }}>
                         <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase" }}>Front View (QR & ID)</span>
                         <TriagePhysicalCard
                           patient={profile}
@@ -1529,7 +1529,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                     )}
 
                     {(cardFace === "dual" || cardFace === "back") && (
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", maxWidth: "420px" }}>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", maxWidth: "440px" }}>
                         <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase" }}>Back View (Allergies, Rx & Vitals)</span>
                         <TriagePhysicalCard
                           patient={profile}
@@ -1549,12 +1549,12 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                 </div>
               )}
 
-              {/* Matte Black Edition */}
+              {/* Matte Slate Gray Edition */}
               {(cardTheme === "both" || cardTheme === "dark") && (
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", width: "100%", maxWidth: cardFace === "dual" ? "920px" : "440px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <span style={{ fontSize: "0.66rem", fontWeight: 800, color: "var(--ink-primary)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                      Matte Charcoal Edition (First Responder)
+                      Matte Slate Gray Edition (First Responder)
                     </span>
                     {cardFace === "dual" && (
                       <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--accent-blue)", background: "var(--accent-blue-light)", padding: "1px 6px", borderRadius: "4px" }}>
@@ -1565,7 +1565,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
 
                   <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", justifyContent: "center", width: "100%" }}>
                     {(cardFace === "dual" || cardFace === "front") && (
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", maxWidth: "420px" }}>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", maxWidth: "440px" }}>
                         <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase" }}>Front View (QR & ID)</span>
                         <TriagePhysicalCard
                           patient={profile}
@@ -1583,7 +1583,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                     )}
 
                     {(cardFace === "dual" || cardFace === "back") && (
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", maxWidth: "420px" }}>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", maxWidth: "440px" }}>
                         <span style={{ fontSize: "0.58rem", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase" }}>Back View (Allergies, Rx & Vitals)</span>
                         <TriagePhysicalCard
                           patient={profile}

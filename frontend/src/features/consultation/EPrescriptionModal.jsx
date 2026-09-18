@@ -22,35 +22,20 @@ export default function EPrescriptionModal({ booking, onClose, onSuccess }) {
     animateModalOpen(overlayRef.current, modalRef.current);
   }, []);
   const [diagnosis, setDiagnosis] = useState(
-    booking?.intake?.reason?.includes("Cardiac")
-      ? "Early Stage Atherosclerotic Risk / Grade 1 Dyslipidemia"
-      : "Clinical Evaluation & Preventative Care Protocol"
+    booking?.intake?.reason || ""
   );
   const [soapSubjective, setSoapSubjective] = useState(
-    booking?.intake?.symptoms || "Exertional tightness, mild fatigue. Patient noted family history of CAD."
+    booking?.intake?.symptoms || ""
   );
-  const [soapObjective, setSoapObjective] = useState(
-    "BP 120/78 mmHg, HR 72 bpm, SpO2 98%. Heart sounds regular, no S3/S4 gallop. Breath sounds clear bilaterally."
-  );
-  const [soapAssessment, setSoapAssessment] = useState(
-    "Coronary risk progression aligned with Quantum VQC trajectory stage 1. Sub-clinical atheroma risk."
-  );
-  const [soapPlan, setSoapPlan] = useState(
-    "Initiate low-dose lipid stabilization, repeat lipid panel in 6 weeks, moderate aerobic exercise 150 min/week."
-  );
+  const [soapObjective, setSoapObjective] = useState("");
+  const [soapAssessment, setSoapAssessment] = useState("");
+  const [soapPlan, setSoapPlan] = useState("");
 
-  const [medications, setMedications] = useState([
-    { name: "Atorvastatin", dosage: "20 mg", frequency: "0-0-1 (Nightly)", duration_days: 30, instructions: "After dinner" },
-    { name: "Aspirin", dosage: "75 mg", frequency: "1-0-0 (Morning)", duration_days: 30, instructions: "With breakfast" },
-  ]);
+  const [medications, setMedications] = useState([]);
 
-  const [lifestyleAdvice, setLifestyleAdvice] = useState([
-    "Mediterranean diet with reduced saturated fats (<7% total calories)",
-    "Brisk walking 30 minutes 5 days per week",
-    "Monitor blood pressure bi-weekly using connected home cuff",
-  ]);
-  const [followUpDate, setFollowUpDate] = useState("In 6 weeks (Tele-Consult)");
-  const [testsToOrder, setTestsToOrder] = useState(["Complete Lipid Profile (Fasting)", "High-Sensitivity CRP (hs-CRP)"]);
+  const [lifestyleAdvice, setLifestyleAdvice] = useState([]);
+  const [followUpDate, setFollowUpDate] = useState("");
+  const [testsToOrder, setTestsToOrder] = useState([]);
 
   const [interactionResult, setInteractionResult] = useState(null);
   const [checkingInteractions, setCheckingInteractions] = useState(false);
@@ -304,7 +289,12 @@ export default function EPrescriptionModal({ booking, onClose, onSuccess }) {
 
             {/* Medications Table */}
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              {medications.map((med, idx) => (
+              {medications.length === 0 ? (
+                <div style={{ padding: "14px", textAlign: "center", border: "1px dashed var(--border-default)", borderRadius: "6px", color: "var(--text-muted)", fontSize: "0.78rem" }}>
+                  No medications added. Click "+ Add Drug" above to specify prescribed pharmaceuticals.
+                </div>
+              ) : (
+                medications.map((med, idx) => (
                 <div
                   key={idx}
                   style={{
@@ -365,7 +355,7 @@ export default function EPrescriptionModal({ booking, onClose, onSuccess }) {
                     <Trash2 size={14} />
                   </button>
                 </div>
-              ))}
+              )))}
             </div>
           </div>
 

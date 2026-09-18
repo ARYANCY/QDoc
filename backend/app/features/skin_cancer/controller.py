@@ -14,7 +14,7 @@ async def predict(
     image: UploadFile = File(...),
     model: str = Form("QuantumDerma"),
     explain: bool = Form(False),
-    patient_id: str = Form("PT-89421"),
+    patient_id: str = Form("USR-5EF52B"),
 ):
     data = await image.read()
     try:

@@ -10,7 +10,7 @@ import { consultationsApi } from "../../api/consultations";
 import { animateEntrance, animateCardStagger } from "../../utils/motion";
 import SquareLoader from "../../components/common/SquareLoader.jsx";
 
-export default function PatientPortal({ patientId = "PT-89421", currentUser = null, onOpenBooking = null, onOpenCard = null }) {
+export default function PatientPortal({ patientId = "USR-5EF52B", currentUser = null, onOpenBooking = null, onOpenCard = null }) {
   const [activeSubTab, setActiveSubTab] = useState("overview");
   const [patient, setPatient] = useState(null);
   const [auditLogs, setAuditLogs] = useState([]);
@@ -40,7 +40,7 @@ export default function PatientPortal({ patientId = "PT-89421", currentUser = nu
         } else if (isAdmin) {
           // Admin View: Fetch patient registry and audit trail
           const [p1, aRes] = await Promise.all([
-            clinicalApi.getPatientRecord("PT-89421").catch(() => null),
+            clinicalApi.getPatientRecord(currentUser?.patient_id || "USR-5EF52B").catch(() => null),
             complianceApi.getAuditLogs().catch(() => ({ logs: [] })),
           ]);
           const patientsList = [p1?.patient].filter(Boolean);
@@ -381,11 +381,11 @@ export default function PatientPortal({ patientId = "PT-89421", currentUser = nu
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px" }}>
               <span className="step-badge">PATIENT ARCHIVE</span>
               <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.45rem", color: "var(--ink-primary)", margin: 0, fontWeight: 800 }}>
-                {patient?.name || "Alexander Reed"}
+                {patient?.name || currentUser?.name || "Patient"}
               </h2>
             </div>
             <p style={{ color: "var(--text-secondary)", fontSize: "0.80rem", margin: 0 }}>
-              Patient ID: <code style={{ fontFamily: "var(--font-mono)", fontWeight: 700 }}>{patientId}</code> • MRN: <code style={{ fontFamily: "var(--font-mono)" }}>{patient?.mrn || "MRN-PT-89421-QX"}</code> • ABHA ID: <code style={{ fontFamily: "var(--font-mono)" }}>91-4829-1092-8821</code>
+              Patient ID: <code style={{ fontFamily: "var(--font-mono)", fontWeight: 700 }}>{patientId || patient?.id || "—"}</code> • MRN: <code style={{ fontFamily: "var(--font-mono)" }}>{patient?.mrn || (patientId ? `MRN-${patientId}-QX` : "—")}</code> • ABHA ID: <code style={{ fontFamily: "var(--font-mono)" }}>{patient?.abha_id || "—"}</code>
             </p>
           </div>
           <span className="step-badge" style={{ padding: "6px 12px", fontSize: "0.74rem", background: "var(--bg-surface-alt)", display: "flex", alignItems: "center", gap: "6px" }}>

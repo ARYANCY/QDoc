@@ -14,11 +14,11 @@ function AppRouter() {
 
     if (hash.startsWith("#emergency/") || hash.startsWith("#/emergency/")) {
       const parts = hash.split("/");
-      return { isEmergency: true, patientId: parts[parts.length - 1] || "PT-89421" };
+      return { isEmergency: true, patientId: parts[parts.length - 1] || "USR-5EF52B" };
     }
     if (path.startsWith("/emergency/")) {
       const parts = path.split("/");
-      return { isEmergency: true, patientId: parts[parts.length - 1] || "PT-89421" };
+      return { isEmergency: true, patientId: parts[parts.length - 1] || "USR-5EF52B" };
     }
     return { isEmergency: false, patientId: null, isNotFound: !["/", "/index.html"].includes(path) };
   }

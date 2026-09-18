@@ -57,12 +57,12 @@ export default function ClinicianDashboard({ doctorId = "DOC-KAVITA", currentUse
     const isEmergency = b.triage_risk === "emergency_red_flag";
     return {
       id: b.id,
-      name: b.patient_name || "Alexander Reed",
-      patientId: b.patient_id || "PT-89421",
-      mrn: b.mrn || `MRN-${b.patient_id || "89421"}-QX`,
-      primaryModule: b.specialty || b.intake?.disease || "Cardiology / Oncology",
-      age: b.intake?.age || 48,
-      gender: b.intake?.gender || "Male",
+      name: b.patient_name || "Patient",
+      patientId: b.patient_id || "—",
+      mrn: b.mrn || (b.patient_id ? `MRN-${b.patient_id}-QX` : "—"),
+      primaryModule: b.specialty || b.intake?.disease || "General Consultation",
+      age: b.intake?.age || "—",
+      gender: b.intake?.gender || "—",
       risk: isEmergency ? "Urgent review" : "Regular visit",
       isEmergency,
       crs: Math.round((isEmergency ? 0.92 : 0.28) * 100),

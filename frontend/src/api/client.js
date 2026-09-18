@@ -1,15 +1,28 @@
 import { API_KEY, API_TIMEOUT_MS } from "./config";
 
-async function executeFetchWithRetry(endpoint, fetchOptions, timeoutId, maxRetries = 2) {
+async function executeFetchWithRetry(endpoint, fetchOptions, timeoutId, maxRetries = 3) {
   let attempt = 0;
   while (attempt <= maxRetries) {
     try {
       const response = await fetch(endpoint, fetchOptions);
-      clearTimeout(timeoutId);
+      if (timeoutId) clearTimeout(timeoutId);
 
-      if (response.status === 401) {
+      const isAuthEndpoint = endpoint.includes("/auth/login") || endpoint.includes("/auth/register");
+      if (response.status === 401 && !isAuthEndpoint) {
         localStorage.removeItem("qmed_token");
-        window.dispatchEvent(new CustomEvent("qmed:auth_expired"));
+        localStorage.removeItem("qmed_user");
+        window.dispatchEvent(new CustomEvent("qmed:auth_expired", { detail: { endpoint } }));
+      }
+
+      // Check for cloud free-tier cold-start gateway errors (502, 503, 504)
+      const isColdStartError = [502, 503, 504].includes(response.status);
+      if (isColdStartError && attempt < maxRetries) {
+        attempt++;
+        const backoffMs = Math.min(attempt * 1200, 4000);
+        console.warn(`[Cold Start Notice] Server gateway responding with ${response.status}. Retrying in ${backoffMs}ms (attempt ${attempt}/${maxRetries})...`);
+        window.dispatchEvent(new CustomEvent("qmed:cold_start_retry", { detail: { attempt, maxRetries, backoffMs } }));
+        await new Promise((resolve) => setTimeout(resolve, backoffMs));
+        continue;
       }
 
       if (!response.ok) {
@@ -24,15 +37,18 @@ async function executeFetchWithRetry(endpoint, fetchOptions, timeoutId, maxRetri
       return await response.json();
     } catch (error) {
       attempt++;
-      // Only retry idempotent GET requests on network failures
+      // Retry on network failures (Failed to fetch, network dropped)
       const isGet = !fetchOptions.method || fetchOptions.method === "GET";
       const isNetworkError = error.message === "Failed to fetch" || error.name === "TypeError";
-      if (attempt <= maxRetries && isGet && isNetworkError) {
-        const delayMs = Math.pow(2, attempt) * 250; // 500ms, 1000ms
+      const isAuthEndpoint = endpoint.includes("/auth/login") || endpoint.includes("/auth/register");
+
+      if (attempt <= maxRetries && (isGet || isAuthEndpoint) && isNetworkError) {
+        const delayMs = Math.min(attempt * 1000, 3000);
+        console.warn(`[Connection Retry] Network connection re-attempt ${attempt}/${maxRetries} to ${endpoint} in ${delayMs}ms...`);
         await new Promise((resolve) => setTimeout(resolve, delayMs));
         continue;
       }
-      clearTimeout(timeoutId);
+      if (timeoutId) clearTimeout(timeoutId);
       if (error.name === "AbortError") {
         throw new Error(`API request timed out: ${endpoint}`);
       }
@@ -45,13 +61,18 @@ async function executeFetchWithRetry(endpoint, fetchOptions, timeoutId, maxRetri
 }
 
 export async function request(endpoint, options = {}) {
-  const token = localStorage.getItem("qmed_token");
+  const isAuthEndpoint = endpoint.includes("/auth/login") || endpoint.includes("/auth/register");
+  const token = isAuthEndpoint ? null : localStorage.getItem("qmed_token");
   const storedApiKey = localStorage.getItem("qmed_api_key");
   const effectiveApiKey = storedApiKey || API_KEY;
 
-  const timeoutMs = options.timeout || API_TIMEOUT_MS;
+  // No timer / no abort timeout when timeout is 0 or disabled (supports Render free-tier cold starts)
+  const timeoutMs = options.timeout !== undefined ? options.timeout : API_TIMEOUT_MS;
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  let timeoutId = null;
+  if (timeoutMs && timeoutMs > 0) {
+    timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  }
 
   const headers = {
     Accept: "application/json",

@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import hashlib
 import html
@@ -13,7 +13,7 @@ router = APIRouter(prefix="/api/v1/reports", tags=["Clinical Reports"])
 
 
 class ReportGenerationRequest(BaseModel):
-    patient_id: str = "PT-89421"
+    patient_id: str = "USR-5EF52B"
     disease: str = "Breast Oncology (WDBC)"
     prediction_class: str = "Malignant (High Risk)"
     confidence: float = 0.9474
@@ -510,7 +510,7 @@ async def list_reports(patient_id: Optional[str] = Query(None)):
     if patient_id:
         records = DatabaseRepository.get_patient_diagnostic_records(patient_id)
     else:
-        records = DatabaseRepository.get_patient_diagnostic_records("PT-89421")
+        records = DatabaseRepository.get_patient_diagnostic_records("USR-5EF52B")
 
     formatted = [
         {

@@ -2,23 +2,31 @@ import apiClient from "./client";
 import { ENDPOINTS } from "./config";
 
 export const clinicalApi = {
-  async runDiagnosis(disease = "breast_cancer", patientId = "PT-89421", features = null) {
+  async runDiagnosis(disease = "breast_cancer", patientId = "USR-5EF52B", features = null) {
     return apiClient.post(ENDPOINTS.CLINICAL_DIAGNOSE, { disease, patient_id: patientId, features });
   },
 
-  async getPatientRecord(patientId = "PT-89421") {
+  async diagnoseImage(file, disease = "breast_cancer", patientId = "USR-5EF52B") {
+    const body = new FormData();
+    body.append("image", file);
+    body.append("disease", disease);
+    body.append("patient_id", patientId);
+    return apiClient.post(ENDPOINTS.CLINICAL_DIAGNOSE_IMAGE, body);
+  },
+
+  async getPatientRecord(patientId = "USR-5EF52B") {
     return apiClient.get(ENDPOINTS.CLINICAL_PATIENT(patientId));
   },
 
-  async updatePatientRecord(patientId = "PT-89421", patientData = {}) {
+  async updatePatientRecord(patientId = "USR-5EF52B", patientData = {}) {
     return apiClient.put(ENDPOINTS.CLINICAL_PATIENT(patientId), patientData);
   },
 
-  async getDiseaseFeatures(disease = "breast_cancer", patientId = "PT-89421") {
+  async getDiseaseFeatures(disease = "breast_cancer", patientId = "USR-5EF52B") {
     return apiClient.get(ENDPOINTS.CLINICAL_FEATURES(patientId, disease));
   },
 
-  async getPatientTimeline(patientId = "PT-89421") {
+  async getPatientTimeline(patientId = "USR-5EF52B") {
     return apiClient.get(ENDPOINTS.CLINICAL_TIMELINE(patientId));
   },
 
@@ -26,14 +34,14 @@ export const clinicalApi = {
     return apiClient.post(ENDPOINTS.CLINICAL_RECORD, record);
   },
 
-  async predictPneumonia(file, patientId = "PT-89421") {
+  async predictPneumonia(file, patientId = "USR-5EF52B") {
     const body = new FormData();
     body.append("image", file);
     body.append("patient_id", patientId);
     return apiClient.post(ENDPOINTS.PNEUMONIA_PREDICT, body);
   },
 
-  async predictSkinCancer(file, model = "QuantumDerma", patientId = "PT-89421") {
+  async predictSkinCancer(file, model = "QuantumDerma", patientId = "USR-5EF52B") {
     const body = new FormData();
     body.append("image", file);
     body.append("model", model);

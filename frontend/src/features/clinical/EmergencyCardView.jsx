@@ -1,25 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Phone, AlertTriangle, Heart, Shield, Activity,
   Pill, User, Droplet, Clock, Stethoscope, Share2,
   PhoneCall, AlertOctagon, CheckCircle2, Siren,
   Smartphone, MapPin, Building2, Copy, Check, Printer,
-  QrCode, ExternalLink, Flame, ShieldAlert
+  QrCode, ExternalLink, Flame, ShieldAlert, ShieldCheck,
+  RotateCw
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import QRCodeSVG from '../../components/common/QRCodeSVG';
 import TriagePhysicalCard from '../../components/clinical/TriagePhysicalCard';
 import PrintableMedicalCardSheet from '../../components/clinical/PrintableMedicalCardSheet';
+import { animateCard3DFlip } from '../../utils/motion.js';
 
-export default function EmergencyCardView({ patientId = 'PT-89421' }) {
+export default function EmergencyCardView({ patientId = 'USR-5EF52B' }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [shakeTriggered, setShakeTriggered] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [cardTheme, setCardTheme] = useState('both'); // 'both' | 'light' | 'dark'
-  const [cardFace, setCardFace] = useState('dual'); // 'dual' | 'front' | 'back'
+  const [cardFace, setCardFace] = useState('dual'); // 'dual' | 'front' | 'back' | 'flip3d'
   const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [is3DFlipped, setIs3DFlipped] = useState(false);
+  const card3DInnerRef = useRef(null);
+
+  function toggle3DFlip() {
+    const next = !is3DFlipped;
+    setIs3DFlipped(next);
+    if (card3DInnerRef.current) {
+      animateCard3DFlip(card3DInnerRef.current, next);
+    }
+  }
 
   // Permanent public portal URL
   const emergencyPortalUrl = typeof window !== 'undefined'
@@ -35,38 +47,9 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
         const res = await apiClient.get(`/api/v1/emergency/${patientId}`);
         setData(res);
       } catch (err) {
-        console.warn('Fallback to local test persona:', err);
-        setData({
-          id: patientId,
-          name: 'Alexander Reed',
-          age: 48,
-          gender: 'Male',
-          blood_group: 'O+',
-          mrn: `MRN-${patientId}-QX`,
-          abha_id: '91-4829-1092-8821',
-          organ_donor: true,
-          hospital: 'AIIMS Cardiology & Oncology OPD',
-          emergency_contacts: [
-            { name: 'Liam Reed', relation: 'Brother / Next of Kin', phone: '+91 98333 44556', is_primary: true },
-            { name: 'Dr. Sarah Jenkins', relation: 'Attending Physician', phone: '+91 98222 11445', is_primary: false }
-          ],
-          allergies: [
-            { allergen: 'Penicillin', severity: 'HIGH', reaction: 'Anaphylaxis / Severe Bronchospasm' },
-            { allergen: 'Sulfonamides', severity: 'MODERATE', reaction: 'Cutaneous Rash / Erythema' }
-          ],
-          medications: [
-            { name: 'Atorvastatin', dose: '20mg', frequency: 'Once daily (OD) - Night' },
-            { name: 'Aspirin', dose: '75mg', frequency: 'Once daily (OD) - Post Meal' },
-            { name: 'Metformin HCl', dose: '500mg', frequency: 'Twice daily (BD)' }
-          ],
-          baseline_vitals: {
-            blood_pressure: '120/78 mmHg',
-            heart_rate_bpm: 72,
-            spo2_percent: 98,
-            temperature_f: 98.6
-          },
-          conditions: ['Coronary Plaque Risk', 'Dense Breast Tissue', 'Mild Dyslipidemia']
-        });
+        console.error('Failed to load emergency profile:', err);
+        setError(err.message || 'Unable to retrieve emergency record from clinical vault.');
+        setData(null);
       } finally {
         setLoading(false);
       }
@@ -112,9 +95,9 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
   }, []);
 
   const primaryContact = data?.emergency_contacts?.find((c) => c.is_primary) || data?.emergency_contacts?.[0] || {
-    name: 'Liam Reed',
-    phone: '+91 98333 44556',
-    relation: 'Brother / Next of Kin',
+    name: '—',
+    phone: '—',
+    relation: 'Emergency Contact',
   };
 
   const secondaryContact = data?.emergency_contacts?.length > 1 ? data.emergency_contacts[1] : null;
@@ -402,15 +385,15 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
         <div className="emergency-hero-card">
           <div className="emergency-hero-bio">
             <span className="emergency-hero-label">VERIFIED PATIENT RECORD</span>
-            <h1 className="emergency-hero-name">{data?.name || 'Alexander Reed'}</h1>
+            <h1 className="emergency-hero-name">{data?.name || 'Patient'}</h1>
             <div className="emergency-hero-meta">
-              <span>{data?.age || 48} Yrs</span>
+              <span>{data?.age ? `${data.age} Yrs` : '—'}</span>
               <span>•</span>
-              <span>{data?.gender || 'Male'}</span>
+              <span>{data?.gender || '—'}</span>
               <span>•</span>
-              <span>MRN: <strong style={{ color: '#0F172A' }}>{data?.mrn || `MRN-${patientId}-QX`}</strong></span>
+              <span>MRN: <strong style={{ color: '#0F172A' }}>{data?.mrn || (patientId ? `MRN-${patientId}-QX` : '—')}</strong></span>
               <span>•</span>
-              <span>ABHA: <strong style={{ color: '#0F172A' }}>{data?.abha_id || '91-4829-1092-8821'}</strong></span>
+              <span>ABHA: <strong style={{ color: '#0F172A' }}>{data?.abha_id || '—'}</strong></span>
             </div>
 
             <div className="emergency-hero-badges">
@@ -491,7 +474,7 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
                   type="button"
                   onClick={() => setCardTheme('dark')}
                   style={{
-                    background: cardTheme === 'dark' ? '#0F172A' : 'transparent',
+                    background: cardTheme === 'dark' ? '#1E232B' : 'transparent',
                     color: cardTheme === 'dark' ? '#FFFFFF' : '#64748B',
                     border: 0,
                     borderRadius: '6px',
@@ -502,7 +485,7 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
                     boxShadow: cardTheme === 'dark' ? '0 1px 3px rgba(0,0,0,0.2)' : 'none',
                   }}
                 >
-                  Matte Black
+                  Matte Slate Gray
                 </button>
               </div>
 
@@ -559,6 +542,27 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
                 >
                   Back Face (Clinical)
                 </button>
+                <button
+                  type="button"
+                  onClick={() => { setCardFace('flip3d'); setIs3DFlipped(false); }}
+                  style={{
+                    background: cardFace === 'flip3d' ? '#FFFFFF' : 'transparent',
+                    color: cardFace === 'flip3d' ? '#087F8C' : '#64748B',
+                    border: 0,
+                    borderRadius: '6px',
+                    padding: '4px 9px',
+                    fontSize: '0.70rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    boxShadow: cardFace === 'flip3d' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                  }}
+                >
+                  <RotateCw size={11} />
+                  <span>3D Interactive Flip</span>
+                </button>
               </div>
             </div>
           </div>
@@ -574,96 +578,169 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
               padding: '16px 8px',
             }}
           >
-            {/* DAY WHITE EDITION */}
-            {(cardTheme === 'both' || cardTheme === 'light') && (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', width: '100%', maxWidth: cardFace === 'dual' ? '920px' : '480px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0F172A', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                    Clinical White Edition (Day / Print)
+            {/* 3D INTERACTIVE PERSPECTIVE FLIP */}
+            {cardFace === 'flip3d' ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', width: '100%', maxWidth: '520px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '440px', padding: '0 4px' }}>
+                  <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0F172A', letterSpacing: '0.08em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <RotateCw size={13} color="#087F8C" />
+                    <span>Active Face: {is3DFlipped ? 'Back (Clinical Data & Vitals)' : 'Front (QR Triage & ID)'}</span>
                   </span>
-                  {cardFace === 'dual' && (
-                    <span style={{ fontSize: '0.58rem', fontWeight: 700, color: '#087F8C', background: '#EBF8FA', padding: '1px 6px', borderRadius: '4px' }}>
-                      FRONT + BACK DUAL VIEW
-                    </span>
-                  )}
+                  <button
+                    type="button"
+                    onClick={toggle3DFlip}
+                    className="btn-tactile"
+                    style={{
+                      background: '#0F172A',
+                      color: '#FFFFFF',
+                      border: 0,
+                      borderRadius: '6px',
+                      padding: '5px 12px',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      boxShadow: '0 2px 6px rgba(15, 23, 42, 0.25)',
+                    }}
+                  >
+                    <RotateCw size={12} />
+                    <span>{is3DFlipped ? 'Flip to Front' : 'Flip to Back'}</span>
+                  </button>
                 </div>
 
-                <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center', width: '100%' }}>
-                  {(cardFace === 'dual' || cardFace === 'front') && (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', width: '100%', maxWidth: '440px' }}>
-                      <span style={{ fontSize: '0.58rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Front View (QR & ID)</span>
+                <div 
+                  className="perspective-card-container" 
+                  style={{ width: '100%', maxWidth: '440px', cursor: 'pointer' }}
+                  onClick={toggle3DFlip}
+                  title="Click anywhere on the card to flip 360°"
+                >
+                  <div 
+                    ref={card3DInnerRef} 
+                    className={`perspective-card-inner ${is3DFlipped ? 'is-flipped' : ''}`}
+                  >
+                    <div className="card-face-front">
                       <TriagePhysicalCard
                         patient={data}
-                        variant="light"
+                        variant={cardTheme === 'dark' ? 'dark' : 'light'}
                         face="front"
                         emergencyPortalUrl={emergencyPortalUrl}
                         onCopy={copyTriageLink}
                         copied={copiedLink}
                       />
                     </div>
-                  )}
-
-                  {(cardFace === 'dual' || cardFace === 'back') && (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', width: '100%', maxWidth: '440px' }}>
-                      <span style={{ fontSize: '0.58rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Back View (Allergies, Rx & Vitals)</span>
+                    <div className="card-face-back">
                       <TriagePhysicalCard
                         patient={data}
-                        variant="light"
+                        variant={cardTheme === 'dark' ? 'dark' : 'light'}
                         face="back"
                         emergencyPortalUrl={emergencyPortalUrl}
                         onCopy={copyTriageLink}
                         copied={copiedLink}
                       />
                     </div>
-                  )}
+                  </div>
                 </div>
+
+                <span style={{ fontSize: '0.62rem', color: '#64748B', fontStyle: 'italic', textAlign: 'center' }}>
+                  Interactive 3D Perspective: Click card or use toggle to simulate physical inspection
+                </span>
               </div>
-            )}
-
-            {/* MATTE CHARCOAL EDITION */}
-            {(cardTheme === 'both' || cardTheme === 'dark') && (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', width: '100%', maxWidth: cardFace === 'dual' ? '920px' : '480px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0F172A', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                    Matte Charcoal Edition (Emergency First Responder)
-                  </span>
-                  {cardFace === 'dual' && (
-                    <span style={{ fontSize: '0.58rem', fontWeight: 700, color: '#087F8C', background: '#EBF8FA', padding: '1px 6px', borderRadius: '4px' }}>
-                      FRONT + BACK DUAL VIEW
-                    </span>
-                  )}
-                </div>
-
-                <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center', width: '100%' }}>
-                  {(cardFace === 'dual' || cardFace === 'front') && (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', width: '100%', maxWidth: '440px' }}>
-                      <span style={{ fontSize: '0.58rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Front View (QR & ID)</span>
-                      <TriagePhysicalCard
-                        patient={data}
-                        variant="dark"
-                        face="front"
-                        emergencyPortalUrl={emergencyPortalUrl}
-                        onCopy={copyTriageLink}
-                        copied={copiedLink}
-                      />
+            ) : (
+              <>
+                {/* DAY WHITE EDITION */}
+                {(cardTheme === 'both' || cardTheme === 'light') && (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', width: '100%', maxWidth: cardFace === 'dual' ? '920px' : '480px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0F172A', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                        Clinical White Edition (Day / Print)
+                      </span>
+                      {cardFace === 'dual' && (
+                        <span style={{ fontSize: '0.58rem', fontWeight: 700, color: '#087F8C', background: '#EBF8FA', padding: '1px 6px', borderRadius: '4px' }}>
+                          FRONT + BACK DUAL VIEW
+                        </span>
+                      )}
                     </div>
-                  )}
 
-                  {(cardFace === 'dual' || cardFace === 'back') && (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', width: '100%', maxWidth: '440px' }}>
-                      <span style={{ fontSize: '0.58rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Back View (Allergies, Rx & Vitals)</span>
-                      <TriagePhysicalCard
-                        patient={data}
-                        variant="dark"
-                        face="back"
-                        emergencyPortalUrl={emergencyPortalUrl}
-                        onCopy={copyTriageLink}
-                        copied={copiedLink}
-                      />
+                    <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center', width: '100%' }}>
+                      {(cardFace === 'dual' || cardFace === 'front') && (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', width: '100%', maxWidth: '440px' }}>
+                          <span style={{ fontSize: '0.58rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Front View (QR & ID)</span>
+                          <TriagePhysicalCard
+                            patient={data}
+                            variant="light"
+                            face="front"
+                            emergencyPortalUrl={emergencyPortalUrl}
+                            onCopy={copyTriageLink}
+                            copied={copiedLink}
+                          />
+                        </div>
+                      )}
+
+                      {(cardFace === 'dual' || cardFace === 'back') && (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', width: '100%', maxWidth: '440px' }}>
+                          <span style={{ fontSize: '0.58rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Back View (Allergies, Rx & Vitals)</span>
+                          <TriagePhysicalCard
+                            patient={data}
+                            variant="light"
+                            face="back"
+                            emergencyPortalUrl={emergencyPortalUrl}
+                            onCopy={copyTriageLink}
+                            copied={copiedLink}
+                          />
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              </div>
+                  </div>
+                )}
+
+                {/* MATTE CHARCOAL EDITION */}
+                {(cardTheme === 'both' || cardTheme === 'dark') && (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', width: '100%', maxWidth: cardFace === 'dual' ? '920px' : '480px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0F172A', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                        Matte Slate Gray Edition (Emergency First Responder)
+                      </span>
+                      {cardFace === 'dual' && (
+                        <span style={{ fontSize: '0.58rem', fontWeight: 700, color: '#087F8C', background: '#EBF8FA', padding: '1px 6px', borderRadius: '4px' }}>
+                          FRONT + BACK DUAL VIEW
+                        </span>
+                      )}
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center', width: '100%' }}>
+                      {(cardFace === 'dual' || cardFace === 'front') && (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', width: '100%', maxWidth: '440px' }}>
+                          <span style={{ fontSize: '0.58rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Front View (QR & ID)</span>
+                          <TriagePhysicalCard
+                            patient={data}
+                            variant="dark"
+                            face="front"
+                            emergencyPortalUrl={emergencyPortalUrl}
+                            onCopy={copyTriageLink}
+                            copied={copiedLink}
+                          />
+                        </div>
+                      )}
+
+                      {(cardFace === 'dual' || cardFace === 'back') && (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', width: '100%', maxWidth: '440px' }}>
+                          <span style={{ fontSize: '0.58rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Back View (Allergies, Rx & Vitals)</span>
+                          <TriagePhysicalCard
+                            patient={data}
+                            variant="dark"
+                            face="back"
+                            emergencyPortalUrl={emergencyPortalUrl}
+                            onCopy={copyTriageLink}
+                            copied={copiedLink}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -853,17 +930,22 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
           {/* ── RIGHT COLUMN: Permanent QR Pass & India Speed Dial ── */}
           <div className="emergency-column">
             
-            {/* Permanent Scannable QR Pass */}
+            {/* Permanent Scannable QR Pass (Improvised) */}
             <div className="emergency-qr-panel">
+              <div className="emergency-qr-header-pill">
+                <span className="emergency-pulse-dot" />
+                <span>LIVE RESCUE PASS • 24/7 ACTIVE</span>
+              </div>
+
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <QrCode size={18} color="#0F172A" />
-                <h3 style={{ fontSize: '0.84rem', fontFamily: 'var(--font-mono)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#0F172A', margin: 0 }}>
+                <QrCode size={18} color="#087F8C" />
+                <h3 style={{ fontSize: '0.88rem', fontFamily: 'var(--font-mono)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#0F172A', margin: 0 }}>
                   Permanent Triage QR Pass
                 </h3>
               </div>
 
-              <p style={{ fontSize: '0.72rem', color: '#64748B', lineHeight: 1.4, margin: 0 }}>
-                Scan with any smartphone or hospital terminal camera for immediate EHR access and clinical telemetry.
+              <p style={{ fontSize: '0.72rem', color: '#64748B', lineHeight: 1.45, margin: 0, maxWidth: '280px' }}>
+                Scan with any smartphone camera or hospital terminal for immediate EHR access and clinical telemetry.
               </p>
 
               {/* Crisp SVG QR Box */}
@@ -876,12 +958,13 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
                 />
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <div style={{ fontSize: '0.76rem', fontFamily: 'var(--font-mono)', color: '#0F172A' }}>
-                  Permanent ID: <strong>{patientId}</strong>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
+                <div style={{ fontSize: '0.74rem', fontFamily: 'var(--font-mono)', color: '#0F172A', background: '#F1F5F9', border: '1px solid #CBD5E1', padding: '3px 10px', borderRadius: '6px', fontWeight: 700 }}>
+                  PERMANENT ID: <span style={{ color: '#087F8C' }}>{patientId}</span>
                 </div>
-                <div style={{ fontSize: '0.64rem', fontFamily: 'var(--font-mono)', color: '#64748B' }}>
-                  WORM SHA-256: e3b0c442...991b7852
+                <div style={{ fontSize: '0.62rem', fontFamily: 'var(--font-mono)', color: '#64748B', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <ShieldCheck size={12} color="#059669" />
+                  <span>WORM SHA-256: e3b0c442...991b7852</span>
                 </div>
               </div>
 
@@ -889,16 +972,18 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
                 <button
                   type="button"
                   onClick={copyTriageLink}
-                  className="emergency-btn-secondary"
+                  className="emergency-btn-copy-pass"
+                  title="Copy permanent triage link"
                 >
-                  {copiedLink ? <Check size={14} color="#0F172A" /> : <Copy size={14} />}
-                  <span>{copiedLink ? 'Copied URL!' : 'Copy Link'}</span>
+                  {copiedLink ? <Check size={14} color="#059669" /> : <Copy size={14} />}
+                  <span>{copiedLink ? 'Copied Link!' : 'Copy Link'}</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={handlePrint}
-                  className="emergency-btn-secondary"
+                  className="emergency-btn-print-pass"
+                  title="Open official print & wallet card sheet"
                 >
                   <Printer size={14} />
                   <span>Print Pass</span>
@@ -1066,7 +1151,7 @@ export default function EmergencyCardView({ patientId = 'PT-89421' }) {
                       boxShadow: cardTheme === 'dark' ? '0 1px 2px rgba(0,0,0,0.2)' : 'none',
                     }}
                   >
-                    Matte Black
+                    Matte Slate Gray
                   </button>
                 </div>
 

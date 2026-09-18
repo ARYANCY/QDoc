@@ -3,7 +3,7 @@ import { ShieldCheck, Lock, Database, CheckCircle2 } from "lucide-react";
 import { complianceApi } from "../../api/compliance";
 import { animateEntrance, animateCardStagger } from "../../utils/motion";
 
-export default function ComplianceConsole({ patientId = "PT-89421" }) {
+export default function ComplianceConsole({ patientId = "USR-5EF52B" }) {
   const [auditLogs, setAuditLogs] = useState([]);
   const [registry, setRegistry] = useState([]);
   const [consent, setConsent] = useState({ storage: true, research: true, sharing: false });

@@ -2085,6 +2085,62 @@ body.high-contrast {
   color: #334155;
 }
 
+/* ── Emergency Wallet Directive Callout Banner ── */
+.print-wallet-directive-card {
+  background: linear-gradient(135deg, #FEF2F2 0%, #FFF1F2 50%, #F0FDF4 100%);
+  border: 1.5px solid #F87171;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+.print-directive-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #DC2626;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.print-directive-text {
+  font-size: 0.62rem;
+  color: #1E293B;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.print-directive-features {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+  border-top: 1px dashed rgba(220, 38, 38, 0.2);
+  padding-top: 6px;
+}
+
+.print-feature-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.56rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: #334155;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid #CBD5E1;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
 .print-calibration-bar {
   display: flex;
   justify-content: space-between;
@@ -2173,6 +2229,39 @@ body.high-contrast {
   font-family: var(--font-mono);
 }
 
+/* ── Cutting & Fold Registration Line ── */
+.print-cut-header-guide {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 6px 0;
+  color: #64748B;
+  font-size: 0.52rem;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.print-cut-header-guide.bottom {
+  margin: 6px 0 0 0;
+}
+
+.print-cut-scissor-icon {
+  flex-shrink: 0;
+  color: #DC2626;
+}
+
+.print-cut-guide-text {
+  white-space: nowrap;
+}
+
+.print-cut-dots {
+  flex: 1;
+  border-bottom: 1.5px dashed #94A3B8;
+  height: 1px;
+}
+
 .print-cards-cutting-frame {
   position: relative;
   border: 1.5px dashed #94A3B8;
@@ -2252,16 +2341,30 @@ body.high-contrast {
   font-size: 0.50rem;
   font-weight: 800;
   font-family: var(--font-mono);
-  color: #64748B;
+  color: #475569;
   background: #F1F5F9;
-  padding: 4px 6px;
-  border-radius: 4px;
+  padding: 5px 8px;
+  border-radius: 6px;
   border: 1px solid #CBD5E1;
   white-space: nowrap;
 }
 
+.print-fold-title {
+  font-weight: 900;
+  color: #0F172A;
+  letter-spacing: 0.04em;
+}
+
+.print-fold-sub {
+  font-size: 0.44rem;
+  color: #64748B;
+  letter-spacing: 0.02em;
+}
+
 .print-scissors-icon {
   transform: rotate(90deg);
+  color: #DC2626;
+  margin-bottom: 2px;
 }
 
 .print-sheet-footer {
@@ -2410,25 +2513,26 @@ body.high-contrast {
   }
 
   .triage-card-shell.triage-dark {
-    background: #181C20 !important;
-    color: #FFFFFF !important;
-    border: 2px solid #FFFFFF !important;
+    background: #1E232B !important;
+    color: #F1F5F9 !important;
+    border: 1.5px solid #3E4756 !important;
     border-radius: 18px !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
   .triage-card-shell.triage-dark .triage-inner-frame {
-    background: #181C20 !important;
-    border: 1.75px solid #FFFFFF !important;
-    color: #FFFFFF !important;
+    background: #242A33 !important;
+    border: 1px solid #374151 !important;
+    color: #F1F5F9 !important;
     border-radius: 14px !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  .triage-card-shell.triage-dark * {
-    color: #FFFFFF !important;
+  .triage-card-shell.triage-dark .triage-bottom-frame {
+    background: #1B2027 !important;
+    border: 1px solid #374151 !important;
   }
 
   .triage-card-shell.triage-light * {
@@ -3001,34 +3105,109 @@ body.high-contrast {
   flex-shrink: 0;
 }
 
-/* ── Permanent QR Code Triage Panel ── */
+/* ── Permanent QR Code Triage Panel (Improvised) ── */
 .emergency-qr-panel {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-md);
-  padding: 22px;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+  border: 1px solid #E2E8F0;
+  border-radius: 20px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 12px;
-  box-shadow: var(--shadow-card);
+  gap: 14px;
+  box-shadow: 0 10px 30px -8px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.03);
+}
+
+.emergency-qr-header-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #EBF8FA;
+  border: 1px solid #BCE5EB;
+  color: #087F8C;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.emergency-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 6px #10B981;
+  display: inline-block;
 }
 
 .emergency-qr-box {
   background: #FFFFFF;
-  padding: 10px;
-  border: 1.5px solid var(--border-default);
-  border-radius: var(--radius-sm);
+  padding: 12px;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
 }
 
 .emergency-qr-actions {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
+}
+
+.emergency-btn-copy-pass {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #FFFFFF;
+  color: #0F172A;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.emergency-btn-copy-pass:hover {
+  background: #F8FAFC;
+  border-color: #94A3B8;
+  transform: translateY(-1px);
+}
+
+.emergency-btn-print-pass {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #087F8C;
+  color: #FFFFFF;
+  border: 1.5px solid #087F8C;
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 6px rgba(8, 127, 140, 0.25);
+}
+
+.emergency-btn-print-pass:hover {
+  background: #066670;
+  border-color: #066670;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(8, 127, 140, 0.35);
 }
 
 /* ── WORM Audit Seal Footer ── */
@@ -3073,82 +3252,183 @@ body.high-contrast {
 
 .triage-card-shell {
   width: 100%;
-  max-width: 520px;
-  border-radius: 24px;
+  max-width: 440px;
+  height: 275px;
+  min-height: 275px;
+  border-radius: 20px;
   padding: 10px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 8px;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 16px 36px -8px rgba(15, 23, 42, 0.12), 0 2px 8px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+  position: relative;
 }
 
-/* Light Theme (Pure White with Crisp Charcoal Stroke) */
+/* Light Theme (Clinical Day White) */
 .triage-card-shell.triage-light {
   background: #FFFFFF;
-  color: #17212B;
-  border: 2px solid #17212B;
+  color: #0F172A;
+  border: 1.5px solid #CBD5E1;
+  box-shadow: 0 12px 30px -8px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.02);
 }
 
 .triage-card-shell.triage-light .triage-inner-frame {
-  background: #FFFFFF;
-  border: 1.75px solid #17212B;
-  color: #17212B;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  color: #0F172A;
 }
 
 .triage-card-shell.triage-light .triage-dot {
-  background: #17212B;
+  background: #94A3B8;
 }
 
 .triage-card-shell.triage-light .triage-tab-divider {
-  background: #17212B;
+  background: #CBD5E1;
 }
 
 .triage-card-shell.triage-light .triage-contact-line {
-  color: #17212B;
+  color: #334155;
 }
 
 .triage-card-shell.triage-light .triage-tab-item {
-  color: #17212B;
+  color: #475569;
 }
 
-/* Dark Theme (Matte Charcoal with Crisp Pure White Stroke) */
+.triage-card-shell.triage-light .triage-tab-item:hover {
+  color: #0F172A;
+}
+
+.triage-card-shell.triage-light .triage-role-pill {
+  border-color: #CBD5E1;
+  background: #FFFFFF;
+  color: #475569;
+}
+
+.triage-card-shell.triage-light .triage-bottom-frame {
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+}
+
+.triage-card-shell.triage-light .triage-copy-pill {
+  background: #FFFFFF;
+  border-color: #CBD5E1;
+  color: #334155;
+}
+
+.triage-card-shell.triage-light .triage-copy-pill:hover {
+  background: #F8FAFC;
+  border-color: #94A3B8;
+  color: #0F172A;
+}
+
+/* Dark Theme (Matte Slate / Titanium Gray Edition) */
 .triage-card-shell.triage-dark {
-  background: #181C20;
-  color: #FFFFFF;
-  border: 2px solid #FFFFFF;
-  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.65), 0 2px 10px rgba(255, 255, 255, 0.08);
+  background: linear-gradient(145deg, #1E232B 0%, #161A20 100%);
+  color: #F1F5F9;
+  border: 1.5px solid #3E4756;
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .triage-card-shell.triage-dark .triage-inner-frame {
-  background: #181C20;
-  border: 1.75px solid #FFFFFF;
-  color: #FFFFFF;
+  background: #242A33;
+  border: 1px solid #374151;
+  color: #F1F5F9;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .triage-card-shell.triage-dark .triage-dot {
-  background: #FFFFFF;
+  background: #64748B;
 }
 
 .triage-card-shell.triage-dark .triage-tab-divider {
-  background: #FFFFFF;
+  background: #3E4756;
 }
 
 .triage-card-shell.triage-dark .triage-contact-line {
-  color: #FFFFFF;
+  color: #CBD5E1;
 }
 
 .triage-card-shell.triage-dark .triage-tab-item {
+  color: #94A3B8;
+}
+
+.triage-card-shell.triage-dark .triage-tab-item:hover {
+  color: #F1F5F9;
+}
+
+.triage-card-shell.triage-dark .triage-role-pill {
+  border-color: #475569;
+  background: rgba(15, 23, 42, 0.4);
+  color: #94A3B8;
+}
+
+.triage-card-shell.triage-dark .triage-pulse-indicator {
+  background: #22C55E;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+}
+
+.triage-card-shell.triage-dark .triage-bottom-frame {
+  background: #1B2027;
+  border: 1px solid #374151;
+}
+
+.triage-card-shell.triage-dark .triage-copy-pill {
+  background: #28303C;
+  border-color: #475569;
+  color: #E2E8F0;
+}
+
+.triage-card-shell.triage-dark .triage-copy-pill:hover {
+  background: #374151;
+  border-color: #64748B;
   color: #FFFFFF;
+}
+
+.triage-card-shell.triage-dark .triage-affiliation-text {
+  color: #CBD5E1;
+}
+
+.triage-card-shell.triage-dark .triage-tagline-text {
+  color: #94A3B8;
+}
+
+.triage-card-shell.triage-dark .triage-back-vital-item {
+  border-color: #3E4756;
+  background: rgba(15, 23, 42, 0.3);
+}
+
+.triage-card-shell.triage-dark .triage-back-vital-lbl {
+  color: #94A3B8;
+}
+
+.triage-card-shell.triage-dark .triage-back-vital-val {
+  color: #F1F5F9;
+}
+
+.triage-card-shell.triage-dark .triage-back-rx-text {
+  color: #CBD5E1;
+}
+
+.triage-card-shell.triage-dark .triage-back-instruction-box {
+  background: rgba(15, 23, 42, 0.35);
+  border-color: #374151;
+}
+
+.triage-card-shell.triage-dark .triage-back-instruction-text {
+  color: #94A3B8;
 }
 
 /* Layout Split */
 .triage-card-top-grid {
   display: grid;
   grid-template-columns: 1fr 1.35fr;
-  gap: 10px;
+  gap: 8px;
   align-items: stretch;
+  flex: 1;
+  min-height: 0;
 }
 
 @media (max-width: 520px) {
@@ -3160,17 +3440,21 @@ body.high-contrast {
 .triage-cell {
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  height: 100%;
 }
 
 .triage-inner-frame {
-  border-radius: 18px;
-  padding: 14px 16px;
+  border-radius: 14px;
+  padding: 10px 12px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
+  min-height: 0;
   position: relative;
+  overflow: hidden;
 }
 
 /* Left Cell Internals */
@@ -3178,7 +3462,7 @@ body.high-contrast {
   display: flex;
   align-items: center;
   gap: 4px;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .triage-dot {
@@ -3191,15 +3475,15 @@ body.high-contrast {
 .triage-left-content {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin: 6px 0;
+  gap: 6px;
+  margin: 4px 0;
 }
 
 .triage-role-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 2px 8px;
+  gap: 5px;
+  padding: 2px 7px;
   border-radius: 999px;
   border: 1px solid currentColor;
   width: fit-content;
@@ -3215,7 +3499,7 @@ body.high-contrast {
 }
 
 .triage-role-text {
-  font-size: 0.60rem;
+  font-size: 0.58rem;
   font-family: var(--font-mono);
   font-weight: 800;
   letter-spacing: 0.05em;
@@ -3224,11 +3508,11 @@ body.high-contrast {
 .triage-blood-tag {
   display: inline-flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 5px;
 }
 
 .triage-blood-lbl {
-  font-size: 0.58rem;
+  font-size: 0.56rem;
   font-family: var(--font-mono);
   font-weight: 700;
   opacity: 0.75;
@@ -3236,39 +3520,41 @@ body.high-contrast {
 }
 
 .triage-blood-val {
-  font-size: 1.25rem;
+  font-size: 1.20rem;
   font-weight: 900;
   color: #DC2626;
   line-height: 1;
 }
 
-/* Giant Bold Typography */
+/* Patient Identifier Headline Typography (No Hello) */
 .triage-giant-headline {
   margin-top: auto;
-  padding-top: 10px;
+  padding-top: 4px;
 }
 
-.triage-headline-sub {
-  font-size: 1.75rem;
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  line-height: 0.95;
+.triage-headline-label {
+  font-size: 0.52rem;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  opacity: 0.65;
+  text-transform: uppercase;
+  margin-bottom: 2px;
 }
 
 .triage-headline-name {
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  margin-top: 2px;
+  font-size: 1.30rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
 }
 
 .triage-headline-last {
-  font-size: 0.82rem;
-  font-weight: 600;
-  opacity: 0.75;
+  font-size: 0.80rem;
+  font-weight: 700;
+  opacity: 0.8;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
 }
 
 /* Right Cell Internals */
@@ -3308,11 +3594,11 @@ body.high-contrast {
 }
 
 .triage-qr-wrap {
-  width: 82px;
-  height: 82px;
+  width: 70px;
+  height: 70px;
   background: #FFFFFF;
-  border-radius: 12px;
-  padding: 4px;
+  border-radius: 10px;
+  padding: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3394,8 +3680,8 @@ body.high-contrast {
 }
 
 .triage-bottom-frame {
-  border-radius: 16px;
-  padding: 10px 18px;
+  border-radius: 12px;
+  padding: 6px 14px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -4185,4 +4471,143 @@ textarea,
     scroll-behavior: auto !important;
   }
 }
+
+/* ── Luxury Glassmorphic & 3D Interactive Card Styles ────────────────────────── */
+.glass-card-luxury {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="dark"] .glass-card-luxury {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 36px -8px rgba(0, 0, 0, 0.5);
+}
+
+/* 3D Perspective Card Flipper */
+.perspective-card-container {
+  perspective: 1200px;
+}
+
+.perspective-card-inner {
+  position: relative;
+  width: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+
+.perspective-card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.card-face-front,
+.card-face-back {
+  width: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.card-face-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: rotateY(180deg);
+}
+
+/* Scanning Beam Animation */
+.scanline-beam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #2563eb, #38bdf8, transparent);
+  box-shadow: 0 0 12px #38bdf8;
+  animation: scanlineSweep 2.4s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes scanlineSweep {
+  0% { top: 4%; opacity: 0.2; }
+  50% { opacity: 0.9; }
+  100% { top: 96%; opacity: 0.2; }
+}
+
+/* Tactile micro-interaction */
+.btn-tactile {
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.btn-tactile:active {
+  transform: scale(0.97);
+}
+
+/* Image filter preview canvases / filters */
+.filter-clahe {
+  filter: contrast(1.4) brightness(1.05);
+}
+.filter-invert {
+  filter: invert(1) hue-rotate(180deg);
+}
+.filter-thermal {
+  filter: contrast(1.6) saturate(2.2) hue-rotate(90deg);
+}
+.filter-edge {
+  filter: contrast(3) grayscale(1) invert(0.8);
+}
+
+/* Luminous Glow Border & Interactive Depth */
+.glow-border {
+  position: relative;
+}
+.glow-border::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.5), rgba(16, 185, 129, 0.2), rgba(8, 127, 140, 0.4));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Metallic Reflective Sheen */
+.metallic-sheen {
+  position: relative;
+  overflow: hidden;
+}
+.metallic-sheen::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    60deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.18) 48%,
+    rgba(255, 255, 255, 0.35) 50%,
+    rgba(255, 255, 255, 0.18) 52%,
+    transparent 65%
+  );
+  transform: rotate(-25deg) translateY(-100%);
+  transition: transform 0.75s ease;
+  pointer-events: none;
+}
+.metallic-sheen:hover::before {
+  transform: rotate(-25deg) translateY(100%);
+}
+
+/* 60fps/120fps Hardware Acceleration */
+.hardware-accelerated {
+  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+
 

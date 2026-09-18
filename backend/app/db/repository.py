@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import json
 import uuid
@@ -206,8 +206,8 @@ class DatabaseRepository:
                 p_updates.append("emergency_contact = ?")
                 p_values.append(updates["emergency_phone"])
             if p_updates:
-                p_values.extend([user_id, "PT-89421", "PT-ALEX"])
-                p_query = f"UPDATE patients SET {', '.join(p_updates)} WHERE id = ? OR id = ? OR id = ?;"
+                p_values.append(user_id)
+                p_query = f"UPDATE patients SET {', '.join(p_updates)} WHERE id = ?;"
                 conn.execute(p_query, tuple(p_values))
                 conn.commit()
         except Exception:
@@ -255,8 +255,6 @@ class DatabaseRepository:
             if u_row:
                 u_dict = dict(u_row)
                 row = conn.execute("SELECT * FROM patients WHERE id = ? OR mrn = ? OR LOWER(name) = LOWER(?);", (u_dict["id"], u_dict.get("license_number"), u_dict.get("name"))).fetchone()
-                if not row and (u_dict.get("role") == "patient" or u_dict.get("id") in ("PT-ALEX", "alex.patient")):
-                    row = conn.execute("SELECT * FROM patients WHERE id = 'PT-89421' OR id = 'PT-ALEX';").fetchone()
         conn.close()
         if not row:
             return None
@@ -264,27 +262,23 @@ class DatabaseRepository:
         try:
             d["conditions"] = json.loads(d["conditions_json"])
         except Exception:
-            d["conditions"] = [d.get("conditions_json", "Active Clinical Triage")]
+            d["conditions"] = [d.get("conditions_json", "Active Clinical Triage")] if d.get("conditions_json") else []
         try:
             d["baseline_vitals"] = json.loads(d["baseline_vitals_json"])
         except Exception:
             d["baseline_vitals"] = {"heart_rate_bpm": 72, "blood_pressure": "120/80 mmHg", "spo2_percent": 98, "temperature_f": 98.6}
 
-        for field, fallback in (
-            ("medical_history", ["Hypertension (Stage 1)", "Mild Hyperlipidemia"]),
-            ("allergies", [{"id": "alg-1", "allergen": "Penicillin", "severity": "high", "reaction": "Anaphylaxis / Urticaria"}]),
-            ("medications", [{"id": "med-1", "name": "Atorvastatin", "dose": "20mg", "frequency": "Once daily (OD) - Night"}]),
-            ("emergency_contacts", [{"name": "Liam Reed", "phone": "+91 98333 44556", "email": "", "relation": "Brother / Next of Kin", "is_primary": True}]),
-        ):
+        for field in ("medical_history", "allergies", "medications", "emergency_contacts"):
             json_field = f"{field}_json"
             try:
-                d[field] = json.loads(d.get(json_field) or "null") or fallback
+                loaded = json.loads(d.get(json_field) or "[]")
+                d[field] = loaded if loaded is not None else []
             except (TypeError, json.JSONDecodeError):
-                d[field] = fallback
+                d[field] = []
 
         d["organ_donor"] = d.get("organ_donor", True)
-        d["abha_id"] = d.get("abha_id", "91-4829-1092-8821")
-        d["address"] = d.get("address", "Flat 402, Green Glen Heights, New Delhi - 110029")
+        d["abha_id"] = d.get("abha_id") or ""
+        d["address"] = d.get("address") or ""
         return d
 
     @staticmethod
@@ -293,6 +287,24 @@ class DatabaseRepository:
         patient = DatabaseRepository.get_patient(patient_id)
         if not patient:
             return None
+
+        # Dynamically derive critical alerts from real clinical records
+        critical_alerts = []
+        if patient.get("blood_group"):
+            critical_alerts.append(f"Blood Group: {patient['blood_group']}")
+        for a in patient.get("allergies", []):
+            if isinstance(a, dict) and a.get("allergen"):
+                sev = f" ({a.get('severity', 'high').upper()})" if a.get('severity') else ""
+                critical_alerts.append(f"Allergy Alert: {a.get('allergen')}{sev}")
+            elif isinstance(a, str) and a.strip():
+                critical_alerts.append(f"Allergy Alert: {a.strip()}")
+        for c in patient.get("conditions", []):
+            if isinstance(c, str) and c.strip():
+                critical_alerts.append(f"Condition: {c.strip()}")
+        if not critical_alerts:
+            critical_alerts.append(f"Blood Group: {patient.get('blood_group', 'Unspecified')}")
+            critical_alerts.append("No critical drug contraindications documented")
+
         return {
             "status": "success",
             "patient_id": patient["id"],
@@ -304,19 +316,15 @@ class DatabaseRepository:
             "height_cm": patient.get("height_cm", 175.0),
             "weight_kg": patient.get("weight_kg", 70.0),
             "organ_donor": patient.get("organ_donor", True),
-            "abha_id": patient.get("abha_id", "91-4829-1092-8821"),
-            "address": patient.get("address", "New Delhi, India"),
-            "emergency_contact": patient.get("emergency_contact", "+91 98333 44556"),
+            "abha_id": patient.get("abha_id") or "",
+            "address": patient.get("address") or "",
+            "emergency_contact": patient.get("emergency_contact") or "",
             "emergency_contacts": patient.get("emergency_contacts", []),
             "allergies": patient.get("allergies", []),
             "medications": patient.get("medications", []),
             "conditions": patient.get("conditions", []),
             "baseline_vitals": patient.get("baseline_vitals", {}),
-            "critical_alerts": [
-                f"Blood Group: {patient['blood_group']}",
-                "Severe Anaphylaxis Risk: Penicillin",
-                "Active Antiplatelet Therapy (Aspirin 75mg)",
-            ],
+            "critical_alerts": critical_alerts,
             "verified_at": "2026-09-08 UTC",
             "issuer": "Q-RAKSHAK Quantum Clinical Network // WORM Ledger Verified",
         }
@@ -326,16 +334,16 @@ class DatabaseRepository:
         conn = get_db_connection()
         pid = patient_data.get("id") or patient_data.get("patient_id") or f"PT-{uuid.uuid4().hex[:5].upper()}"
         mrn = patient_data.get("mrn") or f"MRN-{pid}-QX"
-        name = patient_data.get("name", "Alexander Reed")
-        age = int(patient_data.get("age", 48))
-        gender = patient_data.get("gender", "Male")
+        name = patient_data.get("name") or "Patient"
+        age = int(patient_data.get("age", 30))
+        gender = patient_data.get("gender", "Unspecified")
         blood = patient_data.get("blood_group", "O+")
-        h = float(patient_data.get("height_cm", 182.0))
-        w = float(patient_data.get("weight_kg", 78.0))
-        conds = json.dumps(patient_data.get("conditions", ["Coronary Plaque Risk", "Dense Breast Tissue", "Mild Dyslipidemia"]))
-        vitals = json.dumps(patient_data.get("baseline_vitals", {"heart_rate_bpm": 72, "blood_pressure": "120/78 mmHg", "spo2_percent": 98, "temperature_f": 98.6}))
-        em = patient_data.get("emergency_contact", "+91 98333 44556 (Brother: Liam Reed)")
-        history = json.dumps(patient_data.get("medical_history", ["Hypertension (Stage 1)"]))
+        h = float(patient_data.get("height_cm", 175.0))
+        w = float(patient_data.get("weight_kg", 70.0))
+        conds = json.dumps(patient_data.get("conditions", []))
+        vitals = json.dumps(patient_data.get("baseline_vitals", {"heart_rate_bpm": 72, "blood_pressure": "120/80 mmHg", "spo2_percent": 98, "temperature_f": 98.6}))
+        em = patient_data.get("emergency_contact", "")
+        history = json.dumps(patient_data.get("medical_history", []))
         allergies = json.dumps(patient_data.get("allergies", []))
         medications = json.dumps(patient_data.get("medications", []))
         contacts = json.dumps(patient_data.get("emergency_contacts", []))
@@ -389,7 +397,7 @@ class DatabaseRepository:
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         """, (
             rid,
-            record.get("patient_id", "PT-89421"),
+            record.get("patient_id") or "ANON-PATIENT",
             record.get("disease", "Clinical Biomarker Checkup"),
             record.get("model_architecture", "Hybrid VQC Quantum Classifier"),
             pred_class,
@@ -790,7 +798,7 @@ class DatabaseRepository:
     def create_booking(booking_data: dict[str, Any]) -> dict[str, Any]:
         conn = get_db_connection()
         bid = booking_data.get("id") or f"BK-{uuid.uuid4().hex[:6].upper()}"
-        pid = booking_data.get("patient_id") or "PT-89421"
+        pid = booking_data.get("patient_id") or "PT-PATIENT"
         did = booking_data["doctor_id"]
         slot = booking_data["slot_time"]
         mode = booking_data.get("mode", "video")
@@ -1139,8 +1147,8 @@ class DatabaseRepository:
         if u_row:
             target_user_id = u_row["id"]
         else:
-            # Fallback to PT-ALEX or first user if user_id is a placeholder
-            fallback_u = conn.execute("SELECT id FROM users WHERE role = 'patient' OR id = 'PT-ALEX' LIMIT 1;").fetchone()
+            # Fallback to first patient user if user_id is a placeholder
+            fallback_u = conn.execute("SELECT id FROM users WHERE role = 'patient' LIMIT 1;").fetchone()
             target_user_id = fallback_u["id"] if fallback_u else user_id
 
         try:

@@ -17,7 +17,19 @@ def get_public_emergency_card(patient_id: str):
     """Direct public emergency card lookup endpoint for QR scanners."""
     record = DatabaseRepository.get_emergency_profile(patient_id)
     if not record:
-        record = DatabaseRepository.get_emergency_profile("PT-89421")
+        record = {
+            "id": patient_id,
+            "patient_id": patient_id,
+            "mrn": f"MRN-{patient_id}-QX",
+            "name": "Patient",
+            "age": "—",
+            "gender": "Unspecified",
+            "blood_group": "Unspecified",
+            "allergies": [],
+            "medications": [],
+            "emergency_contacts": [],
+            "critical_alerts": ["No active critical flags documented"],
+        }
     return record
 
 
@@ -26,7 +38,16 @@ async def get_emergency_card_data(patient_id: str):
     """Fetches comprehensive clinical and emergency contact data formatted for card and triage HUD."""
     record = DatabaseRepository.get_emergency_profile(patient_id)
     if not record:
-        record = DatabaseRepository.get_emergency_profile("PT-89421") or {}
+        record = {
+            "id": patient_id,
+            "patient_id": patient_id,
+            "mrn": f"MRN-{patient_id}-QX",
+            "name": "Patient",
+            "blood_group": "Unspecified",
+            "allergies": [],
+            "medications": [],
+            "emergency_contacts": [],
+        }
 
     emergency_url = f"{settings.FRONTEND_URL.rstrip('/')}/#emergency/{patient_id}"
     qr_base64 = generate_qr_base64_data_uri(emergency_url)
@@ -42,9 +63,9 @@ async def get_emergency_card_data(patient_id: str):
                 allergies_list.append(f"{allergen} ({severity})" if severity else allergen)
             elif isinstance(a, str):
                 allergies_list.append(a)
-        allergies_str = ", ".join(allergies_list) if allergies_list else "None Reported"
+        allergies_str = ", ".join(allergies_list) if allergies_list else "No known drug allergies (NKDA)"
     else:
-        allergies_str = str(raw_allergies) if raw_allergies else "None Reported"
+        allergies_str = str(raw_allergies) if raw_allergies else "No known drug allergies (NKDA)"
 
     # Format active medications
     raw_meds = record.get("medications", [])
@@ -72,31 +93,39 @@ async def get_emergency_card_data(patient_id: str):
         primary_contact = next((c for c in contacts if isinstance(c, dict) and c.get("is_primary")), contacts[0])
     
     if isinstance(primary_contact, dict):
-        contact_name = primary_contact.get("name") or record.get("emergency_contact_name") or "Liam Reed"
-        contact_phone = primary_contact.get("phone") or record.get("emergency_phone") or record.get("emergency_contact") or "+91 98333 44556"
-        contact_relation = primary_contact.get("relation") or record.get("emergency_contact_relation") or "Next of Kin"
+        contact_name = primary_contact.get("name") or record.get("emergency_contact_name") or "Not provided"
+        contact_phone = primary_contact.get("phone") or record.get("emergency_phone") or record.get("emergency_contact") or "Not provided"
+        contact_relation = primary_contact.get("relation") or record.get("emergency_contact_relation") or "Contact"
     else:
-        contact_name = record.get("emergency_contact_name") or "Liam Reed"
-        contact_phone = record.get("emergency_phone") or record.get("emergency_contact") or "+91 98333 44556"
-        contact_relation = record.get("emergency_contact_relation") or "Next of Kin"
+        contact_name = record.get("emergency_contact_name") or "Not provided"
+        contact_phone = record.get("emergency_phone") or record.get("emergency_contact") or "Not provided"
+        contact_relation = record.get("emergency_contact_relation") or "Contact"
+
+    med_hist = record.get("medical_history", [])
+    if isinstance(med_hist, str):
+        history_str = med_hist if med_hist.strip() else "None recorded"
+    elif isinstance(med_hist, list):
+        history_str = ", ".join(str(x) for x in med_hist) if med_hist else "None recorded"
+    else:
+        history_str = "None recorded"
 
     return {
         "status": "success",
         "patient_id": patient_id,
         "card_data": {
             "user_id": patient_id,
-            "name": record.get("name", "Alexander Reed"),
+            "name": record.get("name", "Patient"),
             "blood_group": record.get("blood_group", "O+"),
             "emergency_phone": contact_phone,
             "emergency_contact_name": contact_name,
             "emergency_contact_relation": contact_relation,
             "allergies": allergies_str,
             "active_medications": meds_str,
-            "medical_history": record.get("medical_history", "Hypertension (Stage 1), Mild Hyperlipidemia") if isinstance(record.get("medical_history"), str) else ", ".join(str(x) for x in record.get("medical_history", [])),
-            "abha_id": record.get("abha_id", "91-4829-1092-8821"),
-            "hospital": record.get("hospital", "AIIMS Cardiology & Oncology OPD"),
-            "license_id": record.get("mrn") or record.get("license_id", "PT-REC-89421"),
-            "attending_physician": record.get("attending_physician", "Dr. Sarah Lin (Cardiologist)"),
+            "medical_history": history_str,
+            "abha_id": record.get("abha_id") or "Not linked",
+            "hospital": record.get("hospital", "Clinical AI OPD"),
+            "license_id": record.get("mrn") or record.get("license_id") or f"MRN-{patient_id}-QX",
+            "attending_physician": record.get("attending_physician") or "On-Duty Clinical Staff",
             "organ_donor": record.get("organ_donor", True),
             "sha256_hash": record.get("sha256_hash", "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"),
             "qr_code_base64": qr_base64,

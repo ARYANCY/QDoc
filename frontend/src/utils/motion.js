@@ -149,3 +149,104 @@ export function animatePulseGlow(targetRef) {
     ease: "sine.inOut",
   });
 }
+
+/**
+ * 3D Card Flip Animation for ID Cards and Dual-Faced Clinical Views
+ * @param {HTMLElement} cardInnerRef - Inner wrapper containing front and back faces
+ * @param {boolean} isFlipped - Whether card is flipped to back
+ */
+export function animateCard3DFlip(cardInnerRef, isFlipped) {
+  if (!cardInnerRef) return;
+  if (isReducedMotion()) {
+    gsap.set(cardInnerRef, { rotateY: isFlipped ? 180 : 0 });
+    return;
+  }
+  return gsap.to(cardInnerRef, {
+    rotateY: isFlipped ? 180 : 0,
+    duration: 0.7,
+    ease: "back.out(1.4)",
+    transformStyle: "preserve-3d",
+  });
+}
+
+/**
+ * Tactile Error Shake animation for inputs and buttons
+ * @param {HTMLElement} targetRef - Element to shake
+ */
+export function animateErrorShake(targetRef) {
+  if (!targetRef || isReducedMotion()) return;
+  return gsap.timeline()
+    .to(targetRef, { x: -8, duration: 0.06, ease: "power1.inOut" })
+    .to(targetRef, { x: 8, duration: 0.06, ease: "power1.inOut" })
+    .to(targetRef, { x: -6, duration: 0.06, ease: "power1.inOut" })
+    .to(targetRef, { x: 6, duration: 0.06, ease: "power1.inOut" })
+    .to(targetRef, { x: -3, duration: 0.05, ease: "power1.inOut" })
+    .to(targetRef, { x: 0, duration: 0.05, ease: "power1.out" });
+}
+
+/**
+ * Gliding Tab Indicator Animation
+ * @param {HTMLElement} indicatorRef - Background slider pill
+ * @param {HTMLElement} activeTabRef - The currently active tab element
+ */
+export function animateTabIndicator(indicatorRef, activeTabRef) {
+  if (!indicatorRef || !activeTabRef) return;
+  const { offsetLeft, offsetWidth } = activeTabRef;
+  if (isReducedMotion()) {
+    gsap.set(indicatorRef, { x: offsetLeft, width: offsetWidth });
+    return;
+  }
+  return gsap.to(indicatorRef, {
+    x: offsetLeft,
+    width: offsetWidth,
+    duration: 0.35,
+    ease: "power3.out",
+  });
+}
+
+/**
+ * Ambient floating animation for background decorative orbs and badges
+ */
+export function animateAmbientFloat(targetRef, options = {}) {
+  if (!targetRef || isReducedMotion()) return;
+  return gsap.to(targetRef, {
+    y: options.y ?? -10,
+    x: options.x ?? 4,
+    rotation: options.rotation ?? 2,
+    duration: options.duration ?? 3.2,
+    repeat: -1,
+    yoyo: true,
+    ease: "sine.inOut",
+    ...options,
+  });
+}
+
+/**
+ * Tactile button hover interaction
+ */
+export function animateCardHover(targetRef) {
+  if (!targetRef || isReducedMotion()) return;
+  const onEnter = () => gsap.to(targetRef, { y: -3, scale: 1.015, duration: 0.22, ease: "power2.out" });
+  const onLeave = () => gsap.to(targetRef, { y: 0, scale: 1, duration: 0.22, ease: "power2.out" });
+  targetRef.addEventListener("mouseenter", onEnter);
+  targetRef.addEventListener("mouseleave", onLeave);
+  return () => {
+    targetRef.removeEventListener("mouseenter", onEnter);
+    targetRef.removeEventListener("mouseleave", onLeave);
+  };
+}
+
+/**
+ * Rewarding spring pop for successful actions (e.g., booking confirmed, scan uploaded, card saved)
+ * @param {HTMLElement} targetRef - Element to pop
+ */
+export function animateSuccessPop(targetRef) {
+  if (!targetRef || isReducedMotion()) return;
+  return gsap.timeline()
+    .fromTo(targetRef, { scale: 0.88, opacity: 0.5 }, { scale: 1.08, opacity: 1, duration: 0.24, ease: "back.out(2)" })
+    .to(targetRef, { scale: 1.0, duration: 0.16, ease: "power2.out" });
+}
+
+export const animateMetricCount = animateCounter;
+
+

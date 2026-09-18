@@ -80,7 +80,7 @@ RED_FLAG_PATTERNS = [
 class SlotHoldRequest(BaseModel):
     doctor_id: str
     slot_time: str
-    patient_id: str = "PT-89421"
+    patient_id: str = "USR-5EF52B"
 
 
 class TriageCheckRequest(BaseModel):
@@ -95,12 +95,12 @@ class BookingCreateRequest(BaseModel):
     doctor_id: str
     slot_time: str
     mode: str = "video"  # video | audio | in_person
-    patient_id: str = "PT-89421"
+    patient_id: str = "USR-5EF52B"
     reason: str
     symptoms: str
     duration: str = "3 days"
     existing_medications: list[str] = Field(default_factory=list)
-    emergency_contact: str = "+91 98333 44556"
+    emergency_contact: str = "+91 98765 43210"
 
 
 class BookingTransitionRequest(BaseModel):

@@ -3,6 +3,7 @@ import gsap from "gsap";
 import { ShieldCheck, Lock, Activity, UserCheck, Stethoscope, ArrowRight, Eye, EyeOff, PlayCircle, X, Maximize2, Video, HelpCircle } from "lucide-react";
 import SquareLoader from "../../components/common/SquareLoader.jsx";
 import DNAHelixAnimation from "../../components/common/DNAHelixAnimation.jsx";
+import { animateErrorShake } from "../../utils/motion.js";
 
 export default function EditorialLoginPage({ onLogin, onRegister, loading, error }) {
   const [authMode, setAuthMode] = useState("credentials"); // "credentials" (Sign In) | "register" (Create Account)
@@ -30,6 +31,19 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
   const pageRef = useRef(null);
   const formContainerRef = useRef(null);
   const narrativeRef = useRef(null);
+
+  // Cold Start Retry Status
+  const [retryInfo, setRetryInfo] = useState(null);
+
+  useEffect(() => {
+    function handleColdStart(e) {
+      if (e.detail) {
+        setRetryInfo(e.detail);
+      }
+    }
+    window.addEventListener("qmed:cold_start_retry", handleColdStart);
+    return () => window.removeEventListener("qmed:cold_start_retry", handleColdStart);
+  }, []);
 
   // Listen for Escape key to close the User Guide modal
   useEffect(() => {
@@ -102,6 +116,13 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
     }
   }, [authMode]);
 
+  // Tactile GSAP attention shake on authentication error
+  useEffect(() => {
+    if (error && formContainerRef.current) {
+      animateErrorShake(formContainerRef.current);
+    }
+  }, [error]);
+
   function handleSubmit(e) {
     e.preventDefault();
     onLogin(username, password, selectedRole);
@@ -120,19 +141,14 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
     });
   }
 
-  function setDemoCredentials(user, pass, role) {
-    setUsername(user);
-    setPassword(pass);
-    setSelectedRole(role);
-  }
-
   return (
     <div
       ref={pageRef}
       style={{
         minHeight: "100vh",
         width: "100vw",
-        backgroundColor: "#FFFFFF",
+        backgroundColor: "#F8FAFC",
+        backgroundImage: "radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.08) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.07) 0px, transparent 50%), radial-gradient(at 50% 50%, rgba(8, 127, 140, 0.04) 0px, transparent 60%)",
         color: "#17212B",
         display: "flex",
         flexDirection: "column",
@@ -509,15 +525,14 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
           </div>
         </div>
 
-        {/* Right Column: Clean White Authentication Form Card */}
+        {/* Right Column: Clean Luxury Authentication Form Card */}
         <div
           ref={formContainerRef}
+          className="glass-card-luxury glow-border"
           style={{
-            background: "#FFFFFF",
-            border: "1px solid #D9E2EC",
-            borderRadius: "14px",
+            borderRadius: "16px",
             padding: "clamp(24px, 3.5vw, 36px)",
-            boxShadow: "0 4px 16px rgba(15, 23, 42, 0.06)",
+            boxShadow: "0 20px 45px -15px rgba(8, 127, 140, 0.12), 0 4px 16px rgba(15, 23, 42, 0.06)",
             position: "relative",
           }}
         >
@@ -614,19 +629,28 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
             <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               {/* Account Persona Selector */}
               <div>
-                <label className="form-label" style={{ marginBottom: "6px" }}>
-                  Account Persona
-                </label>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                  <label className="form-label" style={{ margin: 0 }}>
+                    Account Persona
+                  </label>
+                  <span style={{ fontSize: "0.66rem", color: "#087F8C", fontWeight: 600 }}>
+                    Tap to auto-fill verified login
+                  </span>
+                </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px" }}>
                   {[
-                    { id: "patient", label: "Patient" },
-                    { id: "doctor", label: "Clinician" },
-                    { id: "admin", label: "Auditor" },
+                    { id: "patient", label: "Patient", u: "aryan", p: "patient123" },
+                    { id: "doctor", label: "Clinician", u: "dr.aryan", p: "clinician123" },
+                    { id: "admin", label: "Auditor", u: "admin.audit", p: "admin123" },
                   ].map((r) => (
                     <button
                       key={r.id}
                       type="button"
-                      onClick={() => setSelectedRole(r.id)}
+                      onClick={() => {
+                        setSelectedRole(r.id);
+                        setUsername(r.u);
+                        setPassword(r.p);
+                      }}
                       style={{
                         padding: "8px 10px",
                         fontSize: "0.78rem",
@@ -654,7 +678,7 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                   className="input-control"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="e.g. alex.patient"
+                  placeholder="Enter username or email"
                   required
                 />
               </div>
@@ -705,62 +729,31 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                 {loading ? (
                   <>
                     <SquareLoader size="sm" color="#FFFFFF" style={{ padding: 0 }} />
-                    <span>Authenticating...</span>
+                    <span>Signing in... (Server waking up, please wait)</span>
                   </>
                 ) : (
                   "Sign In to Workspace"
                 )}
               </button>
 
-              {/* Quick Persona Demo Buttons */}
-              <div
-                style={{
-                  borderTop: "1px solid #D9E2EC",
-                  paddingTop: "12px",
-                  marginTop: "6px",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "6px",
-                }}
-              >
-                <span
+              {loading && (
+                <div
                   style={{
-                    fontSize: "0.68rem",
-                    color: "#7B8794",
-                    fontWeight: 600,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.04em",
+                    padding: "8px 12px",
+                    background: "#EBF8FA",
+                    border: "1px solid #B8E2E8",
+                    borderRadius: "8px",
+                    fontSize: "0.74rem",
+                    color: "#087F8C",
+                    lineHeight: 1.4,
                   }}
                 >
-                  Quick Fill Demo Credentials
-                </span>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px" }}>
-                  <button
-                    type="button"
-                    className="btn-secondary btn-sm"
-                    onClick={() => setDemoCredentials("alex.patient", "patient123", "patient")}
-                    style={{ minHeight: "32px", fontSize: "0.72rem" }}
-                  >
-                    Alex (Patient)
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-secondary btn-sm"
-                    onClick={() => setDemoCredentials("dr.kavita", "doctor123", "doctor")}
-                    style={{ minHeight: "32px", fontSize: "0.72rem" }}
-                  >
-                    Dr. Kavita (MD)
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-secondary btn-sm"
-                    onClick={() => setDemoCredentials("admin.compliance", "admin123", "admin")}
-                    style={{ minHeight: "32px", fontSize: "0.72rem" }}
-                  >
-                    Compliance
-                  </button>
+                  ⚡ <strong>Free Tier Cold Start:</strong> The Render backend is spinning up.
+                  {retryInfo
+                    ? ` Gateway retry ${retryInfo.attempt} of ${retryInfo.maxRetries} active (waiting ${Math.round(retryInfo.backoffMs / 1000)}s)...`
+                    : " No timeout timer active — your request will proceed as soon as the server wakes up."}
                 </div>
-              </div>
+              )}
             </form>
           ) : (
             /* REGISTRATION VIEW */
@@ -803,7 +796,7 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                   className="input-control"
                   value={registerName}
                   onChange={(e) => setRegisterName(e.target.value)}
-                  placeholder="e.g. Alexander Reed"
+                  placeholder="e.g. Aryan Choudhury"
                   required
                 />
               </div>
@@ -816,7 +809,7 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                     className="input-control"
                     value={registerUsername}
                     onChange={(e) => setRegisterUsername(e.target.value)}
-                    placeholder="alex.reed"
+                    placeholder="aryan.patient"
                     required
                   />
                 </div>
@@ -827,7 +820,7 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                     className="input-control"
                     value={registerEmail}
                     onChange={(e) => setRegisterEmail(e.target.value)}
-                    placeholder="alex@health.org"
+                    placeholder="aryan@health.org"
                     required
                   />
                 </div>

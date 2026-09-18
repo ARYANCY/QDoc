@@ -56,7 +56,7 @@ export default function BottomBar() {
         <div className="dt-legend-item" style={{ background: 'var(--dt-bg-card-hover)', borderColor: 'var(--dt-border-default)' }}>
           <Cpu size={12} color="var(--dt-accent-blue)" />
           <span style={{ color: 'var(--dt-accent-blue)', fontWeight: 700 }}>
-            {patientMode === 'active' ? `Health view updated: ${patient.patientId || 'PT-89421'}` : 'Ready to explore'}
+            {patientMode === 'active' ? `Health view updated: ${patient.patientId || patient.id || ''}` : 'Ready to explore'}
           </span>
         </div>
       </div>

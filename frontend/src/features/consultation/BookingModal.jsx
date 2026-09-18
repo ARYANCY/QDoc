@@ -21,11 +21,11 @@ export default function BookingModal({ doctor, initialSlot, onClose, onSuccess, 
   const [step, setStep] = useState(1);
   const [slot, setSlot] = useState(initialSlot || doctor?.available_slots?.[0] || "Today at 02:00 PM");
   const [mode, setMode] = useState("video");
-  const [reason, setReason] = useState("Review of hybrid quantum diagnostic checkup and preventive guidance");
-  const [symptoms, setSymptoms] = useState("Mild exertional discomfort, family history of early coronary risk");
-  const [duration, setDuration] = useState("2 weeks");
-  const [medications, setMedications] = useState("Atorvastatin 10mg, Aspirin 75mg");
-  const [emergencyContact, setEmergencyContact] = useState("+91 98333 44556");
+  const [reason, setReason] = useState("");
+  const [symptoms, setSymptoms] = useState("");
+  const [duration, setDuration] = useState("");
+  const [medications, setMedications] = useState("");
+  const [emergencyContact, setEmergencyContact] = useState("");
 
   const [triageChecking, setTriageChecking] = useState(false);
   const [triageResult, setTriageResult] = useState(null);
@@ -67,7 +67,7 @@ export default function BookingModal({ doctor, initialSlot, onClose, onSuccess, 
         doctor_id: doctor.id,
         slot_time: slot,
         mode,
-        patient_id: patientId || "PT-89421",
+        patient_id: patientId || "USR-5EF52B",
         reason,
         symptoms,
         duration,
@@ -238,6 +238,7 @@ export default function BookingModal({ doctor, initialSlot, onClose, onSuccess, 
                     className="terminal-input"
                     value={duration}
                     onChange={(e) => setDuration(e.target.value)}
+                    placeholder="e.g. 2 days, 1 week"
                     style={{ width: "100%", padding: "8px" }}
                   />
                 </div>
@@ -248,6 +249,7 @@ export default function BookingModal({ doctor, initialSlot, onClose, onSuccess, 
                     className="terminal-input"
                     value={emergencyContact}
                     onChange={(e) => setEmergencyContact(e.target.value)}
+                    placeholder="e.g. +91 98765 43210"
                     style={{ width: "100%", padding: "8px" }}
                   />
                 </div>

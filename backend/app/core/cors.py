@@ -29,6 +29,9 @@ def get_allowed_origins() -> List[str]:
     return list(dict.fromkeys(default_origins))
 
 
+DEFAULT_CORS_REGEX = r"^https?://(localhost|127\.0\.0\.1|.*\.onrender\.com|.*\.vercel\.app|.*\.netlify\.app|.*\.github\.io)(:\d+)?$"
+
+
 def is_origin_allowed(origin: str | None) -> bool:
     """Validates whether an origin is allowed via exact origin list or origin regex."""
     import re
@@ -36,7 +39,7 @@ def is_origin_allowed(origin: str | None) -> bool:
         return False
     if origin in get_allowed_origins():
         return True
-    origin_regex = os.getenv("CORS_ORIGIN_REGEX", "").strip()
+    origin_regex = os.getenv("CORS_ORIGIN_REGEX", DEFAULT_CORS_REGEX).strip()
     if origin_regex:
         try:
             if re.match(origin_regex, origin):
@@ -49,10 +52,10 @@ def is_origin_allowed(origin: str | None) -> bool:
 def setup_cors(app: FastAPI) -> None:
     """Attaches hardened, enterprise-ready CORS middleware to the FastAPI application."""
     allowed_origins = get_allowed_origins()
-    origin_regex = os.getenv("CORS_ORIGIN_REGEX", None) or None
+    origin_regex = os.getenv("CORS_ORIGIN_REGEX", DEFAULT_CORS_REGEX) or None
     allow_credentials = os.getenv("CORS_ALLOW_CREDENTIALS", "true").lower() in {"true", "1", "yes"}
 
-    logger.info(f"[CORS] Configured {len(allowed_origins)} allowed origins: {allowed_origins}")
+    logger.info(f"[CORS] Configured {len(allowed_origins)} allowed origins and regex: {origin_regex}")
 
     app.add_middleware(
         CORSMiddleware,

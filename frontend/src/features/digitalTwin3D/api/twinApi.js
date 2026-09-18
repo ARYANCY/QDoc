@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Digital Twin API Client
  * Connects to Q-RAKSHAK FastAPI backend via centralized apiClient and config
  */
@@ -10,21 +10,21 @@ import { ENDPOINTS, API_BASE_URL } from "../../../api/config";
  * Fetch the 3D digital twin state for a specific patient from the DB.
  * Returns module_risks, organ_heatmap, timeline_visits, top_biomarkers.
  */
-export async function fetchPatientTwinState(patientId = "PT-89421") {
+export async function fetchPatientTwinState(patientId = "USR-5EF52B") {
   return apiClient.get(ENDPOINTS.TWIN_STATE(patientId));
 }
 
 /**
  * Fetch clinical records for a patient.
  */
-export async function fetchClinicalPatient(patientId = "PT-89421") {
+export async function fetchClinicalPatient(patientId = "USR-5EF52B") {
   return apiClient.get(ENDPOINTS.CLINICAL_PATIENT(patientId));
 }
 
 /**
  * Fetch all clinical reports for a patient.
  */
-export async function fetchPatientReports(patientId = "PT-89421") {
+export async function fetchPatientReports(patientId = "USR-5EF52B") {
   try {
     return await apiClient.get(ENDPOINTS.REPORTS_LIST(patientId));
   } catch (err) {

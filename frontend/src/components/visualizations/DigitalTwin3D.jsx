@@ -4,7 +4,7 @@ import { clinicalApi } from "../../api/clinical";
 import { animateEntrance } from "../../utils/motion";
 import { DigitalTwinViewer, useTwinStore, DISEASE_TO_ORGAN } from "../../features/digitalTwin3D";
 
-export default function DigitalTwin3D({ patientId = "PT-89421", analysisResult = null, onOpenTwinTab = null }) {
+export default function DigitalTwin3D({ patientId = "USR-5EF52B", analysisResult = null, onOpenTwinTab = null }) {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
   const [patientRecord, setPatientRecord] = useState(null);

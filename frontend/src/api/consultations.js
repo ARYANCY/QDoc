@@ -10,7 +10,7 @@ export const consultationsApi = {
     return apiClient.get(ENDPOINTS.CONSULTATIONS_DOCTOR_PROFILE(doctorId));
   },
 
-  async holdSlot(doctorId, slotTime, patientId = "PT-89421") {
+  async holdSlot(doctorId, slotTime, patientId = "USR-5EF52B") {
     return apiClient.post(ENDPOINTS.CONSULTATIONS_SLOTS_HOLD, {
       doctor_id: doctorId,
       slot_time: slotTime,
@@ -97,14 +97,22 @@ export const consultationsApi = {
   connectWebSocket(bookingId, { onSignal, onChat, onRoomState, onOpen, onClose, onError } = {}) {
     const wsUrl = ENDPOINTS.CONSULTATIONS_WS_ROOM(bookingId);
     let socket = null;
+    let pingTimer = null;
     try {
       socket = new WebSocket(wsUrl);
       socket.onopen = (evt) => {
+        // Periodic keepalive ping every 25 seconds to keep cloud proxy open
+        pingTimer = setInterval(() => {
+          if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({ type: "ping" }));
+          }
+        }, 25000);
         if (onOpen) onOpen(evt);
       };
       socket.onmessage = (evt) => {
         try {
           const data = JSON.parse(evt.data);
+          if (data.type === "pong") return; // Keepalive handshake ack
           if (data.type === "signal" && onSignal) onSignal(data);
           else if (data.type === "chat" && onChat) onChat(data);
           else if (data.type === "room_state" && onRoomState) onRoomState(data);
@@ -116,9 +124,11 @@ export const consultationsApi = {
         if (onError) onError(err);
       };
       socket.onclose = (evt) => {
+        if (pingTimer) clearInterval(pingTimer);
         if (onClose) onClose(evt);
       };
     } catch (e) {
+      if (pingTimer) clearInterval(pingTimer);
       if (onError) onError(e);
     }
     return socket;

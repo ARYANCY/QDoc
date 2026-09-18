@@ -26,39 +26,39 @@ export default function TriagePhysicalCard({
   const isBack = face === 'back';
 
   // Format Patient Values
-  const name = patient.name || 'Alexander Reed';
-  const firstName = name.split(' ')[0] || 'Alexander';
-  const lastName = name.split(' ').slice(1).join(' ') || 'Reed';
-  const bloodGroup = patient.blood_group || 'O+';
-  const abhaId = patient.abha_id || '91-4829-1092-8821';
-  const patientId = patient.id || patient.user_id || 'PT-89421';
-  const hospital = patient.hospital || 'AIIMS Cardiology & Emergency OPD';
-  const mrn = patient.mrn || patient.license_id || `MRN-${patientId}-QX`;
+  const name = patient.name || 'Patient';
+  const firstName = name.split(' ')[0] || 'Patient';
+  const lastName = name.split(' ').slice(1).join(' ') || '';
+  const bloodGroup = patient.blood_group || '—';
+  const abhaId = patient.abha_id || '—';
+  const patientId = patient.id || patient.user_id || '—';
+  const hospital = patient.hospital || 'Clinical Healthcare System';
+  const mrn = patient.mrn || patient.license_id || (patientId !== '—' ? `MRN-${patientId}-QX` : '—');
 
   const primaryContact = patient.emergency_contacts?.find(c => c.is_primary) || patient.emergency_contacts?.[0] || {
-    name: patient.emergency_contact_name || 'Liam Reed',
-    relation: patient.emergency_contact_relation || 'Brother / Next of Kin',
-    phone: patient.emergency_phone || '+91 98333 44556'
+    name: patient.emergency_contact_name || '—',
+    relation: patient.emergency_contact_relation || 'Next of Kin',
+    phone: patient.emergency_phone || '—'
   };
-  const phoneFormatted = primaryContact.phone || '+91 98333 44556';
-  const emailFormatted = (firstName.toLowerCase() + '.' + (lastName ? lastName.toLowerCase() : 'pt') + '@qrakshak.org');
-  const locationFormatted = hospital.split(',')[0] || 'New Delhi, India';
+  const phoneFormatted = primaryContact.phone || patient.phone || '—';
+  const emailFormatted = patient.email || (patient.name ? `${firstName.toLowerCase()}.${lastName ? lastName.toLowerCase() : 'pt'}@qrakshak.org` : '—');
+  const locationFormatted = hospital.split(',')[0] || 'Emergency OPD';
 
   // Clinical Details
   const allergiesList = Array.isArray(patient.allergies)
-    ? patient.allergies.map(a => typeof a === 'string' ? a : (a.allergen || a.name || 'Penicillin')).join(', ')
-    : (patient.allergies || 'Penicillin (Severe)');
+    ? (patient.allergies.length > 0 ? patient.allergies.map(a => typeof a === 'string' ? a : (a.allergen || a.name || 'None')).join(', ') : 'No known drug allergies')
+    : (patient.allergies || 'No known drug allergies');
 
   const medsList = Array.isArray(patient.medications || patient.active_medications)
-    ? (patient.medications || patient.active_medications).map(m => typeof m === 'string' ? m : (m.name || 'Atorvastatin 20mg')).join(', ')
-    : 'Atorvastatin 20mg (OD), Aspirin 75mg';
+    ? ((patient.medications || patient.active_medications).length > 0 ? (patient.medications || patient.active_medications).map(m => typeof m === 'string' ? m : (m.name || 'None')).join(', ') : 'None recorded')
+    : (patient.medications || patient.active_medications || 'None recorded');
 
-  const bp = patient.baseline_vitals?.blood_pressure || '120/78 mmHg';
-  const hr = patient.baseline_vitals?.heart_rate_bpm || 72;
-  const spo2 = patient.baseline_vitals?.spo2_percent || 98;
+  const bp = patient.baseline_vitals?.blood_pressure || (patient.blood_pressure ? `${patient.blood_pressure} mmHg` : '—');
+  const hr = patient.baseline_vitals?.heart_rate_bpm || patient.heart_rate || '—';
+  const spo2 = patient.baseline_vitals?.spo2_percent || patient.spo2 || '—';
 
   return (
-    <div className={`triage-card-shell ${isDark ? 'triage-dark' : 'triage-light'} ${isBack ? 'triage-card-back-view' : ''}`}>
+    <div className={`triage-card-shell metallic-sheen hardware-accelerated ${isDark ? 'triage-dark' : 'triage-light'} ${isBack ? 'triage-card-back-view' : ''}`}>
       
       {/* ─────────────────────────────────────────────────────────────────── */}
       {/* FRONT FACE                                                          */}
@@ -92,7 +92,7 @@ export default function TriagePhysicalCard({
 
                 {/* Giant Bold Headline Typography */}
                 <div className="triage-giant-headline">
-                  <div className="triage-headline-sub">hello</div>
+                  <div className="triage-headline-label">PATIENT RECORD</div>
                   <div className="triage-headline-name">{firstName}</div>
                   <div className="triage-headline-last">{lastName}</div>
                 </div>

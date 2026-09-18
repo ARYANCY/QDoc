@@ -24,7 +24,9 @@ def get_user_notifications(
     current_user: dict = Depends(get_optional_user),
 ):
     """Module L: Retrieves in-app notifications for authenticated user."""
-    username = current_user.get("username", "alex.patient")
+    username = current_user.get("username")
+    if not username or username == "guest":
+        username = "aryan"
     notifs = DatabaseRepository.list_notifications(username, limit=limit)
     unread_count = sum(1 for n in notifs if not n.get("is_read"))
     return {

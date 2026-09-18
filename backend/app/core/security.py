@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import base64
 import hashlib
@@ -190,12 +190,12 @@ async def get_optional_user(
     if x_api_key and x_api_key in VALID_API_KEYS:
         return {"user_id": "API-GATEWAY", "username": "api.gateway", "role": "admin", "name": "API Gateway Client"}
     if not authorization or not authorization.startswith("Bearer "):
-        return {"user_id": "PT-ALEX", "username": "alex.patient", "role": "patient", "name": "Alexander Reed"}
+        return {"user_id": "GUEST-USER", "username": "guest", "role": "patient", "name": "Guest Patient"}
     token = authorization.split(" ", 1)[1]
     try:
         return verify_access_token(token)
     except HTTPException:
-        return {"user_id": "PT-ALEX", "username": "alex.patient", "role": "patient", "name": "Alexander Reed"}
+        return {"user_id": "GUEST-USER", "username": "guest", "role": "patient", "name": "Guest Patient"}
 
 
 def require_admin(user: dict[str, Any]) -> dict[str, Any]:

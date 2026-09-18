@@ -1,4 +1,4 @@
-﻿/**
+/**
  * AI Doctor & Vapi Voice Consultation API Service
  */
 
@@ -33,7 +33,7 @@ export const aiDoctorApi = {
   /**
    * Fetch patient clinical dossier & system prompt tailored for AI Doctor
    */
-  async getPatientContext(patientId = "PT-89421") {
+  async getPatientContext(patientId = "USR-5EF52B") {
     return apiClient.get(ENDPOINTS.AI_DOCTOR_CONTEXT(patientId));
   },
 
@@ -41,7 +41,7 @@ export const aiDoctorApi = {
    * Generate Vapi Assistant config with dynamically injected clinical history
    */
   async generateAssistantConfig({
-    patientId = "PT-89421",
+    patientId = "USR-5EF52B",
     patientName,
     assistantName = "Dr. Quantum — AI Clinical Specialist",
     voiceProvider = "11labs",
@@ -63,7 +63,7 @@ export const aiDoctorApi = {
   /**
    * Interactive text / fallback consultation chat query
    */
-  async sendChatMessage({ patientId = "PT-89421", patientName, message, history = [] }) {
+  async sendChatMessage({ patientId = "USR-5EF52B", patientName, message, history = [] }) {
     return apiClient.post(ENDPOINTS.AI_DOCTOR_CHAT, {
       patient_id: patientId,
       patient_name: patientName,

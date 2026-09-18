@@ -1,14 +1,21 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Phone, AlertTriangle, Heart, Shield, Activity,
   Pill, User, Droplet, Clock, Stethoscope, Share2,
   PhoneCall, AlertOctagon, CheckCircle2, Siren,
   Smartphone, MapPin, Building2, Copy, Check, Printer,
-  QrCode, ExternalLink, Flame, ShieldAlert
+  QrCode, ExternalLink, Flame, ShieldAlert, ShieldCheck
 } from 'lucide-react';
 
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
+function resolveApiUrl(path) {
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  if (API_BASE) return `${API_BASE}${cleanPath}`;
+  return cleanPath;
+}
+
 export default function App() {
-  const [patientId, setPatientId] = useState('PT-ALEX');
+  const [patientId, setPatientId] = useState('USR-5EF52B');
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -30,62 +37,27 @@ export default function App() {
 
   const emergencyPortalUrl = typeof window !== 'undefined'
     ? window.location.href
-    : `http://localhost:5173/#emergency/${patientId}`;
+    : `/#emergency/${patientId}`;
 
   // Fetch live patient emergency telemetry
   const fetchCardData = async () => {
     setLoading(true);
     setError(null);
     try {
-      let res;
-      try {
-        res = await fetch(`/api/v1/emergency/${patientId}`);
-      } catch {
-        res = await fetch(`http://127.0.0.1:8000/api/v1/emergency/${patientId}`);
-      }
-      if (!res.ok) {
-        res = await fetch(`http://127.0.0.1:8000/api/v1/emergency/${patientId}`);
-      }
+      const targetUrl = resolveApiUrl(`/api/v1/emergency/${patientId}`);
+      const res = await fetch(targetUrl);
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const json = await res.json();
       setData(json);
     } catch (err) {
-      console.warn('Fallback to local test persona:', err);
-      setData({
-        id: patientId,
-        name: 'Alexander Reed',
-        age: 48,
-        gender: 'Male',
-        blood_group: 'O+',
-        mrn: `MRN-${patientId}-QX`,
-        abha_id: '91-4829-1092-8821',
-        organ_donor: true,
-        hospital: 'AIIMS Cardiology & Oncology OPD',
-        emergency_contacts: [
-          { name: 'Liam Reed', relation: 'Brother / Next of Kin', phone: '+91 98333 44556', is_primary: true },
-          { name: 'Dr. Sarah Jenkins', relation: 'Attending Physician', phone: '+91 98222 11445', is_primary: false }
-        ],
-        allergies: [
-          { allergen: 'Penicillin', severity: 'HIGH', reaction: 'Anaphylaxis / Severe Bronchospasm' },
-          { allergen: 'Sulfonamides', severity: 'MODERATE', reaction: 'Cutaneous Rash / Erythema' }
-        ],
-        medications: [
-          { name: 'Atorvastatin', dose: '20mg', frequency: 'Once daily (OD) - Night' },
-          { name: 'Aspirin', dose: '75mg', frequency: 'Once daily (OD) - Post Meal' },
-          { name: 'Metformin HCl', dose: '500mg', frequency: 'Twice daily (BD)' }
-        ],
-        baseline_vitals: {
-          blood_pressure: '120/78 mmHg',
-          heart_rate_bpm: 72,
-          spo2_percent: 98,
-          temperature_f: 98.6
-        },
-        conditions: ['Coronary Plaque Risk', 'Dense Breast Tissue', 'Mild Dyslipidemia']
-      });
+      console.error('Failed to load emergency profile:', err);
+      setError('Unable to load emergency profile from clinical server.');
+      setData(null);
     } finally {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     fetchCardData();
@@ -129,9 +101,9 @@ export default function App() {
   }, []);
 
   const primaryContact = data?.emergency_contacts?.find((c) => c.is_primary) || data?.emergency_contacts?.[0] || {
-    name: 'Liam Reed',
-    phone: '+91 98333 44556',
-    relation: 'Brother / Next of Kin',
+    name: '—',
+    phone: '—',
+    relation: 'Emergency Contact',
   };
 
   const secondaryContact = data?.emergency_contacts?.length > 1 ? data.emergency_contacts[1] : null;
@@ -363,15 +335,15 @@ export default function App() {
         <div className="emergency-hero-card">
           <div className="emergency-hero-bio">
             <span className="emergency-hero-label">VERIFIED PATIENT RECORD</span>
-            <h1 className="emergency-hero-name">{data?.name || 'Alexander Reed'}</h1>
+            <h1 className="emergency-hero-name">{data?.name || 'Patient'}</h1>
             <div className="emergency-hero-meta">
-              <span>{data?.age || 48} Yrs</span>
+              <span>{data?.age ? `${data.age} Yrs` : '—'}</span>
               <span>•</span>
-              <span>{data?.gender || 'Male'}</span>
+              <span>{data?.gender || '—'}</span>
               <span>•</span>
-              <span>MRN: <strong style={{ color: '#0F172A' }}>{data?.mrn || `MRN-${patientId}-QX`}</strong></span>
+              <span>MRN: <strong style={{ color: '#0F172A' }}>{data?.mrn || (patientId ? `MRN-${patientId}-QX` : '—')}</strong></span>
               <span>•</span>
-              <span>ABHA: <strong style={{ color: '#0F172A' }}>{data?.abha_id || '91-4829-1092-8821'}</strong></span>
+              <span>ABHA: <strong style={{ color: '#0F172A' }}>{data?.abha_id || '—'}</strong></span>
             </div>
 
             <div className="emergency-hero-badges">
@@ -585,34 +557,40 @@ export default function App() {
           {/* ── RIGHT COLUMN: Permanent QR Pass & India Speed Dial ── */}
           <div className="emergency-column">
             
-            {/* Permanent Scannable QR Pass */}
+            {/* Permanent Scannable QR Pass (Improvised) */}
             <div className="emergency-qr-panel">
+              <div className="emergency-qr-header-pill">
+                <span className="emergency-pulse-dot" />
+                <span>LIVE RESCUE PASS • 24/7 ACTIVE</span>
+              </div>
+
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <QrCode size={18} color="#0F172A" />
-                <h3 style={{ fontSize: '0.84rem', fontFamily: 'var(--font-mono)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#0F172A', margin: 0 }}>
+                <QrCode size={18} color="#087F8C" />
+                <h3 style={{ fontSize: '0.88rem', fontFamily: 'var(--font-mono)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#0F172A', margin: 0 }}>
                   Permanent Triage QR Pass
                 </h3>
               </div>
 
-              <p style={{ fontSize: '0.72rem', color: '#64748B', lineHeight: 1.4, margin: 0 }}>
-                Scan with any smartphone or hospital terminal camera for immediate EHR access and clinical telemetry.
+              <p style={{ fontSize: '0.72rem', color: '#64748B', lineHeight: 1.45, margin: 0, maxWidth: '280px' }}>
+                Scan with any smartphone camera or hospital terminal for immediate EHR access and clinical telemetry.
               </p>
 
               {/* High Contrast QR Code Image */}
               <div className="emergency-qr-box">
                 <img
-                  src={`http://127.0.0.1:8000/api/v1/emergency/${patientId}/qr.png`}
+                  src={resolveApiUrl(`/api/v1/emergency/${patientId}/qr.png`)}
                   alt="Permanent QR Triage Pass"
                   style={{ width: '148px', height: '148px', objectFit: 'contain', imageRendering: 'crisp-edges' }}
                 />
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <div style={{ fontSize: '0.76rem', fontFamily: 'var(--font-mono)', color: '#0F172A' }}>
-                  Permanent ID: <strong>{patientId}</strong>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
+                <div style={{ fontSize: '0.74rem', fontFamily: 'var(--font-mono)', color: '#0F172A', background: '#F1F5F9', border: '1px solid #CBD5E1', padding: '3px 10px', borderRadius: '6px', fontWeight: 700 }}>
+                  PERMANENT ID: <span style={{ color: '#087F8C' }}>{patientId}</span>
                 </div>
-                <div style={{ fontSize: '0.64rem', fontFamily: 'var(--font-mono)', color: '#64748B' }}>
-                  WORM SHA-256: e3b0c442...991b7852
+                <div style={{ fontSize: '0.62rem', fontFamily: 'var(--font-mono)', color: '#64748B', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <ShieldCheck size={12} color="#059669" />
+                  <span>WORM SHA-256: e3b0c442...991b7852</span>
                 </div>
               </div>
 
@@ -620,16 +598,18 @@ export default function App() {
                 <button
                   type="button"
                   onClick={copyTriageLink}
-                  className="emergency-btn-secondary"
+                  className="emergency-btn-copy-pass"
+                  title="Copy permanent triage link"
                 >
-                  {copiedLink ? <Check size={14} color="#0F172A" /> : <Copy size={14} />}
-                  <span>{copiedLink ? 'Copied URL!' : 'Copy Link'}</span>
+                  {copiedLink ? <Check size={14} color="#059669" /> : <Copy size={14} />}
+                  <span>{copiedLink ? 'Copied Link!' : 'Copy Link'}</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={handlePrint}
-                  className="emergency-btn-secondary"
+                  className="emergency-btn-print-pass"
+                  title="Open official print & wallet card sheet"
                 >
                   <Printer size={14} />
                   <span>Print Pass</span>

@@ -477,8 +477,8 @@ export const useTwinStore = create((set, get) => ({
           medicalHistory,
           allergies,
           medications,
-          abhaId: clinicalData?.abha_id || '91-4829-1092-8821',
-          emergencyContact: clinicalData?.emergency_contact || '+91 98333 44556'
+          abhaId: clinicalData?.abha_id || '',
+          emergencyContact: clinicalData?.emergency_contact || ''
         },
         layers: { ...get().layers, diseaseOverlay: true }
       });

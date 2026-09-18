@@ -16,40 +16,31 @@ router = APIRouter(prefix="/api/v1/pneumonia", tags=["pneumonia"])
 
 
 def is_valid_xray(image: Image.Image) -> bool:
-    import numpy as np
-    img_np = np.array(image.convert("RGB"))
-    if img_np.ndim < 3 or img_np.shape[2] < 3:
-        return False
-    
-    # 1. Grayscale check
-    diff_rg = np.abs(img_np[:, :, 0].astype(float) - img_np[:, :, 1].astype(float))
-    diff_gb = np.abs(img_np[:, :, 1].astype(float) - img_np[:, :, 2].astype(float))
-    mean_diff = (diff_rg.mean() + diff_gb.mean()) / 2.0
-    if mean_diff > 15.0:
-        return False
+    try:
+        import numpy as np
+        img_rgb = image.convert("RGB")
+        img_np = np.array(img_rgb)
+        if img_np.ndim < 3 or img_np.shape[2] < 3:
+            return False
         
-    # 2. X-ray dark borders check (corners must be dark)
-    h, w, _ = img_np.shape
-    corner_h = max(int(h * 0.08), 1)
-    corner_w = max(int(w * 0.08), 1)
-    
-    tl = img_np[0:corner_h, 0:corner_w].mean()
-    tr = img_np[0:corner_h, w-corner_w:w].mean()
-    bl = img_np[h-corner_h:h, 0:corner_w].mean()
-    br = img_np[h-corner_h:h, w-corner_w:w].mean()
-    
-    # If the corners are bright (average of corners > 85), it's not a standard X-ray (e.g. document/diagram)
-    if (tl + tr + bl + br) / 4.0 > 85.0:
-        return False
-        
-    # 3. Center density check (X-rays should have content in the center, not just flat color)
-    center_y1, center_y2 = int(h * 0.35), int(h * 0.65)
-    center_x1, center_x2 = int(w * 0.35), int(w * 0.65)
-    center_mean = img_np[center_y1:center_y2, center_x1:center_x2].mean()
-    if center_mean < 25.0:
-        return False
-        
-    return True
+        h, w, _ = img_np.shape
+        if h < 32 or w < 32:
+            return False
+
+        # 1. Grayscale / near-monochrome radiograph check (allow tint, annotations, or false-color up to 45.0)
+        diff_rg = np.abs(img_np[:, :, 0].astype(float) - img_np[:, :, 1].astype(float))
+        diff_gb = np.abs(img_np[:, :, 1].astype(float) - img_np[:, :, 2].astype(float))
+        mean_diff = (diff_rg.mean() + diff_gb.mean()) / 2.0
+        if mean_diff > 45.0:
+            return False
+            
+        # 2. Dynamic range check: ensure image is not a blank flat color
+        if img_np.std() < 8.0:
+            return False
+            
+        return True
+    except Exception:
+        return True
 
 
 # Mitigate decompression bomb attacks (CWE-400 / DoS)
@@ -64,7 +55,7 @@ from backend.app.db.repository import DatabaseRepository
 @router.post("/predict")
 async def predict(
     image: UploadFile = File(...),
-    patient_id: str = Form("PT-89421"),
+    patient_id: str = Form("USR-5EF52B"),
 ):
     if not image.content_type or not image.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Unsupported image type")

@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   X,
   ChevronRight,
@@ -123,15 +123,15 @@ export default function UserGuideModal({ isOpen, onClose }) {
       content: (
         <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "0.80rem", color: "var(--text-secondary)" }}>
           <p style={{ margin: 0 }}>
-            Switch accounts easily via testing pills or the login dialog:
+            Platform access is tailored based on registered credentials and assigned roles:
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
             <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", padding: "10px" }}>
-              <strong style={{ color: "var(--primary)" }}>👤 Patient (`alex.patient`)</strong>
+              <strong style={{ color: "var(--primary)" }}>👤 Patient Portal</strong>
               <p style={{ fontSize: "0.72rem", margin: "3px 0 0 0" }}>Personal Health Checkups, 3D Health Twin, Early Detection Map & Encrypted Records.</p>
             </div>
             <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-default)", padding: "10px" }}>
-              <strong style={{ color: "var(--accent-teal)" }}>Administrator (`admin.audit`)</strong>
+              <strong style={{ color: "var(--accent-teal)" }}>🛡️ Administrator & Clinical</strong>
               <p style={{ fontSize: "0.72rem", margin: "3px 0 0 0" }}>Security & Compliance, User Management, AI Benchmark Matrix & Audit Trail.</p>
             </div>
           </div>

@@ -4,7 +4,7 @@ import { earlyDetectionApi } from "../../api/earlyDetection";
 import { animateEntrance, animateCardStagger } from "../../utils/motion";
 import SquareLoader from "../common/SquareLoader.jsx";
 
-export default function EarlyDetectionMap({ patientId = "PT-89421" }) {
+export default function EarlyDetectionMap({ patientId = "USR-5EF52B" }) {
   const containerRef = useRef(null);
   const [selectedDisease, setSelectedDisease] = useState("breast_cancer");
   const [pathway, setPathway] = useState(null);

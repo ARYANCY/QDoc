@@ -6,9 +6,9 @@ import { animateModalOpen } from "../../utils/motion";
 export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
   const overlayRef = useRef(null);
   const modalRef = useRef(null);
-  const [authMode, setAuthMode] = useState("cards"); // 'cards' | 'login' | 'register'
-  const [username, setUsername] = useState("alex.patient");
-  const [password, setPassword] = useState("patient123");
+  const [authMode, setAuthMode] = useState("login"); // 'login' | 'register'
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [role, setRole] = useState("patient");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -86,23 +86,6 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
     }
   }
 
-  async function quickSwitch(u, p, r) {
-    setUsername(u);
-    setPassword(p);
-    setRole(r);
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await authApi.login(u, p, r);
-      if (onLoginSuccess) onLoginSuccess(data.user);
-      onClose();
-    } catch (err) {
-      setError(err.message || "Sign in failed.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
   return (
     <div ref={overlayRef} className="modal-overlay" onClick={onClose}>
       <div
@@ -147,26 +130,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
         </div>
 
         {/* Mode Switcher Tabs */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "4px", marginBottom: "16px", background: "var(--bg-surface-alt)", padding: "4px", borderRadius: "9px" }}>
-          <button
-            type="button"
-            onClick={() => setAuthMode("cards")}
-            style={{
-              padding: "8px 10px",
-              background: authMode === "cards" ? "#FFFFFF" : "transparent",
-              color: authMode === "cards" ? "var(--primary)" : "var(--text-secondary)",
-              border: 0,
-              borderRadius: "7px",
-              boxShadow: authMode === "cards" ? "0 1px 3px rgba(15, 23, 42, 0.08)" : "none",
-              fontSize: "0.76rem",
-              fontWeight: 600,
-              cursor: "pointer",
-              transition: "all 0.16s ease",
-            }}
-          >
-            Demo Accounts
-          </button>
-
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px", marginBottom: "16px", background: "var(--bg-surface-alt)", padding: "4px", borderRadius: "9px" }}>
           <button
             type="button"
             onClick={() => setAuthMode("login")}
@@ -210,123 +174,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
           </button>
         </div>
 
-        {/* MODE 1: 1-Click Demo Persona Cards */}
-        {authMode === "cards" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px" }}>
-              {/* Patient */}
-              <div
-                role="button"
-                tabIndex={0}
-                aria-label="Sign in as Patient demo"
-                onClick={() => quickSwitch("alex.patient", "patient123", "patient")}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); quickSwitch("alex.patient", "patient123", "patient"); } }}
-                style={{
-                  background: "var(--bg-surface)",
-                  border: "1px solid var(--border-default)",
-                  borderTop: "3px solid var(--emerald-couture)",
-                  padding: "12px",
-                  cursor: "pointer",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "5px",
-                  transition: "all 0.15s ease",
-                  boxShadow: "var(--shadow-sm)",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontSize: "0.74rem", fontWeight: 800, color: "var(--emerald-couture)", display: "flex", alignItems: "center", gap: "4px" }}>
-                    <User size={14} /> Patient
-                  </span>
-                </div>
-                <strong style={{ fontSize: "0.85rem", color: "var(--text-primary)" }}>Alexander Reed</strong>
-                <p style={{ fontSize: "0.68rem", color: "var(--text-secondary)", margin: 0, lineHeight: 1.3 }}>
-                  Health checkups & 3D Digital Twin.
-                </p>
-                <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: "5px", marginTop: "3px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <code style={{ fontSize: "0.62rem", color: "var(--text-muted)" }}>alex.patient</code>
-                  <span style={{ fontSize: "0.62rem", color: "var(--emerald-couture)", fontWeight: 800 }}>Sign In ↗</span>
-                </div>
-              </div>
-
-              {/* Doctor / Clinician */}
-              <div
-                role="button"
-                tabIndex={0}
-                aria-label="Sign in as Doctor demo"
-                onClick={() => quickSwitch("dr.kavita", "doctor123", "doctor")}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); quickSwitch("dr.kavita", "doctor123", "doctor"); } }}
-                style={{
-                  background: "var(--bg-surface)",
-                  border: "1px solid var(--border-default)",
-                  borderTop: "3px solid var(--accent-blue)",
-                  padding: "12px",
-                  cursor: "pointer",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "5px",
-                  transition: "all 0.15s ease",
-                  boxShadow: "var(--shadow-sm)",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontSize: "0.74rem", fontWeight: 800, color: "var(--gold)", display: "flex", alignItems: "center", gap: "4px" }}>
-                    <Stethoscope size={14} /> Doctor
-                  </span>
-                </div>
-                <strong style={{ fontSize: "0.85rem", color: "var(--text-primary)" }}>Dr. Kavita Rao</strong>
-                <p style={{ fontSize: "0.68rem", color: "var(--text-secondary)", margin: 0, lineHeight: 1.3 }}>
-                  Patient triage, diagnoses & prescriptions.
-                </p>
-                <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: "5px", marginTop: "3px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <code style={{ fontSize: "0.62rem", color: "var(--text-muted)" }}>dr.kavita</code>
-                  <span style={{ fontSize: "0.62rem", color: "var(--gold)", fontWeight: 800 }}>Sign In ↗</span>
-                </div>
-              </div>
-
-              {/* Admin */}
-              <div
-                role="button"
-                tabIndex={0}
-                aria-label="Sign in as Administrator demo"
-                onClick={() => quickSwitch("admin.audit", "admin123", "admin")}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); quickSwitch("admin.audit", "admin123", "admin"); } }}
-                style={{
-                  background: "var(--bg-surface)",
-                  border: "1px solid var(--border-default)",
-                  borderTop: "3px solid var(--accent-violet)",
-                  padding: "12px",
-                  cursor: "pointer",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "5px",
-                  transition: "all 0.15s ease",
-                  boxShadow: "var(--shadow-sm)",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontSize: "0.74rem", fontWeight: 800, color: "var(--accent-violet)", display: "flex", alignItems: "center", gap: "4px" }}>
-                    <Shield size={14} /> Admin
-                  </span>
-                </div>
-                <strong style={{ fontSize: "0.85rem", color: "var(--text-primary)" }}>Compliance Officer</strong>
-                <p style={{ fontSize: "0.68rem", color: "var(--text-secondary)", margin: 0, lineHeight: 1.3 }}>
-                  Security, user accounts & audit logs.
-                </p>
-                <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: "5px", marginTop: "3px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <code style={{ fontSize: "0.62rem", color: "var(--text-muted)" }}>admin.audit</code>
-                  <span style={{ fontSize: "0.62rem", color: "var(--accent-violet)", fontWeight: 800 }}>Sign In ↗</span>
-                </div>
-              </div>
-            </div>
-
-            <div style={{ padding: "8px 12px", background: "var(--bg-card-sky)", border: "1px solid var(--border-light-blue)", fontSize: "0.70rem", color: "var(--primary-dark)" }}>
-              💡 <strong>Tip:</strong> Click any demo card above to sign in immediately, or switch to <strong>Create Account</strong> to register your own profile.
-            </div>
-          </div>
-        )}
-
-        {/* MODE 2: Sign In Form */}
+        {/* MODE: Sign In Form */}
         {authMode === "login" && (
           <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
@@ -338,7 +186,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 autoComplete="username"
-                placeholder="e.g. alex.patient or user@health.org"
+                placeholder="Enter username or email address"
                 style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--border-default)", fontSize: "0.80rem" }}
                 required
               />

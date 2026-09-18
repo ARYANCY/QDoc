@@ -12,18 +12,18 @@ router = APIRouter(prefix="/api/v1/profile", tags=["User Profile & Settings"])
 
 
 class ProfileUpdateRequest(BaseModel):
-    name: str = "Alexander Reed"
+    name: str = ""
     role: str = "patient"
-    primary_email: str = "alexander.reed@email.com"
-    extra_email: str | None = "alex.emergency@gmail.com"
-    emergency_phone: str | None = "+91 98333 44556"
-    phone: str | None = "+91 98333 44556"
+    primary_email: str = ""
+    extra_email: str | None = None
+    emergency_phone: str | None = None
+    phone: str | None = None
     blood_group: str | None = "O+"
-    age: int | None = 48
+    age: int | None = 30
     gender: str | None = "Unspecified"
-    department: str | None = "Patient Self-Analysis & Care"
-    hospital: str | None = "AIIMS Cardiology & Oncology OPD"
-    license_id: str | None = "PT-REC-89421"
+    department: str | None = "Patient Care"
+    hospital: str | None = "Clinical Center"
+    license_id: str | None = None
     notifications_sms: bool = True
     notifications_email: bool = True
     notifications_critical_qpu: bool = True
@@ -44,34 +44,35 @@ async def get_user_profile(user_id: str):
             "role": user["role"],
             "primary_email": user["email"],
             "extra_email": user.get("secondary_email") or "",
-            "emergency_phone": user.get("emergency_phone") or "+91 98333 44556",
-            "phone": user.get("emergency_phone") or "+91 98333 44556",
+            "emergency_phone": user.get("emergency_phone") or "",
+            "phone": user.get("emergency_phone") or "",
             "blood_group": patient.get("blood_group", "O+") if patient else "O+",
-            "age": patient.get("age", 48) if patient else 48,
+            "age": patient.get("age", 30) if patient else 30,
             "gender": patient.get("gender", "Unspecified") if patient else "Unspecified",
-            "department": "Patient Self-Analysis & Care",
-            "hospital": user.get("hospital_affiliation") or "AIIMS Clinical AI OPD",
-            "license_id": user.get("license_number") or "PT-REC-89421",
+            "department": user.get("department", "Patient Care"),
+            "hospital": user.get("hospital_affiliation") or "Clinical AI OPD",
+            "license_id": user.get("license_number") or "",
             "notifications_sms": True,
             "notifications_email": True,
             "notifications_critical_qpu": True,
             "updated_at": user.get("created_at", time.strftime("%Y-%m-%d %H:%M:%S")),
         }
     else:
+        patient = DatabaseRepository.get_patient(user_id)
         profile = {
             "user_id": user_id,
-            "name": "Alexander Reed",
+            "name": (patient.get("name") if patient else None) or "Patient",
             "role": "patient",
-            "primary_email": "alexander.reed@email.com",
-            "extra_email": "alex.emergency@gmail.com",
-            "emergency_phone": "+91 98333 44556",
-            "phone": "+91 98333 44556",
-            "blood_group": "O+",
-            "age": 48,
-            "gender": "Unspecified",
-            "department": "Patient Self-Analysis & Care",
-            "hospital": "AIIMS Clinical AI OPD",
-            "license_id": "PT-REC-89421",
+            "primary_email": "",
+            "extra_email": "",
+            "emergency_phone": (patient.get("emergency_contact") if patient else None) or "",
+            "phone": (patient.get("emergency_contact") if patient else None) or "",
+            "blood_group": patient.get("blood_group", "O+") if patient else "O+",
+            "age": patient.get("age", 30) if patient else 30,
+            "gender": patient.get("gender", "Unspecified") if patient else "Unspecified",
+            "department": "Patient Care",
+            "hospital": "Clinical AI OPD",
+            "license_id": (patient.get("mrn") if patient else None) or "",
             "notifications_sms": True,
             "notifications_email": True,
             "notifications_critical_qpu": True,

@@ -3,21 +3,21 @@ import { User, Mail, Phone, Shield, CheckCircle2, Save, X, Bell, Cpu, Building, 
 import { profileApi } from "../../api/profile";
 import { animateModalOpen } from "../../utils/motion";
 
-export default function ProfileSettingsModal({ isOpen, onClose, userId = "PT-ALEX-01", userRole = "patient", onProfileUpdated }) {
+export default function ProfileSettingsModal({ isOpen, onClose, userId = "USR-5EF52B", userRole = "patient", onProfileUpdated }) {
   const overlayRef = useRef(null);
   const modalRef = useRef(null);
   const [profile, setProfile] = useState({
-    name: "Alexander Reed",
-    role: "patient",
-    title: "Patient Self-Analysis",
-    primary_email: "alexander.reed@healthnet.org",
-    extra_email: "a.reed@personal.me",
-    emergency_phone: "+91 98765 43210",
-    phone: "+91 98111 22233",
-    blood_group: "O+",
+    name: "",
+    role: userRole || "patient",
+    title: "Patient",
+    primary_email: "",
+    extra_email: "",
+    emergency_phone: "",
+    phone: "",
+    blood_group: "",
     clearance_level: "Standard Access",
     compliance_standard: "DPDP 2023 / HIPAA",
-    attending_physician: "Medical Records Unit",
+    attending_physician: "",
     notifications_sms: true,
     notifications_email: true,
     notifications_critical_qpu: true,

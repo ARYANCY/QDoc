@@ -31,7 +31,7 @@ export default function DigitalTwin3DPage({ patientId, result, onExportReport })
   const [timelineLoading, setTimelineLoading] = useState(false);
   const [selectedMilestone, setSelectedMilestone] = useState(null);
 
-  const activePid = patientId || currentPatient.patientId || 'PT-89421';
+  const activePid = patientId || currentPatient.patientId || 'USR-5EF52B';
 
   // Load timeline data when modal is open or patient changes
   useEffect(() => {
@@ -213,10 +213,10 @@ export default function DigitalTwin3DPage({ patientId, result, onExportReport })
                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--border-default)", paddingBottom: "8px", marginBottom: "10px" }}>
                   <div>
                     <h4 style={{ fontSize: "0.95rem", fontWeight: 800, margin: 0, color: "var(--ink-primary)" }}>
-                      {currentPatient.firstName || 'Alexander'} {currentPatient.lastName || 'Reed'}
+                      {currentPatient.firstName || currentPatient.name || 'Patient'} {currentPatient.lastName || ''}
                     </h4>
                     <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>
-                      ID: {currentPatient.patientId || 'PT-89421'} • ABHA: {currentPatient.abhaId || '91-4829-1092-8821'}
+                      ID: {currentPatient.patientId || activePid || '—'} • ABHA: {currentPatient.abhaId || '—'}
                     </span>
                   </div>
                   <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "#059669", background: "#ECFDF5", padding: "3px 8px", borderRadius: "4px" }}>

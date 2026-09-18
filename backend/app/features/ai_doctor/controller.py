@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import logging
 from typing import Any, Optional
@@ -14,7 +14,7 @@ router = APIRouter(prefix="/api/v1/ai-doctor", tags=["AI Doctor 1-on-1 Voice Con
 
 
 class AssistantConfigRequest(BaseModel):
-    patient_id: str = "PT-89421"
+    patient_id: str = "USR-5EF52B"
     patient_name: Optional[str] = None
     assistant_name: str = "Dr. Quantum — AI Clinical Specialist"
     voice_provider: str = "11labs"
@@ -24,7 +24,7 @@ class AssistantConfigRequest(BaseModel):
 
 
 class ChatQueryRequest(BaseModel):
-    patient_id: str = "PT-89421"
+    patient_id: str = "USR-5EF52B"
     patient_name: Optional[str] = None
     message: str = Field(..., description="User query or question for the AI Doctor")
     history: list[dict[str, str]] = Field(default_factory=list, description="Recent conversation turns")
@@ -64,12 +64,9 @@ def build_patient_clinical_dossier(patient_id: str, override_name: Optional[str]
     """
     clean_id = (patient_id or "").strip()
     if not clean_id:
-        clean_id = "PT-89421"
+        clean_id = "USR-5EF52B"
 
     patient = DatabaseRepository.get_patient(clean_id)
-    if not patient:
-        # Fallback to standard demo patient
-        patient = DatabaseRepository.get_patient("PT-89421")
 
     # Resolve real user name
     raw_name = (override_name or "").strip()
@@ -80,42 +77,35 @@ def build_patient_clinical_dossier(patient_id: str, override_name: Optional[str]
         elif patient and patient.get("name"):
             raw_name = patient.get("name")
 
-    if raw_name:
-        raw_name = raw_name.replace("Patient ", "").strip()
-        if raw_name.startswith("USR-"):
-            raw_name = "Rajdeep"
-
     if not raw_name or raw_name.lower() in ("patient", "user"):
-        raw_name = "Rajdeep" if ("rajdeep" in clean_id.lower() or "300c9e" in clean_id.lower() or "usr" in clean_id.lower()) else "Alexander Reed"
+        raw_name = "Aryan Choudhury" if ("5ef52b" in clean_id.lower() or "aryan" in clean_id.lower()) else "Patient"
 
-    first_name = raw_name.split()[0] if raw_name else "Rajdeep"
-    if first_name.lower() in ("patient", "user", "usr"):
-        first_name = "Rajdeep"
+    first_name = raw_name.split()[0] if raw_name and raw_name != "Patient" else "Patient"
 
     if not patient:
-        # Default fallback in case DB is fresh
+        # Default fallback in case DB record is not yet initialized
         patient = {
             "id": clean_id,
             "mrn": f"MRN-{clean_id}-QX",
             "name": raw_name,
-            "age": 48,
+            "age": 28,
             "gender": "Male",
             "blood_group": "O+",
-            "height_cm": 182.0,
-            "weight_kg": 78.0,
-            "conditions": ["Coronary Plaque Risk", "Dense Breast Tissue", "Mild Dyslipidemia"],
+            "height_cm": 178.0,
+            "weight_kg": 74.0,
+            "conditions": [],
             "baseline_vitals": {
                 "heart_rate_bpm": 72,
-                "blood_pressure": "120/78 mmHg",
-                "spo2_percent": 98,
+                "blood_pressure": "120/80 mmHg",
+                "spo2_percent": 99,
                 "temperature_f": 98.6,
             },
-            "emergency_contact": "+91 98333 44556",
-            "allergies": ["Penicillin (Anaphylaxis)", "Peanuts"],
-            "medications": ["Atorvastatin 20mg (OD)", "Aspirin 75mg (OD)"],
-            "medical_history": ["Hypertension (Stage 1)", "Mild Hyperlipidemia"],
-            "hospital": "AIIMS Cardiology & Oncology OPD",
-            "attending_physician": "Dr. Sarah Lin (Cardiologist)",
+            "emergency_contact": "+91 98765 43210",
+            "allergies": [],
+            "medications": [],
+            "medical_history": [],
+            "hospital": "Clinical AI OPD",
+            "attending_physician": "On-Duty Clinical Staff",
         }
 
     # Fetch recent quantum diagnostic records from DB
@@ -570,9 +560,10 @@ def ai_doctor_chat_fallback(req: ChatQueryRequest):
                     f"with a resting pulse of {vitals['heart_rate_bpm']} beats per minute. The CardioWave scan confirmed low cardiac risk. Are you feeling any chest discomfort?"
                 )
             else:
+                med_phrase = f"Your prescribed regimen ({meds_txt}) continues to support your cardiovascular stability." if meds else "Your baseline indicators show strong physiological cardiovascular resilience."
                 ans = (
                     f"Your blood pressure is currently {vitals['blood_pressure']} and your resting pulse is {vitals['heart_rate_bpm']} bpm. "
-                    f"Both are in a healthy, safe range. Your daily medications (Atorvastatin and Aspirin) continue to provide strong cardiovascular protection."
+                    f"Both are in a healthy, safe range. {med_phrase}"
                 )
             key_factors = [f"Blood Pressure: {vitals['blood_pressure']}", f"Pulse: {vitals['heart_rate_bpm']} bpm", "Cardiac Status: Healthy & Stable"]
 
@@ -593,12 +584,18 @@ def ai_doctor_chat_fallback(req: ChatQueryRequest):
             key_factors = [f"Blood Oxygen: {vitals['spo2_percent']}%", "Chest X-Ray: Clear Bilateral Lungs", "Pneumonia: None"]
 
         # 9. Medications & Allergies
-        elif any(w in msg_lower for w in ["medication", "medicine", "pill", "drug", "prescription", "allergy", "allergic", "aspirin", "atorvastatin", "side effect"]):
-            ans = (
-                f"Your active prescriptions are {meds_txt}. "
-                f"Your file also records a known allergy to {allergies_txt}. "
-                f"These medications are working well together to protect your heart and stabilize your cholesterol levels."
-            )
+        elif any(w in msg_lower for w in ["medication", "medicine", "pill", "drug", "prescription", "allergy", "allergic", "side effect"]):
+            if meds:
+                ans = (
+                    f"Your active prescriptions on record are {meds_txt}. "
+                    f"Your file also records {allergies_txt}. "
+                    f"These medications are working well together to protect your health."
+                )
+            else:
+                ans = (
+                    f"You currently have no active pharmaceutical prescriptions on file, and your records show {allergies_txt}. "
+                    f"Your baseline indicators are stable without requiring maintenance medication."
+                )
             key_factors = [f"Prescriptions: {meds_txt}", f"Allergies: {allergies_txt}", "Safety: Monitored & Verified"]
 
         # 10. Diet, Food & Nutrition
@@ -620,21 +617,21 @@ def ai_doctor_chat_fallback(req: ChatQueryRequest):
         # 12. Doctor Appointments & Specialist Visits (Explicit appointment/booking only)
         elif any(w in msg_lower for w in [
             "book appointment", "schedule appointment", "see a doctor", "visit a doctor", "visit the clinic",
-            "visit the hospital", "meet dr", "sarah lin", "in-person appointment", "consult a doctor",
+            "visit the hospital", "meet dr", "in-person appointment", "consult a doctor",
             "opd timing", "specialist appointment", "appointment with", "book a visit", "see dr"
         ]):
             ans = (
-                f"Your attending cardiologist is Dr. Sarah Lin at AIIMS. "
+                f"Your attending physicians at AIIMS include Dr. Kavita Rao, MD (Cardiology) and Dr. Aryan Choudhury, MD. "
                 f"Your baseline records are up to date, but if you'd like to schedule an in-person follow-up or need a prescription review, we can arrange that for you."
             )
-            key_factors = ["Attending Physician: Dr. Sarah Lin", "Location: AIIMS OPD", "Status: Appointments Available"]
+            key_factors = ["Attending Physicians: Dr. Kavita Rao / Dr. Aryan Choudhury", "Location: AIIMS OPD", "Status: Appointments Available"]
 
         # 13. Clarifications / Follow-up continuations ("Why?", "Tell me more", "Explain further", "Are you sure?")
         elif any(w in msg_lower for w in ["why", "tell me more", "explain more", "are you sure", "what else", "what should i do", "elaborate"]):
             if "heart" in last_assistant_msg or "blood pressure" in last_assistant_msg:
                 ans = (
                     f"To elaborate on your heart health, {first_name}, your blood pressure at {vitals['blood_pressure']} is within the ideal target. "
-                    f"Your daily Atorvastatin helps keep arterial walls smooth and prevents plaque buildup."
+                    f"Maintaining balanced nutrition and active hydration helps keep arterial walls smooth and prevents plaque buildup."
                 )
             elif "exercise" in last_assistant_msg:
                 ans = (

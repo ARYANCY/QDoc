@@ -20,26 +20,35 @@ MAX_BYTES = 10 * 1024 * 1024  # 10 MB limit
 
 
 def is_valid_dermatoscopy(image: Image.Image) -> bool:
-    import numpy as np
-    img_np = np.array(image.convert("RGB"))
-    if img_np.ndim < 3 or img_np.shape[2] < 3:
-        return False
-    r = img_np[:, :, 0].astype(float)
-    g = img_np[:, :, 1].astype(float)
-    b = img_np[:, :, 2].astype(float)
-    mean_r = r.mean()
-    mean_g = g.mean()
-    mean_b = b.mean()
-    
-    # Skin must be Red dominant (not green or blue dominant)
-    if mean_g > mean_r or mean_b > mean_r:
-        return False
+    try:
+        import numpy as np
+        img_np = np.array(image.convert("RGB"))
+        if img_np.ndim < 3 or img_np.shape[2] < 3:
+            return False
+        h, w, _ = img_np.shape
+        if h < 24 or w < 24:
+            return False
+
+        r = img_np[:, :, 0].astype(float)
+        g = img_np[:, :, 1].astype(float)
+        b = img_np[:, :, 2].astype(float)
         
-    # Red should be higher than Green and Blue by at least 5.0 to filter out plain white/gray documents/charts
-    if mean_r - mean_g < 5.0 or mean_r - mean_b < 5.0:
-        return False
+        mean_r = r.mean()
+        mean_g = g.mean()
+        mean_b = b.mean()
         
-    return True
+        # General biological skin or lesion tone: allow blue-white veils, dark melanomas, and polarized lighting
+        # Reject non-biological synthetic solids (e.g. pure neon green/cyan graphics)
+        if mean_g > mean_r + 25.0 or mean_b > mean_r + 25.0:
+            return False
+            
+        # Ensure image is not a completely flat/blank single color
+        if img_np.std() < 6.0:
+            return False
+            
+        return True
+    except Exception:
+        return True
 
 
 def predict_image(data: bytes, filename: str, model: str, content_type: str | None) -> dict:

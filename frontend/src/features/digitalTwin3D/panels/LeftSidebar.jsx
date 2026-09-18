@@ -65,10 +65,10 @@ function TelemetryTab() {
               Patient health record
             </div>
             <div style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--dt-text-primary)', marginTop: '2px' }}>
-              {patient.firstName || 'Demo'} {patient.lastName || 'Patient'}
+              {patient.firstName ? `${patient.firstName} ${patient.lastName || ''}`.trim() : (patient.patientId ? `Patient #${patient.patientId}` : 'Patient')}
             </div>
             <div style={{ fontSize: '0.66rem', color: 'var(--dt-text-muted)', fontFamily: 'var(--dt-font-mono)', marginTop: '2px' }}>
-              ABHA: {patient.abhaId || '91-4829-1092-8821'}
+              ABHA: {patient.abhaId || '—'}
             </div>
           </div>
           <span
@@ -94,15 +94,15 @@ function TelemetryTab() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', marginTop: '6px' }}>
           <div style={{ background: 'var(--dt-bg-surface)', padding: '6px 8px', borderRadius: '6px', border: '1px solid var(--dt-border-default)' }}>
             <div style={{ fontSize: '0.58rem', color: 'var(--dt-text-muted)', fontWeight: 700 }}>BLOOD</div>
-            <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--dt-accent-blue)', fontFamily: 'var(--dt-font-mono)' }}>{patient.bloodType || 'O+'}</div>
+            <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--dt-accent-blue)', fontFamily: 'var(--dt-font-mono)' }}>{patient.bloodType || '—'}</div>
           </div>
           <div style={{ background: 'var(--dt-bg-surface)', padding: '6px 8px', borderRadius: '6px', border: '1px solid var(--dt-border-default)' }}>
             <div style={{ fontSize: '0.58rem', color: 'var(--dt-text-muted)', fontWeight: 700 }}>SEX</div>
-            <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--dt-text-primary)', textTransform: 'capitalize' }}>{patient.sex || 'Female'}</div>
+            <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--dt-text-primary)', textTransform: 'capitalize' }}>{patient.sex || '—'}</div>
           </div>
           <div style={{ background: 'var(--dt-bg-surface)', padding: '6px 8px', borderRadius: '6px', border: '1px solid var(--dt-border-default)' }}>
             <div style={{ fontSize: '0.58rem', color: 'var(--dt-text-muted)', fontWeight: 700 }}>AGE</div>
-            <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--dt-text-primary)' }}>{patient.ageGroup || '48 yrs'}</div>
+            <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--dt-text-primary)' }}>{patient.ageGroup || (patient.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()} yrs` : '—')}</div>
           </div>
           <div style={{ background: 'var(--dt-bg-surface)', padding: '6px 8px', borderRadius: '6px', border: '1px solid var(--dt-border-default)' }}>
             <div style={{ fontSize: '0.58rem', color: 'var(--dt-text-muted)', fontWeight: 700 }}>BMI</div>
@@ -520,7 +520,7 @@ export default function LeftSidebar() {
   const patientMode = useTwinStore((s) => s.patientMode);
   const isFetchingPatient = patientMode === 'loading';
 
-  const [inputPatientId, setInputPatientId] = useState(patient?.patientId || 'PT-89421');
+  const [inputPatientId, setInputPatientId] = useState(patient?.patientId || 'USR-5EF52B');
 
   // Keep input aligned if patient ID changes
   useEffect(() => {

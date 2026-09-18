@@ -1,4 +1,4 @@
-﻿"""
+"""
 Q-RAKSHAK — Model Microservice Client
 Handles inter-service HTTP communication between Backend Core API (8000) and Model Service (8001)
 with timeout protection, keep-alive connection pooling, and graceful fallback.
@@ -43,7 +43,7 @@ class ModelServiceClient:
         return {"online": False, "detail": "Model service offline or unreachable"}
 
     async def predict_clinical(
-        self, disease: str, patient_id: str = "PT-89421", features: Optional[Dict[str, Any]] = None
+        self, disease: str, patient_id: str = "USR-5EF52B", features: Optional[Dict[str, Any]] = None
     ) -> Optional[Dict[str, Any]]:
         """Sends clinical tabular biomarker request to the model service."""
         try:
