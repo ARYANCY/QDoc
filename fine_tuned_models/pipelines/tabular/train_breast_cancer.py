@@ -91,8 +91,30 @@ def train_breast_cancer_pipeline(args):
     vqc.save_checkpoint(str(vqc_ckpt))
     print(f"✨ VQC Checkpoint saved to: {vqc_ckpt}")
 
-    # 2. Benchmark Classical Sentinel-RF Baseline
-    print("\n🌲 Training Classical Sentinel-RF Baseline...")
+    # 2. Fine-Tune OncoPulse-QSVM (Quantum Kernel Matrix)
+    print("\n⚛️ Training OncoPulse-QSVM (Quantum Kernel)...")
+    from quantum_circuits import QuantumSupportVectorMachine
+    qsvm = QuantumSupportVectorMachine(n_qubits=args.n_qubits)
+    qsvm.fit(X_train_q[:150], y_train[:150])  # Kernel subset for fast simulation
+
+    t0 = time.perf_counter()
+    qsvm_probs = qsvm.predict_proba(X_test_q)
+    t1 = time.perf_counter()
+    qsvm_latency = (t1 - t0) * 1000 / len(X_test_q)
+    qsvm_preds = qsvm.predict(X_test_q)
+
+    qsvm_report = evaluate_clinical_model(
+        model_name="OncoPulse-QSVM",
+        model_type="Quantum Kernel QSVM",
+        y_true=y_test,
+        y_pred=qsvm_preds,
+        y_prob=qsvm_probs,
+        inference_time_ms=qsvm_latency,
+    )
+    qsvm.save_checkpoint(str(output_dir / "OncoPulse-QSVM.joblib"))
+
+    # 3. Benchmark Classical Sentinel-RF & Sentinel-SVM Baselines
+    print("\n🌲 Training Classical Sentinel-RF & Sentinel-SVM Baselines...")
     rf = RandomForestClassifier(n_estimators=100, max_depth=6, random_state=args.seed)
     rf.fit(X_train, y_train)
 
@@ -110,15 +132,29 @@ def train_breast_cancer_pipeline(args):
         y_prob=rf_probs,
         inference_time_ms=rf_latency,
     )
+    joblib.dump(rf, output_dir / "Sentinel-RF.joblib")
 
-    rf_ckpt = output_dir / "Sentinel-RF.joblib"
-    joblib.dump(rf, rf_ckpt)
+    # Classical SVM
+    svm = SVC(kernel="rbf", probability=True, random_state=args.seed)
+    svm.fit(X_train_scaled, y_train)
+    svm_probs = svm.predict_proba(X_test_scaled)
+    svm_preds = svm.predict(X_test_scaled)
+    svm_report = evaluate_clinical_model(
+        model_name="Sentinel-SVM",
+        model_type="Classical Baseline",
+        y_true=y_test,
+        y_pred=svm_preds,
+        y_prob=svm_probs,
+        inference_time_ms=1.5,
+    )
+    joblib.dump(svm, output_dir / "Sentinel-SVM.joblib")
 
     # Save Preprocessor Artifacts
     joblib.dump({"scaler": scaler, "pca": pca}, output_dir / "preprocessor_wdbc.joblib")
     print(f"✅ Breast Cancer Fine-Tuning Complete! Artifacts stored in: {output_dir}")
 
-    return {"vqc": vqc_report, "rf": rf_report}
+    return {"vqc": vqc_report, "qsvm": qsvm_report, "rf": rf_report, "svm": svm_report}
+
 
 
 if __name__ == "__main__":

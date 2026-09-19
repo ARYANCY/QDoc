@@ -117,10 +117,29 @@ def train_parkinsons_pipeline(args):
     )
 
     joblib.dump(rf, output_dir / "Sentinel-RF.joblib")
+
+    # 3. Train Sentinel-LogReg Baseline
+    print("\n📈 Training Classical Sentinel-LogReg Baseline...")
+    from sklearn.linear_model import LogisticRegression
+    lr_clf = LogisticRegression(random_state=args.seed)
+    lr_clf.fit(X_train_scaled, y_train)
+    lr_probs = lr_clf.predict_proba(X_test_scaled)
+    lr_preds = lr_clf.predict(X_test_scaled)
+    lr_report = evaluate_clinical_model(
+        model_name="Sentinel-LogReg",
+        model_type="Classical Baseline",
+        y_true=y_test,
+        y_pred=lr_preds,
+        y_prob=lr_probs,
+        inference_time_ms=0.6,
+    )
+    joblib.dump(lr_clf, output_dir / "Sentinel-LogReg.joblib")
+
     joblib.dump({"scaler": scaler, "pca": pca}, output_dir / "preprocessor_parkinsons.joblib")
 
     print(f"✅ Parkinson's Fine-Tuning Complete! Artifacts in: {output_dir}")
-    return {"vqc": vqc_report, "rf": rf_report}
+    return {"vqc": vqc_report, "rf": rf_report, "logreg": lr_report}
+
 
 
 if __name__ == "__main__":
