@@ -62,6 +62,7 @@ import { AIDoctorConsultationPage } from "../ai_doctor/index.js";
 import { clinicalApi } from "../../api/clinical";
 import { reportsApi } from "../../api/reports";
 import { authApi } from "../../api/auth";
+import { ENDPOINTS } from "../../api/config";
 import { consultationsApi } from "../../api/consultations";
 import { animateEntrance, animateCounter } from "../../utils/motion";
 import "../../styles.css";
@@ -414,8 +415,6 @@ export default function UnifiedAnalysisPage() {
   const [myBookings, setMyBookings] = useState([]);
   // Dynamic authenticated user state with session recovery
   const [currentUser, setCurrentUser] = useState(() => authApi.getStoredUser());
-  const [loginUsername, setLoginUsername] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
 
   // Restore and validate session on mount
   useEffect(() => {
@@ -538,58 +537,9 @@ export default function UnifiedAnalysisPage() {
     return user.patient_id || user.user_id || user.id || "";
   }
 
-  async function handleQuickRoleSwitch(u, p, r) {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await authApi.login(u, p, r);
-      setCurrentUser(data.user);
-      setPatientId(resolvePatientId(data.user));
-      const nextRoleCfg = ROLE_PERMISSIONS[data.user.role] || ROLE_PERMISSIONS.patient;
-      setActiveTab(nextRoleCfg.defaultTab);
-    } catch (err) {
-      setError(err.message || "Sign in failed. Please check your username and password, then try again.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleRegistration(registrationData) {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await authApi.register(registrationData);
-      setCurrentUser(data.user);
-      setPatientId(resolvePatientId(data.user));
-      const nextRoleCfg = ROLE_PERMISSIONS[data.user.role] || ROLE_PERMISSIONS.patient;
-      setActiveTab(nextRoleCfg.defaultTab);
-    } catch (err) {
-      setError(err.message || "Registration failed. Please check the account details.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
   function handleLogout() {
     authApi.logout();
     setCurrentUser(null);
-  }
-
-  async function handleDirectLogin(e) {
-    if (e) e.preventDefault();
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await authApi.login(loginUsername, loginPassword, "patient");
-      setCurrentUser(data.user);
-      setPatientId(resolvePatientId(data.user));
-      const nextRoleCfg = ROLE_PERMISSIONS[data.user.role] || ROLE_PERMISSIONS.patient;
-      setActiveTab(nextRoleCfg.defaultTab);
-    } catch (err) {
-      setError(err.message || "Authentication failed. Check credentials.");
-    } finally {
-      setLoading(false);
-    }
   }
 
   // WCAG Accessibility Modes
@@ -1027,8 +977,7 @@ export default function UnifiedAnalysisPage() {
   if (!currentUser) {
     return (
       <EditorialLoginPage
-        onLogin={(u, p, r) => handleQuickRoleSwitch(u, p, r)}
-        onRegister={handleRegistration}
+        onGoogleLogin={() => { window.location.href = ENDPOINTS.AUTH_GOOGLE; }}
         loading={loading}
         error={error}
       />
