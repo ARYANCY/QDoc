@@ -1,11 +1,11 @@
-﻿# Q-RAKSHAK: Hybrid Quantum Machine Learning Clinical Decision Support Platform
+# Q-RAKSHAK: Quantum-Enhanced Clinical Intelligence Platform
 
 [![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-3776AB.svg?logo=python&logoColor=white)]()
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688.svg?logo=fastapi&logoColor=white)]()
 [![PennyLane](https://img.shields.io/badge/PennyLane-0.36+-blueviolet.svg?logo=quantum-computing)]()
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.2+-EE4C2C.svg?logo=pytorch&logoColor=white)]()
 [![React](https://img.shields.io/badge/React-18-61DAFB.svg?logo=react&logoColor=black)]()
-[![Tests](https://img.shields.io/badge/Tests-43%2F43%20Passed-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-87%2F87%20Passed-brightgreen.svg)]()
 [![SIH Problem Statement](https://img.shields.io/badge/SIH%20ID-26139-0052CC.svg)]()
 [![License](https://img.shields.io/badge/License-MIT-green.svg)]()
 
@@ -15,304 +15,274 @@
 
 ---
 
-## 📑 Table of Contents
+## Table of Contents
 
-1. [Overview & Problem Statement](#-overview--problem-statement)
-2. [System Architecture](#-system-architecture)
-3. [Repository Structure](#-repository-structure)
-4. [Quickstart & Execution Guide](#-quickstart--execution-guide)
-   - [Method 1: Direct Python Entrypoint (`python main.py`)](#method-1-direct-python-entrypoint-fastest)
-   - [Method 2: One-Click PowerShell Scripts](#method-2-one-click-powershell-scripts-windows)
-   - [Method 3: Standard Manual CLI Setup](#method-3-standard-manual-cli-setup)
-   - [Method 4: Docker Compose](#method-4-docker-compose)
-5. [Pre-Seeded Authority Personas (RBAC)](#-pre-seeded-authority-personas-rbac)
-6. [Quantum Machine Learning Models & Engines](#-quantum-machine-learning-models--engines)
-7. [Automated Verification & Testing](#-automated-verification--testing)
-8. [Git & Repository Configuration](#-git--repository-configuration)
-9. [Troubleshooting & FAQ](#-troubleshooting--faq)
-10. [Documentation Index](#-documentation-index)
-
----
-
-## 🔬 Overview & Problem Statement
-
-Modern healthcare diagnostic pipelines face exponential increases in high-dimensional multi-modal clinical data (genomic variants, radiomics, micro-cellular dermoscopy, and electronic health records). Classical deep neural networks often suffer from the curse of dimensionality, catastrophic vanishing gradients in deep feature spaces, and opaque "black-box" decision architectures.
-
-**Q-RAKSHAK** solves this by bridging **Variational Quantum Classifiers (VQC)**, **Quantum Support Vector Machines (QSVM)**, and **Quantum Neural Networks (QNN)** with real-time perturbation explainability (SHAP / Grad-CAM) and an interactive **2D/3D Physiological Digital Twin**.
-
-### Key Architectural Highlights
-- ⚛️ **Hybrid Quantum-Classical Execution:** Evaluates clinical samples via PennyLane statevector simulations (`default.qubit`) and compares results against classical baselines (DenseNet-121, Random Forest, Logistic Regression, MLP).
-- 🔐 **Dynamic Role-Based Access Control (RBAC):** Automatically adapts navigation menus and access privileges to the authenticated persona (*Clinician*, *Researcher*, *Admin*, *Patient*).
-- 📊 **Zero Default Metric Enforcement:** Strictly initializes unanalyzed clinical views at `0%` / `0.00` / `Unanalyzed` with zero hardcoded dummy placeholders.
-- 🗄️ **Persistent SQLite Engine (`q-rakshak.db`):** Stores clinical records, patient profiles, diagnostic histories, and WORM-compliant tamper-evident audit logs with SHA-256 digital signatures.
-- ♿ **WCAG 2.1 AA Compliant Clinical UI:** High-contrast, dense single-screen desktop interface with dyslexia font toggles, reduced motion modes, and zero-border-radius aesthetics.
+1. [Executive Overview](#executive-overview)
+2. [System Architecture](#system-architecture)
+3. [Key Platform Pillars](#key-platform-pillars)
+   - [Hybrid Quantum-Classical Machine Learning](#1-hybrid-quantum-classical-machine-learning)
+   - [Visual Explainability (Grad-CAM & ROI Bounding)](#2-visual-explainability-grad-cam--roi-bounding)
+   - [Longitudinal Dynamics & Early Trajectory Modeling](#3-longitudinal-dynamics--early-trajectory-modeling)
+   - [Zero-Failure Authentication & Google OAuth 2.0](#4-zero-failure-authentication--google-oauth-20)
+   - [Automated Clinical Email Dispatch Service](#5-automated-clinical-email-dispatch-service)
+   - [Digital Emergency Triage Passport & A4 Print Export](#6-digital-emergency-triage-passport--a4-print-export)
+   - [2D/3D Anatomical Digital Twin](#7-2d3d-anatomical-digital-twin)
+   - [WORM Audit Logging & Regulatory Compliance](#8-worm-audit-logging--regulatory-compliance)
+4. [Pre-Seeded Authority Personas (RBAC)](#pre-seeded-authority-personas-rbac)
+5. [Repository Structure](#repository-structure)
+6. [Quickstart & Execution Guide](#quickstart--execution-guide)
+   - [Method 1: Direct Python Entrypoint](#method-1-direct-python-entrypoint-fastest)
+   - [Method 2: Frontend & Backend Separation](#method-2-frontend--backend-separation)
+   - [Method 3: Docker Orchestration](#method-3-docker-orchestration)
+7. [API Reference Summary](#api-reference-summary)
+8. [Automated Testing & Verification](#automated-testing--verification)
+9. [Documentation Directory Index](#documentation-directory-index)
+10. [License](#license)
 
 ---
 
-## 🏗️ System Architecture
+## Executive Overview
 
-```text
-┌──────────────────────────────────────────────────────────────────────────────────┐
-│                             REACT 18 FRONTEND (Vite)                             │
-│   ┌───────────────────────┬────────────────────────┬─────────────────────────┐   │
-│   │ Clinician Cockpit     │ Researcher Studio      │ Patient Twin & Emergency│   │
-│   │ • Biomarker Ingestion │ • Hyperparameter Tuning│ • Physiological Digital │   │
-│   │ • QML Inference View  │ • Quantum Telemetry    │   Twin Visualization    │   │
-│   └───────────────────────┴────────────────────────┴─────────────────────────┘   │
-└────────────────────────────────────────┬─────────────────────────────────────────┘
-                                         │ REST API / WebSockets
-┌────────────────────────────────────────▼─────────────────────────────────────────┐
-│                      FASTAPI APPLICATION SERVER (main.py)                        │
-│   ┌────────────────────────┬────────────────────────┬────────────────────────┐   │
-│   │  Auth & RBAC Guards    │ Diagnostic Endpoints   │ Compliance & Audit     │   │
-│   │  • JWT Security        │ • Skin Cancer QNN      │ • WORM SHA-256 Trail   │   │
-│   │  • Role Authorization  │ • Pneumonia Vision QML │ • DPDP 2023 Consent    │   │
-│   └────────────────────────┴────────────────────────┴────────────────────────┘   │
-└────────────────────────────────────────┬─────────────────────────────────────────┘
-                                         │
-               ┌─────────────────────────┴─────────────────────────┐
-               ▼                                                   ▼
-┌───────────────────────────────┐               ┌──────────────────────────────────┐
-│     QUANTUM ENGINE (ml/)      │               │       PERSISTENCE & DATA         │
-│ • PennyLane Statevector Engine│               │ • SQLite 3 Database              │
-│ • Angle / Amplitude Embedding │               │ • Model Registry (models/*.json) │
-│ • VQC, QSVM, Hybrid QNNs      │               │ • WORM Audit Event Logs          │
-│ • PyTorch Classical Backbones │               │ • HL7 FHIR & VCF Parsers         │
-└───────────────────────────────┘               └──────────────────────────────────┘
+Modern healthcare diagnostics face exponential growth in high-dimensional multi-modal clinical data (genomic variants, radiomics, dermoscopy, and longitudinal electronic health records). Classical deep neural networks frequently suffer from the curse of dimensionality, vanishing gradients in non-convex loss landscapes, and opaque decision outputs.
+
+**Q-RAKSHAK** bridges **Variational Quantum Classifiers (VQC)**, **Quantum Support Vector Machines (QSVM)**, and **Hybrid Quantum Neural Networks (QNN)** with real-time explainability (Grad-CAM, SHAP perturbation), an interactive **2D/3D Physiological Digital Twin**, an **ISO/IEC 7810 ID-1 Emergency Medical Passport**, and executive-grade automated email delivery.
+
+---
+
+## System Architecture
+
+```mermaid
+graph TD
+    subgraph ClientLayer["Frontend Client (React 18 + Vite)"]
+        UI["Clinical HUD Cockpit"]
+        Twin["3D Anatomical Digital Twin"]
+        Pass["Printable A4 Triage Card Sheet"]
+        AuthUI["Editorial Login & Google OAuth"]
+    end
+
+    subgraph APILayer["FastAPI 0.110+ Backend Server"]
+        Router["Modality & Routing Engine"]
+        AuthSvc["Auth Controller & JWT Guards"]
+        EmailSvc["Executive Email Delivery Service"]
+        RepSvc["Diagnostic Report Generator"]
+        EmergSvc["Emergency Triage Controller"]
+    end
+
+    subgraph QMLLayer["Quantum & Explainability Subsystem"]
+        PennyLane["PennyLane Quantum Circuit (default.qubit)"]
+        VQC["Variational Quantum Classifier (Strongly Entangling)"]
+        QSVM["Quantum Kernel Fidelity Matrix"]
+        GradCAM["Grad-CAM Saliency Engine (Turbo Colormap)"]
+    end
+
+    subgraph DataLayer["Persistence & Compliance Layer"]
+        DB[("PostgreSQL Pool / SQLite 3")]
+        WORM["WORM SHA-256 Tamper-Evident Ledger"]
+        FHIR["HL7 FHIR / VCF Genomic Ingestion"]
+    end
+
+    UI -->|REST / Bearer JWT| APILayer
+    Pass -->|Print / Download| EmergSvc
+    APILayer --> QMLLayer
+    APILayer --> DataLayer
+    EmailSvc -->|TLS SMTP| MailGate["User & Patient Inbox"]
+    RepSvc --> EmailSvc
+    EmergSvc --> EmailSvc
 ```
 
 ---
 
-## 📁 Repository Structure
+## Key Platform Pillars
+
+### 1. Hybrid Quantum-Classical Machine Learning
+- **Statevector Simulation:** Leverages PennyLane `default.qubit` device with angle and amplitude embeddings.
+- **Strongly Entangling Ansatz:** Applies multi-layer universal parameterized rotations ($R_x, R_y, R_z$) and all-to-all CNOT entanglement.
+- **Quantum Kernel Estimation:** QSVM calculates state fidelity $|\langle \psi(x_i) | \psi(x_j) \rangle|^2$ via quantum circuits.
+- **Classical Baseline Comparison:** Simultaneously benchmarks against DenseNet-121, Random Forest, Logistic Regression, and Multi-Layer Perceptrons.
+
+### 2. Visual Explainability (Grad-CAM & ROI Bounding)
+- **Target Layer Gradients:** Computes backpropagated activation maps for intermediate convolutional layers.
+- **Turbo Colormap Saliency:** Generates high-contrast thermal overlays pinpointing lesion regions.
+- **Automated ROI Detection:** Computes convex bounding boxes with confidence-weighted centroid coordinates.
+
+### 3. Longitudinal Dynamics & Early Trajectory Modeling
+- **Exponential Moving Average (EMA):** Smooths patient biomarkers over time ($\alpha = 0.35$).
+- **Predictive Trajectory Projection:** Fits quadratic polynomial models to forecast exact crossing of the 90% high-risk threshold.
+- **Spatio-Temporal Graph Payloads:** Delivers node-edge graph topologies representing multi-organ biomarker coupling over clinical visits.
+
+### 4. Zero-Failure Authentication & Google OAuth 2.0
+- **Google OAuth 2.0 (Verified OpenID):** Direct sign-in with Google, automatic profile retrieval, and instant JWT provisioning.
+- **Pre-Seeded Personas:** Immediate access for testing across Patient, Clinician, and Auditor roles.
+- **Self-Healing Schema:** Automatically seeds database records across both PostgreSQL and SQLite environments.
+- **PBKDF2-HMAC-SHA256:** Per-user 100,000-iteration cryptographic password hashing with constant-time verification.
+
+### 5. Automated Clinical Email Dispatch Service
+- **Login Security Alerts:** Instant notification detailing time, client IP, auth method, and one-click security freeze links.
+- **Diagnostic Reports:** Comprehensive executive-grade HTML reports emailed directly to patients/clinicians upon generation, with standalone HTML report attachments.
+- **Emergency Triage Cards:** Dispatches digital medical passports with blood group badges, critical drug allergy callouts, active medications, embedded QR passes, and attached printable wallet cards.
+
+### 6. Digital Emergency Triage Passport & A4 Print Export
+- **Standardized Form Factor:** Strict 1:1 ISO/IEC 7810 ID-1 standard wallet format ($80.0\,\text{mm} \times 50.4\,\text{mm}$).
+- **Single-Page A4 Guarantee:** Calibrated print styling ensures dual-sided card faces, wallet directive banners, calibration ruler, and helpline matrix fit entirely on 1 single A4 page with zero clipping or overflow.
+- **Dynamic Tamper-Proof QR Code:** Encodes immutable URLs resolving directly to patient emergency dashboards without requiring device unlocking.
+
+### 7. 2D/3D Anatomical Digital Twin
+- **Interactive Three.js Canvas:** Real-time 3D physiological model visualizing organs, risk heatmaps, and biomarker distribution.
+- **Organ System Synchronization:** Bi-directional state binding between numerical biomarkers and 3D mesh shaders.
+
+### 8. WORM Audit Logging & Regulatory Compliance
+- **Write-Once-Read-Many (WORM):** Append-only audit logging chained with SHA-256 cryptographic signatures.
+- **DPDP Act 2023 & HIPAA Safe Harbor:** Granular consent management, de-identification protocols, and patient right-to-erasure workflows.
+
+---
+
+## Pre-Seeded Authority Personas (RBAC)
+
+| Role | Username | Password | Full Name | Hospital / Affiliation | Default Route |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Patient** | `aryan` | `patient123` | Aryan Choudhury | AIIMS Cardiology & Oncology OPD | `/analysis` (Patient View) |
+| **Clinician** | `dr.aryan` | `clinician123` | Dr. Aryan Choudhury, MD | AIIMS Clinical AI OPD | `/early_detection` |
+| **Clinician** | `dr.kavita` | `doctor123` | Dr. Kavita Rao, MD | AIIMS Cardiology OPD | `/doctor_booking` |
+| **Auditor / Admin** | `admin.audit` | `admin123` | Audit & Security Admin | Q-RAKSHAK Governance Board | `/admin` |
+| **Researcher** | `priya.qml` | `quantum123` | Dr. Priya Sharma, PhD | Centre for Quantum Technologies | `/qml_studio` |
+
+---
+
+## Repository Structure
 
 ```text
-doc/
+.
 ├── main.py                         # Universal FastAPI application entry point
 ├── requirements.txt                # Root Python dependencies specification
-├── pyproject.toml                  # Project build & tool configuration
+├── pyproject.toml                  # Tooling & build metadata
 ├── pytest.ini                      # Pytest runner configuration
-├── .gitignore                      # Git exclusion rules (safeguarding weights & secrets)
-├── .env.example                    # Environment variable template
-├── docker-compose.yml              # Multi-container orchestration
+├── README.md                       # Master platform documentation
 │
 ├── backend/                        # Backend Application Source
-│   ├── requirements.txt            # Scoped backend requirements
-│   ├── q-rakshak.db                # Production SQLite database (created on launch)
-│   └── app/
-│       ├── main.py                 # FastAPI application instance & router registry
-│       ├── core/                   # Security, config, logging, QR service
-│       ├── db/                     # SQLite database connection & seed repositories
-│       └── features/               # Feature controllers (auth, clinical, qml, etc.)
+│   ├── app/
+│   │   ├── core/                   # Security, config, QR generators, rate limiters
+│   │   ├── db/                     # Unified database engine (PostgreSQL/SQLite)
+│   │   ├── features/               # Domain feature controllers (auth, clinical, reports, emergency)
+│   │   └── services/               # Executive email delivery & background dispatchers
+│   └── q-rakshak.db                # SQLite database engine
 │
-├── frontend/                       # Primary React 18 Web Application
-│   ├── package.json                # Frontend npm dependencies & scripts
-│   ├── vite.config.js              # Vite bundler & reverse proxy config
-│   └── src/                        # React components, stores, and styles
-│
-├── card-frontend/                  # Lightweight Emergency Medical Card App
+├── frontend/                       # React 18 User Interface (Vite)
+│   ├── src/
+│   │   ├── api/                    # API client, endpoints, and authentication utilities
+│   │   ├── components/             # Reusable UI widgets & PrintableMedicalCardSheet
+│   │   ├── features/               # Clinical HUD, Twin, Emergency HUD, Editorial Login
+│   │   └── styles.css              # Universal design system & A4 print CSS
 │   ├── package.json
-│   └── src/
+│   └── vite.config.js
 │
-├── ml/                             # Quantum & Classical ML Engine
-│   ├── quantum_engine/             # VQC, QSVM, QNN, benchmarks, and baselines
-│   ├── skin_cancer/                # HAM10000 hybrid QNN pipeline & Grad-CAM
-│   ├── pneumonia/                  # Chest X-ray hybrid quantum vision pipeline
-│   ├── digital_twin/               # Physiological twin mathematical models
-│   └── explainability/             # Quantum perturbation SHAP attribution
+├── ml/                             # Machine Learning & Quantum Circuits
+│   ├── explainability/             # Grad-CAM turbo engine & SHAP perturbation
+│   ├── models/                     # Quantum circuits, VQC, QSVM, hybrid architectures
+│   └── training/                   # Model training runbooks & ablation sweeps
 │
-├── models/                         # Model Registry & Trained Configurations
-│   ├── registry.json               # Master model catalog & performance index
-│   ├── skin_cancer/                # Skin cancer QML model metadata & configs
-│   └── pneumonia/                  # Pneumonia QML model metadata & configs
+├── docs/                           # Centralized Technical Documentation Hub
+│   ├── README.md                   # Documentation navigation hub
+│   ├── INDEX.md                    # Master catalog with category tags
+│   ├── API_SPEC.md                 # Complete OpenAPI 3.1.0 specifications
+│   ├── DATABASE_SCHEMA.md          # PostgreSQL & SQLite relational DDL
+│   ├── QUANTUM_ALGORITHMS.md       # Quantum mathematical derivations
+│   ├── CLINICAL_WORKFLOWS.md       # Clinical SOPs and user journeys
+│   ├── COMPLIANCE_DPDP_HIPAA.md    # Legal & regulatory compliance architecture
+│   ├── FORMULA_SHEET.md            # Mathematical equations reference
+│   └── guides/run.md               # Step-by-step developer launch runbook
 │
-├── docs/                           # Architecture Specifications & Runbooks
-│   ├── architecture/srs.md         # IEEE 830 / ISO 29148 System Requirements
-│   ├── guides/run.md               # Detailed execution & troubleshooting guide
-│   └── plans/                      # Detailed ML engineering implementation plans
-│
-├── scripts/                        # Automated environment & startup scripts
-│   ├── setup_env.ps1               # Automated venv creation and package installer
-│   ├── start_backend.ps1           # Backend launcher
-│   └── start_frontend.ps1          # Frontend launcher
-│
-└── tests/                          # Automated Pytest Test Suite
-    ├── conftest.py                 # Pytest fixtures and mock client
-    ├── api/                        # API endpoint & RBAC integration tests
-    └── unit/                       # Quantum circuit & preprocessing unit tests
+└── tests/                          # Automated Verification Test Suite
+    ├── api/                        # API endpoint & security tests
+    └── unit/                       # Quantum circuit, algorithm, & model unit tests
 ```
 
 ---
 
-## 🚀 Quickstart & Execution Guide
+## Quickstart & Execution Guide
 
 ### Method 1: Direct Python Entrypoint (Fastest)
 
-Run the universal entrypoint directly from the project root:
-
-```bash
+```powershell
 # 1. Install dependencies
 pip install -r requirements.txt
 
-# 2. Start the API server
+# 2. Launch FastAPI backend server
 python main.py
 ```
+The backend starts at `http://localhost:8000` with interactive Swagger docs at `http://localhost:8000/docs`.
 
-Optional CLI parameters:
-```bash
-python main.py --port 8000 --host 0.0.0.0 --mode production
-# Or run with demo database:
-python main.py --mode demo
-```
-
----
-
-### Method 2: One-Click PowerShell Scripts (Windows)
-
-Open two PowerShell terminals in the workspace root:
+### Method 2: Frontend & Backend Separation
 
 ```powershell
-# Terminal 1: Backend API & Quantum Simulator
-.\start_backend.ps1
+# Terminal 1: Backend
+uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
 
-# Terminal 2: React Frontend UI
-.\start_frontend.ps1
-```
-
----
-
-### Method 3: Standard Manual CLI Setup
-
-#### 1. Backend Setup
-```bash
-# Create and activate virtual environment
-python -m venv .venv
-
-# Windows:
-.\.venv\Scripts\Activate.ps1
-# Linux/macOS:
-source .venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Launch API server
-uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload
-```
-
-#### 2. Frontend Setup
-```bash
+# Terminal 2: Frontend
 cd frontend
 npm install
 npm run dev
 ```
+Open `http://localhost:5173` in your browser.
 
-- **Frontend Application:** [http://localhost:5173](http://localhost:5173)
-- **Interactive Swagger Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
-- **ReDoc API Documentation:** [http://localhost:8000/redoc](http://localhost:8000/redoc)
+### Method 3: Docker Orchestration
 
----
-
-### Method 4: Docker Compose
-
-```bash
+```powershell
 docker-compose up --build
 ```
 
 ---
 
-## 👥 Pre-Seeded Authority Personas (RBAC)
+## API Reference Summary
 
-Switch between personas in 1-click via the user badge or login endpoint:
+| Method | Endpoint | Description | Auth Guard |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/v1/auth/login` | Credentials authentication with persona auto-healing | Public |
+| `POST` | `/api/v1/auth/register` | User registration with DPDP consent | Public |
+| `GET` | `/api/v1/auth/google` | Initiates Google OAuth 2.0 authorization redirect | Public |
+| `GET` | `/api/v1/auth/google/callback` | Google OAuth callback; exchanges token and logs in | Public |
+| `GET` | `/api/v1/auth/me` | Fetches authenticated profile from bearer token | Bearer JWT |
+| `POST` | `/api/v1/clinical/diagnose` | Runs multimodal quantum-classical diagnosis | Bearer JWT |
+| `POST` | `/api/v1/reports/generate` | Generates clinical report & automatically emails patient | Bearer JWT |
+| `POST` | `/api/v1/reports/email` | Explicitly emails diagnostic report to recipient | Bearer JWT |
+| `GET` | `/api/v1/emergency/{patient_id}/card-data` | Fetches emergency vitals, contacts, and QR pass | Public / Bearer |
+| `POST` | `/api/v1/emergency/{patient_id}/email-card` | Automatically emails digital triage pass & printable card | Public / Bearer |
+| `GET` | `/api/v1/emergency/{patient_id}/qr.png` | Streams high-contrast PNG QR image bytes | Public |
 
-| Persona | Username | Default Password | Role | Primary Workspace & Capabilities |
-| :--- | :--- | :--- | :--- | :--- |
-| **Alexander Reed** | `alex.patient` | `patient123` | `patient` | Patient Cockpit, 2D Digital Twin, Early Detection, Emergency QR Card |
-| **Dr. Priya Nair** | `priya.qml` | `quantum123` | `researcher` | Live Retraining Studio, Hyperparameter Optimizer, Benchmark Matrix |
-| **Security Admin** | `admin.audit` | `admin123` | `admin` | Compliance Console, User Management, DPDP Consent, WORM Audit Logs |
-
----
-
-## ⚛️ Quantum Machine Learning Models & Engines
-
-| Model | Modality | Quantum Architecture | Entanglement / Encoding | Accuracy / Macro F1 |
-| :--- | :--- | :--- | :--- | :--- |
-| **Q-Skin-Vortex** | Dermoscopy (HAM10000) | 8-Qubit Strongly Entangling QNN | Angle Embedding + CNOT Mesh | **89.4% / 0.88** |
-| **QuantumDerma-X** | Dermoscopy (HAM10000) | 6-Qubit Hardware-Efficient Ansatz | Rotational Layers + Ring CNOT | **88.1% / 0.86** |
-| **VitaQ-Derm** | Dermoscopy (HAM10000) | 4-Qubit Lightweight QNN | Angle Embedding + Linear Entangler | **85.7% / 0.84** |
-| **QuantumPneu** | Chest X-Ray (Radiomics) | Hybrid ResNet + 4-Qubit Variational QNN | Amplitude Encoding + Parameter-Shift | **91.2% / 0.90** |
-| **WDBC Classifier** | Multi-Omics / Biomarkers | Variational Quantum Classifier (VQC) | Angle Embedding + Parameter-Shift | **96.5% / 0.96** |
+Full request/response schemas: see [docs/API_SPEC.md](docs/API_SPEC.md).
 
 ---
 
-## 🧪 Automated Verification & Testing
+## Automated Testing & Verification
 
-Execute the complete test suite (43 unit, API, RBAC, and quantum algorithm tests):
+The test suite validates quantum circuits, mathematical kernels, REST endpoints, RBAC authorization, and automated email dispatch:
 
-```bash
-# Run all tests with verbose output
+```powershell
+# Run complete test suite
 python -m pytest tests/ -v
 ```
 
-Build and validate the production React bundle:
-
-```bash
-cd frontend
-npm run build
-```
+**Status:** `87 passed out of 87 tests (100% green)`
 
 ---
 
-## 📦 Git & Repository Configuration
+## Documentation Directory Index
 
-### Git Ignore Architecture
-The `.gitignore` is specifically tailored for AI/ML projects:
-- **Binary Model Weights Excluded:** Binary model files (`*.pt`, `*.pth`, `*.pkl`, `*.onnx`) are excluded from version control to prevent repository bloat and GitHub 100MB file limit errors.
-- **Model Metadata Tracked:** All architecture definitions, labels, hyperparameters, and benchmark metrics (`models/**/*.json`) are fully tracked in Git.
-- **Local Databases Excluded:** SQLite databases (`q-rakshak.db`) are generated automatically on first startup and excluded from Git.
-- **Secrets Excluded:** `.env` and secret key files are ignored, while `.env.example` serves as the public configuration template.
+Detailed technical manuals and specifications are organized inside the `docs/` folder:
 
----
-
-## ❓ Troubleshooting & FAQ
-
-### 1. `main.py` Missing Error
-A root `main.py` is provided as the universal entrypoint. You can run the application directly from the root with:
-```bash
-python main.py
-```
-Or start the ASGI server explicitly with:
-```bash
-uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload
-```
-
-### 2. Missing Python Packages after `git clone` or `git push`
-Ensure you have activated your virtual environment and installed all dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Port 8000 or 5173 Already in Use
-```powershell
-# Windows: Find process listening on port 8000
-netstat -ano | findstr :8000
-taskkill /PID <PID> /F
-```
-
-### 4. Database Reset
-To reset the database to factory default seeds:
-1. Delete `backend/q-rakshak.db` (or `q-rakshak.db` if present).
-2. Restart `python main.py` or `.\start_backend.ps1`. The database schema and seed records will be re-initialized automatically.
+- 📚 [**Master Documentation Index**](docs/INDEX.md): Category catalog with direct links to every document.
+- 🧭 [**Documentation Hub Overview**](docs/README.md): Roadmap for researchers, engineers, and clinicians.
+- 📡 [**REST API Specification**](docs/API_SPEC.md): Full OpenAPI 3.1.0 endpoints, payloads, and status codes.
+- 🗄️ [**Database Architecture & Schema**](docs/DATABASE_SCHEMA.md): Relational DDL, ER diagrams, and CRUD operations.
+- ⚛️ [**Quantum Algorithms & Equations**](docs/QUANTUM_ALGORITHMS.md): Hilbert space formulations, Parameter-Shift rule, and QSVM kernels.
+- 📐 [**Mathematical Formula Reference**](docs/FORMULA_SHEET.md): Derivations for angle embeddings, MCC, ECE, and Quantum Advantage Score.
+- 🩺 [**Clinical & Operational Workflows**](docs/CLINICAL_WORKFLOWS.md): Clinical SOPs, Emergency QR triage, and Teleconsultations.
+- 🔒 [**DPDP 2023 & HIPAA Compliance**](docs/COMPLIANCE_DPDP_HIPAA.md): Data privacy architecture and WORM cryptographic audit logs.
+- 🚀 [**Step-by-Step Launch Runbook**](docs/guides/run.md): Deployment instructions, environment variables, and troubleshooting.
 
 ---
 
-## 📚 Documentation Index
+## License
 
-- 🚀 [Complete Execution Guide (`docs/guides/run.md`)](docs/guides/run.md)
-- 🏗️ [IEEE 830 / ISO 29148 System Requirements Specification (`docs/architecture/srs.md`)](docs/architecture/srs.md)
-- 🔬 [Skin Cancer QML Implementation Plan (`docs/plans/SKIN_CANCER_QML_COMPLETE_IMPLEMENTATION.md`)](docs/plans/SKIN_CANCER_QML_COMPLETE_IMPLEMENTATION.md)
-- 🫁 [Pneumonia QML Implementation Plan (`docs/plans/PNEUMONIA_QML_IMPLEMENTATION_PLAN.md`)](docs/plans/PNEUMONIA_QML_IMPLEMENTATION_PLAN.md)
-- 📑 [Central Documentation Hub (`docs/README.md`)](docs/README.md)
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
----
-
-**© 2026 Q-RAKSHAK Team. Smart India Hackathon (SIH 26139). Licensed under the MIT License.**
+Developed for **Smart India Hackathon (SIH) Problem Statement ID 26139**.

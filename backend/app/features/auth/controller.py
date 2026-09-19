@@ -1,14 +1,19 @@
-from __future__ import annotations
-
+import asyncio
+import logging
+import urllib.parse
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+import httpx
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
 from backend.app.core.security import create_access_token, get_current_user, hash_password, verify_password
 from backend.app.core.config import settings
 from backend.app.db.repository import DatabaseRepository
+from backend.app.services.email_service import send_login_notification, send_welcome_email
 
+logger = logging.getLogger("qrakshak.auth")
 
 router = APIRouter(prefix="/api/v1/auth", tags=["Authentication"])
 
@@ -76,6 +81,24 @@ async def register(req: RegisterRequest):
         else:
             doctor_id = f"DOC-{str(created.get('id', '')).replace('USR-', '')}"
 
+    if created.get("email"):
+        asyncio.create_task(
+            send_welcome_email(
+                user_email=created["email"],
+                user_name=created.get("name", "Clinical User"),
+                user_role=created.get("role", "patient"),
+            )
+        )
+        asyncio.create_task(
+            send_login_notification(
+                user_email=created["email"],
+                user_name=created.get("name", "Clinical User"),
+                ip_address="127.0.0.1",
+                auth_method="Clinical Account Registration",
+                user_role=created.get("role", "patient"),
+            )
+        )
+
     return {
         "status": "success",
         "access_token": token,
@@ -101,6 +124,8 @@ async def login(req: LoginRequest):
     """Logs in using credentials against the database. Returns 401 on invalid credentials."""
     raw_identifier = (req.username or "").strip()
     clean_identifier = raw_identifier.lower()
+    raw_password = req.password or ""
+    clean_password = raw_password.strip()
 
     # Convenient persona aliases mapping
     alias_map = {
@@ -110,10 +135,16 @@ async def login(req: LoginRequest):
         "clinician": "dr.aryan",
         "dr.aryan": "dr.aryan",
         "aryan": "aryan",
+        "aryan.crores@gmail.com": "aryan",
+        "aryan.emergency@gmail.com": "aryan",
         "admin": "admin.audit",
         "auditor": "admin.audit",
+        "admin.audit": "admin.audit",
+        "compliance.lead@egreenquanta.health": "admin.audit",
         "researcher": "priya.qml",
         "priya": "priya.qml",
+        "priya.qml": "priya.qml",
+        "priya.qml@egreenquanta.health": "priya.qml",
     }
 
     target_identifier = alias_map.get(clean_identifier, raw_identifier)
@@ -137,33 +168,67 @@ async def login(req: LoginRequest):
         "quantum123", "password", "password123", "tempPass2026",
     }
 
+    # Known seed accounts mapping for on-demand auto-healing
+    seed_account_defs = {
+        "aryan": {
+            "id": "USR-5EF52B", "username": "aryan", "name": "Aryan Choudhury",
+            "email": "aryan.crores@gmail.com", "secondary_email": "aryan.emergency@gmail.com",
+            "emergency_phone": "+91 98765 43210", "role": "patient",
+            "hospital_affiliation": "AIIMS Cardiology & Oncology OPD", "license_number": "PT-REC-99881",
+        },
+        "dr.aryan": {
+            "id": "DOC-USR-ARYAN", "username": "dr.aryan", "name": "Dr. Aryan Choudhury, MD",
+            "email": "aryan.crores@gmail.com", "secondary_email": "aryan@q-rakshak.health",
+            "emergency_phone": "+91 98765 43210", "role": "doctor",
+            "hospital_affiliation": "AIIMS Clinical AI OPD", "license_number": "MCI-2024-99881",
+        },
+        "dr.kavita": {
+            "id": "DOC-USR-KAVITA", "username": "dr.kavita", "name": "Dr. Kavita Rao, MD",
+            "email": "kavita.rao@aiims.edu", "secondary_email": "dr.kavita@gmail.com",
+            "emergency_phone": "+91 98111 22334", "role": "doctor",
+            "hospital_affiliation": "AIIMS Cardiology OPD", "license_number": "MCI-2014-89312",
+        },
+        "admin.audit": {
+            "id": "ADM-SYSTEM", "username": "admin.audit", "name": "Audit & Security Admin",
+            "email": "compliance.lead@egreenquanta.health", "secondary_email": "admin.sec@gmail.com",
+            "emergency_phone": "+91 98222 33445", "role": "admin",
+            "hospital_affiliation": "Q-RAKSHAK Governance Board", "license_number": "SEC-DPDP-001",
+        },
+        "priya.qml": {
+            "id": "RES-PRIYA", "username": "priya.qml", "name": "Dr. Priya Sharma, PhD",
+            "email": "priya.qml@egreenquanta.health", "secondary_email": "",
+            "emergency_phone": "+91 98555 66778", "role": "researcher",
+            "hospital_affiliation": "Centre for Quantum Technologies", "license_number": "RES-QML-001",
+        },
+    }
+
     if not user:
         # Check if the user is a known seed account that needs auto-initialization
-        if clean_identifier in seed_passwords or target_identifier.lower() in seed_passwords:
+        resolved_key = clean_identifier if clean_identifier in seed_passwords else alias_map.get(clean_identifier)
+        if resolved_key and resolved_key in seed_passwords:
             from backend.app.db.database import init_database
             init_database()
-            user = DatabaseRepository.get_user_by_credentials(target_identifier) or DatabaseRepository.get_user_by_credentials(clean_identifier)
+            user = DatabaseRepository.get_user_by_credentials(resolved_key) or DatabaseRepository.get_user_by_credentials(clean_identifier)
+            if not user and resolved_key in seed_account_defs:
+                # Dynamic fallback provisioning
+                proto = seed_account_defs[resolved_key]
+                user = DatabaseRepository.create_user({
+                    **proto,
+                    "password_hash": hash_password(seed_passwords[resolved_key]),
+                })
 
     if not user:
-        # On ephemeral free-tier instances where disk is cleared on sleep, auto-provision
-        # custom/new user credentials so visitors and reviewers are never trapped in a 401 loop.
-        user_role = req.role or ("doctor" if "dr." in clean_identifier else "patient")
-        name_part = raw_identifier.split("@")[0].replace(".", " ").title()
-        user = DatabaseRepository.create_user({
-            "username": clean_identifier,
-            "password_hash": hash_password(req.password),
-            "name": name_part,
-            "email": raw_identifier if "@" in raw_identifier else f"{clean_identifier}@q-rakshak.health",
-            "role": user_role,
-        })
+        raise HTTPException(status_code=401, detail="Invalid username or password.")
 
     stored_hash = user.get("password_hash", "")
-    pwd_match = verify_password(req.password, stored_hash)
+    pwd_match = verify_password(raw_password, stored_hash) or verify_password(clean_password, stored_hash)
 
     # Allow official demo passwords for seed personas
     user_uname = user.get("username", "").lower()
     if not pwd_match and (user_uname in seed_passwords or str(user.get("id", "")).startswith(("PT-", "DOC-", "ADM-", "RES-", "USR-5EF"))):
-        if req.password in (seed_passwords.get(user_uname), "patient123", "clinician123", "doctor123", "admin123", "quantum123"):
+        expected_seed_pwd = seed_passwords.get(user_uname)
+        if raw_password in (expected_seed_pwd, "patient123", "clinician123", "doctor123", "admin123", "quantum123") or \
+           clean_password in (expected_seed_pwd, "patient123", "clinician123", "doctor123", "admin123", "quantum123"):
             pwd_match = True
 
     if not pwd_match:
@@ -211,6 +276,17 @@ async def login(req: LoginRequest):
         status="SUCCESS",
     )
 
+    if user.get("email"):
+        asyncio.create_task(
+            send_login_notification(
+                user_email=user["email"],
+                user_name=user.get("name", "Clinical User"),
+                ip_address="127.0.0.1",
+                auth_method="Clinical Password Verification",
+                user_role=user.get("role", "patient"),
+            )
+        )
+
     return {
         "status": "success",
         "access_token": token,
@@ -231,6 +307,139 @@ async def login(req: LoginRequest):
             "is_custom": not is_test_account,
         },
     }
+
+
+@router.get("/google")
+async def google_login(prompt: str | None = "select_account"):
+    """Redirects user to Google OAuth 2.0 consent authorization screen."""
+    client_id = settings.GOOGLE_CLIENT_ID
+    redirect_uri = settings.GOOGLE_REDIRECT_URI
+
+    if not client_id or client_id.startswith("your-"):
+        # Graceful notice if Google Client ID not yet set in .env
+        frontend_url = settings.FRONTEND_URL.rstrip("/")
+        return RedirectResponse(url=f"{frontend_url}/?error=google_oauth_credentials_required")
+
+    params = {
+        "client_id": client_id,
+        "redirect_uri": redirect_uri,
+        "response_type": "code",
+        "scope": "openid email profile",
+        "access_type": "offline",
+        "prompt": prompt or "select_account",
+    }
+    auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?{urllib.parse.urlencode(params)}"
+    return RedirectResponse(url=auth_url)
+
+
+@router.get("/google/callback")
+async def google_callback(code: str | None = None, error: str | None = None, request: Request = None):
+    """Handles redirect callback from Google OAuth 2.0.
+    Exchanges code for tokens, retrieves userinfo, provisions or finds user, issues JWT,
+    dispatches login email notification, and redirects to frontend with ?token=...
+    """
+    frontend_url = settings.FRONTEND_URL.rstrip("/")
+    if error or not code:
+        return RedirectResponse(url=f"{frontend_url}/?error={error or 'no_code_provided'}")
+
+    client_id = settings.GOOGLE_CLIENT_ID
+    client_secret = settings.GOOGLE_CLIENT_SECRET
+    redirect_uri = settings.GOOGLE_REDIRECT_URI
+
+    if not client_id or not client_secret or client_id.startswith("your-"):
+        return RedirectResponse(url=f"{frontend_url}/?error=google_credentials_not_configured")
+
+    token_url = "https://oauth2.googleapis.com/token"
+    token_payload = {
+        "code": code,
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "redirect_uri": redirect_uri,
+        "grant_type": "authorization_code",
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as http_client:
+            token_res = await http_client.post(token_url, data=token_payload)
+            if token_res.status_code != 200:
+                logger.error("Failed Google token exchange: %s", token_res.text)
+                return RedirectResponse(url=f"{frontend_url}/?error=token_exchange_failed")
+            token_data = token_res.json()
+            google_access_token = token_data.get("access_token")
+
+            userinfo_res = await http_client.get(
+                "https://www.googleapis.com/oauth2/v3/userinfo",
+                headers={"Authorization": f"Bearer {google_access_token}"}
+            )
+            if userinfo_res.status_code != 200:
+                logger.error("Failed Google userinfo retrieval: %s", userinfo_res.text)
+                return RedirectResponse(url=f"{frontend_url}/?error=userinfo_failed")
+            userinfo = userinfo_res.json()
+    except Exception as exc:
+        logger.error("Google OAuth error: %s", exc)
+        return RedirectResponse(url=f"{frontend_url}/?error=google_network_error")
+
+    google_email = (userinfo.get("email") or "").strip().lower()
+    google_name = userinfo.get("name") or google_email.split("@")[0]
+    google_picture = userinfo.get("picture", "")
+
+    if not google_email:
+        return RedirectResponse(url=f"{frontend_url}/?error=no_email_in_profile")
+
+    user = DatabaseRepository.get_user_by_credentials(google_email)
+    if not user:
+        user = DatabaseRepository.create_user({
+            "username": google_email,
+            "password_hash": "GOOGLE_OAUTH_TOKEN",
+            "name": google_name,
+            "email": google_email,
+            "role": "patient",
+            "hospital_affiliation": "Google Clinical SSO",
+            "emergency_phone": "+91 98765 43210",
+        })
+        asyncio.create_task(
+            send_welcome_email(
+                user_email=google_email,
+                user_name=google_name,
+                user_role="patient",
+            )
+        )
+
+    doctor_id = None
+    if user.get("role") in ("doctor", "clinician"):
+        doc_rec = DatabaseRepository.get_doctor_by_user_id(user.get("id") or user.get("user_id"))
+        doctor_id = doc_rec["id"] if doc_rec else f"DOC-{str(user.get('id', '')).replace('USR-', '')}"
+
+    jwt_token = create_access_token({
+        "user_id": user.get("id") or user.get("user_id"),
+        "username": user["username"],
+        "role": user["role"],
+        "name": user["name"],
+        "email": user["email"],
+        "doctor_id": doctor_id,
+        "picture": google_picture,
+    })
+
+    client_ip = request.client.host if (request and request.client) else "127.0.0.1"
+    asyncio.create_task(
+        send_login_notification(
+            user_email=user["email"],
+            user_name=user["name"],
+            ip_address=client_ip,
+            auth_method="Google OAuth 2.0 (Verified OpenID)",
+            user_role=user["role"],
+        )
+    )
+
+    DatabaseRepository.add_audit_log(
+        actor=user["name"],
+        action="GOOGLE_LOGIN",
+        resource=f"ROLE:{user['role']}",
+        ip_address=client_ip,
+        status="SUCCESS",
+    )
+
+    return RedirectResponse(url=f"{frontend_url}/?token={jwt_token}")
 
 
 @router.get("/me")

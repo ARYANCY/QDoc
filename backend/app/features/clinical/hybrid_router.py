@@ -23,7 +23,7 @@ class ClinicalHybridRouter:
     def _load_registry(self) -> None:
         if self.registry_path.exists():
             try:
-                data = json.loads(self.registry_path.read_text(encoding="utf-8"))
+                data = json.loads(self.registry_path.read_text(encoding="utf-8-sig"))
                 self._registry_cache = data.get("modules", {})
             except Exception:
                 self._registry_cache = {}

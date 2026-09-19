@@ -420,6 +420,32 @@ export default function UnifiedAnalysisPage() {
   // Restore and validate session on mount
   useEffect(() => {
     async function restoreSession() {
+      // 1. Process Google OAuth callback token or error from URL query
+      if (typeof window !== "undefined" && window.location.search) {
+        const params = new URLSearchParams(window.location.search);
+        const urlToken = params.get("token");
+        const urlError = params.get("error");
+
+        if (urlError) {
+          setError(`Google Sign-In Notice: ${urlError.replace(/_/g, " ")}`);
+          const cleanUrl = window.location.pathname + window.location.hash;
+          window.history.replaceState({}, document.title, cleanUrl);
+        } else if (urlToken) {
+          try {
+            const googleUser = await authApi.loginWithGoogleToken(urlToken);
+            if (googleUser) {
+              setCurrentUser(googleUser);
+              setPatientId(resolvePatientId(googleUser));
+              const cleanUrl = window.location.pathname + window.location.hash;
+              window.history.replaceState({}, document.title, cleanUrl);
+              return;
+            }
+          } catch (err) {
+            console.error("Google token validation error:", err);
+          }
+        }
+      }
+
       if (authApi.hasToken()) {
         try {
           const validUser = await authApi.validateSession();
@@ -962,6 +988,8 @@ export default function UnifiedAnalysisPage() {
       setLoading(true);
       const data = await reportsApi.generateReport({
         patient_id: patientId || "USR-5EF52B",
+        patient_name: currentUser?.name || "Aryan Choudhury",
+        user_email: currentUser?.email || "aryan.crores@gmail.com",
         disease: result?.disease || currentStudy?.label || "Clinical Multi-Organ Biomarker Checkup",
         prediction_class: result?.prediction?.class || "Evaluated Risk Profile",
         confidence: result?.prediction?.confidence || 0.947,

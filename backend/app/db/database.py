@@ -154,263 +154,227 @@ def init_database():
     is_postgres = isinstance(conn, PostgresConnectionWrapper)
     cursor = conn.cursor()
 
-    if is_postgres:
-        # Guarantee all auxiliary tables exist in PostgreSQL
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS consultation_rooms (
-            id TEXT PRIMARY KEY,
-            booking_id TEXT UNIQUE NOT NULL,
-            room_token TEXT NOT NULL,
-            status TEXT NOT NULL DEFAULT 'waiting',
-            doctor_joined INTEGER DEFAULT 0,
-            patient_joined INTEGER DEFAULT 0,
-            chat_messages_json TEXT DEFAULT '[]',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-        """)
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS consultation_signals (
-            id SERIAL PRIMARY KEY,
-            booking_id TEXT NOT NULL,
-            sender_id TEXT NOT NULL,
-            sender_role TEXT NOT NULL,
-            signal_type TEXT NOT NULL,
-            payload_json TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-        """)
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS notifications (
-            id TEXT PRIMARY KEY,
-            user_id TEXT NOT NULL,
-            title TEXT NOT NULL,
-            message TEXT NOT NULL,
-            reference_code TEXT,
-            category TEXT NOT NULL,
-            is_read INTEGER DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-        """)
-        conn.commit()
-    else:
+    if not is_postgres:
         cursor.execute("PRAGMA journal_mode = WAL;")
         cursor.execute("PRAGMA synchronous = NORMAL;")
         cursor.execute("PRAGMA foreign_keys = ON;")
 
-        # Users Table
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id TEXT PRIMARY KEY,
-            username TEXT UNIQUE NOT NULL,
-            password_hash TEXT NOT NULL,
-            name TEXT NOT NULL,
-            email TEXT NOT NULL,
-            secondary_email TEXT,
-            emergency_phone TEXT,
-            role TEXT NOT NULL,
-            hospital_affiliation TEXT,
-            license_number TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-        """)
+    # Users Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        username TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        secondary_email TEXT,
+        emergency_phone TEXT,
+        role TEXT NOT NULL,
+        hospital_affiliation TEXT,
+        license_number TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    """)
 
-        # Patients Table
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS patients (
-            id TEXT PRIMARY KEY,
-            mrn TEXT UNIQUE NOT NULL,
-            name TEXT NOT NULL,
-            age INTEGER NOT NULL,
-            gender TEXT NOT NULL,
-            blood_group TEXT NOT NULL,
-            height_cm REAL DEFAULT 175.0,
-            weight_kg REAL DEFAULT 70.0,
-            conditions_json TEXT NOT NULL,
-            baseline_vitals_json TEXT NOT NULL,
-            emergency_contact TEXT,
-            medical_history_json TEXT,
-            allergies_json TEXT,
-            medications_json TEXT,
-            emergency_contacts_json TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-        """)
+    # Patients Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS patients (
+        id TEXT PRIMARY KEY,
+        mrn TEXT UNIQUE NOT NULL,
+        name TEXT NOT NULL,
+        age INTEGER NOT NULL,
+        gender TEXT NOT NULL,
+        blood_group TEXT NOT NULL,
+        height_cm REAL DEFAULT 175.0,
+        weight_kg REAL DEFAULT 70.0,
+        conditions_json TEXT NOT NULL,
+        baseline_vitals_json TEXT NOT NULL,
+        emergency_contact TEXT,
+        medical_history_json TEXT,
+        allergies_json TEXT,
+        medications_json TEXT,
+        emergency_contacts_json TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    """)
 
-        # Diagnostic Records Table
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS diagnostic_records (
-            id TEXT PRIMARY KEY,
-            patient_id TEXT NOT NULL,
-            disease TEXT NOT NULL,
-            model_architecture TEXT NOT NULL,
-            prediction_class TEXT NOT NULL,
-            confidence REAL NOT NULL,
-            classical_model TEXT NOT NULL,
-            classical_confidence REAL NOT NULL,
-            probabilities_json TEXT NOT NULL,
-            explainability_json TEXT NOT NULL,
-            inference_ms REAL NOT NULL,
-            fallback_used INTEGER DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (patient_id) REFERENCES patients (id)
-        );
-        """)
+    # Diagnostic Records Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS diagnostic_records (
+        id TEXT PRIMARY KEY,
+        patient_id TEXT NOT NULL,
+        disease TEXT NOT NULL,
+        model_architecture TEXT NOT NULL,
+        prediction_class TEXT NOT NULL,
+        confidence REAL NOT NULL,
+        classical_model TEXT NOT NULL,
+        classical_confidence REAL NOT NULL,
+        probabilities_json TEXT NOT NULL,
+        explainability_json TEXT NOT NULL,
+        inference_ms REAL NOT NULL,
+        fallback_used INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (patient_id) REFERENCES patients (id)
+    );
+    """)
 
-        # Audit Logs Table
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS audit_logs (
-            id TEXT PRIMARY KEY,
-            timestamp TEXT NOT NULL,
-            actor TEXT NOT NULL,
-            action TEXT NOT NULL,
-            resource TEXT NOT NULL,
-            ip_address TEXT NOT NULL,
-            status TEXT NOT NULL,
-            hash_signature TEXT NOT NULL
-        );
-        """)
+    # Audit Logs Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS audit_logs (
+        id TEXT PRIMARY KEY,
+        timestamp TEXT NOT NULL,
+        actor TEXT NOT NULL,
+        action TEXT NOT NULL,
+        resource TEXT NOT NULL,
+        ip_address TEXT NOT NULL,
+        status TEXT NOT NULL,
+        hash_signature TEXT NOT NULL
+    );
+    """)
 
-        # Consents Table
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS consents (
-            patient_id TEXT PRIMARY KEY,
-            dpdp_opt_in INTEGER DEFAULT 1,
-            telemetry_sharing INTEGER DEFAULT 1,
-            research_access INTEGER DEFAULT 1,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (patient_id) REFERENCES patients (id)
-        );
-        """)
+    # Consents Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS consents (
+        patient_id TEXT PRIMARY KEY,
+        dpdp_opt_in INTEGER DEFAULT 1,
+        telemetry_sharing INTEGER DEFAULT 1,
+        research_access INTEGER DEFAULT 1,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (patient_id) REFERENCES patients (id)
+    );
+    """)
 
-        # Early Detection Assessments Table
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS early_detection_assessments (
-            id TEXT PRIMARY KEY,
-            patient_id TEXT NOT NULL,
-            protocol TEXT NOT NULL,
-            risk_tier TEXT NOT NULL,
-            trajectory_stage INTEGER NOT NULL,
-            biomarkers_json TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (patient_id) REFERENCES patients (id)
-        );
-        """)
+    # Early Detection Assessments Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS early_detection_assessments (
+        id TEXT PRIMARY KEY,
+        patient_id TEXT NOT NULL,
+        protocol TEXT NOT NULL,
+        risk_tier TEXT NOT NULL,
+        trajectory_stage INTEGER NOT NULL,
+        biomarkers_json TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (patient_id) REFERENCES patients (id)
+    );
+    """)
 
-        # Skin Cancer Predictions
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS skin_cancer_predictions (
-            id TEXT PRIMARY KEY,
-            filename TEXT NOT NULL,
-            model TEXT NOT NULL,
-            prediction_class TEXT NOT NULL,
-            confidence REAL NOT NULL,
-            probabilities_json TEXT NOT NULL,
-            quantum_info_json TEXT,
-            inference_ms REAL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-        """)
+    # Skin Cancer Predictions
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS skin_cancer_predictions (
+        id TEXT PRIMARY KEY,
+        filename TEXT NOT NULL,
+        model TEXT NOT NULL,
+        prediction_class TEXT NOT NULL,
+        confidence REAL NOT NULL,
+        probabilities_json TEXT NOT NULL,
+        quantum_info_json TEXT,
+        inference_ms REAL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    """)
 
-        # Doctors Table
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS doctors (
-            id TEXT PRIMARY KEY,
-            user_id TEXT NOT NULL,
-            name TEXT NOT NULL,
-            specialty TEXT NOT NULL,
-            registration_number TEXT NOT NULL,
-            council_name TEXT NOT NULL,
-            experience_years INTEGER NOT NULL,
-            fee_inr REAL NOT NULL,
-            rating REAL DEFAULT 4.8,
-            languages_json TEXT NOT NULL,
-            hospital_affiliation TEXT NOT NULL,
-            available_slots_json TEXT NOT NULL,
-            verification_status TEXT DEFAULT 'verified',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users (id)
-        );
-        """)
+    # Doctors Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS doctors (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        specialty TEXT NOT NULL,
+        registration_number TEXT NOT NULL,
+        council_name TEXT NOT NULL,
+        experience_years INTEGER NOT NULL,
+        fee_inr REAL NOT NULL,
+        rating REAL DEFAULT 4.8,
+        languages_json TEXT NOT NULL,
+        hospital_affiliation TEXT NOT NULL,
+        available_slots_json TEXT NOT NULL,
+        verification_status TEXT DEFAULT 'verified',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id)
+    );
+    """)
 
-        # Bookings Table
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS bookings (
-            id TEXT PRIMARY KEY,
-            patient_id TEXT NOT NULL,
-            doctor_id TEXT NOT NULL,
-            slot_time TEXT NOT NULL,
-            mode TEXT NOT NULL DEFAULT 'video',
-            status TEXT NOT NULL DEFAULT 'requested',
-            payment_status TEXT NOT NULL DEFAULT 'authorized',
-            intake_json TEXT,
-            triage_risk TEXT DEFAULT 'normal',
-            emergency_flags_json TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (patient_id) REFERENCES patients (id),
-            FOREIGN KEY (doctor_id) REFERENCES doctors (id)
-        );
-        """)
+    # Bookings Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS bookings (
+        id TEXT PRIMARY KEY,
+        patient_id TEXT NOT NULL,
+        doctor_id TEXT NOT NULL,
+        slot_time TEXT NOT NULL,
+        mode TEXT NOT NULL DEFAULT 'video',
+        status TEXT NOT NULL DEFAULT 'requested',
+        payment_status TEXT NOT NULL DEFAULT 'authorized',
+        intake_json TEXT,
+        triage_risk TEXT DEFAULT 'normal',
+        emergency_flags_json TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (patient_id) REFERENCES patients (id),
+        FOREIGN KEY (doctor_id) REFERENCES doctors (id)
+    );
+    """)
 
-        # Virtual Consultation Rooms
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS consultation_rooms (
-            id TEXT PRIMARY KEY,
-            booking_id TEXT UNIQUE NOT NULL,
-            room_token TEXT NOT NULL,
-            status TEXT NOT NULL DEFAULT 'waiting',
-            doctor_joined INTEGER DEFAULT 0,
-            patient_joined INTEGER DEFAULT 0,
-            chat_messages_json TEXT DEFAULT '[]',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (booking_id) REFERENCES bookings (id)
-        );
-        """)
+    # Virtual Consultation Rooms
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS consultation_rooms (
+        id TEXT PRIMARY KEY,
+        booking_id TEXT UNIQUE NOT NULL,
+        room_token TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'waiting',
+        doctor_joined INTEGER DEFAULT 0,
+        patient_joined INTEGER DEFAULT 0,
+        chat_messages_json TEXT DEFAULT '[]',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (booking_id) REFERENCES bookings (id)
+    );
+    """)
 
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS consultation_signals (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            booking_id TEXT NOT NULL,
-            sender_id TEXT NOT NULL,
-            sender_role TEXT NOT NULL,
-            signal_type TEXT NOT NULL,
-            payload_json TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (booking_id) REFERENCES bookings (id)
-        );
-        """)
+    sig_id_type = "SERIAL PRIMARY KEY" if is_postgres else "INTEGER PRIMARY KEY AUTOINCREMENT"
+    cursor.execute(f"""
+    CREATE TABLE IF NOT EXISTS consultation_signals (
+        id {sig_id_type},
+        booking_id TEXT NOT NULL,
+        sender_id TEXT NOT NULL,
+        sender_role TEXT NOT NULL,
+        signal_type TEXT NOT NULL,
+        payload_json TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (booking_id) REFERENCES bookings (id)
+    );
+    """)
 
-        # Prescriptions Table
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS prescriptions (
-            id TEXT PRIMARY KEY,
-            booking_id TEXT NOT NULL,
-            patient_id TEXT NOT NULL,
-            doctor_id TEXT NOT NULL,
-            diagnosis TEXT NOT NULL,
-            medications_json TEXT NOT NULL,
-            care_plan_json TEXT NOT NULL,
-            soap_notes_json TEXT NOT NULL,
-            digital_signature_hash TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (booking_id) REFERENCES bookings (id),
-            FOREIGN KEY (patient_id) REFERENCES patients (id),
-            FOREIGN KEY (doctor_id) REFERENCES doctors (id)
-        );
-        """)
+    # Prescriptions Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS prescriptions (
+        id TEXT PRIMARY KEY,
+        booking_id TEXT NOT NULL,
+        patient_id TEXT NOT NULL,
+        doctor_id TEXT NOT NULL,
+        diagnosis TEXT NOT NULL,
+        medications_json TEXT NOT NULL,
+        care_plan_json TEXT NOT NULL,
+        soap_notes_json TEXT NOT NULL,
+        digital_signature_hash TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (booking_id) REFERENCES bookings (id),
+        FOREIGN KEY (patient_id) REFERENCES patients (id),
+        FOREIGN KEY (doctor_id) REFERENCES doctors (id)
+    );
+    """)
 
-        # Notifications Table
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS notifications (
-            id TEXT PRIMARY KEY,
-            user_id TEXT NOT NULL,
-            title TEXT NOT NULL,
-            message TEXT NOT NULL,
-            reference_code TEXT,
-            category TEXT NOT NULL,
-            is_read INTEGER DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-        """)
+    # Notifications Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS notifications (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        message TEXT NOT NULL,
+        reference_code TEXT,
+        category TEXT NOT NULL,
+        is_read INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    """)
+    conn.commit()
 
     # Seed Default Users (Purged all dummy patient accounts)
     seed_users = [
@@ -421,13 +385,9 @@ def init_database():
         ("DOC-VIKRAM", "dr.vikram", hash_password("doctor123"), "Dr. Vikram Malhotra, MBBS", "vikram.malhotra@gmail.com", "", "+91 98444 88990", "doctor", "Apollo Clinics", "MCI-2023-11045"),
         ("DOC-USR-ARYAN", "dr.aryan", hash_password("clinician123"), "Dr. Aryan Choudhury, MD", "aryan.crores@gmail.com", "aryan@q-rakshak.health", "+91 98765 43210", "doctor", "AIIMS Clinical AI OPD", "MCI-2024-99881"),
         ("USR-5EF52B", "aryan", hash_password("patient123"), "Aryan Choudhury", "aryan.crores@gmail.com", "aryan.emergency@gmail.com", "+91 98765 43210", "patient", "AIIMS Cardiology & Oncology OPD", "PT-REC-99881"),
+        ("PT-ALEX", "alex.patient", hash_password("patient123"), "Alex Mercer", "alex.patient@egreenquanta.health", "", "+91 98765 43210", "patient", "Community Hospital", "PT-REC-ALEX"),
         ("RES-PRIYA", "priya.qml", hash_password("quantum123"), "Dr. Priya Sharma, PhD", "priya.qml@egreenquanta.health", "", "+91 98555 66778", "researcher", "Centre for Quantum Technologies", "RES-QML-001"),
     ]
-
-    # Clean legacy dummy patient records
-    cursor.execute("DELETE FROM users WHERE id IN ('PT-ALEX', 'alex.patient') OR username = 'alex.patient';")
-    cursor.execute("DELETE FROM patients WHERE id IN ('PT-89421', 'PT-ALEX');")
-    cursor.execute("DELETE FROM consents WHERE patient_id IN ('PT-89421', 'PT-ALEX');")
 
     for uid, uname, pwd_hash, name, email, sec_email, em_phone, role, aff, lic in seed_users:
         existing_user = cursor.execute("SELECT id FROM users WHERE LOWER(username) = LOWER(?) OR id = ?;", (uname, uid)).fetchone()

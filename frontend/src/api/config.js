@@ -35,6 +35,7 @@ export const ENDPOINTS = {
   AUTH_LOGIN: `${API_BASE_URL}/auth/login`,
   AUTH_REGISTER: `${API_BASE_URL}/auth/register`,
   AUTH_ME: `${API_BASE_URL}/auth/me`,
+  AUTH_GOOGLE: `${API_BASE_URL}/auth/google`,
 
   // Clinical & Diagnosis
   CLINICAL_DIAGNOSE: `${API_BASE_URL}/clinical/diagnose`,

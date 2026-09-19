@@ -1,4 +1,4 @@
-﻿# Q-RAKSHAK: Complete REST API Specification (`docs/API_SPEC.md`)
+# Q-RAKSHAK: Complete REST API Specification (`docs/API_SPEC.md`)
 
 [![API Version](https://img.shields.io/badge/API%20Version-2.0.0-blue.svg)]()
 [![OpenAPI](https://img.shields.io/badge/OpenAPI-3.1.0-green.svg)]()
@@ -377,13 +377,23 @@ Common HTTP status codes:
 
 ## 11. Emergency Medical QR Card
 
-### 11.1 Fetch Medical Emergency Data
-- **Route:** `GET /api/v1/emergency/card/{patient_id}`
-- **Response `200 OK`:** Critical triage info: Blood Group, Allergies, Active Conditions, Emergency Contacts, Organ Donor status.
-
-### 11.2 Generate QR Code Image
-- **Route:** `GET /api/v1/emergency/qr.png?patient_id=PT-89421` (Binary PNG)
-- **Route:** `GET /api/v1/emergency/qr.svg?patient_id=PT-89421` (Vector SVG)
+### 11.3 Email Emergency Triage Pass
+- **Route:** `POST /api/v1/emergency/{patient_id}/email-card`
+- **Request Body:**
+```json
+{
+  "recipient_email": "patient@example.com"
+}
+```
+- **Response `200 OK`:**
+```json
+{
+  "status": "success",
+  "recipient": "patient@example.com",
+  "patient_id": "USR-5EF52B",
+  "message": "Emergency triage pass dispatched to patient@example.com"
+}
+```
 
 ---
 
@@ -425,7 +435,34 @@ Common HTTP status codes:
 
 ### 12.3 Export Clinical PDF/HTML Diagnostic Report
 - **Route:** `POST /api/v1/reports/generate`
-- **Request Body:** `{"diagnostic_id": "DX-94A8012E", "format": "html"}`
+- **Request Body:**
+```json
+{
+  "patient_id": "USR-5EF52B",
+  "disease": "Breast Oncology (WDBC)",
+  "prediction_class": "Malignant (High Risk)",
+  "confidence": 0.9474,
+  "classical_confidence": 0.9123,
+  "top_biomarkers": ["Mean Radius (34%)", "Concavity (26%)"],
+  "user_email": "patient@example.com"
+}
+```
+- **Response `200 OK`:** Full report HTML, report ID, download filename, and asynchronous email delivery confirmation.
+
+### 12.4 Explicit Email Dispatch for Reports
+- **Route:** `POST /api/v1/reports/email`
+- **Request Body:**
+```json
+{
+  "patient_id": "USR-5EF52B",
+  "recipient_email": "doctor@aiims.edu",
+  "disease": "Breast Oncology (WDBC)",
+  "prediction_class": "Malignant (High Risk)",
+  "confidence": 0.9474,
+  "classical_confidence": 0.9123,
+  "top_biomarkers": ["Mean Radius (34%)", "Concavity (26%)"]
+}
+```
 
 ---
 

@@ -2450,10 +2450,9 @@ body.high-contrast {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 8mm 10mm 8mm 10mm;
+    margin: 6mm 8mm 6mm 8mm;
   }
 
-  /* Force background printing on all print engines */
   *,
   *::before,
   *::after {
@@ -2465,18 +2464,17 @@ body.high-contrast {
   body, html, #root, .emergency-passport-canvas {
     background: #FFFFFF !important;
     color: #0F172A !important;
-    font-size: 10pt !important;
-    line-height: 1.35 !important;
+    font-size: 9.5pt !important;
+    line-height: 1.3 !important;
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
     min-height: auto !important;
     height: auto !important;
-    overflow: visible !important;
+    overflow: hidden !important;
     visibility: visible !important;
   }
 
-  /* Hide normal screen elements */
   .no-print,
   button,
   .modal-overlay,
@@ -2494,26 +2492,44 @@ body.high-contrast {
     display: none !important;
   }
 
-  /* Show dedicated print sheet */
   .qrakshak-printable-id-card-sheet {
     display: flex !important;
     flex-direction: column !important;
     visibility: visible !important;
     width: 100% !important;
-    max-width: 100% !important;
+    max-width: 194mm !important;
+    max-height: 280mm !important;
     margin: 0 auto !important;
     padding: 0 !important;
+    overflow: hidden !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
     page-break-after: avoid !important;
     break-after: avoid !important;
   }
 
-  /* Physical Cards Print Scaler & Frame (Exact ISO/IEC 7810 ID-1 85.60mm × 53.98mm) */
+  .print-sheet-header {
+    padding-bottom: 4px !important;
+    margin-bottom: 6px !important;
+  }
+
+  .print-wallet-directive-card {
+    padding: 6px 10px !important;
+    margin-bottom: 6px !important;
+    gap: 4px !important;
+  }
+
+  .print-calibration-bar {
+    padding: 4px 10px !important;
+    margin-bottom: 6px !important;
+  }
+
   .print-cards-stage {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    margin: 3mm 0 !important;
+    margin: 2mm 0 !important;
     width: 100% !important;
   }
 
@@ -2526,20 +2542,20 @@ body.high-contrast {
 
   .print-edition-badge {
     width: 100% !important;
-    max-width: 184mm !important;
-    margin-bottom: 1.5mm !important;
+    max-width: 174mm !important;
+    margin-bottom: 1mm !important;
   }
 
   .print-cut-header-guide {
     width: 100% !important;
-    max-width: 184mm !important;
-    margin: 1.5mm auto !important;
+    max-width: 174mm !important;
+    margin: 1mm auto !important;
   }
 
   .print-cards-cutting-frame {
-    padding: 2.5mm 3.5mm !important;
+    padding: 2mm 3mm !important;
     border: 1.5px dashed #475569 !important;
-    border-radius: 4mm !important;
+    border-radius: 3mm !important;
     width: fit-content !important;
     margin: 0 auto !important;
     box-sizing: border-box !important;
@@ -2553,7 +2569,7 @@ body.high-contrast {
     flex-direction: row !important;
     justify-content: center !important;
     align-items: flex-start !important;
-    gap: 6mm !important;
+    gap: 4mm !important;
     width: auto !important;
   }
 
@@ -2561,23 +2577,23 @@ body.high-contrast {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
-    gap: 1.5mm !important;
+    gap: 1mm !important;
   }
 
   .print-face-label {
-    font-size: 5.5pt !important;
+    font-size: 5pt !important;
     font-weight: 800 !important;
     color: #475569 !important;
-    margin-bottom: 1mm !important;
+    margin-bottom: 0.8mm !important;
     white-space: nowrap !important;
   }
 
   .print-card-scaler {
-    width: 85.60mm !important;
-    height: 53.98mm !important;
+    width: 80.0mm !important;
+    height: 50.4mm !important;
     position: relative !important;
     overflow: hidden !important;
-    border-radius: 3.18mm !important;
+    border-radius: 3mm !important;
     box-sizing: border-box !important;
     display: block !important;
   }
@@ -2587,7 +2603,7 @@ body.high-contrast {
     height: 275px !important;
     min-height: 275px !important;
     max-width: none !important;
-    transform: scale(calc(85.60mm / 440px)) !important;
+    transform: scale(calc(80.0mm / 440px)) !important;
     transform-origin: top left !important;
     position: absolute !important;
     top: 0 !important;
@@ -2597,9 +2613,23 @@ body.high-contrast {
   }
 
   .print-fold-divider {
-    height: 53.98mm !important;
-    margin-top: 4.5mm !important;
-    padding: 0 1mm !important;
+    height: 50.4mm !important;
+    margin-top: 3.5mm !important;
+    padding: 0 0.8mm !important;
+  }
+
+  .print-sheet-footer {
+    padding-top: 5px !important;
+    gap: 4px !important;
+    margin-top: 4px !important;
+  }
+
+  .print-helplines-grid {
+    gap: 5px !important;
+  }
+
+  .print-helpline-cell {
+    padding: 3px !important;
   }
 
   /* Physical Cards Print Fidelity */

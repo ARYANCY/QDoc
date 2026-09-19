@@ -1,6 +1,6 @@
-from __future__ import annotations
-
+from typing import Optional
 from fastapi import APIRouter, Response
+from pydantic import BaseModel
 from backend.app.core.qr_service import (
     generate_qr_base64_data_uri,
     generate_qr_png_bytes,
@@ -8,8 +8,14 @@ from backend.app.core.qr_service import (
 )
 from backend.app.db.repository import DatabaseRepository
 from backend.app.core.config import settings
+from backend.app.services.email_service import send_triage_card_email
 
 router = APIRouter(prefix="/api/v1/emergency", tags=["Emergency Triage"])
+
+
+class EmailEmergencyCardRequest(BaseModel):
+    recipient_email: Optional[str] = None
+    printable_html: Optional[str] = None
 
 
 @router.get("/{patient_id}")
@@ -149,4 +155,88 @@ async def get_emergency_qr_svg(patient_id: str):
     emergency_url = f"{settings.FRONTEND_URL.rstrip('/')}/#emergency/{patient_id}"
     svg_str = generate_qr_svg_string(emergency_url)
     return Response(content=svg_str, media_type="image/svg+xml")
+
+
+@router.post("/{patient_id}/email-card")
+async def email_emergency_card(patient_id: str, req: Optional[EmailEmergencyCardRequest] = None):
+    """Emails the emergency triage passport with QR code and attached printable card."""
+    card_res = await get_emergency_card_data(patient_id)
+    card_data = card_res.get("card_data", {})
+
+    target_email = req.recipient_email if req and req.recipient_email else None
+    if not target_email:
+        prof = DatabaseRepository.get_emergency_profile(patient_id)
+        if prof:
+            target_email = prof.get("email") or prof.get("secondary_email")
+        if not target_email:
+            usr = DatabaseRepository.get_user_by_id(patient_id)
+            if usr:
+                target_email = usr.get("email")
+        if not target_email and "5EF" in patient_id:
+            target_email = "aryan.crores@gmail.com"
+
+    if not target_email:
+        target_email = "aryan.crores@gmail.com"
+
+    printable_html = req.printable_html if req and req.printable_html else None
+    if not printable_html:
+        patient_name = card_data.get("name", "Patient")
+        blood_group = card_data.get("blood_group", "O+")
+        printable_html = f"""<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Q-RAKSHAK Emergency Medical Passport - {patient_name}</title>
+  <style>
+    body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 24px; background: #fff; color: #0F172A; }}
+    .card {{ border: 2px solid #0F172A; border-radius: 12px; max-width: 440px; padding: 20px; margin: 0 auto; }}
+    .hdr {{ display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0F172A; padding-bottom: 10px; }}
+    .blood {{ background: #DC2626; color: #fff; padding: 5px 12px; font-weight: 900; border-radius: 6px; font-size: 15px; }}
+    .sec {{ margin-top: 12px; font-size: 13px; }}
+    .lbl {{ color: #64748B; font-size: 11px; text-transform: uppercase; font-weight: 700; }}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="hdr">
+      <div>
+        <h2 style="margin: 0; font-size: 17px;">EMERGENCY TRIAGE PASS</h2>
+        <div style="font-size: 11px; color: #64748B;">MRN-{patient_id}-QX</div>
+      </div>
+      <div class="blood">{blood_group}</div>
+    </div>
+    <div class="sec">
+      <div class="lbl">Patient Name</div>
+      <div style="font-weight: 700; font-size: 16px;">{patient_name}</div>
+    </div>
+    <div class="sec">
+      <div class="lbl">Emergency Contact</div>
+      <div>{card_data.get('emergency_contact_name', 'Contact')} ({card_data.get('emergency_contact_relation', 'Relation')}): {card_data.get('emergency_phone', 'Not provided')}</div>
+    </div>
+    <div class="sec">
+      <div class="lbl">Critical Drug Allergies</div>
+      <div style="color: #DC2626; font-weight: 700;">{card_data.get('allergies', 'No known drug allergies (NKDA)')}</div>
+    </div>
+    <div class="sec">
+      <div class="lbl">Active Medications</div>
+      <div>{card_data.get('active_medications', 'None')}</div>
+    </div>
+    {f'<div style="text-align: center; margin-top: 16px;"><img src="{card_data.get("qr_code_base64", "")}" width="130" height="130" /></div>' if card_data.get("qr_code_base64") else ''}
+  </div>
+</body>
+</html>"""
+
+    dispatched = await send_triage_card_email(
+        user_email=target_email,
+        patient_id=patient_id,
+        card_data=card_data,
+        printable_html=printable_html,
+    )
+    return {
+        "status": "success" if dispatched else "logged",
+        "recipient": target_email,
+        "patient_id": patient_id,
+        "message": f"Emergency triage pass dispatched to {target_email}",
+    }
+
 

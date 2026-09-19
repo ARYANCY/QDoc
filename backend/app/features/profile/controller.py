@@ -18,11 +18,11 @@ class ProfileUpdateRequest(BaseModel):
     extra_email: str | None = None
     emergency_phone: str | None = None
     phone: str | None = None
-    blood_group: str | None = "O+"
-    age: int | None = 30
-    gender: str | None = "Unspecified"
-    department: str | None = "Patient Care"
-    hospital: str | None = "Clinical Center"
+    blood_group: str | None = None
+    age: int | None = None
+    gender: str | None = None
+    department: str | None = None
+    hospital: str | None = None
     license_id: str | None = None
     notifications_sms: bool = True
     notifications_email: bool = True
@@ -31,7 +31,7 @@ class ProfileUpdateRequest(BaseModel):
 
 @router.get("/{user_id}")
 async def get_user_profile(user_id: str):
-    """Retrieves user profile and clinical contact settings from SQLite."""
+    """Retrieves user profile and clinical contact settings from database."""
     user = DatabaseRepository.get_user_by_id(user_id)
     if not user:
         user = DatabaseRepository.get_user_by_username(user_id)
@@ -40,17 +40,17 @@ async def get_user_profile(user_id: str):
         patient = DatabaseRepository.get_patient(user.get("id") or user_id)
         profile = {
             "user_id": user.get("id") or user_id,
-            "name": user["name"],
-            "role": user["role"],
-            "primary_email": user["email"],
+            "name": user.get("name") or "",
+            "role": user.get("role") or "patient",
+            "primary_email": user.get("email") or "",
             "extra_email": user.get("secondary_email") or "",
             "emergency_phone": user.get("emergency_phone") or "",
             "phone": user.get("emergency_phone") or "",
-            "blood_group": patient.get("blood_group", "O+") if patient else "O+",
-            "age": patient.get("age", 30) if patient else 30,
-            "gender": patient.get("gender", "Unspecified") if patient else "Unspecified",
-            "department": user.get("department", "Patient Care"),
-            "hospital": user.get("hospital_affiliation") or "Clinical AI OPD",
+            "blood_group": (patient.get("blood_group") if patient else "") or "",
+            "age": (patient.get("age") if patient and patient.get("age") is not None else None),
+            "gender": (patient.get("gender") if patient else "") or "",
+            "department": user.get("department") or "",
+            "hospital": user.get("hospital_affiliation") or "",
             "license_id": user.get("license_number") or "",
             "notifications_sms": True,
             "notifications_email": True,
@@ -61,18 +61,18 @@ async def get_user_profile(user_id: str):
         patient = DatabaseRepository.get_patient(user_id)
         profile = {
             "user_id": user_id,
-            "name": (patient.get("name") if patient else None) or "Patient",
+            "name": (patient.get("name") if patient else "") or "",
             "role": "patient",
             "primary_email": "",
             "extra_email": "",
-            "emergency_phone": (patient.get("emergency_contact") if patient else None) or "",
-            "phone": (patient.get("emergency_contact") if patient else None) or "",
-            "blood_group": patient.get("blood_group", "O+") if patient else "O+",
-            "age": patient.get("age", 30) if patient else 30,
-            "gender": patient.get("gender", "Unspecified") if patient else "Unspecified",
-            "department": "Patient Care",
-            "hospital": "Clinical AI OPD",
-            "license_id": (patient.get("mrn") if patient else None) or "",
+            "emergency_phone": (patient.get("emergency_contact") if patient else "") or "",
+            "phone": (patient.get("emergency_contact") if patient else "") or "",
+            "blood_group": (patient.get("blood_group") if patient else "") or "",
+            "age": (patient.get("age") if patient and patient.get("age") is not None else None),
+            "gender": (patient.get("gender") if patient else "") or "",
+            "department": "",
+            "hospital": "",
+            "license_id": (patient.get("mrn") if patient else "") or "",
             "notifications_sms": True,
             "notifications_email": True,
             "notifications_critical_qpu": True,

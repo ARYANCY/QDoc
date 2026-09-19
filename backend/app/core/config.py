@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import os
 from pathlib import Path
@@ -55,6 +55,19 @@ class Settings:
     VAPI_ASSISTANT_ID: str = os.getenv("VAPI_ASSISTANT_ID", "").strip()
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "").strip()
     GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "").strip()
+    # Google OAuth 2.0
+    GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "").strip()
+    GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET", "").strip()
+    GOOGLE_REDIRECT_URI: str = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8000/api/v1/auth/google/callback").strip()
+
+    # SMTP Email Delivery (Gmail / Standard SMTP)
+    SMTP_HOST: str = os.getenv("SMTP_HOST", "smtp.gmail.com").strip()
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_USERNAME: str = os.getenv("SMTP_USERNAME", "").strip()
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "").strip()
+    SMTP_FROM_NAME: str = os.getenv("SMTP_FROM_NAME", "Q-RAKSHAK Clinical Security").strip()
+    SMTP_FROM_EMAIL: str = os.getenv("SMTP_FROM_EMAIL", "").strip()
+    NOTIFICATION_EMAIL: str = os.getenv("NOTIFICATION_EMAIL", "").strip()
 
     # CORS
     @property

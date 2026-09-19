@@ -9,16 +9,33 @@ from pydantic import BaseModel
 
 from backend.app.db.repository import DatabaseRepository
 
+import asyncio
+from backend.app.services.email_service import send_clinical_report_email
+
 router = APIRouter(prefix="/api/v1/reports", tags=["Clinical Reports"])
 
 
 class ReportGenerationRequest(BaseModel):
     patient_id: str = "USR-5EF52B"
+    patient_name: Optional[str] = None
+    user_email: Optional[str] = None
     disease: str = "Breast Oncology (WDBC)"
     prediction_class: str = "Malignant (High Risk)"
     confidence: float = 0.9474
     classical_confidence: float = 0.9123
     top_biomarkers: list[str] = ["Mean Radius (34%)", "Concavity (26%)", "Mean Texture (18%)"]
+
+
+class EmailReportRequest(BaseModel):
+    patient_id: str
+    recipient_email: str
+    patient_name: Optional[str] = None
+    disease: str = "Clinical Multi-Organ Biomarker Assessment"
+    prediction_class: str = "Evaluated Risk Profile"
+    confidence: float = 0.947
+    classical_confidence: float = 0.912
+    top_biomarkers: list[str] = ["Biomarker Density (34%)", "Cellular Vascularity (26%)"]
+    report_html: Optional[str] = None
 
 
 @router.post("/generate")
@@ -494,12 +511,96 @@ async def generate_clinical_report(req: ReportGenerationRequest):
 </body>
 </html>
 """
+    # Resolve target email for clinical report delivery
+    target_email = req.user_email
+    patient_name = req.patient_name
+    if not target_email or not patient_name:
+        prof = DatabaseRepository.get_emergency_profile(req.patient_id)
+        if prof:
+            if not target_email:
+                target_email = prof.get("email") or prof.get("secondary_email")
+            if not patient_name:
+                patient_name = prof.get("name")
+        if not target_email:
+            usr = DatabaseRepository.get_user_by_id(req.patient_id)
+            if usr:
+                target_email = usr.get("email")
+                if not patient_name:
+                    patient_name = usr.get("name")
+
+    if not patient_name:
+        patient_name = "Aryan Choudhury" if "5EF" in req.patient_id else "Patient"
+
+    if target_email:
+        asyncio.create_task(
+            send_clinical_report_email(
+                user_email=target_email,
+                patient_id=req.patient_id,
+                patient_name=patient_name,
+                disease=req.disease,
+                prediction_class=req.prediction_class,
+                confidence=req.confidence,
+                classical_confidence=req.classical_confidence,
+                top_biomarkers=req.top_biomarkers,
+                report_id=report_id,
+                report_html=report_html,
+            )
+        )
+
     return {
         "status": "success",
         "patient_id": req.patient_id,
+        "report_id": report_id,
         "timestamp": timestamp,
         "report_html": report_html,
         "download_filename": f"Q-RAKSHAK_Report_{req.patient_id}.html",
+        "email_dispatched_to": target_email,
+    }
+
+
+@router.post("/email")
+async def email_clinical_report(req: EmailReportRequest):
+    """Explicit endpoint to dispatch an official clinical report via email."""
+    timestamp = time.strftime("%Y-%m-%d %H:%M:%S UTC")
+    report_id = f"REP-{hashlib.sha256(f'{req.patient_id}-{timestamp}'.encode()).hexdigest()[:10].upper()}"
+    patient_name = req.patient_name or "Patient"
+
+    # If full html report was not supplied, generate standard compliant report html
+    if not req.report_html:
+        gen_res = await generate_clinical_report(ReportGenerationRequest(
+            patient_id=req.patient_id,
+            patient_name=patient_name,
+            user_email=req.recipient_email,
+            disease=req.disease,
+            prediction_class=req.prediction_class,
+            confidence=req.confidence,
+            classical_confidence=req.classical_confidence,
+            top_biomarkers=req.top_biomarkers,
+        ))
+        return {
+            "status": "success",
+            "recipient": req.recipient_email,
+            "message": f"Report emailed to {req.recipient_email}",
+            "report_id": gen_res.get("report_id"),
+        }
+
+    dispatched = await send_clinical_report_email(
+        user_email=req.recipient_email,
+        patient_id=req.patient_id,
+        patient_name=patient_name,
+        disease=req.disease,
+        prediction_class=req.prediction_class,
+        confidence=req.confidence,
+        classical_confidence=req.classical_confidence,
+        top_biomarkers=req.top_biomarkers,
+        report_id=report_id,
+        report_html=req.report_html,
+    )
+    return {
+        "status": "success" if dispatched else "logged",
+        "recipient": req.recipient_email,
+        "report_id": report_id,
+        "message": f"Clinical report dispatched to {req.recipient_email}",
     }
 
 

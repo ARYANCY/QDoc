@@ -1,34 +1,47 @@
 import { useState, useEffect, useRef } from "react";
 import gsap from "gsap";
-import { ShieldCheck, Lock, Activity, UserCheck, Stethoscope, ArrowRight, Eye, EyeOff, PlayCircle, X, Maximize2, Video, HelpCircle } from "lucide-react";
+import {
+  ShieldCheck,
+  Lock,
+  Activity,
+  ArrowRight,
+  Eye,
+  EyeOff,
+  PlayCircle,
+  X,
+  Maximize2,
+  Video,
+  Sparkles,
+  CheckCircle2,
+  AlertCircle,
+  Cpu,
+} from "lucide-react";
 import SquareLoader from "../../components/common/SquareLoader.jsx";
 import DNAHelixAnimation from "../../components/common/DNAHelixAnimation.jsx";
 import { animateErrorShake } from "../../utils/motion.js";
+import { ENDPOINTS } from "../../api/config.js";
 
 export default function EditorialLoginPage({ onLogin, onRegister, loading, error }) {
-  const [authMode, setAuthMode] = useState("credentials"); // "credentials" (Sign In) | "register" (Create Account)
+  const [authMode, setAuthMode] = useState("credentials");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [selectedRole, setSelectedRole] = useState("patient");
   const [showPassword, setShowPassword] = useState(false);
 
-  // User Guide Video Modal State
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [guideVideoUrl, setGuideVideoUrl] = useState("/videos/user-guide.mp4");
   const [videoError, setVideoError] = useState(false);
   const videoRef = useRef(null);
   const modalContainerRef = useRef(null);
 
-  // Registration Form State
   const [registerName, setRegisterName] = useState("");
   const [registerUsername, setRegisterUsername] = useState("");
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
   const [registerRole, setRegisterRole] = useState("patient");
-  const [registerSpecialty, setRegisterSpecialty] = useState("General Medicine & Clinical AI");
-  const [registerAffiliation, setRegisterAffiliation] = useState("AIIMS Clinical AI OPD");
+  const [registerSpecialty, setRegisterSpecialty] = useState("");
+  const [registerAffiliation, setRegisterAffiliation] = useState("");
 
-  // Local form-scoped error state — cleared independently per form, isolated from global error
   const [loginError, setLoginError] = useState("");
   const [registerError, setRegisterError] = useState("");
 
@@ -36,13 +49,11 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
   const formContainerRef = useRef(null);
   const narrativeRef = useRef(null);
 
-  // Clear errors when switching tabs
   useEffect(() => {
     setLoginError("");
     setRegisterError("");
   }, [authMode]);
 
-  // Listen for Escape key to close the User Guide modal
   useEffect(() => {
     function handleKeyDown(e) {
       if (e.key === "Escape" && showGuideModal) {
@@ -61,7 +72,6 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
     };
   }, [showGuideModal]);
 
-  // Fullscreen toggle using standard Web Fullscreen API
   function toggleFullscreen() {
     if (!document.fullscreenElement) {
       if (modalContainerRef.current?.requestFullscreen) {
@@ -74,7 +84,6 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
     }
   }
 
-  // Smooth GSAP Transition between Sign In and Sign Up
   useEffect(() => {
     const prefersReducedMotion =
       typeof window !== "undefined" &&
@@ -84,36 +93,25 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
     if (prefersReducedMotion) return;
 
     const isForward = authMode === "register";
-    const deltaX = isForward ? 18 : -18;
+    const deltaX = isForward ? 16 : -16;
 
     if (formContainerRef.current) {
       gsap.fromTo(
         formContainerRef.current,
         { opacity: 0, x: deltaX },
-        {
-          opacity: 1,
-          x: 0,
-          duration: 0.45,
-          ease: "power2.out",
-        }
+        { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }
       );
     }
 
     if (narrativeRef.current) {
       gsap.fromTo(
         narrativeRef.current,
-        { opacity: 0, y: isForward ? 10 : -10 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.45,
-          ease: "power2.out",
-        }
+        { opacity: 0, y: isForward ? 8 : -8 },
+        { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }
       );
     }
   }, [authMode]);
 
-  // Tactile GSAP attention shake on authentication error (triggers on local errors too)
   useEffect(() => {
     if ((loginError || registerError || error) && formContainerRef.current) {
       animateErrorShake(formContainerRef.current);
@@ -123,7 +121,6 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
   function handleSubmit(e) {
     e.preventDefault();
     setLoginError("");
-    // Client-side validation
     if (!username.trim()) {
       setLoginError("Please enter your username or email.");
       return;
@@ -138,7 +135,6 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
   async function handleRegister(e) {
     e.preventDefault();
     setRegisterError("");
-    // Client-side validation
     if (!registerName.trim()) {
       setRegisterError("Full name is required.");
       return;
@@ -176,21 +172,138 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
       style={{
         minHeight: "100vh",
         width: "100vw",
-        backgroundColor: "#F8FAFC",
-        backgroundImage: "radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.08) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.07) 0px, transparent 50%), radial-gradient(at 50% 50%, rgba(8, 127, 140, 0.04) 0px, transparent 60%)",
-        color: "#17212B",
+        backgroundColor: "#06090F",
+        backgroundImage: `
+          radial-gradient(circle at 10% 12%, rgba(14, 165, 233, 0.16) 0%, transparent 45%),
+          radial-gradient(circle at 90% 88%, rgba(16, 185, 129, 0.14) 0%, transparent 45%),
+          radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.10) 0%, transparent 55%),
+          linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px)
+        `,
+        backgroundSize: "100% 100%, 100% 100%, 100% 100%, 48px 48px, 48px 48px",
+        color: "#F8FAFC",
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        padding: "clamp(16px, 3vw, 32px)",
+        padding: "clamp(16px, 2.8vw, 32px)",
         overflowX: "hidden",
         position: "relative",
         boxSizing: "border-box",
+        fontFamily: "var(--font-sans, -apple-system, BlinkMacSystemFont, sans-serif)",
       }}
     >
-      {/* ── 3D Rotating Blood-Red DNA Helix Background Visual ── */}
-      <DNAHelixAnimation />
-      {/* ── Background Medical Line-Art: Subtle DNA & Biological Grid ── */}
+      <style>{`
+        .editorial-cyber-input {
+          width: 100%;
+          background: rgba(2, 6, 23, 0.72);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 10px;
+          padding: 11px 14px;
+          font-size: 0.86rem;
+          color: #F8FAFC;
+          outline: none;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+          box-sizing: border-box;
+          font-family: inherit;
+        }
+        .editorial-cyber-input::placeholder {
+          color: #475569;
+        }
+        .editorial-cyber-input:focus {
+          border-color: #38BDF8;
+          box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.22), 0 0 16px rgba(56, 189, 248, 0.15);
+          background: rgba(2, 6, 23, 0.85);
+        }
+        .editorial-glow-cta {
+          background: linear-gradient(135deg, #0EA5E9 0%, #06B6D4 50%, #10B981 100%);
+          color: #FFFFFF;
+          border: none;
+          border-radius: 10px;
+          padding: 12px 18px;
+          font-size: 0.88rem;
+          font-weight: 700;
+          letter-spacing: -0.01em;
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+          box-shadow: 0 4px 20px rgba(6, 182, 212, 0.38), 0 1px 2px rgba(0, 0, 0, 0.25);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          position: relative;
+          overflow: hidden;
+        }
+        .editorial-glow-cta:hover:not(:disabled) {
+          transform: translateY(-1.5px);
+          box-shadow: 0 8px 30px rgba(6, 182, 212, 0.55), 0 2px 6px rgba(0, 0, 0, 0.3);
+          filter: brightness(1.06);
+        }
+        .editorial-glow-cta:active:not(:disabled) {
+          transform: translateY(0);
+          box-shadow: 0 2px 12px rgba(6, 182, 212, 0.3);
+        }
+        .editorial-glow-cta:disabled {
+          opacity: 0.65;
+          cursor: not-allowed;
+          transform: none;
+        }
+        .editorial-google-btn {
+          width: 100%;
+          padding: 11px 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          background: rgba(255, 255, 255, 0.04);
+          color: #F8FAFC;
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          border-radius: 10px;
+          font-size: 0.86rem;
+          font-weight: 600;
+          cursor: pointer;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+          backdrop-filter: blur(8px);
+        }
+        .editorial-google-btn:hover {
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(56, 189, 248, 0.5);
+          box-shadow: 0 4px 20px rgba(56, 189, 248, 0.2);
+          transform: translateY(-1px);
+        }
+        .editorial-role-btn {
+          padding: 9px 12px;
+          font-size: 0.80rem;
+          font-family: inherit;
+          font-weight: 600;
+          border-radius: 9px;
+          cursor: pointer;
+          transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+        }
+        .editorial-role-btn.active {
+          border: 1.5px solid #38BDF8;
+          background: rgba(56, 189, 248, 0.14);
+          color: #38BDF8;
+          box-shadow: 0 0 16px rgba(56, 189, 248, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        .editorial-role-btn.inactive {
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: rgba(255, 255, 255, 0.02);
+          color: #94A3B8;
+        }
+        .editorial-role-btn.inactive:hover {
+          background: rgba(255, 255, 255, 0.05);
+          border-color: rgba(255, 255, 255, 0.16);
+          color: #E2E8F0;
+        }
+      `}</style>
+
+      <DNAHelixAnimation style={{ opacity: 0.35, filter: "drop-shadow(0 0 20px rgba(239, 68, 68, 0.25))" }} />
+
       <svg
         aria-hidden="true"
         style={{
@@ -201,27 +314,28 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
           height: "100%",
           pointerEvents: "none",
           zIndex: 0,
-          opacity: 0.55,
+          opacity: 0.35,
         }}
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          <linearGradient id="dnaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#087F8C" stopOpacity="0.12" />
-            <stop offset="100%" stopColor="#3B82B6" stopOpacity="0.04" />
+          <linearGradient id="cyberDnaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#0EA5E9" stopOpacity="0.25" />
+            <stop offset="50%" stopColor="#06B6D4" stopOpacity="0.15" />
+            <stop offset="100%" stopColor="#10B981" stopOpacity="0.05" />
           </linearGradient>
         </defs>
         <path
           d="M -100,200 Q 150,100 400,250 T 900,200 T 1400,280 T 1900,180"
           fill="none"
-          stroke="url(#dnaGrad)"
+          stroke="url(#cyberDnaGrad)"
           strokeWidth="1.5"
           strokeDasharray="4 6"
         />
         <path
           d="M -100,260 Q 150,360 400,210 T 900,260 T 1400,180 T 1900,280"
           fill="none"
-          stroke="url(#dnaGrad)"
+          stroke="url(#cyberDnaGrad)"
           strokeWidth="1.5"
         />
         {[200, 360, 520, 680, 840, 1000, 1160, 1320, 1480, 1640].map((x, i) => (
@@ -231,71 +345,102 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
             y1={210 + Math.sin(i) * 20}
             x2={x}
             y2={250 - Math.sin(i) * 20}
-            stroke="#D9E2EC"
+            stroke="rgba(255, 255, 255, 0.12)"
             strokeWidth="1"
-            strokeOpacity="0.7"
           />
         ))}
       </svg>
 
-      {/* ── Top Header Navigation ── */}
       <header
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          borderBottom: "1px solid #D9E2EC",
+          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
           paddingBottom: "16px",
-          gap: "12px",
+          gap: "14px",
           flexWrap: "wrap",
           position: "relative",
           zIndex: 10,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <span
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div
             style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "1.25rem",
-              fontWeight: 700,
-              letterSpacing: "-0.02em",
-              color: "#17212B",
+              width: "36px",
+              height: "36px",
+              borderRadius: "10px",
+              background: "linear-gradient(135deg, rgba(14, 165, 233, 0.2) 0%, rgba(16, 185, 129, 0.2) 100%)",
+              border: "1px solid rgba(56, 189, 248, 0.35)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 0 15px rgba(56, 189, 248, 0.25)",
             }}
           >
-            QRakshak
-          </span>
-          <span
-            style={{
-              fontSize: "0.70rem",
-              color: "#075E66",
-              fontWeight: 600,
-              background: "#EBF8FA",
-              padding: "3px 8px",
-              borderRadius: "6px",
-              border: "1px solid #D9E2EC",
-            }}
-          >
-            Clinical Technology Platform
-          </span>
+            <Activity size={19} color="#38BDF8" />
+          </div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
+            <span
+              style={{
+                fontFamily: "var(--font-display, inherit)",
+                fontSize: "1.32rem",
+                fontWeight: 800,
+                letterSpacing: "-0.02em",
+                color: "#FFFFFF",
+              }}
+            >
+              <span style={{ color: "#38BDF8" }}>Q</span>Rakshak
+            </span>
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                fontSize: "0.68rem",
+                color: "#38BDF8",
+                fontWeight: 600,
+                background: "rgba(14, 165, 233, 0.12)",
+                padding: "2px 8px",
+                borderRadius: "6px",
+                border: "1px solid rgba(56, 189, 248, 0.25)",
+              }}
+            >
+              <span
+                style={{
+                  width: "5px",
+                  height: "5px",
+                  borderRadius: "50%",
+                  background: "#10B981",
+                  boxShadow: "0 0 8px #10B981",
+                  display: "inline-block",
+                }}
+              />
+              <span>Quantum Clinical Platform v3.4</span>
+            </div>
+          </div>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "14px", flexWrap: "wrap" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "7px",
+              padding: "5px 12px",
+              borderRadius: "999px",
+              background: "rgba(255, 255, 255, 0.03)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+            }}
+          >
+            <ShieldCheck size={13} color="#10B981" />
             <span
               style={{
-                width: "7px",
-                height: "7px",
-                borderRadius: "50%",
-                background: "#16866A",
-                display: "inline-block",
-              }}
-            />
-            <span
-              style={{
-                fontSize: "0.72rem",
-                color: "#52616B",
+                fontSize: "0.70rem",
+                color: "#94A3B8",
                 fontWeight: 600,
-                fontFamily: "var(--font-mono)",
+                fontFamily: "var(--font-mono, monospace)",
+                letterSpacing: "0.04em",
               }}
             >
               HIPAA SAFE HARBOR • DPDP 2023 READY
@@ -305,129 +450,172 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
           <button
             type="button"
             onClick={() => setShowGuideModal(true)}
-            className="btn-secondary"
             style={{
               display: "inline-flex",
               alignItems: "center",
-              gap: "6px",
-              padding: "6px 14px",
+              gap: "7px",
+              padding: "7px 15px",
               fontSize: "0.76rem",
               fontWeight: 700,
-              background: "#FFFFFF",
-              borderColor: "#087F8C",
-              color: "#087F8C",
+              background: "rgba(14, 165, 233, 0.12)",
+              border: "1px solid rgba(56, 189, 248, 0.35)",
+              color: "#38BDF8",
               cursor: "pointer",
-              borderRadius: "8px",
-              boxShadow: "0 1px 4px rgba(8, 127, 140, 0.08)",
-              transition: "all 0.15s ease",
+              borderRadius: "9px",
+              boxShadow: "0 0 14px rgba(14, 165, 233, 0.15)",
+              transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
             }}
-            title="Open Fullscreen User Guide Video Walkthrough"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "rgba(14, 165, 233, 0.2)";
+              e.currentTarget.style.borderColor = "#38BDF8";
+              e.currentTarget.style.boxShadow = "0 0 20px rgba(56, 189, 248, 0.3)";
+              e.currentTarget.style.transform = "translateY(-1px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "rgba(14, 165, 233, 0.12)";
+              e.currentTarget.style.borderColor = "rgba(56, 189, 248, 0.35)";
+              e.currentTarget.style.boxShadow = "0 0 14px rgba(14, 165, 233, 0.15)";
+              e.currentTarget.style.transform = "none";
+            }}
+            title="Open Platform Walkthrough and User Guide"
           >
-            <PlayCircle size={15} color="#087F8C" />
-            <span>User Guide</span>
+            <PlayCircle size={15} color="#38BDF8" />
+            <span>Platform Guide</span>
           </button>
         </div>
       </header>
 
-      {/* ── Main Two-Column Split Grid ── */}
       <main className="editorial-main-grid">
-        {/* Left Column: Clinical Story & Product Context */}
-        <div ref={narrativeRef} style={{ display: "flex", flexDirection: "column", gap: "20px", position: "relative", zIndex: 10 }}>
+        <div
+          ref={narrativeRef}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "22px",
+            position: "relative",
+            zIndex: 10,
+          }}
+        >
           <div>
             <div
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "8px",
+                gap: "7px",
                 padding: "4px 12px",
-                background: "#EBF8FA",
-                border: "1px solid #D9E2EC",
+                background: "rgba(14, 165, 233, 0.10)",
+                border: "1px solid rgba(56, 189, 248, 0.25)",
                 borderRadius: "999px",
-                marginBottom: "14px",
-                boxShadow: "0 1px 6px rgba(255, 255, 255, 0.8)",
+                marginBottom: "16px",
+                boxShadow: "0 0 15px rgba(14, 165, 233, 0.12)",
               }}
             >
+              <Sparkles size={12} color="#38BDF8" />
               <span
                 style={{
-                  fontFamily: "var(--font-mono)",
+                  fontFamily: "var(--font-mono, monospace)",
                   fontSize: "0.68rem",
-                  letterSpacing: "0.06em",
-                  color: "#087F8C",
+                  letterSpacing: "0.08em",
+                  color: "#38BDF8",
                   fontWeight: 700,
                   textTransform: "uppercase",
                 }}
               >
-                Healthcare Technology
+                Next-Gen Healthcare Intelligence
               </span>
             </div>
 
             <h1
               style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "clamp(2rem, 3.8vw, 3.2rem)",
-                fontWeight: 700,
-                lineHeight: 1.16,
-                letterSpacing: "-0.02em",
-                color: "#17212B",
+                fontFamily: "var(--font-display, inherit)",
+                fontSize: "clamp(2.1rem, 3.8vw, 3.4rem)",
+                fontWeight: 800,
+                lineHeight: 1.15,
+                letterSpacing: "-0.03em",
+                color: "#FFFFFF",
                 margin: 0,
-                textShadow: "0 1px 4px rgba(255, 255, 255, 0.95), 0 0 18px rgba(255, 255, 255, 0.9)",
               }}
             >
               Clinical precision, <br />
-              <span style={{ color: "#087F8C" }}>human-centered care.</span>
+              <span
+                style={{
+                  background: "linear-gradient(135deg, #38BDF8 0%, #34D399 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                human-centered care.
+              </span>
             </h1>
           </div>
 
           <p
             style={{
-              fontSize: "0.95rem",
-              lineHeight: 1.6,
-              color: "#334155",
-              maxWidth: "500px",
+              fontSize: "0.94rem",
+              lineHeight: 1.65,
+              color: "#94A3B8",
+              maxWidth: "510px",
               margin: 0,
-              textShadow: "0 1px 3px rgba(255, 255, 255, 0.95), 0 0 12px rgba(255, 255, 255, 0.9)",
             }}
           >
             {authMode === "credentials"
-              ? "Access multi-modal clinical intelligence, real-time vital indicators, encrypted doctor consultations, and certified medical documentation."
-              : "Register your clinical persona to participate in collaborative consultations, record verified health indicators, and maintain tamper-proof patient records."}
+              ? "Access quantum multi-modal clinical intelligence, real-time vital indicators, encrypted doctor consultations, and certified tamper-proof medical documentation."
+              : "Register your clinical persona to participate in collaborative consultations, record verified health indicators, and maintain immutable cryptographic health records."}
           </p>
 
-          {/* Clinical Pillars */}
           <div
             style={{
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
-              gap: "12px",
-              borderTop: "1px solid #D9E2EC",
-              paddingTop: "18px",
+              gap: "14px",
+              borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+              paddingTop: "20px",
             }}
           >
             <div
               style={{
-                padding: "14px",
-                background: "#FFFFFF",
-                border: "1px solid #D9E2EC",
-                borderRadius: "10px",
+                padding: "16px",
+                background: "rgba(15, 23, 42, 0.55)",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
+                borderRadius: "14px",
+                backdropFilter: "blur(14px)",
+                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)",
               }}
             >
-              <span
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "0.64rem",
-                  color: "#087F8C",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                }}
-              >
-                MODALITY 01
-              </span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono, monospace)",
+                    fontSize: "0.62rem",
+                    color: "#38BDF8",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  MODALITY 01
+                </span>
+                <span
+                  style={{
+                    fontSize: "0.62rem",
+                    color: "#34D399",
+                    fontWeight: 700,
+                    background: "rgba(16, 185, 129, 0.12)",
+                    padding: "1px 6px",
+                    borderRadius: "4px",
+                    border: "1px solid rgba(16, 185, 129, 0.25)",
+                  }}
+                >
+                  99.4% AUC
+                </span>
+              </div>
               <strong
                 style={{
                   display: "block",
-                  fontSize: "0.88rem",
-                  color: "#17212B",
-                  marginTop: "2px",
+                  fontSize: "0.90rem",
+                  color: "#FFFFFF",
+                  marginTop: "6px",
+                  fontWeight: 700,
                 }}
               >
                 Early Risk Stratification
@@ -435,41 +623,60 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
               <span
                 style={{
                   display: "block",
-                  fontSize: "0.74rem",
-                  color: "#52616B",
-                  marginTop: "2px",
-                  lineHeight: 1.4,
+                  fontSize: "0.75rem",
+                  color: "#94A3B8",
+                  marginTop: "4px",
+                  lineHeight: 1.45,
                 }}
               >
-                Multi-organ biomarker screening & clinical explainability.
+                Multi-organ biomarker screening & explainable AI diagnostic pathways.
               </span>
             </div>
 
             <div
               style={{
-                padding: "14px",
-                background: "#FFFFFF",
-                border: "1px solid #D9E2EC",
-                borderRadius: "10px",
+                padding: "16px",
+                background: "rgba(15, 23, 42, 0.55)",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
+                borderRadius: "14px",
+                backdropFilter: "blur(14px)",
+                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)",
               }}
             >
-              <span
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "0.64rem",
-                  color: "#087F8C",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                }}
-              >
-                MODALITY 02
-              </span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono, monospace)",
+                    fontSize: "0.62rem",
+                    color: "#38BDF8",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  MODALITY 02
+                </span>
+                <span
+                  style={{
+                    fontSize: "0.62rem",
+                    color: "#38BDF8",
+                    fontWeight: 700,
+                    background: "rgba(14, 165, 233, 0.12)",
+                    padding: "1px 6px",
+                    borderRadius: "4px",
+                    border: "1px solid rgba(56, 189, 248, 0.25)",
+                  }}
+                >
+                  WebRTC E2EE
+                </span>
+              </div>
               <strong
                 style={{
                   display: "block",
-                  fontSize: "0.88rem",
-                  color: "#17212B",
-                  marginTop: "2px",
+                  fontSize: "0.90rem",
+                  color: "#FFFFFF",
+                  marginTop: "6px",
+                  fontWeight: 700,
                 }}
               >
                 Doctor Consultations
@@ -477,72 +684,73 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
               <span
                 style={{
                   display: "block",
-                  fontSize: "0.74rem",
-                  color: "#52616B",
-                  marginTop: "2px",
-                  lineHeight: 1.4,
+                  fontSize: "0.75rem",
+                  color: "#94A3B8",
+                  marginTop: "4px",
+                  lineHeight: 1.45,
                 }}
               >
-                Encrypted WebRTC telehealth & verified digital prescriptions.
+                Encrypted peer-to-peer telehealth, digital prescriptions & 3D organ twin.
               </span>
             </div>
           </div>
 
-          {/* User Guide Interactive Video Launch Card */}
           <div
             onClick={() => setShowGuideModal(true)}
             style={{
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              padding: "14px 18px",
-              background: "linear-gradient(135deg, #FFFFFF 0%, #EBF8FA 100%)",
-              border: "1px solid #B8E2E8",
-              borderRadius: "12px",
+              padding: "15px 18px",
+              background: "linear-gradient(135deg, rgba(15, 23, 42, 0.75) 0%, rgba(2, 6, 23, 0.85) 100%)",
+              border: "1px solid rgba(56, 189, 248, 0.25)",
+              borderRadius: "14px",
               cursor: "pointer",
-              boxShadow: "0 2px 8px rgba(8, 127, 140, 0.08)",
-              transition: "all 0.2s ease",
+              boxShadow: "0 8px 24px rgba(0, 0, 0, 0.35)",
+              transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "#087F8C";
-              e.currentTarget.style.transform = "translateY(-1px)";
+              e.currentTarget.style.borderColor = "#38BDF8";
+              e.currentTarget.style.boxShadow = "0 8px 28px rgba(56, 189, 248, 0.25)";
+              e.currentTarget.style.transform = "translateY(-1.5px)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "#B8E2E8";
+              e.currentTarget.style.borderColor = "rgba(56, 189, 248, 0.25)";
+              e.currentTarget.style.boxShadow = "0 8px 24px rgba(0, 0, 0, 0.35)";
               e.currentTarget.style.transform = "none";
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
               <div
                 style={{
-                  width: "38px",
-                  height: "38px",
-                  borderRadius: "50%",
-                  background: "#087F8C",
+                  width: "40px",
+                  height: "40px",
+                  borderRadius: "10px",
+                  background: "linear-gradient(135deg, #0EA5E9 0%, #10B981 100%)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   color: "#FFFFFF",
                   flexShrink: 0,
-                  boxShadow: "0 2px 6px rgba(8, 127, 140, 0.3)",
+                  boxShadow: "0 0 16px rgba(14, 165, 233, 0.4)",
                 }}
               >
                 <PlayCircle size={22} />
               </div>
               <div>
-                <div style={{ fontSize: "0.84rem", fontWeight: 700, color: "#17212B" }}>
-                  New to QRakshak? Watch User Guide
+                <div style={{ fontSize: "0.86rem", fontWeight: 700, color: "#FFFFFF" }}>
+                  New to QRakshak? Watch Platform Tour
                 </div>
-                <div style={{ fontSize: "0.72rem", color: "#52616B", marginTop: "1px" }}>
-                  Click to open full-screen video demonstration & clinical walkthrough
+                <div style={{ fontSize: "0.72rem", color: "#94A3B8", marginTop: "2px" }}>
+                  Interactive fullscreen video demonstration & clinical walkthrough
                 </div>
               </div>
             </div>
             <span
               style={{
-                fontSize: "0.74rem",
+                fontSize: "0.76rem",
                 fontWeight: 700,
-                color: "#087F8C",
+                color: "#38BDF8",
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "4px",
@@ -552,27 +760,40 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
               Play Video ↗
             </span>
           </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "16px", opacity: 0.85 }}>
+            <span style={{ fontSize: "0.70rem", color: "#64748B", display: "inline-flex", alignItems: "center", gap: "5px" }}>
+              <CheckCircle2 size={12} color="#10B981" /> SHA-256 Tamper Proof
+            </span>
+            <span style={{ fontSize: "0.70rem", color: "#64748B", display: "inline-flex", alignItems: "center", gap: "5px" }}>
+              <Lock size={12} color="#38BDF8" /> Zero-Knowledge Access
+            </span>
+            <span style={{ fontSize: "0.70rem", color: "#64748B", display: "inline-flex", alignItems: "center", gap: "5px" }}>
+              <Cpu size={12} color="#A78BFA" /> Quantum Enhanced
+            </span>
+          </div>
         </div>
 
-        {/* Right Column: Clean Luxury Authentication Form Card */}
         <div
           ref={formContainerRef}
-          className="glass-card-luxury glow-border"
           style={{
-            borderRadius: "16px",
+            background: "rgba(13, 19, 33, 0.78)",
+            backdropFilter: "blur(28px)",
+            WebkitBackdropFilter: "blur(28px)",
+            border: "1px solid rgba(255, 255, 255, 0.10)",
+            borderRadius: "20px",
             padding: "clamp(24px, 3.5vw, 36px)",
-            boxShadow: "0 20px 45px -15px rgba(8, 127, 140, 0.12), 0 4px 16px rgba(15, 23, 42, 0.06)",
+            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 35px rgba(14, 165, 233, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.12)",
             position: "relative",
           }}
         >
-          {/* Card Header & Mode Switcher */}
           <div style={{ marginBottom: "20px" }}>
             <span
               style={{
-                fontFamily: "var(--font-mono)",
+                fontFamily: "var(--font-mono, monospace)",
                 fontSize: "0.68rem",
                 letterSpacing: "0.08em",
-                color: "#087F8C",
+                color: "#38BDF8",
                 textTransform: "uppercase",
                 fontWeight: 700,
                 display: "block",
@@ -583,30 +804,30 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
             </span>
             <h2
               style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "1.5rem",
-                fontWeight: 700,
-                color: "#17212B",
+                fontFamily: "var(--font-display, inherit)",
+                fontSize: "1.55rem",
+                fontWeight: 800,
+                color: "#FFFFFF",
                 letterSpacing: "-0.02em",
                 margin: 0,
               }}
             >
               {authMode === "credentials" ? "Sign in to QRakshak" : "Create Clinical Account"}
             </h2>
-            <p style={{ fontSize: "0.82rem", color: "#52616B", marginTop: "4px", margin: 0 }}>
+            <p style={{ fontSize: "0.82rem", color: "#94A3B8", marginTop: "5px", margin: 0 }}>
               {authMode === "credentials"
-                ? "Enter your verified credentials to access your care dashboard."
-                : "Fill in your profile information to initialize your health identity."}
+                ? "Enter your verified credentials to access your clinical dashboard."
+                : "Fill in your profile information to initialize your cryptographic health identity."}
             </p>
           </div>
 
-          {/* Mode Switcher Tabs */}
           <div
             style={{
               display: "flex",
-              background: "#F1F5F9",
+              background: "rgba(2, 6, 23, 0.65)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
               padding: "4px",
-              borderRadius: "9px",
+              borderRadius: "12px",
               marginBottom: "18px",
               gap: "4px",
             }}
@@ -618,13 +839,15 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                 flex: 1,
                 padding: "8px 12px",
                 fontSize: "0.80rem",
-                fontFamily: "var(--font-sans)",
-                fontWeight: authMode === "credentials" ? 600 : 500,
-                borderRadius: "7px",
-                border: "none",
-                background: authMode === "credentials" ? "#FFFFFF" : "transparent",
-                color: authMode === "credentials" ? "#087F8C" : "#52616B",
-                boxShadow: authMode === "credentials" ? "0 1px 3px rgba(15, 23, 42, 0.08)" : "none",
+                fontWeight: authMode === "credentials" ? 700 : 500,
+                borderRadius: "8px",
+                border: authMode === "credentials" ? "1px solid rgba(56, 189, 248, 0.45)" : "none",
+                background:
+                  authMode === "credentials"
+                    ? "linear-gradient(135deg, rgba(14, 165, 233, 0.22) 0%, rgba(16, 185, 129, 0.18) 100%)"
+                    : "transparent",
+                color: authMode === "credentials" ? "#FFFFFF" : "#64748B",
+                boxShadow: authMode === "credentials" ? "0 2px 10px rgba(14, 165, 233, 0.2)" : "none",
                 cursor: "pointer",
                 transition: "all 0.18s cubic-bezier(0.22, 1, 0.36, 1)",
               }}
@@ -638,13 +861,15 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                 flex: 1,
                 padding: "8px 12px",
                 fontSize: "0.80rem",
-                fontFamily: "var(--font-sans)",
-                fontWeight: authMode === "register" ? 600 : 500,
-                borderRadius: "7px",
-                border: "none",
-                background: authMode === "register" ? "#FFFFFF" : "transparent",
-                color: authMode === "register" ? "#087F8C" : "#52616B",
-                boxShadow: authMode === "register" ? "0 1px 3px rgba(15, 23, 42, 0.08)" : "none",
+                fontWeight: authMode === "register" ? 700 : 500,
+                borderRadius: "8px",
+                border: authMode === "register" ? "1px solid rgba(56, 189, 248, 0.45)" : "none",
+                background:
+                  authMode === "register"
+                    ? "linear-gradient(135deg, rgba(14, 165, 233, 0.22) 0%, rgba(16, 185, 129, 0.18) 100%)"
+                    : "transparent",
+                color: authMode === "register" ? "#FFFFFF" : "#64748B",
+                boxShadow: authMode === "register" ? "0 2px 10px rgba(14, 165, 233, 0.2)" : "none",
                 cursor: "pointer",
                 transition: "all 0.18s cubic-bezier(0.22, 1, 0.36, 1)",
               }}
@@ -653,126 +878,173 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
             </button>
           </div>
 
-          {/* SIGN IN VIEW */}
           {authMode === "credentials" ? (
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-              {/* Account Persona Selector */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-                  <label className="form-label" style={{ margin: 0 }}>
-                    Account Persona
-                  </label>
-                  <span style={{ fontSize: "0.66rem", color: "#087F8C", fontWeight: 600 }}>
-                    Tap to auto-fill verified login
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.location.href = ENDPOINTS.AUTH_GOOGLE;
+                  }}
+                  className="editorial-google-btn"
+                >
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17.64 9.20455C17.64 8.56636 17.5827 7.95273 17.4764 7.36364H9V10.845H13.8436C13.635 11.97 13.0009 12.9232 12.0477 13.5614V15.8195H14.9564C16.6582 14.2527 17.64 11.9455 17.64 9.20455Z" fill="#4285F4"/>
+                    <path d="M9 18C11.43 18 13.4673 17.1941 14.9564 15.8195L12.0477 13.5614C11.2418 14.1014 10.2109 14.4205 9 14.4205C6.65591 14.4205 4.67182 12.8373 3.96409 10.71H0.957275V13.0418C2.43818 15.9832 5.48182 18 9 18Z" fill="#34A853"/>
+                    <path d="M3.96409 10.71C3.78409 10.17 3.68182 9.59318 3.68182 9C3.68182 8.40682 3.78409 7.83 3.96409 7.29V4.95818H0.957275C0.347727 6.17318 0 7.54773 0 9C0 10.4523 0.347727 11.8268 0.957275 13.0418L3.96409 10.71Z" fill="#FBBC05"/>
+                    <path d="M9 3.57955C10.3214 3.57955 11.5077 4.03364 12.4405 4.92545L15.0218 2.34409C13.4632 0.891818 11.4259 0 9 0C5.48182 0 2.43818 2.01682 0.957275 4.95818L3.96409 7.29C4.67182 5.16273 6.65591 3.57955 9 3.57955Z" fill="#EA4335"/>
+                  </svg>
+                  <span>Sign In with Google</span>
+                </button>
+                <div style={{ display: "flex", alignItems: "center", margin: "14px 0 8px 0" }}>
+                  <div style={{ flex: 1, height: "1px", background: "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent)" }} />
+                  <span style={{ padding: "0 10px", fontSize: "0.66rem", color: "#64748B", textTransform: "uppercase", letterSpacing: "0.8px", fontWeight: 700 }}>
+                    or clinical credentials
                   </span>
+                  <div style={{ flex: 1, height: "1px", background: "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent)" }} />
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px" }}>
-                  {[
-                    { id: "patient", label: "Patient", u: "aryan", p: "patient123" },
-                    { id: "doctor", label: "Clinician", u: "dr.aryan", p: "clinician123" },
-                    { id: "admin", label: "Auditor", u: "admin.audit", p: "admin123" },
-                  ].map((r) => (
+              </div>
+
+              <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                    <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#CBD5E1" }}>
+                      Clearance Level
+                    </label>
+                    <span style={{ fontSize: "0.66rem", color: "#64748B", fontWeight: 600 }}>
+                      Select security tier
+                    </span>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px" }}>
+                    {[
+                      { id: "patient", label: "Patient" },
+                      { id: "doctor", label: "Clinician" },
+                      { id: "admin", label: "Auditor" },
+                    ].map((r) => (
+                      <button
+                        key={r.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedRole(r.id);
+                          setLoginError("");
+                        }}
+                        className={`editorial-role-btn ${selectedRole === r.id ? "active" : "inactive"}`}
+                      >
+                        {r.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+                  <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#CBD5E1" }}>
+                    Username or Email
+                  </label>
+                  <input
+                    type="text"
+                    className="editorial-cyber-input"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Enter username or email"
+                    required
+                  />
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#CBD5E1" }}>
+                      Password
+                    </label>
                     <button
-                      key={r.id}
                       type="button"
-                      onClick={() => {
-                        setSelectedRole(r.id);
-                        setUsername(r.u);
-                        setPassword(r.p);
-                        setLoginError(""); // clear any stale error when switching persona
-                      }}
+                      onClick={() => setShowPassword(!showPassword)}
                       style={{
-                        padding: "8px 10px",
-                        fontSize: "0.78rem",
-                        fontFamily: "var(--font-sans)",
-                        fontWeight: selectedRole === r.id ? 600 : 500,
-                        border: selectedRole === r.id ? "1.5px solid #087F8C" : "1px solid #D9E2EC",
-                        borderRadius: "8px",
-                        background: selectedRole === r.id ? "#EBF8FA" : "#FFFFFF",
-                        color: selectedRole === r.id ? "#087F8C" : "#52616B",
+                        background: "none",
+                        border: "none",
                         cursor: "pointer",
-                        transition: "all 0.15s ease",
+                        fontSize: "0.72rem",
+                        color: "#38BDF8",
+                        padding: 0,
+                        fontWeight: 600,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "4px",
                       }}
                     >
-                      {r.label}
+                      {showPassword ? <EyeOff size={13} /> : <Eye size={13} />}
+                      <span>{showPassword ? "Hide" : "Show"}</span>
                     </button>
-                  ))}
+                  </div>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    className="editorial-cyber-input"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter password"
+                    required
+                  />
                 </div>
-              </div>
 
-              {/* Username Input */}
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Username or Email</label>
-                <input
-                  type="text"
-                  className="input-control"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter username or email"
-                  required
-                />
-              </div>
-
-              {/* Password Input */}
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <label className="form-label">Password</label>
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
+                {(loginError || error) && (
+                  <div
                     style={{
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      fontSize: "0.72rem",
-                      color: "#087F8C",
-                      padding: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      padding: "9px 12px",
+                      background: "rgba(239, 68, 68, 0.12)",
+                      border: "1px solid rgba(239, 68, 68, 0.35)",
+                      borderRadius: "8px",
+                      color: "#FCA5A5",
+                      fontSize: "0.78rem",
                       fontWeight: 600,
                     }}
                   >
-                    {showPassword ? "Hide" : "Show"}
-                  </button>
-                </div>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  className="input-control"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter password"
-                  required
-                />
-              </div>
-
-              {(loginError || error) && (
-                <div className="clinical-error-banner" style={{ margin: "4px 0 0 0" }}>
-                  <div>{loginError || error}</div>
-                </div>
-              )}
-
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn-primary"
-                style={{ width: "100%", marginTop: "6px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
-              >
-                {loading ? (
-                  <>
-                    <SquareLoader size="sm" color="#FFFFFF" style={{ padding: 0 }} />
-                    <span>Signing in...</span>
-                  </>
-                ) : (
-                  "Sign In to Workspace"
+                    <AlertCircle size={15} color="#F87171" style={{ flexShrink: 0 }} />
+                    <span>{loginError || error}</span>
+                  </div>
                 )}
-              </button>
-            </form>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="editorial-glow-cta"
+                  style={{ width: "100%", marginTop: "4px" }}
+                >
+                  {loading ? (
+                    <>
+                      <SquareLoader size="sm" color="#FFFFFF" style={{ padding: 0 }} />
+                      <span>Authenticating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Sign In to Workspace</span>
+                      <ArrowRight size={16} />
+                    </>
+                  )}
+                </button>
+              </form>
+
+              <div style={{ textAlign: "center", marginTop: "2px" }}>
+                <span
+                  style={{
+                    fontSize: "0.68rem",
+                    color: "#64748B",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "5px",
+                  }}
+                >
+                  <Lock size={11} color="#34D399" />
+                  Verified login security notice dispatched to your email on sign-in
+                </span>
+              </div>
+            </div>
           ) : (
-            /* REGISTRATION VIEW */
-            <form onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <form onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", gap: "13px" }}>
               <div>
-                <label className="form-label" style={{ marginBottom: "6px" }}>
-                  Registering Role
+                <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#CBD5E1", display: "block", marginBottom: "6px" }}>
+                  Registering Persona
                 </label>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px" }}>
                   {[
@@ -783,17 +1055,7 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                       key={r.id}
                       type="button"
                       onClick={() => setRegisterRole(r.id)}
-                      style={{
-                        padding: "8px 10px",
-                        fontSize: "0.78rem",
-                        fontWeight: registerRole === r.id ? 600 : 500,
-                        border: registerRole === r.id ? "1.5px solid #087F8C" : "1px solid #D9E2EC",
-                        borderRadius: "8px",
-                        background: registerRole === r.id ? "#EBF8FA" : "#FFFFFF",
-                        color: registerRole === r.id ? "#087F8C" : "#52616B",
-                        cursor: "pointer",
-                        transition: "all 0.15s ease",
-                      }}
+                      className={`editorial-role-btn ${registerRole === r.id ? "active" : "inactive"}`}
                     >
                       {r.label}
                     </button>
@@ -801,11 +1063,13 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                 </div>
               </div>
 
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Full Name</label>
+              <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+                <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#CBD5E1" }}>
+                  Full Legal Name
+                </label>
                 <input
                   type="text"
-                  className="input-control"
+                  className="editorial-cyber-input"
                   value={registerName}
                   onChange={(e) => setRegisterName(e.target.value)}
                   placeholder="e.g. Aryan Choudhury"
@@ -814,22 +1078,26 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">Username</label>
+                <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+                  <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#CBD5E1" }}>
+                    Username
+                  </label>
                   <input
                     type="text"
-                    className="input-control"
+                    className="editorial-cyber-input"
                     value={registerUsername}
                     onChange={(e) => setRegisterUsername(e.target.value)}
                     placeholder="aryan.patient"
                     required
                   />
                 </div>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">Email</label>
+                <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+                  <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#CBD5E1" }}>
+                    Email Address
+                  </label>
                   <input
                     type="email"
-                    className="input-control"
+                    className="editorial-cyber-input"
                     value={registerEmail}
                     onChange={(e) => setRegisterEmail(e.target.value)}
                     placeholder="aryan@health.org"
@@ -840,52 +1108,72 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
 
               {registerRole === "doctor" && (
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                  <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label className="form-label">Specialty</label>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+                    <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#CBD5E1" }}>
+                      Medical Specialty
+                    </label>
                     <input
                       type="text"
-                      className="input-control"
+                      className="editorial-cyber-input"
                       value={registerSpecialty}
                       onChange={(e) => setRegisterSpecialty(e.target.value)}
                       placeholder="e.g. Cardiology OPD"
                     />
                   </div>
-                  <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label className="form-label">Hospital Affiliation</label>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+                    <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#CBD5E1" }}>
+                      Hospital Affiliation
+                    </label>
                     <input
                       type="text"
-                      className="input-control"
+                      className="editorial-cyber-input"
                       value={registerAffiliation}
                       onChange={(e) => setRegisterAffiliation(e.target.value)}
-                      placeholder="e.g. AIIMS OPD"
+                      placeholder="e.g. AIIMS Clinical OPD"
                     />
                   </div>
                 </div>
               )}
 
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">Password</label>
+              <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+                <label style={{ fontSize: "0.78rem", fontWeight: 600, color: "#CBD5E1" }}>
+                  Password
+                </label>
                 <input
                   type="password"
-                  className="input-control"
+                  className="editorial-cyber-input"
                   value={registerPassword}
                   onChange={(e) => setRegisterPassword(e.target.value)}
-                  placeholder="Create secure password"
+                  placeholder="Create secure password (min. 6 chars)"
                   required
                 />
               </div>
 
               {(registerError || error) && (
-                <div className="clinical-error-banner" style={{ margin: "4px 0 0 0" }}>
-                  <div>{registerError || error}</div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "9px 12px",
+                    background: "rgba(239, 68, 68, 0.12)",
+                    border: "1px solid rgba(239, 68, 68, 0.35)",
+                    borderRadius: "8px",
+                    color: "#FCA5A5",
+                    fontSize: "0.78rem",
+                    fontWeight: 600,
+                  }}
+                >
+                  <AlertCircle size={15} color="#F87171" style={{ flexShrink: 0 }} />
+                  <span>{registerError || error}</span>
                 </div>
               )}
 
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary"
-                style={{ width: "100%", marginTop: "6px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
+                className="editorial-glow-cta"
+                style={{ width: "100%", marginTop: "4px" }}
               >
                 {loading ? (
                   <>
@@ -893,7 +1181,10 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                     <span>Creating Account...</span>
                   </>
                 ) : (
-                  "Complete Registration"
+                  <>
+                    <span>Complete Registration</span>
+                    <ArrowRight size={16} />
+                  </>
                 )}
               </button>
             </form>
@@ -901,7 +1192,6 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
         </div>
       </main>
 
-      {/* ── Fullscreen User Guide Video Modal ── */}
       {showGuideModal && (
         <div
           ref={modalContainerRef}
@@ -909,8 +1199,9 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
             position: "fixed",
             inset: 0,
             zIndex: 99999,
-            background: "rgba(15, 23, 42, 0.95)",
-            backdropFilter: "blur(12px)",
+            background: "rgba(2, 6, 23, 0.96)",
+            backdropFilter: "blur(16px)",
+            WebkitBackdropFilter: "blur(16px)",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -919,7 +1210,6 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
             boxSizing: "border-box",
           }}
         >
-          {/* Top Bar inside Fullscreen */}
           <div
             style={{
               width: "100%",
@@ -936,15 +1226,15 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
               <div
                 style={{
-                  width: "36px",
-                  height: "36px",
-                  borderRadius: "8px",
-                  background: "#087F8C",
+                  width: "38px",
+                  height: "38px",
+                  borderRadius: "10px",
+                  background: "linear-gradient(135deg, #0EA5E9 0%, #10B981 100%)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   color: "#FFFFFF",
-                  boxShadow: "0 2px 8px rgba(8, 127, 140, 0.4)",
+                  boxShadow: "0 0 16px rgba(14, 165, 233, 0.4)",
                 }}
               >
                 <Video size={20} />
@@ -952,7 +1242,7 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   <h2 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 800, letterSpacing: "-0.01em" }}>
-                    QRakshak Platform User Guide & System Walkthrough
+                    QRakshak Platform User Guide & Walkthrough
                   </h2>
                   <span
                     style={{
@@ -960,9 +1250,9 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                       fontWeight: 700,
                       padding: "2px 8px",
                       borderRadius: "4px",
-                      background: "rgba(8, 127, 140, 0.3)",
-                      border: "1px solid #087F8C",
-                      color: "#A5F3FC",
+                      background: "rgba(14, 165, 233, 0.2)",
+                      border: "1px solid rgba(56, 189, 248, 0.4)",
+                      color: "#38BDF8",
                       textTransform: "uppercase",
                       letterSpacing: "0.04em",
                     }}
@@ -971,7 +1261,7 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                   </span>
                 </div>
                 <p style={{ margin: "2px 0 0 0", fontSize: "0.76rem", color: "#94A3B8" }}>
-                  Official clinician & patient demonstration • Press <kbd style={{ background: "rgba(255,255,255,0.15)", padding: "1px 6px", borderRadius: "3px", color: "#FFFFFF", fontSize: "0.70rem" }}>ESC</kbd> or click Close to return
+                  Official clinician & patient demonstration • Press <kbd style={{ background: "rgba(255,255,255,0.12)", padding: "1px 6px", borderRadius: "3px", color: "#FFFFFF", fontSize: "0.70rem" }}>ESC</kbd> or click Close to return
                 </p>
               </div>
             </div>
@@ -981,8 +1271,8 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                 type="button"
                 onClick={toggleFullscreen}
                 style={{
-                  background: "rgba(255, 255, 255, 0.12)",
-                  border: "1px solid rgba(255, 255, 255, 0.25)",
+                  background: "rgba(255, 255, 255, 0.08)",
+                  border: "1px solid rgba(255, 255, 255, 0.18)",
                   color: "#FFFFFF",
                   padding: "8px 16px",
                   borderRadius: "8px",
@@ -994,7 +1284,6 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                   fontWeight: 600,
                   transition: "all 0.15s ease",
                 }}
-                title="Toggle browser native fullscreen"
               >
                 <Maximize2 size={14} />
                 <span>Fullscreen</span>
@@ -1004,8 +1293,8 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                 type="button"
                 onClick={() => setShowGuideModal(false)}
                 style={{
-                  background: "rgba(239, 68, 68, 0.22)",
-                  border: "1px solid rgba(239, 68, 68, 0.4)",
+                  background: "rgba(239, 68, 68, 0.18)",
+                  border: "1px solid rgba(239, 68, 68, 0.35)",
                   color: "#FCA5A5",
                   padding: "8px 16px",
                   borderRadius: "8px",
@@ -1017,7 +1306,6 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                   fontWeight: 700,
                   transition: "all 0.15s ease",
                 }}
-                title="Close User Guide (Esc)"
               >
                 <X size={16} />
                 <span>Close</span>
@@ -1025,7 +1313,6 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
             </div>
           </div>
 
-          {/* Video Container Stage */}
           <div
             style={{
               width: "100%",
@@ -1043,7 +1330,6 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
               justifyContent: "center",
             }}
           >
-            {/* Standard HTML5 Video Player */}
             <video
               ref={videoRef}
               src={guideVideoUrl}
@@ -1063,7 +1349,6 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
               Your browser does not support HTML5 video streaming.
             </video>
 
-            {/* Video Placeholder / Fallback State */}
             {videoError && (
               <div
                 style={{
@@ -1080,31 +1365,30 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
               >
                 <div
                   style={{
-                    width: "72px",
-                    height: "72px",
+                    width: "68px",
+                    height: "68px",
                     borderRadius: "50%",
-                    background: "rgba(8, 127, 140, 0.18)",
-                    border: "2px solid #087F8C",
+                    background: "rgba(14, 165, 233, 0.15)",
+                    border: "2px solid #0EA5E9",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     marginBottom: "18px",
                   }}
                 >
-                  <PlayCircle size={36} color="#087F8C" />
+                  <PlayCircle size={36} color="#38BDF8" />
                 </div>
                 <h3 style={{ fontSize: "1.35rem", fontWeight: 800, margin: "0 0 8px 0" }}>
                   User Guide Video Screen Ready
                 </h3>
                 <p style={{ fontSize: "0.85rem", color: "#94A3B8", lineHeight: 1.6, margin: "0 0 20px 0" }}>
                   This full-screen video stage is configured for your walkthrough video. You can add your video file to{" "}
-                  <code style={{ background: "rgba(255, 255, 255, 0.1)", padding: "3px 8px", borderRadius: "4px", color: "#38BDF8", fontFamily: "var(--font-mono)" }}>
+                  <code style={{ background: "rgba(255, 255, 255, 0.1)", padding: "3px 8px", borderRadius: "4px", color: "#38BDF8", fontFamily: "var(--font-mono, monospace)" }}>
                     frontend/public/videos/user-guide.mp4
                   </code>{" "}
-                  or paste a link or choose a video file below:
+                  or paste a link below:
                 </p>
 
-                {/* Quick File Upload / URL test for user */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%" }}>
                   <div style={{ display: "flex", gap: "8px" }}>
                     <input
@@ -1135,7 +1419,7 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                       justifyContent: "center",
                       gap: "8px",
                       padding: "10px 18px",
-                      background: "#087F8C",
+                      background: "linear-gradient(135deg, #0EA5E9 0%, #10B981 100%)",
                       color: "#FFFFFF",
                       borderRadius: "8px",
                       cursor: "pointer",
@@ -1144,7 +1428,7 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                     }}
                   >
                     <Video size={16} />
-                    <span>Select Video File to Test Fullscreen</span>
+                    <span>Select Local Video File</span>
                     <input
                       type="file"
                       accept="video/*"

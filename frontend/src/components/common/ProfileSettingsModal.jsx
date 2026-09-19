@@ -9,7 +9,7 @@ export default function ProfileSettingsModal({ isOpen, onClose, userId = "USR-5E
   const [profile, setProfile] = useState({
     name: "",
     role: userRole || "patient",
-    title: "Patient",
+    title: "",
     primary_email: "",
     extra_email: "",
     emergency_phone: "",

@@ -167,13 +167,18 @@ class SkinCancerPredictor:
         uncertainty_score = round(float(1.0 - confidence_val), 4)
         uncertainty_status = "HIGH" if uncertainty_score > 0.35 else "LOW"
 
+        probabilities_dict = {
+            self.class_names[i] if i < len(self.class_names) else f"Class_{i}": round(float(prob[i]), 4)
+            for i in range(len(prob))
+        }
+
         return {
             "request_id": request_id,
             "status": "completed",
             "inference_ms": round((time.perf_counter() - started_at) * 1000, 2),
             "prediction": {"class": label, "confidence": round(confidence_val, 4), "probability": round(confidence_val, 4)},
             "alternatives": alternatives,
-            "probabilities": probabilities,
+            "probabilities": probabilities_dict,
             "uncertainty": {
                 "score": uncertainty_score,
                 "status": uncertainty_status,

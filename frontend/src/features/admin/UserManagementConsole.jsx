@@ -41,9 +41,9 @@ export default function UserManagementConsole() {
     name: "",
     email: "",
     secondary_email: "",
-    emergency_phone: "+91 98333 44556",
+    emergency_phone: "",
     role: "patient",
-    hospital_affiliation: "AIIMS Clinical AI OPD",
+    hospital_affiliation: "",
     license_number: "",
   });
 
@@ -82,9 +82,9 @@ export default function UserManagementConsole() {
         name: "",
         email: "",
         secondary_email: "",
-        emergency_phone: "+91 98333 44556",
+        emergency_phone: "",
         role: "patient",
-        hospital_affiliation: "AIIMS Clinical AI OPD",
+        hospital_affiliation: "",
         license_number: "",
       });
       loadUsers();

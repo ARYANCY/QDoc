@@ -20,6 +20,21 @@ export const authApi = {
     return data;
   },
 
+  async loginWithGoogleToken(token) {
+    if (!token) return null;
+    localStorage.setItem("qmed_token", token);
+    try {
+      const me = await this.getCurrentUser();
+      if (me && me.user) {
+        localStorage.setItem("qmed_user", JSON.stringify(me.user));
+        return me.user;
+      }
+    } catch (err) {
+      console.warn("Failed to fetch user profile with Google token:", err);
+    }
+    return null;
+  },
+
   async getCurrentUser() {
     return apiClient.get(ENDPOINTS.AUTH_ME);
   },

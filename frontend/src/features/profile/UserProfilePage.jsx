@@ -24,6 +24,7 @@ import {
 import { profileApi } from "../../api/profile";
 import { clinicalApi } from "../../api/clinical";
 import { authApi } from "../../api/auth";
+import apiClient from "../../api/client";
 import { ENDPOINTS, EMERGENCY_PORTAL_BASE } from "../../api/config";
 import QRCodeSVG from "../../components/common/QRCodeSVG";
 import TriagePhysicalCard from "../../components/clinical/TriagePhysicalCard";
@@ -104,7 +105,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
     name: currentUser?.name || "",
     role: currentUser?.role || "patient",
     age: "",
-    gender: "Unspecified",
+    gender: "",
     primary_email: currentUser?.email || "",
     extra_email: "",
     emergency_phone: "",
@@ -117,8 +118,8 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
     medical_history: "",
     abha_id: "",
     organ_donor: false,
-    department: "Patient Self-Analysis & Care",
-    hospital: "AIIMS Cardiology & Oncology OPD",
+    department: "",
+    hospital: "",
     license_id: "",
     attending_physician: "",
   });
@@ -131,17 +132,11 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
   const [deleting, setDeleting] = useState(false);
   const [viewCardOpen, setViewCardOpen] = useState(false);
   const [copiedPass, setCopiedPass] = useState(false);
-  const [cardFace, setCardFace] = useState('dual'); // 'dual', 'front', 'back'
-  const [cardTheme, setCardTheme] = useState('light'); // 'light', 'dark'
-  const [medicalHistory, setMedicalHistory] = useState([
-    { id: "history-1", condition: "", notes: "" },
-  ]);
-  const [medications, setMedications] = useState([
-    { id: "med-1", name: "", dose: "", frequency: "" },
-  ]);
-  const [emergencyContacts, setEmergencyContacts] = useState([
-    { id: "contact-1", name: "", relation: "", phone: "", email: "", is_primary: true },
-  ]);
+  const [cardFace, setCardFace] = useState('dual');
+  const [cardTheme, setCardTheme] = useState('light');
+  const [medicalHistory, setMedicalHistory] = useState([]);
+  const [medications, setMedications] = useState([]);
+  const [emergencyContacts, setEmergencyContacts] = useState([]);
 
   const isDeleteAuthorized = deleteConfirmText.trim().toLowerCase() === "confirm deletion account";
 
@@ -251,13 +246,8 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
     setEmergencyContacts((items) => [...items, { id: `contact-${Date.now()}`, name: "", relation: "", phone: "", email: "", is_primary: false }]);
   }
 
-  const [activeTab, setActiveTab] = useState("identity"); // "identity", "records", "pass", "security"
-  const [allergiesList, setAllergiesList] = useState(() => {
-    return [
-      { id: "alg-1", allergen: "Penicillin", severity: "HIGH", reaction: "Anaphylaxis / Severe Bronchospasm" },
-      { id: "alg-2", allergen: "Sulfonamides", severity: "MODERATE", reaction: "Cutaneous Rash / Erythema" },
-    ];
-  });
+  const [activeTab, setActiveTab] = useState("identity");
+  const [allergiesList, setAllergiesList] = useState([]);
   const [newAllergen, setNewAllergen] = useState("");
   const [newAllergySev, setNewAllergySev] = useState("HIGH");
   const [newAllergyRxn, setNewAllergyRxn] = useState("");
@@ -570,6 +560,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                   value={profile.name || ""}
                   onChange={(e) => handleFieldChange("name", e.target.value)}
                   onBlur={handleFieldBlur}
+                  placeholder="Enter full legal name"
                   required
                 />
               </div>
@@ -581,6 +572,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                   className="input-control"
                   value={profile.username || currentUser?.username || ""}
                   readOnly
+                  placeholder="System ID"
                   style={{ background: "var(--bg-surface-alt)", color: "var(--text-muted)", cursor: "not-allowed" }}
                 />
               </div>
@@ -595,6 +587,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                   value={profile.age ?? ""}
                   onChange={(e) => handleFieldChange("age", e.target.value === "" ? "" : Number(e.target.value))}
                   onBlur={handleFieldBlur}
+                  placeholder="Enter age"
                 />
               </div>
 
@@ -602,11 +595,12 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                 <label className="form-label">Biological Sex</label>
                 <select
                   className="select-control"
-                  value={profile.gender || "Unspecified"}
+                  value={profile.gender || ""}
                   onChange={(e) => handleFieldChange("gender", e.target.value)}
                   onBlur={handleFieldBlur}
                 >
-                  <option value="Unspecified">Prefer not to say</option>
+                  <option value="">Select Biological Sex</option>
+                  <option value="Prefer not to say">Prefer not to say</option>
                   <option value="Female">Female</option>
                   <option value="Male">Male</option>
                   <option value="Intersex">Intersex</option>
@@ -623,6 +617,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                   value={profile.primary_email || ""}
                   onChange={(e) => handleFieldChange("primary_email", e.target.value)}
                   onBlur={handleFieldBlur}
+                  placeholder="Enter email address"
                   required
                 />
               </div>
@@ -645,13 +640,14 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                 <label className="form-label">Blood Group</label>
                 <select
                   className="select-control"
-                  value={profile.blood_group || "O+"}
+                  value={profile.blood_group || ""}
                   onChange={(e) => {
                     handleFieldChange("blood_group", e.target.value);
                     autoSaveToDb({ ...profile, blood_group: e.target.value });
                   }}
-                  style={{ fontWeight: 800, color: "var(--risk-high)" }}
+                  style={{ fontWeight: 800, color: profile.blood_group ? "var(--risk-high)" : "var(--text-muted)" }}
                 >
+                  <option value="">Select Blood Group</option>
                   <option value="A+">A+ (A Positive)</option>
                   <option value="A-">A- (A Negative)</option>
                   <option value="B+">B+ (B Positive)</option>
@@ -706,9 +702,10 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
               <input
                 type="text"
                 className="input-control"
-                value={profile.license_id || "PT-REC-89421"}
+                value={profile.license_id || ""}
                 onChange={(e) => handleFieldChange("license_id", e.target.value)}
                 onBlur={handleFieldBlur}
+                placeholder="PT-REC-XXXXX"
                 style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}
               />
             </div>
@@ -721,7 +718,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                 value={profile.hospital || ""}
                 onChange={(e) => handleFieldChange("hospital", e.target.value)}
                 onBlur={handleFieldBlur}
-                placeholder="e.g. AIIMS Cardiology & Oncology OPD"
+                placeholder="Hospital / Tertiary Center"
               />
             </div>
 
@@ -733,7 +730,7 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                 value={profile.department || ""}
                 onChange={(e) => handleFieldChange("department", e.target.value)}
                 onBlur={handleFieldBlur}
-                placeholder="e.g. Clinical Inpatient Ward 4B"
+                placeholder="Department / Ward"
               />
             </div>
 
@@ -1575,7 +1572,13 @@ export default function UserProfilePage({ currentUser, onProfileUpdated, onProfi
                 <button
                   type="button"
                   className="btn-primary"
-                  onClick={() => window.print()}
+                  onClick={() => {
+                    const pid = profile?.id || profile?.user_id || "USR-5EF52B";
+                    apiClient.post(`/api/v1/emergency/${pid}/email-card`, {
+                      recipient_email: profile?.email || "aryan.crores@gmail.com",
+                    }).catch(() => {});
+                    window.print();
+                  }}
                   style={{ fontSize: "0.76rem", display: "flex", alignItems: "center", gap: "6px" }}
                 >
                   <Printer size={13} /> Print / Save PDF
