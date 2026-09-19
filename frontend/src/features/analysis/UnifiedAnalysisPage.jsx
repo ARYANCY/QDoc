@@ -978,11 +978,6 @@ export default function UnifiedAnalysisPage() {
     return (
       <EditorialLoginPage
         onGoogleLogin={() => { window.location.href = ENDPOINTS.AUTH_GOOGLE; }}
-        onLoginSuccess={(user) => {
-          setCurrentUser(user);
-          setPatientId(resolvePatientId(user));
-          setError(null);
-        }}
         loading={loading}
         error={error}
       />

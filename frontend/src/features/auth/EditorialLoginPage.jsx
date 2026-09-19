@@ -17,30 +17,11 @@ import {
   Layers
 } from "lucide-react";
 import { animateErrorShake } from "../../utils/motion.js";
-import { authApi } from "../../api/auth.js";
-
-const DEMO_PERSONAS = [
-  { role: "patient", name: "Aryan Choudhury", username: "aryan", password: "patient123", badge: "Patient", dept: "Cardio & Oncology" },
-  { role: "doctor", name: "Dr. Kavita Rao, MD", username: "dr.kavita", password: "doctor123", badge: "Cardiologist", dept: "AIIMS OPD" },
-  { role: "doctor", name: "Dr. Rajesh Mehta, DM", username: "dr.rajesh", password: "doctor123", badge: "Oncologist", dept: "Tata Memorial" },
-  { role: "admin", name: "Security Auditor", username: "admin.audit", password: "admin123", badge: "Security Admin", dept: "Governance" },
-  { role: "researcher", name: "Dr. Priya Sharma, PhD", username: "priya.qml", password: "quantum123", badge: "Quantum Lead", dept: "CQT Lab" },
-];
-
-export default function EditorialLoginPage({ onGoogleLogin, onLoginSuccess, loading, error: externalError }) {
+export default function EditorialLoginPage({ onGoogleLogin, loading, error }) {
   const [showGuideModal, setShowGuideModal] = useState(false);
   const modalContainerRef = useRef(null);
   const narrativeRef = useRef(null);
   const formContainerRef = useRef(null);
-
-  const [username, setUsername] = useState("aryan");
-  const [password, setPassword] = useState("patient123");
-  const [role, setRole] = useState("patient");
-  const [authSubmitting, setAuthSubmitting] = useState(false);
-  const [localError, setLocalError] = useState(null);
-  const [showManualForm, setShowManualForm] = useState(false);
-
-  const activeError = localError || externalError;
 
   useEffect(() => {
     function handleKeyDown(e) {
@@ -61,41 +42,10 @@ export default function EditorialLoginPage({ onGoogleLogin, onLoginSuccess, load
   }, [showGuideModal]);
 
   useEffect(() => {
-    if (activeError && formContainerRef.current) {
+    if (error && formContainerRef.current) {
       animateErrorShake(formContainerRef.current);
     }
-  }, [activeError]);
-
-  async function handleQuickPersonaLogin(persona) {
-    setAuthSubmitting(true);
-    setLocalError(null);
-    try {
-      const data = await authApi.login(persona.username, persona.password, persona.role);
-      if (onLoginSuccess) onLoginSuccess(data.user);
-    } catch (err) {
-      setLocalError(err.message || `Failed to authenticate ${persona.name}. Verify backend connection.`);
-    } finally {
-      setAuthSubmitting(false);
-    }
-  }
-
-  async function handleManualSubmit(e) {
-    if (e) e.preventDefault();
-    if (!username.trim() || !password) {
-      setLocalError("Please enter both username and password.");
-      return;
-    }
-    setAuthSubmitting(true);
-    setLocalError(null);
-    try {
-      const data = await authApi.login(username.trim(), password, role);
-      if (onLoginSuccess) onLoginSuccess(data.user);
-    } catch (err) {
-      setLocalError(err.message || "Invalid clinical credentials or server offline.");
-    } finally {
-      setAuthSubmitting(false);
-    }
-  }
+  }, [error]);
 
   return (
     <div
@@ -387,17 +337,16 @@ export default function EditorialLoginPage({ onGoogleLogin, onLoginSuccess, load
             >
               Sign in to Q-RAKSHAK
             </h2>
-            <p style={{ fontSize: "0.95rem", color: "#64748B", margin: 0, lineHeight: 1.5, maxWidth: "340px" }}>
-              Access the Hybrid Quantum Machine Learning Clinical Decision Support Platform.
+            <p style={{ fontSize: "0.95rem", color: "#64748B", margin: 0, lineHeight: 1.5, maxWidth: "300px" }}>
+              Your Google account secures your clinical workspace.
             </p>
           </div>
 
-          {/* Primary Option: Google OAuth 2.0 */}
-          <div style={{ width: "100%", maxWidth: "380px", marginBottom: "18px" }}>
+          <div style={{ width: "100%", maxWidth: "320px", marginBottom: "26px" }}>
             <button
               type="button"
               onClick={onGoogleLogin}
-              disabled={loading || authSubmitting}
+              disabled={loading}
               className="editorial-google-btn"
             >
               <svg width="20" height="20" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -406,179 +355,19 @@ export default function EditorialLoginPage({ onGoogleLogin, onLoginSuccess, load
                 <path d="M3.96409 10.71C3.78409 10.17 3.68182 9.59318 3.68182 9C3.68182 8.40682 3.78409 7.83 3.96409 7.29V4.95818H0.957275C0.347727 6.17318 0 7.54773 0 9C0 10.4523 0.347727 11.8268 0.957275 13.0418L3.96409 10.71Z" fill="#FBBC05"/>
                 <path d="M9 3.57955C10.3214 3.57955 11.5077 4.03364 12.4405 4.92545L15.0218 2.34409C13.4632 0.891818 11.4259 0 9 0C5.48182 0 2.43818 2.01682 0.957275 4.95818L3.96409 7.29C4.67182 5.16273 6.65591 3.57955 9 3.57955Z" fill="#EA4335"/>
               </svg>
-              <span>{loading ? "Connecting..." : "Sign in with Google (Verified SSO)"}</span>
+              <span>{loading ? "Connecting..." : "Sign in with Google"}</span>
             </button>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", width: "100%", maxWidth: "380px", margin: "10px 0 16px 0" }}>
-            <div style={{ flex: 1, height: "1px", background: "#E2E8F0" }} />
-            <span style={{ padding: "0 10px", fontSize: "0.72rem", color: "#64748B", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-              Or 1-Click Clinical Persona
-            </span>
-            <div style={{ flex: 1, height: "1px", background: "#E2E8F0" }} />
-          </div>
-
-          {/* Quick 1-Click Access for Reviewers & Clinicians */}
-          <div style={{ width: "100%", maxWidth: "380px", display: "flex", flexDirection: "column", gap: "8px", marginBottom: "16px" }}>
-            {DEMO_PERSONAS.map((p) => (
-              <button
-                key={p.username}
-                type="button"
-                onClick={() => handleQuickPersonaLogin(p)}
-                disabled={loading || authSubmitting}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "10px 14px",
-                  background: "#F8FAFC",
-                  border: "1px solid #E2E8F0",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  transition: "all 0.15s ease",
-                  textAlign: "left",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "#059669";
-                  e.currentTarget.style.background = "#F0FDF4";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "#E2E8F0";
-                  e.currentTarget.style.background = "#F8FAFC";
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <div style={{ width: "28px", height: "28px", borderRadius: "50%", background: "#E2E8F0", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.72rem", fontWeight: 700, color: "#334155" }}>
-                    {p.name.charAt(0)}
-                  </div>
-                  <div>
-                    <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#0F172A", lineHeight: 1.2 }}>{p.name}</div>
-                    <div style={{ fontSize: "0.70rem", color: "#64748B" }}>{p.dept}</div>
-                  </div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                  <span style={{
-                    fontSize: "0.68rem",
-                    fontWeight: 700,
-                    padding: "2px 7px",
-                    borderRadius: "4px",
-                    background: p.role === "patient" ? "#ECFDF5" : p.role === "doctor" ? "#EFF6FF" : p.role === "admin" ? "#FEF2F2" : "#FAF5FF",
-                    color: p.role === "patient" ? "#059669" : p.role === "doctor" ? "#2563EB" : p.role === "admin" ? "#DC2626" : "#7C3AED",
-                    border: `1px solid ${p.role === "patient" ? "#A7F3D0" : p.role === "doctor" ? "#BFDBFE" : p.role === "admin" ? "#FECACA" : "#E9D5FF"}`
-                  }}>
-                    {p.badge}
-                  </span>
-                  <ArrowRight size={14} color="#94A3B8" />
-                </div>
-              </button>
-            ))}
-          </div>
-
-          {/* Toggle Manual Clinical Password Login */}
-          <div style={{ width: "100%", maxWidth: "380px", marginBottom: "14px" }}>
-            <button
-              type="button"
-              onClick={() => setShowManualForm(!showManualForm)}
-              style={{
-                background: "none",
-                border: "none",
-                color: "#059669",
-                fontSize: "0.80rem",
-                fontWeight: 700,
-                cursor: "pointer",
-                padding: "4px",
-                textDecoration: "underline",
-              }}
-            >
-              {showManualForm ? "Hide Manual Login Form" : "Sign in with Custom Username & Password"}
-            </button>
-
-            {showManualForm && (
-              <form onSubmit={handleManualSubmit} style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "10px", textAlign: "left" }}>
-                <div>
-                  <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#475569", display: "block", marginBottom: "4px" }}>
-                    Username or Email
-                  </label>
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="e.g. aryan, dr.kavita, admin.audit"
-                    style={{
-                      width: "100%",
-                      padding: "9px 12px",
-                      borderRadius: "6px",
-                      border: "1px solid #CBD5E1",
-                      fontSize: "0.85rem",
-                      boxSizing: "border-box"
-                    }}
-                  />
-                </div>
-                <div>
-                  <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#475569", display: "block", marginBottom: "4px" }}>
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    style={{
-                      width: "100%",
-                      padding: "9px 12px",
-                      borderRadius: "6px",
-                      border: "1px solid #CBD5E1",
-                      fontSize: "0.85rem",
-                      boxSizing: "border-box"
-                    }}
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={authSubmitting}
-                  style={{
-                    padding: "10px",
-                    background: "#059669",
-                    color: "#FFFFFF",
-                    border: "none",
-                    borderRadius: "6px",
-                    fontWeight: 700,
-                    fontSize: "0.88rem",
-                    cursor: "pointer",
-                    marginTop: "6px"
-                  }}
-                >
-                  {authSubmitting ? "Authenticating..." : "Sign In with Credentials"}
-                </button>
-              </form>
-            )}
-          </div>
-
-          <div style={{ background: "#F0FDF4", border: "1px solid #BBF7D0", borderRadius: "6px", padding: "10px 14px", maxWidth: "380px", width: "100%" }}>
-            <p style={{ fontSize: "0.74rem", color: "#15803D", margin: 0, lineHeight: 1.4, fontWeight: 500 }}>
-              Audit-logged session with HIPAA Safe Harbor and DPDP Act 2023 compliance.
+          <div style={{ background: "#F0FDF4", border: "1px solid #BBF7D0", borderRadius: "6px", padding: "12px", maxWidth: "320px" }}>
+            <p style={{ fontSize: "0.75rem", color: "#15803D", margin: 0, lineHeight: 1.5, fontWeight: 500 }}>
+              A security notification will be sent to your Gmail upon successful sign-in.
             </p>
           </div>
 
-          {activeError && (
-            <div style={{
-              marginTop: "16px",
-              padding: "10px 14px",
-              background: "#FEF2F2",
-              border: "1px solid #FCA5A5",
-              borderRadius: "8px",
-              color: "#DC2626",
-              fontSize: "0.82rem",
-              fontWeight: 600,
-              maxWidth: "380px",
-              width: "100%",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              textAlign: "left"
-            }}>
-              <AlertCircle size={16} style={{ flexShrink: 0 }} />
-              <div>{activeError}</div>
+          {error && (
+            <div style={{ marginTop: "20px", color: "#DC2626", fontSize: "0.85rem", fontWeight: 600 }}>
+              {error}
             </div>
           )}
         </div>
