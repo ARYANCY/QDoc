@@ -176,6 +176,13 @@ def train_pneumonia_pipeline(args):
     output_dir.mkdir(parents=True, exist_ok=True)
     best_model_path = output_dir / "QuantumPneu-FineTuned.pt"
 
+    history = {
+        "train_loss": [],
+        "train_acc": [],
+        "val_loss": [],
+        "val_acc": [],
+    }
+
     for epoch in range(args.epochs):
         model.train()
         running_loss = 0.0
@@ -198,34 +205,51 @@ def train_pneumonia_pipeline(args):
             pbar.set_postfix({"Loss": f"{loss.item():.4f}", "Acc": f"{correct/max(1, total):.2%}"})
 
         scheduler.step()
+        epoch_train_loss = running_loss / max(1, total)
+        epoch_train_acc = correct / max(1, total)
 
         # Validation pass
         model.eval()
+        val_loss = 0.0
         val_correct = 0
         val_total = 0
         with torch.no_grad():
             for images, labels in val_loader:
                 images, labels = images.to(device), labels.to(device)
                 logits = model(images)
+                loss = criterion(logits, labels)
+                val_loss += loss.item() * images.size(0)
                 preds = torch.argmax(logits, dim=1)
                 val_correct += (preds == labels).sum().item()
                 val_total += labels.size(0)
 
-        val_acc = val_correct / max(1, val_total)
-        print(f"--> Epoch [{epoch+1:02d}] Validation Accuracy: {val_acc:.2%}")
+        epoch_val_loss = val_loss / max(1, val_total)
+        epoch_val_acc = val_correct / max(1, val_total)
 
-        if val_acc >= best_val_acc:
-            best_val_acc = val_acc
+        history["train_loss"].append(round(epoch_train_loss, 4))
+        history["train_acc"].append(round(epoch_train_acc, 4))
+        history["val_loss"].append(round(epoch_val_loss, 4))
+        history["val_acc"].append(round(epoch_val_acc, 4))
+
+        print(f"--> Epoch [{epoch+1:02d}] Train Acc: {epoch_train_acc:.2%} | Val Acc: {epoch_val_acc:.2%} (Val Loss: {epoch_val_loss:.4f})")
+
+        if epoch_val_acc >= best_val_acc:
+            best_val_acc = epoch_val_acc
             torch.save(
                 {
                     "epoch": epoch + 1,
                     "model_state_dict": model.state_dict(),
-                    "val_acc": val_acc,
+                    "val_acc": epoch_val_acc,
                     "arch": "EfficientNet-B0 + 8-Qubit VQC",
                 },
                 best_model_path,
             )
             print(f"✨ Best model checkpoint saved to {best_model_path}")
+
+    # Save training history
+    with open(output_dir / "training_history.json", "w") as f:
+        import json
+        json.dump(history, f, indent=2)
 
     # Final Evaluation on Test Partition
     print("\n🔬 Executing Benchmark Evaluation on Test Split...")
