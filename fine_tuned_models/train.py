@@ -87,6 +87,7 @@ def main():
     )
     parser.add_argument("--epochs", type=int, default=10, help="Number of training epochs")
     parser.add_argument("--batch-size", type=int, default=16, help="Training batch size")
+    parser.add_argument("--lr", type=float, default=None, help="Learning rate (overrides default)")
     parser.add_argument("--data-path", type=str, default=None, help="Custom dataset root path")
     parser.add_argument("--output-dir", type=str, default="./outputs", help="Directory to save model checkpoints")
     parser.add_argument("--cpu", action="store_true", help="Force CPU execution")
@@ -117,8 +118,8 @@ def main():
                 output_dir=str(out_base / "pneumonia"),
                 epochs=args.epochs,
                 batch_size=args.batch_size,
-                quantum_lr=0.005,
-                backbone_lr=0.0001,
+                quantum_lr=args.lr if args.lr else 0.005,
+                backbone_lr=args.lr if args.lr else 0.0001,
                 n_qubits=8,
                 n_layers=3,
                 num_workers=2,
@@ -135,8 +136,8 @@ def main():
                 output_dir=str(out_base / "skin_cancer"),
                 epochs=args.epochs,
                 batch_size=args.batch_size,
-                quantum_lr=0.005,
-                backbone_lr=0.0001,
+                quantum_lr=args.lr if args.lr else 0.005,
+                backbone_lr=args.lr if args.lr else 0.0001,
                 n_qubits=8,
                 n_layers=3,
                 num_workers=2,
