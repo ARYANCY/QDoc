@@ -1,106 +1,89 @@
-# 🚀 Q-RAKSHAK: Kaggle Fine-Tuning & Evaluation Platform (`fine_tuned_models/`)
+# 🚀 Q-RAKSHAK: Universal CLI Fine-Tuning & Evaluation Platform (`fine_tuned_models/`)
 
-This directory contains complete, production-grade training, fine-tuning, and evaluation pipelines for all **Vision**, **Tabular**, and **Quantum Hybrid (VQC / QNN / QSVM)** models used in the **Q-RAKSHAK** clinical operating system.
+This directory contains complete, modular Python training and evaluation scripts (pure `.py` architecture, no `.ipynb` required) for all **Classical**, **Hybrid**, and **Quantum** models across all 6 clinical domains in **Q-RAKSHAK**.
 
 ---
 
-## 📂 Directory Layout
+## 📂 Architecture
 
 ```text
 fine_tuned_models/
-├── README.md                                # This execution guide & runbook
-├── requirements_kaggle.txt                 # Kaggle Python package dependencies
-├── export_to_backend.py                     # Sync utility to copy trained weights to models/
+├── train.py                                # Master CLI entry point for all diseases & models
+├── evaluate.py                             # Master Benchmark & evaluation CLI
+├── export_to_backend.py                     # Sync utility to copy trained weights into models/
+├── requirements_kaggle.txt                 # Exact package dependencies for Kaggle
+├── README.md                                # This runbook
 │
-├── notebooks/                               # Standalone Kaggle-Ready Notebooks (.ipynb)
-│   ├── 01_pneumonia_quantum_finetune.ipynb  # Chest X-Ray: EfficientNet-B0 + QuantumPneu
-│   ├── 02_skin_cancer_quantum_finetune.ipynb# HAM10000: DenseNet-121 + Q-Skin-Vortex
-│   └── 03_tabular_quantum_suite_finetune.ipynb # WDBC, Cleveland, Parkinsons, Diabetes VQC Suite
-│
-└── pipelines/                               # Modular Python Source Scripts
+└── pipelines/
     ├── common/
-    │   ├── quantum_circuits.py              # PennyLane VQC, QSVM, and PyTorch TorchLayer
+    │   ├── quantum_circuits.py              # Parameterized VQC, QSVM Kernel, and PyTorch TorchLayer
     │   ├── metrics_evaluator.py             # Sensitivity, Specificity, AUC, MCC, ECE
     │   └── lr_schedulers.py                 # Cosine Annealing with Warmup
     ├── vision/
-    │   ├── train_pneumonia.py               # Kermany Pediatric Radiographs pipeline
-    │   └── train_skin_cancer.py             # HAM10000 Dermatoscopy pipeline
+    │   ├── train_pneumonia.py               # Chest X-Ray (EfficientNet-B0 + QuantumPneu)
+    │   └── train_skin_cancer.py             # HAM10000 (DenseNet-121 + Q-Skin-Vortex)
     └── tabular/
-        ├── train_breast_cancer.py           # Wisconsin Diagnostic WDBC (OncoPulse-VQC)
-        ├── train_heart_disease.py           # Cleveland & Framingham (CardioWave-VQC)
-        ├── train_parkinsons.py              # Voice Acoustics (NeuroSynapse-VQC)
-        └── train_diabetes.py                # PIMA Indian Diabetes (Diabetes-VQC)
+        ├── train_breast_cancer.py           # WDBC (OncoPulse-VQC & Sentinel-RF)
+        ├── train_heart_disease.py           # Cleveland (CardioWave-VQC & Sentinel-XGB)
+        ├── train_parkinsons.py              # Vocal Acoustics (NeuroSynapse-VQC & Sentinel-RF)
+        └── train_diabetes.py                # PIMA (Diabetes-VQC & Sentinel-RF)
 ```
 
 ---
 
-## 🛠️ Step-by-Step Kaggle Execution Guide
+## 📦 What Datasets to Add in Kaggle Input
 
-### Step 1: Create a Kaggle Notebook & Enable GPU
-1. Go to [kaggle.com](https://www.kaggle.com/) and click **`+ Create`** -> **`New Notebook`**.
-2. In the right-hand panel under **Settings**:
-   - **Accelerator:** Select **`GPU T4 x 2`** or **`GPU P100`** (Free 30 hrs/week).
-   - **Internet:** Ensure **`Internet on`** is toggled ON.
+In your Kaggle Notebook / Session, click **`+ Add Input`** and attach:
 
----
-
-### Step 2: Add Required Datasets on Kaggle
-
-In your Kaggle Notebook, click **`+ Add Input`** in the top right:
-
-| Notebook / Pipeline | Search in Kaggle Add Data | Kaggle Dataset Identifier |
-| :--- | :--- | :--- |
-| **01. Pneumonia (`QuantumPneu`)** | `chest-xray-pneumonia` | `paultimothymooney/chest-xray-pneumonia` |
-| **02. Skin Cancer (`Q-Skin-Vortex`)** | `skin-cancer-mnist-ham10000` | `kmader/skin-cancer-mnist-ham10000` |
-| **03. Tabular Quantum Suite** | *(No download needed — auto-loaded or generated)* | Built-in sklearn / standard distribution |
+| Domain / Disease | Dataset Search on Kaggle | Exact Kaggle Dataset Slug | Mounted Input Path |
+| :--- | :--- | :--- | :--- |
+| **1. Pneumonia** | `chest-xray-pneumonia` | `paultimothymooney/chest-xray-pneumonia` | `/kaggle/input/datasets/paultimothymooney/chest-xray-pneumonia` or `/kaggle/input/chest-xray-pneumonia` |
+| **2. Skin Cancer** | `skin-cancer-mnist-ham10000` | `kmader/skin-cancer-mnist-ham10000` | `/kaggle/input/datasets/kmader/skin-cancer-mnist-ham10000` or `/kaggle/input/skin-cancer-mnist-ham10000` |
+| **3. Breast Cancer** | *(No input required)* | Built-in WDBC | Built-in |
+| **4. Heart Disease** | *(Optional)* `heart-disease-uci` | `ronitf/heart-disease-uci` | `/kaggle/input/heart-disease-uci/heart.csv` |
+| **5. Parkinson's** | *(Optional)* `parkinsons-data-set` | `vikasukani/parkinsons-disease-data-set` | `/kaggle/input/parkinsons-disease-data-set/parkinsons.data` |
+| **6. Diabetes** | *(Optional)* `pima-indians-diabetes` | `uciml/pima-indians-diabetes-database` | `/kaggle/input/pima-indians-diabetes-database/diabetes.csv` |
 
 ---
 
-### Step 3: Run the Training Notebook
+## ⚡ Running on Kaggle via `git clone`
 
-You can either:
-1. **Upload the Notebook (`.ipynb`):** In Kaggle, click `File` -> `Upload Notebook` and choose any file from `fine_tuned_models/notebooks/`.
-2. **Or Copy-Paste the code:** Copy cells directly from the notebook into Kaggle and click **`Run All`**.
+In your Kaggle Notebook code cell or terminal:
+
+```bash
+# 1. Clone your repository (or pull latest branch)
+!git clone https://github.com/<YOUR_USERNAME>/<YOUR_REPO>.git
+%cd QDoc
+
+# 2. Install Kaggle dependencies
+!pip install -r fine_tuned_models/requirements_kaggle.txt
+
+# 3. Run Universal Training CLI:
+
+# Train Pneumonia (Chest X-Ray)
+!python fine_tuned_models/train.py --disease pneumonia --epochs 10
+
+# Train Skin Cancer (HAM10000)
+!python fine_tuned_models/train.py --disease skin_cancer --epochs 10
+
+# Train All 4 Tabular Quantum Suite models
+!python fine_tuned_models/train.py --disease breast_cancer
+!python fine_tuned_models/train.py --disease heart_disease
+!python fine_tuned_models/train.py --disease parkinsons
+!python fine_tuned_models/train.py --disease diabetes
+
+# OR Train the entire medical suite at once:
+!python fine_tuned_models/train.py --disease all --epochs 10
+```
 
 ---
 
-### Step 4: Download Fine-Tuned Checkpoint Weights
+## 🔄 Syncing Weights Back to Local VS Code Project
 
-Once training completes:
-1. Go to the right sidebar under **`Output`** -> `/kaggle/working/outputs/`.
-2. Download the trained weight files:
-   - `QuantumPneu-FineTuned.pt`
-   - `Q-Skin-Vortex-FineTuned.pt`
-   - `OncoPulse-VQC.pt`
-   - `CardioWave-VQC.pt`
-   - `NeuroSynapse-VQC.pt`
-   - `Diabetes-VQC.pt`
-
----
-
-### Step 5: Import Weights Back to Local Project in VS Code
-
-Place your downloaded weights into a folder (e.g. `./kaggle_outputs`) and run:
+After training completes on Kaggle:
+1. Download the generated `.pt` and `.joblib` checkpoints from `/kaggle/working/outputs/`.
+2. Place them into a local folder (e.g. `./kaggle_outputs`) and run:
 
 ```powershell
 python fine_tuned_models/export_to_backend.py --weights-dir ./kaggle_outputs
-```
-
-This will automatically copy the models to `models/quantum/` for live inference in your QDoc backend!
-
----
-
-## 🧪 Local Dry-Run Testing (Verification in VS Code)
-
-You can verify the scripts locally in VS Code with a dry-run test:
-
-```powershell
-# 1. Test Tabular Breast Cancer Quantum Pipeline
-python fine_tuned_models/pipelines/tabular/train_breast_cancer.py --epochs 3
-
-# 2. Test Tabular Heart Disease Pipeline
-python fine_tuned_models/pipelines/tabular/train_heart_disease.py --epochs 3
-
-# 3. Test Vision Pneumonia Pipeline (CPU dry-run)
-python fine_tuned_models/pipelines/vision/train_pneumonia.py --epochs 1 --max-samples 16 --cpu
 ```

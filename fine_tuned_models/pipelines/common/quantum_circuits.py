@@ -172,3 +172,63 @@ class StandaloneVQC:
         self.bias = ckpt["bias"]
         self.n_qubits = ckpt["n_qubits"]
         self.n_layers = ckpt["n_layers"]
+
+
+class QuantumSupportVectorMachine:
+    """Quantum Support Vector Machine (QSVM) using PennyLane Quantum Kernel Estimation."""
+
+    def __init__(self, n_qubits: int = 8):
+        self.n_qubits = n_qubits
+        self.dev = get_quantum_device(n_qubits)
+        self.clf = None
+
+        if qml is not None:
+            @qml.qnode(self.dev, interface="autograd")
+            def _kernel_circuit(x1, x2):
+                # Encode x1
+                for i in range(n_qubits):
+                    qml.RY(x1[i], wires=i)
+                    qml.RZ(x1[i], wires=i)
+                # Adjoint encode x2
+                for i in reversed(range(n_qubits)):
+                    qml.RZ(-x2[i], wires=i)
+                    qml.RY(-x2[i], wires=i)
+                return qml.probs(wires=range(n_qubits))
+
+            self._kernel_circuit = _kernel_circuit
+        else:
+            self._kernel_circuit = None
+
+    def _compute_kernel_matrix(self, X1: np.ndarray, X2: np.ndarray) -> np.ndarray:
+        if self._kernel_circuit is None:
+            # Fallback linear/rbf kernel if pennylane not installed
+            from sklearn.metrics.pairwise import rbf_kernel
+            return rbf_kernel(X1, X2)
+
+        N1, N2 = len(X1), len(X2)
+        K = np.zeros((N1, N2), dtype=np.float32)
+        for i in range(N1):
+            for j in range(N2):
+                probs = self._kernel_circuit(X1[i], X2[j])
+                K[i, j] = probs[0]  # State fidelity |<psi(x1)|psi(x2)>|^2
+        return K
+
+    def fit(self, X: np.ndarray, y: np.ndarray):
+        from sklearn.svm import SVC
+        self.X_train = X.copy()
+        K_train = self._compute_kernel_matrix(X, X)
+        self.clf = SVC(kernel="precomputed", probability=True)
+        self.clf.fit(K_train, y)
+
+    def predict_proba(self, X: np.ndarray) -> np.ndarray:
+        K_test = self._compute_kernel_matrix(X, self.X_train)
+        return self.clf.predict_proba(K_test)
+
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        K_test = self._compute_kernel_matrix(X, self.X_train)
+        return self.clf.predict(K_test)
+
+    def save_checkpoint(self, path: str):
+        import joblib
+        joblib.dump({"clf": self.clf, "X_train": self.X_train, "n_qubits": self.n_qubits}, path)
+
