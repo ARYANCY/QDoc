@@ -13,10 +13,7 @@ import {
   CheckCircle2,
   AlertCircle,
   Cpu,
-  Terminal,
-  Layers,
-  ChevronRight,
-  UserCheck
+  Activity,
 } from "lucide-react";
 import SquareLoader from "../../components/common/SquareLoader.jsx";
 import { animateErrorShake } from "../../utils/motion.js";
@@ -84,7 +81,7 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
     }
   }
 
-  // Choreographed Sexy Micro-Stagger Transition on Auth Mode Change
+  // Smooth micro-stagger on auth mode toggle
   useEffect(() => {
     const prefersReducedMotion =
       typeof window !== "undefined" &&
@@ -100,14 +97,13 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
       if (staggerItems && staggerItems.length > 0) {
         gsap.fromTo(
           staggerItems,
-          { opacity: 0, y: isForward ? 16 : -16, filter: "blur(4px)" },
+          { opacity: 0, y: isForward ? 10 : -10 },
           {
             opacity: 1,
             y: 0,
-            filter: "blur(0px)",
-            stagger: 0.045,
-            duration: 0.42,
-            ease: "power3.out",
+            stagger: 0.03,
+            duration: 0.3,
+            ease: "power2.out",
             clearProps: "all",
           }
         );
@@ -117,8 +113,8 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
     if (narrativeRef.current) {
       gsap.fromTo(
         narrativeRef.current,
-        { opacity: 0.2, x: isForward ? -12 : 12 },
-        { opacity: 1, x: 0, duration: 0.45, ease: "power3.out", clearProps: "all" }
+        { opacity: 0.5, x: isForward ? -8 : 8 },
+        { opacity: 1, x: 0, duration: 0.35, ease: "power2.out", clearProps: "all" }
       );
     }
   }, [authMode]);
@@ -147,7 +143,7 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
     e.preventDefault();
     setRegisterError("");
     if (!registerName.trim()) {
-      setRegisterError("Full legal name is required.");
+      setRegisterError("Full name is required.");
       return;
     }
     if (!registerUsername.trim()) {
@@ -163,7 +159,7 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
       return;
     }
     if (!registerPassword || registerPassword.length < 6) {
-      setRegisterError("Password must contain at least 6 characters.");
+      setRegisterError("Password must be at least 6 characters.");
       return;
     }
     await onRegister({
@@ -184,8 +180,8 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
         width: "100vw",
         backgroundColor: "#07080B",
         backgroundImage: `
-          linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px)
+          linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px)
         `,
         backgroundSize: "40px 40px",
         color: "#F8FAFC",
@@ -200,48 +196,57 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
       }}
     >
       <style>{`
-        /* Architectural Swiss Brutalist Styling - Zero Radius, Zero Glow, Monochromatic Precision */
+        /* Architectural Swiss Brutalist - Zero Radius, Zero Glow, High Contrast */
         .editorial-input {
           width: 100%;
           min-height: 52px;
-          background: #0B0E14;
-          border: 1px solid #1E2837;
+          background-color: #0B0E14 !important;
+          border: 1px solid #1E2837 !important;
           border-radius: 0px !important;
           padding: 14px 18px;
           font-size: 0.90rem;
-          color: #F8FAFC;
-          outline: none;
+          color: #F8FAFC !important;
+          outline: none !important;
           box-shadow: none !important;
           transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
           box-sizing: border-box;
           font-family: inherit;
         }
         .editorial-input::placeholder {
-          color: #475569;
+          color: #475569 !important;
           font-size: 0.86rem;
         }
         .editorial-input:hover {
-          border-color: #38465B;
+          border-color: #38465B !important;
         }
         .editorial-input:focus {
           border-color: #FFFFFF !important;
-          background: #111722;
+          background-color: #111722 !important;
           box-shadow: none !important;
+        }
+        .editorial-input:-webkit-autofill,
+        .editorial-input:-webkit-autofill:hover, 
+        .editorial-input:-webkit-autofill:focus,
+        .editorial-input:-webkit-autofill:active {
+          -webkit-text-fill-color: #F8FAFC !important;
+          -webkit-box-shadow: 0 0 0px 1000px #0B0E14 inset !important;
+          box-shadow: 0 0 0px 1000px #0B0E14 inset !important;
+          transition: background-color 5000s ease-in-out 0s;
+          caret-color: #F8FAFC;
         }
         .editorial-btn-primary {
           width: 100%;
           min-height: 52px;
-          background: #FFFFFF;
-          color: #000000;
-          border: 1px solid #FFFFFF;
+          background: #FFFFFF !important;
+          color: #000000 !important;
+          border: 1px solid #FFFFFF !important;
           border-radius: 0px !important;
           padding: 15px 24px;
           font-size: 0.88rem;
-          font-weight: 800;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
+          font-weight: 700;
+          letter-spacing: 0.03em;
           cursor: pointer;
-          transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease, border-color 0.2s ease;
+          transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
           box-shadow: none !important;
           display: flex;
           align-items: center;
@@ -249,23 +254,23 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
           gap: 10px;
         }
         .editorial-btn-primary:hover:not(:disabled) {
-          background: #D9E0EB;
-          border-color: #D9E0EB;
-          color: #000000;
+          background: #D9E0EB !important;
+          border-color: #D9E0EB !important;
+          color: #000000 !important;
         }
         .editorial-btn-primary:hover:not(:disabled) .cta-arrow {
           transform: translateX(5px);
         }
         .editorial-btn-primary:active:not(:disabled) {
-          background: #B4C0D1;
-          border-color: #B4C0D1;
+          background: #B4C0D1 !important;
+          border-color: #B4C0D1 !important;
         }
         .editorial-btn-primary:disabled {
           opacity: 0.45;
           cursor: not-allowed;
         }
         .cta-arrow {
-          transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+          transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .editorial-google-btn {
           width: 100%;
@@ -292,9 +297,9 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
         .editorial-role-btn {
           min-height: 46px;
           padding: 11px 16px;
-          font-size: 0.80rem;
+          font-size: 0.82rem;
           font-family: inherit;
-          font-weight: 700;
+          font-weight: 600;
           border-radius: 0px !important;
           cursor: pointer;
           transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -303,23 +308,22 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
           justify-content: center;
           gap: 7px;
           box-shadow: none !important;
-          text-transform: uppercase;
-          letter-spacing: 0.04em;
         }
         .editorial-role-btn.active {
-          border: 1px solid #FFFFFF;
-          background: #18202D;
-          color: #FFFFFF;
+          border: 1px solid #FFFFFF !important;
+          background: #18202D !important;
+          color: #FFFFFF !important;
+          font-weight: 700;
         }
         .editorial-role-btn.inactive {
-          border: 1px solid #1E2837;
-          background: #080B10;
-          color: #64748B;
+          border: 1px solid #1E2837 !important;
+          background: #080B10 !important;
+          color: #64748B !important;
         }
         .editorial-role-btn.inactive:hover {
-          background: #0E131C;
-          border-color: #38465B;
-          color: #CBD5E1;
+          background: #0E131C !important;
+          border-color: #38465B !important;
+          color: #CBD5E1 !important;
         }
         .editorial-spec-card {
           padding: 22px 24px;
@@ -349,31 +353,31 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <span
-              style={{
-                fontFamily: "var(--font-sans, inherit)",
-                fontSize: "1.15rem",
-                fontWeight: 800,
-                letterSpacing: "0.03em",
-                color: "#FFFFFF",
-                textTransform: "uppercase",
-              }}
-            >
-              QRakshak
-            </span>
-            <span style={{ color: "#2B3648", fontSize: "0.95rem" }}>/</span>
-            <span
-              style={{
-                fontSize: "0.74rem",
-                color: "#64748B",
-                fontFamily: "var(--font-mono, monospace)",
-                letterSpacing: "0.07em",
-                textTransform: "uppercase",
-              }}
-            >
-              Clinical Intelligence Platform
-            </span>
-          </div>
+          <span
+            style={{
+              fontFamily: "var(--font-sans, inherit)",
+              fontSize: "1.15rem",
+              fontWeight: 800,
+              letterSpacing: "0.03em",
+              color: "#FFFFFF",
+              textTransform: "uppercase",
+            }}
+          >
+            QRakshak
+          </span>
+          <span style={{ color: "#2B3648", fontSize: "0.95rem" }}>/</span>
+          <span
+            style={{
+              fontSize: "0.74rem",
+              color: "#64748B",
+              fontFamily: "var(--font-mono, monospace)",
+              letterSpacing: "0.07em",
+              textTransform: "uppercase",
+            }}
+          >
+            Clinical Intelligence Platform
+          </span>
+        </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "14px", flexWrap: "wrap" }}>
           <div
@@ -397,7 +401,7 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                 letterSpacing: "0.05em",
               }}
             >
-              HIPAA • DPDP-2023 CERTIFIED
+              HIPAA • DPDP-2023 Certified
             </span>
           </div>
 
@@ -417,8 +421,7 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
               cursor: "pointer",
               borderRadius: "0px",
               boxShadow: "none",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
+              letterSpacing: "0.03em",
               transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
             }}
             onMouseEnter={(e) => {
@@ -441,7 +444,7 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
 
       {/* Main Split Grid */}
       <main className="editorial-main-grid">
-        {/* Left Editorial Narrative Column */}
+        {/* Left Column */}
         <div
           ref={narrativeRef}
           style={{
@@ -453,39 +456,12 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
           }}
         >
           <div>
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "9px",
-                padding: "4px 10px",
-                background: "#0B0E14",
-                border: "1px solid #1E2837",
-                borderRadius: "0px",
-                marginBottom: "20px",
-              }}
-            >
-              <Terminal size={12} color="#94A3B8" />
-              <span
-                style={{
-                  fontFamily: "var(--font-mono, monospace)",
-                  fontSize: "0.68rem",
-                  letterSpacing: "0.09em",
-                  color: "#94A3B8",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                }}
-              >
-                SYSTEM SPECIFICATION // REV 3.4.2
-              </span>
-            </div>
-
             <h1
               style={{
                 fontFamily: "var(--font-sans, inherit)",
                 fontSize: "clamp(2.5rem, 4.4vw, 4.2rem)",
                 fontWeight: 900,
-                lineHeight: 1.04,
+                lineHeight: 1.05,
                 letterSpacing: "-0.04em",
                 color: "#FFFFFF",
                 margin: 0,
@@ -509,11 +485,11 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
             }}
           >
             {authMode === "credentials"
-              ? "High-integrity clinical intelligence architecture with deterministic ESI stratification, verifiable patient telemetry, and cryptographically signed consultations."
-              : "Register clinical or patient identity with verified role authorization to maintain immutable health records and participate in structured triage workflows."}
+              ? "Fast and reliable clinical triage, verified medical records, and secure doctor consultations."
+              : "Create an account to access structured triage, consult doctors, and manage verified health records."}
           </p>
 
-          {/* Architectural Spec Cards */}
+          {/* Spec Cards */}
           <div
             style={{
               display: "grid",
@@ -527,22 +503,20 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span
                   style={{
-                    fontFamily: "var(--font-mono, monospace)",
-                    fontSize: "0.66rem",
+                    fontSize: "0.70rem",
                     color: "#64748B",
                     fontWeight: 700,
                     textTransform: "uppercase",
-                    letterSpacing: "0.06em",
+                    letterSpacing: "0.04em",
                   }}
                 >
-                  SPEC_01 // INFERENCE
+                  Early Detection
                 </span>
                 <span
                   style={{
-                    fontFamily: "var(--font-mono, monospace)",
-                    fontSize: "0.66rem",
+                    fontSize: "0.68rem",
                     color: "#CBD5E1",
-                    fontWeight: 700,
+                    fontWeight: 600,
                     border: "1px solid #2B3648",
                     padding: "2px 7px",
                     borderRadius: "0px",
@@ -558,7 +532,6 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                   color: "#FFFFFF",
                   marginTop: "12px",
                   fontWeight: 700,
-                  letterSpacing: "-0.01em",
                 }}
               >
                 Deterministic Triage
@@ -572,7 +545,7 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                   lineHeight: 1.5,
                 }}
               >
-                Standardized algorithmic patient prioritization with multi-vital anomaly detection.
+                Standardized priority screening with instant vital sign and anomaly checks.
               </span>
             </div>
 
@@ -580,28 +553,26 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span
                   style={{
-                    fontFamily: "var(--font-mono, monospace)",
-                    fontSize: "0.66rem",
+                    fontSize: "0.70rem",
                     color: "#64748B",
                     fontWeight: 700,
                     textTransform: "uppercase",
-                    letterSpacing: "0.06em",
+                    letterSpacing: "0.04em",
                   }}
                 >
-                  SPEC_02 // TELEMETRY
+                  Secure Records
                 </span>
                 <span
                   style={{
-                    fontFamily: "var(--font-mono, monospace)",
-                    fontSize: "0.66rem",
+                    fontSize: "0.68rem",
                     color: "#CBD5E1",
-                    fontWeight: 700,
+                    fontWeight: 600,
                     border: "1px solid #2B3648",
                     padding: "2px 7px",
                     borderRadius: "0px",
                   }}
                 >
-                  SHA-256
+                  Verified
                 </span>
               </div>
               <strong
@@ -611,10 +582,9 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                   color: "#FFFFFF",
                   marginTop: "12px",
                   fontWeight: 700,
-                  letterSpacing: "-0.01em",
                 }}
               >
-                Tamper-Evident Records
+                Protected Health Records
               </strong>
               <span
                 style={{
@@ -625,12 +595,12 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                   lineHeight: 1.5,
                 }}
               >
-                Verifiable cryptographic health records, digital sign-off, and E2EE doctor consults.
+                Tamper-evident medical history, digital prescriptions, and encrypted doctor consults.
               </span>
             </div>
           </div>
 
-          {/* Clean Architectural Video Trigger */}
+          {/* Clean Video Trigger */}
           <div
             onClick={() => setShowGuideModal(true)}
             style={{
@@ -671,11 +641,11 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                 <Play size={14} fill="#FFFFFF" />
               </div>
               <div>
-                <div style={{ fontSize: "0.86rem", fontWeight: 700, color: "#FFFFFF", letterSpacing: "0.01em" }}>
-                  Platform Demonstration & Video Guide
+                <div style={{ fontSize: "0.86rem", fontWeight: 700, color: "#FFFFFF" }}>
+                  Platform Walkthrough & Video Guide
                 </div>
-                <div style={{ fontSize: "0.74rem", color: "#64748B", marginTop: "2px", fontFamily: "var(--font-mono, monospace)" }}>
-                  OVERVIEW // CLINICIAN & PATIENT FLOWS
+                <div style={{ fontSize: "0.74rem", color: "#64748B", marginTop: "2px" }}>
+                  Watch a quick demonstration of patient and clinician workflows
                 </div>
               </div>
             </div>
@@ -687,28 +657,27 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "5px",
-                fontFamily: "var(--font-mono, monospace)",
               }}
             >
-              LAUNCH ↗
+              Watch Video ↗
             </span>
           </div>
 
           {/* Minimalist Verification Indicators */}
           <div style={{ display: "flex", alignItems: "center", gap: "24px", borderTop: "1px solid #141A24", paddingTop: "16px" }}>
-            <span style={{ fontSize: "0.70rem", color: "#64748B", display: "inline-flex", alignItems: "center", gap: "6px", fontFamily: "var(--font-mono, monospace)" }}>
-              <CheckCircle2 size={13} color="#94A3B8" /> VERIFIED RUNTIME
+            <span style={{ fontSize: "0.72rem", color: "#64748B", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+              <CheckCircle2 size={13} color="#94A3B8" /> Verified Security
             </span>
-            <span style={{ fontSize: "0.70rem", color: "#64748B", display: "inline-flex", alignItems: "center", gap: "6px", fontFamily: "var(--font-mono, monospace)" }}>
-              <Lock size={13} color="#94A3B8" /> ZERO-KNOWLEDGE
+            <span style={{ fontSize: "0.72rem", color: "#64748B", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+              <Lock size={13} color="#94A3B8" /> Encrypted Data
             </span>
-            <span style={{ fontSize: "0.70rem", color: "#64748B", display: "inline-flex", alignItems: "center", gap: "6px", fontFamily: "var(--font-mono, monospace)" }}>
-              <Cpu size={13} color="#94A3B8" /> ACCELERATED
+            <span style={{ fontSize: "0.72rem", color: "#64748B", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+              <Cpu size={13} color="#94A3B8" /> Fast Triage
             </span>
           </div>
         </div>
 
-        {/* Right Authentication Cockpit - Expanded & Sexy */}
+        {/* Right Authentication Cockpit */}
         <div
           ref={formContainerRef}
           style={{
@@ -718,126 +687,90 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
             padding: "clamp(28px, 3.8vw, 42px)",
             position: "relative",
             boxShadow: "none",
+            overflow: "hidden",
           }}
         >
           {/* Header Block */}
-          <div className="stagger-auth-item" style={{ marginBottom: "24px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-              <span
-                style={{
-                  fontFamily: "var(--font-mono, monospace)",
-                  fontSize: "0.68rem",
-                  letterSpacing: "0.09em",
-                  color: "#64748B",
-                  textTransform: "uppercase",
-                  fontWeight: 700,
-                }}
-              >
-                {authMode === "credentials" ? "// AUTHORIZED ACCESS" : "// IDENTITY ONBOARDING"}
-              </span>
-              <span
-                style={{
-                  fontFamily: "var(--font-mono, monospace)",
-                  fontSize: "0.65rem",
-                  color: "#3B485A",
-                }}
-              >
-                STAGE 01
-              </span>
-            </div>
+          <div className="stagger-auth-item" style={{ marginBottom: "22px" }}>
+            <span
+              style={{
+                fontSize: "0.70rem",
+                color: "#64748B",
+                textTransform: "uppercase",
+                fontWeight: 700,
+                letterSpacing: "0.05em",
+                display: "block",
+                marginBottom: "4px",
+              }}
+            >
+              {authMode === "credentials" ? "Account Access" : "Create Account"}
+            </span>
             <h2
               style={{
                 fontFamily: "var(--font-sans, inherit)",
                 fontSize: "1.65rem",
-                fontWeight: 900,
+                fontWeight: 800,
                 color: "#FFFFFF",
-                letterSpacing: "-0.03em",
+                letterSpacing: "-0.02em",
                 margin: 0,
-                textTransform: "uppercase",
               }}
             >
-              {authMode === "credentials" ? "Sign In" : "Register Account"}
+              {authMode === "credentials" ? "Sign In" : "Register"}
             </h2>
             <p style={{ fontSize: "0.84rem", color: "#64748B", marginTop: "6px", margin: 0, lineHeight: 1.5 }}>
               {authMode === "credentials"
-                ? "Enter verified credentials to initialize secure clinical session."
-                : "Initialize new verified clinical or patient persona identity."}
+                ? "Enter your credentials to access your account."
+                : "Fill in your details to set up your account."}
             </p>
           </div>
 
-          {/* Sexy Sliding Segmented Tab Switcher */}
+          {/* Clean Segmented Tab Switcher */}
           <div
             className="stagger-auth-item"
             style={{
-              position: "relative",
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
               background: "#07090D",
               border: "1px solid #1E2837",
               borderRadius: "0px",
               marginBottom: "22px",
-              padding: "3px",
-              overflow: "hidden",
+              padding: "4px",
+              gap: "4px",
             }}
           >
-            {/* Sliding White Active Background Block */}
-            <div
-              style={{
-                position: "absolute",
-                top: "3px",
-                bottom: "3px",
-                left: authMode === "credentials" ? "3px" : "calc(50% + 1px)",
-                width: "calc(50% - 4px)",
-                background: "#FFFFFF",
-                borderRadius: "0px",
-                transition: "all 0.32s cubic-bezier(0.16, 1, 0.3, 1)",
-                zIndex: 1,
-                pointerEvents: "none",
-              }}
-            />
             <button
               type="button"
               onClick={() => setAuthMode("credentials")}
               style={{
-                position: "relative",
-                zIndex: 2,
-                padding: "10px 14px",
-                fontSize: "0.80rem",
-                fontWeight: 800,
+                padding: "11px 16px",
+                fontSize: "0.82rem",
+                fontWeight: 700,
                 borderRadius: "0px",
                 border: "none",
-                background: "transparent",
+                background: authMode === "credentials" ? "#FFFFFF" : "transparent",
                 color: authMode === "credentials" ? "#000000" : "#64748B",
                 cursor: "pointer",
-                transition: "color 0.22s ease",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                fontFamily: "var(--font-mono, monospace)",
+                transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
               }}
             >
-              01 // Sign In
+              Sign In
             </button>
             <button
               type="button"
               onClick={() => setAuthMode("register")}
               style={{
-                position: "relative",
-                zIndex: 2,
-                padding: "10px 14px",
-                fontSize: "0.80rem",
-                fontWeight: 800,
+                padding: "11px 16px",
+                fontSize: "0.82rem",
+                fontWeight: 700,
                 borderRadius: "0px",
                 border: "none",
-                background: "transparent",
+                background: authMode === "register" ? "#FFFFFF" : "transparent",
                 color: authMode === "register" ? "#000000" : "#64748B",
                 cursor: "pointer",
-                transition: "color 0.22s ease",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                fontFamily: "var(--font-mono, monospace)",
+                transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
               }}
             >
-              02 // Register
+              Register
             </button>
           </div>
 
@@ -857,13 +790,13 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                     <path d="M3.96409 10.71C3.78409 10.17 3.68182 9.59318 3.68182 9C3.68182 8.40682 3.78409 7.83 3.96409 7.29V4.95818H0.957275C0.347727 6.17318 0 7.54773 0 9C0 10.4523 0.347727 11.8268 0.957275 13.0418L3.96409 10.71Z" fill="#64748B"/>
                     <path d="M9 3.57955C10.3214 3.57955 11.5077 4.03364 12.4405 4.92545L15.0218 2.34409C13.4632 0.891818 11.4259 0 9 0C5.48182 0 2.43818 2.01682 0.957275 4.95818L3.96409 7.29C4.67182 5.16273 6.65591 3.57955 9 3.57955Z" fill="#CBD5E1"/>
                   </svg>
-                  <span>Authenticate via Enterprise Google</span>
+                  <span>Continue with Google</span>
                 </button>
 
                 <div style={{ display: "flex", alignItems: "center", margin: "18px 0 10px 0" }}>
                   <div style={{ flex: 1, height: "1px", background: "#18202C" }} />
-                  <span style={{ padding: "0 12px", fontSize: "0.66rem", color: "#64748B", textTransform: "uppercase", letterSpacing: "0.09em", fontFamily: "var(--font-mono, monospace)" }}>
-                    OR CLINICAL CREDENTIALS
+                  <span style={{ padding: "0 12px", fontSize: "0.66rem", color: "#64748B", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                    Or continue with credentials
                   </span>
                   <div style={{ flex: 1, height: "1px", background: "#18202C" }} />
                 </div>
@@ -872,12 +805,9 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
               <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                 <div className="stagger-auth-item">
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "7px" }}>
-                    <label style={{ fontSize: "0.74rem", fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.05em", fontFamily: "var(--font-mono, monospace)" }}>
-                      01 // Clearance Level
+                    <label style={{ fontSize: "0.76rem", fontWeight: 600, color: "#94A3B8" }}>
+                      Select Role
                     </label>
-                    <span style={{ fontSize: "0.66rem", color: "#475569", fontFamily: "var(--font-mono, monospace)" }}>
-                      SELECT ROLE
-                    </span>
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px" }}>
                     {[
@@ -901,23 +831,23 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                 </div>
 
                 <div className="stagger-auth-item" style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <label style={{ fontSize: "0.74rem", fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.05em", fontFamily: "var(--font-mono, monospace)" }}>
-                    02 // Username or Email
+                  <label style={{ fontSize: "0.76rem", fontWeight: 600, color: "#94A3B8" }}>
+                    Username or Email
                   </label>
                   <input
                     type="text"
                     className="editorial-input"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Enter account identifier"
+                    placeholder="Enter your username or email"
                     required
                   />
                 </div>
 
                 <div className="stagger-auth-item" style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <label style={{ fontSize: "0.74rem", fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.05em", fontFamily: "var(--font-mono, monospace)" }}>
-                      03 // Passcode
+                    <label style={{ fontSize: "0.76rem", fontWeight: 600, color: "#94A3B8" }}>
+                      Password
                     </label>
                     <button
                       type="button"
@@ -933,11 +863,10 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                         display: "inline-flex",
                         alignItems: "center",
                         gap: "4px",
-                        fontFamily: "var(--font-mono, monospace)",
                       }}
                     >
                       {showPassword ? <EyeOff size={13} /> : <Eye size={13} />}
-                      <span>{showPassword ? "HIDE" : "SHOW"}</span>
+                      <span>{showPassword ? "Hide" : "Show"}</span>
                     </button>
                   </div>
                   <input
@@ -945,7 +874,7 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                     className="editorial-input"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter security passcode"
+                    placeholder="Enter your password"
                     required
                   />
                 </div>
@@ -980,11 +909,11 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                     {loading ? (
                       <>
                         <SquareLoader size="sm" color="#000000" style={{ padding: 0 }} />
-                        <span>Authenticating Session...</span>
+                        <span>Signing In...</span>
                       </>
                     ) : (
                       <>
-                        <span>Enter Workspace</span>
+                        <span>Sign In</span>
                         <ArrowRight size={15} className="cta-arrow" />
                       </>
                     )}
@@ -995,24 +924,23 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
               <div className="stagger-auth-item" style={{ textAlign: "center", marginTop: "6px" }}>
                 <span
                   style={{
-                    fontSize: "0.70rem",
+                    fontSize: "0.72rem",
                     color: "#475569",
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "6px",
-                    fontFamily: "var(--font-mono, monospace)",
                   }}
                 >
                   <Lock size={11} color="#64748B" />
-                  ZERO-KNOWLEDGE AUTHENTICATION // AUDIT SIGNED
+                  Protected with end-to-end encryption
                 </span>
               </div>
             </div>
           ) : (
             <form onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div className="stagger-auth-item">
-                <label style={{ fontSize: "0.74rem", fontWeight: 700, color: "#94A3B8", display: "block", marginBottom: "7px", textTransform: "uppercase", letterSpacing: "0.05em", fontFamily: "var(--font-mono, monospace)" }}>
-                  01 // Persona Classification
+                <label style={{ fontSize: "0.76rem", fontWeight: 600, color: "#94A3B8", display: "block", marginBottom: "7px" }}>
+                  Account Type
                 </label>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px" }}>
                   {[
@@ -1032,8 +960,8 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
               </div>
 
               <div className="stagger-auth-item" style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <label style={{ fontSize: "0.74rem", fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.05em", fontFamily: "var(--font-mono, monospace)" }}>
-                  02 // Full Legal Name
+                <label style={{ fontSize: "0.76rem", fontWeight: 600, color: "#94A3B8" }}>
+                  Full Name
                 </label>
                 <input
                   type="text"
@@ -1046,8 +974,8 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
               </div>
 
               <div className="stagger-auth-item" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <label style={{ fontSize: "0.74rem", fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.05em", fontFamily: "var(--font-mono, monospace)" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px", minWidth: 0 }}>
+                  <label style={{ fontSize: "0.76rem", fontWeight: 600, color: "#94A3B8" }}>
                     Username
                   </label>
                   <input
@@ -1055,12 +983,12 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                     className="editorial-input"
                     value={registerUsername}
                     onChange={(e) => setRegisterUsername(e.target.value)}
-                    placeholder="aryan.clinician"
+                    placeholder="e.g. aryan"
                     required
                   />
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <label style={{ fontSize: "0.74rem", fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.05em", fontFamily: "var(--font-mono, monospace)" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px", minWidth: 0 }}>
+                  <label style={{ fontSize: "0.76rem", fontWeight: 600, color: "#94A3B8" }}>
                     Email Address
                   </label>
                   <input
@@ -1068,7 +996,7 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                     className="editorial-input"
                     value={registerEmail}
                     onChange={(e) => setRegisterEmail(e.target.value)}
-                    placeholder="name@hospital.org"
+                    placeholder="e.g. aryan@hospital.org"
                     required
                   />
                 </div>
@@ -1076,8 +1004,8 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
 
               {registerRole === "doctor" && (
                 <div className="stagger-auth-item" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                    <label style={{ fontSize: "0.74rem", fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.05em", fontFamily: "var(--font-mono, monospace)" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "6px", minWidth: 0 }}>
+                    <label style={{ fontSize: "0.76rem", fontWeight: 600, color: "#94A3B8" }}>
                       Medical Specialty
                     </label>
                     <input
@@ -1088,8 +1016,8 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                       placeholder="e.g. Emergency Medicine"
                     />
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                    <label style={{ fontSize: "0.74rem", fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.05em", fontFamily: "var(--font-mono, monospace)" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "6px", minWidth: 0 }}>
+                    <label style={{ fontSize: "0.76rem", fontWeight: 600, color: "#94A3B8" }}>
                       Hospital Affiliation
                     </label>
                     <input
@@ -1097,22 +1025,22 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                       className="editorial-input"
                       value={registerAffiliation}
                       onChange={(e) => setRegisterAffiliation(e.target.value)}
-                      placeholder="e.g. Metro Health Center"
+                      placeholder="e.g. City Hospital"
                     />
                   </div>
                 </div>
               )}
 
               <div className="stagger-auth-item" style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <label style={{ fontSize: "0.74rem", fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.05em", fontFamily: "var(--font-mono, monospace)" }}>
-                  03 // Security Passcode
+                <label style={{ fontSize: "0.76rem", fontWeight: 600, color: "#94A3B8" }}>
+                  Password
                 </label>
                 <input
                   type="password"
                   className="editorial-input"
                   value={registerPassword}
                   onChange={(e) => setRegisterPassword(e.target.value)}
-                  placeholder="Min. 6 characters"
+                  placeholder="At least 6 characters"
                   required
                 />
               </div>
@@ -1147,11 +1075,11 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                   {loading ? (
                     <>
                       <SquareLoader size="sm" color="#000000" style={{ padding: 0 }} />
-                      <span>Initializing Identity...</span>
+                      <span>Creating Account...</span>
                     </>
                   ) : (
                     <>
-                      <span>Complete Enrollment</span>
+                      <span>Create Account</span>
                       <ArrowRight size={15} className="cta-arrow" />
                     </>
                   )}
@@ -1210,28 +1138,12 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
               </div>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <h2 style={{ margin: 0, fontSize: "1.10rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.03em" }}>
-                    Platform Architecture & User Demonstration
+                  <h2 style={{ margin: 0, fontSize: "1.10rem", fontWeight: 800 }}>
+                    Platform Video Guide & Walkthrough
                   </h2>
-                  <span
-                    style={{
-                      fontSize: "0.66rem",
-                      fontWeight: 700,
-                      padding: "3px 8px",
-                      borderRadius: "0px",
-                      background: "#141C28",
-                      border: "1px solid #283547",
-                      color: "#CBD5E1",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.05em",
-                      fontFamily: "var(--font-mono, monospace)",
-                    }}
-                  >
-                    SYSTEM WALKTHROUGH
-                  </span>
                 </div>
-                <p style={{ margin: "3px 0 0 0", fontSize: "0.74rem", color: "#64748B", fontFamily: "var(--font-mono, monospace)" }}>
-                  PRESS ESC OR CLICK CLOSE TO RETURN
+                <p style={{ margin: "3px 0 0 0", fontSize: "0.74rem", color: "#64748B" }}>
+                  Press ESC or click Close to return
                 </p>
               </div>
             </div>
@@ -1252,8 +1164,6 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                   gap: "6px",
                   fontSize: "0.76rem",
                   fontWeight: 600,
-                  textTransform: "uppercase",
-                  fontFamily: "var(--font-mono, monospace)",
                   transition: "all 0.2s ease",
                 }}
                 onMouseEnter={(e) => {
@@ -1282,8 +1192,6 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                   gap: "6px",
                   fontSize: "0.76rem",
                   fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontFamily: "var(--font-mono, monospace)",
                   transition: "all 0.2s ease",
                 }}
                 onMouseEnter={(e) => {
@@ -1365,8 +1273,8 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                 >
                   <Video size={24} color="#FFFFFF" />
                 </div>
-                <h3 style={{ fontSize: "1.25rem", fontWeight: 800, margin: "0 0 8px 0", textTransform: "uppercase" }}>
-                  Platform Video Tour Ready
+                <h3 style={{ fontSize: "1.25rem", fontWeight: 800, margin: "0 0 8px 0" }}>
+                  Platform Video Guide Ready
                 </h3>
                 <p style={{ fontSize: "0.82rem", color: "#8B9BB4", lineHeight: 1.6, margin: "0 0 20px 0" }}>
                   Place your product video at{" "}
@@ -1412,9 +1320,7 @@ export default function EditorialLoginPage({ onLogin, onRegister, loading, error
                       borderRadius: "0px",
                       cursor: "pointer",
                       fontSize: "0.82rem",
-                      fontWeight: 800,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.05em",
+                      fontWeight: 700,
                     }}
                   >
                     <Video size={15} />
