@@ -78,6 +78,8 @@ def main():
     )
     parser.add_argument(
         "--model",
+        "--model-tier",
+        dest="model",
         type=str,
         choices=["classical", "hybrid", "quantum", "all"],
         default="all",
